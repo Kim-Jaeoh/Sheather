@@ -6,7 +6,7 @@ import {
 } from "../types/type";
 
 const useCurrentLocation = () => {
-  const [location, setLocation] = useState<LocationStateType>();
+  const [location, setLocation] = useState<LocationStateType | null>(null);
 
   // 성공 함수
   const onSuccess = (

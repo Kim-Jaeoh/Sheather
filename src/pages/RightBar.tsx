@@ -8,12 +8,7 @@ const RightBar = (props: Props) => {
   return (
     <Container>
       <MenuBox>
-        <Link to="/">
-          <MenuList>OOTD</MenuList>
-        </Link>
-        <Link to="/weather">
-          <MenuList>TODAY WEATHER</MenuList>
-        </Link>
+        <MenuList>Expected</MenuList>
       </MenuBox>
     </Container>
   );
@@ -25,7 +20,7 @@ const Container = styled.nav`
   flex: 0 1 auto;
   max-height: 100%;
   position: relative;
-  width: 280px;
+  width: 240px;
   background: #fff;
 `;
 

@@ -15,9 +15,8 @@ const Footer = (props: Props) => {
 export default Footer;
 
 const Container = styled.footer`
-  max-width: 1100px;
-  /* width: 100%; */
-  margin: 0 auto;
+  /* max-width: 1100px; */
+  width: 100%;
   height: 80px;
   border: 2px solid #222222;
 `;

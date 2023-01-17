@@ -21,6 +21,7 @@ export interface LocationStateType {
 }
 
 export interface WeatherDataType {
+  list?: {};
   cod: number;
   id: number;
   main: {
@@ -47,12 +48,13 @@ export interface WeatherDataType {
 }
 
 export interface WeatherFiveDataType {
-  city: {
+  city?: {
     id: number;
     name: string;
   };
-  cod: number;
-  list: {
+  today?: any;
+  cod?: number;
+  list?: {
     clouds: {
       all: number;
     };
