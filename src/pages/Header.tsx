@@ -17,13 +17,13 @@ const Header = () => {
     region_3depth_name: "",
   });
 
-  // const URL = `https://api.openweathermap.org/data/2.5/weather?lat=${location?.coordinates?.lat}&lon=${location?.coordinates?.lon}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric&lang=kr`;
-
+  // 날씨 정보 받아오기
   const weatherApi = async () =>
     await axios.get(
       `https://api.openweathermap.org/data/2.5/weather?lat=${location?.coordinates?.lat}&lon=${location?.coordinates?.lon}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric&lang=kr`
     );
 
+  // 현재 주소 받아오기
   const regionApi = async () => {
     return await axios.get(
       `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${location?.coordinates.lon}&y=${location?.coordinates.lat}&input_coord=WGS84`,
@@ -35,6 +35,7 @@ const Header = () => {
     );
   };
 
+  // 날씨 정보 받아오기
   const { data: weatherData, isLoading } = useQuery(
     ["Weather", location],
     weatherApi,
@@ -45,21 +46,22 @@ const Header = () => {
     }
   );
 
+  // 현재 주소 받아오기
   const { data: regionData, isLoading: isLoading2 } = useQuery(
-    ["Region", weather],
+    ["Region", weatherData?.data],
     regionApi,
     {
       refetchOnWindowFocus: false,
       onError: (e) => console.log(e),
-      enabled: Boolean(weather),
+      enabled: Boolean(weatherData?.data),
     }
   );
 
-  useEffect(() => {
-    if (location) {
-      setWeather(weatherData?.data);
-    }
-  }, [location, weatherData?.data]);
+  // useEffect(() => {
+  //   if (location) {
+  //     setWeather(weatherData?.data);
+  //   }
+  // }, [location, weatherData?.data]);
 
   useEffect(() => {
     if (location && regionData?.data) {
@@ -79,37 +81,41 @@ const Header = () => {
             <WeatherInfo>
               <InfoText>
                 <MdPlace />
-                <span>{address?.region_3depth_name}</span>
+                <span>
+                  {regionData?.data?.documents[0]?.address?.region_3depth_name}
+                </span>
               </InfoText>
               <WeatherIcon>
                 <img
-                  src={`http://openweathermap.org/img/wn/${weather?.weather[0].icon}@2x.png`}
+                  src={`http://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
                   alt="weather icon"
                 />
               </WeatherIcon>
             </WeatherInfo>
             <WeatherInfo>
               <InfoText>날씨</InfoText>
-              <WeatherDesc>{weather?.weather[0].description}</WeatherDesc>
+              <WeatherDesc>
+                {weatherData?.data?.weather[0].description}
+              </WeatherDesc>
             </WeatherInfo>
             <WeatherInfo>
               <InfoText>현재</InfoText>
               <WeatherTemp>
-                {Math.round(weather?.main.temp)}
+                {Math.round(weatherData?.data?.main.temp)}
                 <sup>º</sup>
               </WeatherTemp>
             </WeatherInfo>
             <WeatherInfo>
               <InfoText>최저</InfoText>
               <WeatherTempSub>
-                {Math.round(weather?.main.temp_min)}
+                {Math.round(weatherData?.data?.main.temp_min)}
                 <sup>º</sup>
               </WeatherTempSub>
             </WeatherInfo>
             <WeatherInfo>
               <InfoText>최고</InfoText>
               <WeatherTempSub>
-                {Math.round(weather?.main.temp_max)}
+                {Math.round(weatherData?.data?.main.temp_max)}
                 <sup>º</sup>
               </WeatherTempSub>
             </WeatherInfo>

@@ -22,6 +22,7 @@
   /* font-size: 0; */
   /* line-height: 0; */
 
+  cursor: pointer;
   position: absolute;
   top: 50%;
 
@@ -41,26 +42,29 @@
   /* outline: none; */
   /* background: transparent; */
 }
-/* .slick-prev:hover,
+.slick-prev:hover,
 .slick-prev:focus,
 .slick-next:hover,
 .slick-next:focus {
-  color: transparent;
-  outline: none;
-  background: transparent;
+  color: #fff;
+  background-color: #48a3ff;
+  border: 1px solid #48a3ff;
 }
-.slick-prev:hover:before,
+/* .slick-prev:hover:before,
 .slick-prev:focus:before,
 .slick-next:hover:before,
 .slick-next:focus:before {
   opacity: 1;
-}
-.slick-prev.slick-disabled:before,
-.slick-next.slick-disabled:before {
-  opacity: 0.25;
-}
+} */
 
-.slick-prev:before,
+.slick-prev.slick-disabled,
+.slick-next.slick-disabled {
+  cursor: default;
+  color: rgba(72, 163, 255, 0.25);
+  border: 1px solid rgba(72, 163, 255, 0.25);
+  background: transparent;
+}
+/* .slick-prev:before,
 .slick-next:before {
   font-family: "slick";
   font-size: 20px;

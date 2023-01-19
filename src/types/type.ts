@@ -20,10 +20,11 @@ export interface LocationStateType {
   error?: { code: number; message: string };
 }
 
+// 현재 날씨
 export interface WeatherDataType {
-  list?: {};
-  cod: number;
-  id: number;
+  id?: number;
+  cod?: number;
+  dt: number;
   main: {
     feels_like: number;
     temp: number;
@@ -47,35 +48,20 @@ export interface WeatherDataType {
   };
 }
 
-export interface WeatherFiveDataType {
+// 단기 예보
+export interface WeathersFiveDataType extends WeatherDataType {
   city?: {
     id: number;
     name: string;
   };
-  today?: any;
-  cod?: number;
-  list?: {
-    clouds: {
-      all: number;
-    };
-    dt: number;
-    dt_txt: string;
-    main: {
-      feels_like: number;
-      temp: number;
-      temp_max: number;
-      temp_min: number;
-    };
-    weather: {
-      description: string;
-      icon: string;
-      id: number;
-      main: string;
-    }[];
-    wind: {
-      deg: number;
-      gust: number;
-      speed: number;
-    };
-  }[];
+  clouds?: {
+    all: number;
+  };
+  dt_txt?: string;
+  dateTime?: number;
+}
+
+// 단기 예보 map 돌릴 때
+export interface WeatherMapDataType {
+  list: WeathersFiveDataType[];
 }

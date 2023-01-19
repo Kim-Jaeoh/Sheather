@@ -11,6 +11,19 @@ import Message from "./pages/Message";
 import Explore from "./pages/Explore";
 
 const App = () => {
+  console.log(`
+  ╭ ◜◝ ͡ ◜◝ ͡ ◜◝ ͡ ◜◝  ◜◝╮
+ 💗 이 토이프로젝트 재밌다  💗
+  ╰ ◟◞ ͜ ◟ ͜ ◟◞ ͜ ◟ ͜ ◟◞◟◞╯
+  　ｏ
+  　　 。
+  　　　｡
+  　　∧＿∧
+  　 (*　･ω･)
+  ＿(__つ/￣￣￣/_
+  　　＼/　　　/
+  `);
+
   return (
     <Background>
       <Wrapper>

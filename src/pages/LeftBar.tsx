@@ -69,7 +69,7 @@ const MenuBox = styled.ul`
   }
 
   a:nth-of-type(2):hover li:hover {
-    box-shadow: 0px 6px 0 -2px #ffc91e, 0px 6px #222222;
+    box-shadow: 0px 6px 0 -2px #48a3ff, 0px 6px #222222;
   }
 
   a:nth-of-type(3):hover li:hover {
@@ -77,7 +77,7 @@ const MenuBox = styled.ul`
   }
 
   a:nth-of-type(4):hover li:hover {
-    box-shadow: 0px 6px 0 -2px #45de8e, 0px 6px #222222;
+    box-shadow: 0px 6px 0 -2px #45de5f, 0px 6px #222222;
   }
 `;
 
