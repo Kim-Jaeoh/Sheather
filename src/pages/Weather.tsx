@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, useMemo } from "react";
 import useCurrentLocation from "../hooks/useCurrentLocation";
 import styled from "@emotion/styled";
 import axios, { AxiosError, AxiosResponse } from "axios";
@@ -8,19 +8,17 @@ import {
   WeatherMapDataType,
   WeathersFiveDataType,
 } from "../types/type";
-import SlickSlider from "../utils/SlickSlider";
+import { Spinner } from "../utils/Spinner";
+const SlickSlider = lazy(() => import("../components/slider/SlickSlider"));
 
 const Weather = () => {
-  const { location } = useCurrentLocation();
-  const [weathers, setWeathers] = useState<WeathersFiveDataType>(null);
-  const [filterDate, setFilterDate] = useState([]); // 날짜
+  const [weathers, setWeathers] = useState<WeathersFiveDataType | null>(null);
   const [filterData1, setFilterData1] = useState<WeathersFiveDataType[]>([]);
   const [filterData2, setFilterData2] = useState<WeathersFiveDataType[]>([]);
   const [filterData3, setFilterData3] = useState<WeathersFiveDataType[]>([]);
   const [filterData4, setFilterData4] = useState<WeathersFiveDataType[]>([]);
   const [filterData5, setFilterData5] = useState<WeathersFiveDataType[]>([]);
-  const [dayCheck, setDayCheck] = useState(false);
-  const [timeCheck, setTimeCheck] = useState(null);
+  const { location } = useCurrentLocation();
 
   const weatherApi = async () =>
     await axios.get(
@@ -52,101 +50,131 @@ const Weather = () => {
     enabled: Boolean(location),
   });
 
+  // 시간 계산 추가
   useEffect(() => {
     if (weatherData) {
       setWeathers({
         ...weatherData?.data,
         dt: weatherData?.data.dt + 32400,
-        dateTime: weatherData?.data.dt,
+        realDateTime: weatherData?.data.dt + 32400,
       });
     }
   }, [weatherData]);
 
-  useEffect(() => {
-    weathersData?.data?.list.map((res) =>
-      setFilterDate((prev) => [
-        ...prev,
-        res?.dt_txt?.split("-")[2].split(" ")[0],
-      ])
+  // 날짜 정보 가져오기
+  const dateArray = useMemo(() => {
+    const checkDate = weathersData?.data?.list.map(
+      (res) => res?.dt_txt?.split("-")[2].split(" ")[0]
     );
+    const filter = new Set(checkDate); // 중복 제거
+    return Array.from(filter);
   }, [weathersData?.data?.list]);
 
-  useEffect(() => {
-    const filter = new Set(filterDate);
-    let date = [Array.from(filter)];
+  const date1 = useMemo(
+    () =>
+      weathersData?.data?.list.filter(
+        (res) => res.dt_txt?.split("-")[2].split(" ")[0] === dateArray[0]
+      ),
+    [dateArray, weathersData?.data?.list]
+  );
 
-    const today = weathersData?.data?.list.filter(
-      (res) => res.dt_txt?.split("-")[2].split(" ")[0] === date[0][0]
-    );
-
-    const today2 = weathersData?.data?.list.filter(
-      (res) => res.dt_txt?.split("-")[2].split(" ")[0] === date[0][1]
-    );
-    const today3 = weathersData?.data?.list.filter(
-      (res) => res.dt_txt?.split("-")[2].split(" ")[0] === date[0][2]
-    );
-    const today4 = weathersData?.data?.list.filter(
-      (res) => res.dt_txt?.split("-")[2].split(" ")[0] === date[0][3]
-    );
-    const today5 = weathersData?.data?.list.filter(
-      (res) => res.dt_txt?.split("-")[2].split(" ")[0] === date[0][4]
-    );
-
-    if (today) {
-      setFilterData1([weatherData?.data, ...today]);
-    }
-    if (today2) {
-      setFilterData2([weathers, ...today2]);
-    }
-    setFilterData3(today3);
-    setFilterData4(today4);
-    setFilterData5(today5);
-  }, [filterDate, weatherData?.data, weathers, weathersData?.data?.list]);
+  const date2 = useMemo(
+    () =>
+      weathersData?.data?.list.filter(
+        (res) => res.dt_txt?.split("-")[2].split(" ")[0] === dateArray[1]
+      ),
+    [dateArray, weathersData?.data?.list]
+  );
+  const date3 = useMemo(
+    () =>
+      weathersData?.data?.list.filter(
+        (res) => res.dt_txt?.split("-")[2].split(" ")[0] === dateArray[2]
+      ),
+    [dateArray, weathersData?.data?.list]
+  );
+  const date4 = useMemo(
+    () =>
+      weathersData?.data?.list.filter(
+        (res) => res.dt_txt?.split("-")[2].split(" ")[0] === dateArray[3]
+      ),
+    [dateArray, weathersData?.data?.list]
+  );
+  const date5 = useMemo(
+    () =>
+      weathersData?.data?.list.filter(
+        (res) => res.dt_txt?.split("-")[2].split(" ")[0] === dateArray[4]
+      ),
+    [dateArray, weathersData?.data?.list]
+  );
 
   // 이전 날짜 체크
-  useEffect(() => {
+  const dayCheck = useMemo(() => {
+    const time = new Date();
+    if (filterData1) {
+      const day = filterData1[1]?.dt_txt?.split("-")[2].split(" ")[0];
+      return time.getDate() === Number(day); // 오늘 날짜와 day 날짜가 다르면 false
+    }
+  }, [filterData1]);
+
+  // day+1 날짜 체크2
+  const dayPlusCheck = useMemo(() => {
     const time = new Date();
     if (filterData2) {
-      const lastDay = filterData1[1]?.dt_txt?.split("-")[2].split(" ")[0];
-      setDayCheck(time.getDate() === Number(lastDay)); // 오늘 날짜와 어제 날짜가 다르면 false
+      const dayPlus = filterData2[1]?.dt_txt?.split("-")[2].split(" ")[0];
+      return time.getDate() === Number(dayPlus); // 오늘 날짜와 day+1 날짜가 다르면 false
     }
-  }, [filterData1, filterData2]);
+  }, [filterData2]);
 
-  // 현재 시간에 맞게 안내 위치 이동 (32400(초 단위) = 9시간)
+  // 현재 날씨 - 시간에 맞게 안내 위치 이동 (32400(초 단위) = 9시간)
   // ( ex. 1시간 = 3600초(60*60*1000) )
+  const timeCheck = useMemo(() => {
+    if (dayCheck) {
+      const check = filterData1.sort(
+        (a, b) => (a?.dt - 32400) * 1000 - (b?.dt - 32400) * 1000
+      );
+      return dayCheck ? check : null;
+    }
+  }, [dayCheck, filterData1]);
+
+  const timePlusCheck = useMemo(() => {
+    if (dayPlusCheck) {
+      const check = filterData2.sort(
+        (a, b) => (a?.dt - 32400) * 1000 - (b?.dt - 32400) * 1000
+      );
+      return dayPlusCheck ? check : null;
+    }
+  }, [dayPlusCheck, filterData2]);
+
   useEffect(() => {
-    const check = [...filterData2].sort(
-      (a, b) => (a.dt - 32400) * 1000 - (b.dt - 32400) * 1000
-    );
-    setTimeCheck(check);
-  }, [filterData2, weatherData?.data.dt]);
+    if (weathers && date1 && date2 && date3 && date4 && date5) {
+      setFilterData1([weathers, ...date1]);
+      if (dayPlusCheck) {
+        setFilterData2([weathers, ...date2]);
+      } else {
+        setFilterData2(date2);
+      }
+      setFilterData3(date3);
+      setFilterData4(date4);
+      setFilterData5(date5);
+    }
+  }, [date1, date2, date3, date4, date5, dayPlusCheck, weathers]);
 
   return (
     <>
       {!isLoading ? (
         <Container>
-          <>
-            <WeatherBox>
-              {filterData1 &&
-              filterData2 &&
-              filterData3 &&
-              filterData4 &&
-              filterData5 ? (
-                <>
-                  {dayCheck && <SlickSlider data={filterData1} />}
-                  <SlickSlider data={timeCheck} />
-                  <SlickSlider data={filterData3} />
-                  <SlickSlider data={filterData4} />
-                  <SlickSlider data={filterData5} />
-                </>
-              ) : (
-                <div>로딩중</div>
-              )}
-            </WeatherBox>
-          </>
+          <WeatherBox>
+            <>
+              <SlickSlider data={timeCheck} />
+              <SlickSlider data={dayPlusCheck ? timePlusCheck : filterData2} />
+              <SlickSlider data={filterData3} />
+              <SlickSlider data={filterData4} />
+              <SlickSlider data={filterData5} />
+            </>
+          </WeatherBox>
         </Container>
       ) : (
-        <div>로딩중..</div>
+        <Spinner />
       )}
     </>
   );
@@ -155,10 +183,13 @@ const Weather = () => {
 export default Weather;
 
 const Container = styled.main`
-  /* height: 260px; */
   height: 100%;
 `;
 
 const WeatherBox = styled.div`
   position: relative;
+
+  > div:last-of-type {
+    border-bottom: none;
+  }
 `;

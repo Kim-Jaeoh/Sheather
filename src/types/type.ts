@@ -24,7 +24,7 @@ export interface LocationStateType {
 export interface WeatherDataType {
   id?: number;
   cod?: number;
-  dt: number;
+  dt?: number;
   main: {
     feels_like: number;
     temp: number;
@@ -42,7 +42,7 @@ export interface WeatherDataType {
     gust: number;
     speed: number;
   };
-  coord: {
+  coord?: {
     lat: number;
     lon: number;
   };
@@ -58,7 +58,7 @@ export interface WeathersFiveDataType extends WeatherDataType {
     all: number;
   };
   dt_txt?: string;
-  dateTime?: number;
+  realDateTime?: number;
 }
 
 // 단기 예보 map 돌릴 때
