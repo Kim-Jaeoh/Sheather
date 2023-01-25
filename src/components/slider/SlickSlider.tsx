@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { WeathersFiveDataType } from "../../types/type";
-import ShareWeather from "../modal/ShareWeather";
+import ShareWeather from "../modal/shareWeather/ShareWeather";
 
 type PropsType<T> = {
   data: T[];
@@ -90,7 +90,9 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
   const dayCheck = useMemo(() => {
     if (data) {
       const time = new Date();
-      const today = data[0]?.dt_txt?.split("-")[2].split(" ")[0];
+      const today =
+        data[0]?.dt_txt?.split("-")[2].split(" ")[0] ||
+        data[1]?.dt_txt?.split("-")[2].split(" ")[0];
       return time.getDate() === Number(today);
     }
   }, [data]);
@@ -112,10 +114,6 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
   const shareBtnClick = () => {
     setShareBtn((prev) => !prev);
   };
-
-  // useEffect(() => {
-  //   console.log(shareWeatherData);
-  // }, [shareWeatherData]);
 
   return (
     <>
@@ -164,27 +162,18 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
                       </WeatherDateList>
                     </WeatherDateListBox>
                     <WeatherCategoryIconBox>
+                      <WeatherCategoryIconText>
+                        {res?.weather[0]?.description}
+                      </WeatherCategoryIconText>
                       <WeatherCategoryIcon
                         src={`http://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
                         alt="weather icon"
                       />
                       <WeatherCategoryIconText>
-                        {res?.weather[0]?.description}
+                        {Math.round(res?.main.temp)}º
                       </WeatherCategoryIconText>
                     </WeatherCategoryIconBox>
                     <WeatherCategoryBox>
-                      <WeatherCategoryText>
-                        <WeatherCategoryMain>온도</WeatherCategoryMain>
-                        <WeatherCategorySub>
-                          {Math.round(res?.main.temp)}º
-                        </WeatherCategorySub>
-                      </WeatherCategoryText>
-                      <WeatherCategoryText>
-                        <WeatherCategoryMain>체감</WeatherCategoryMain>
-                        <WeatherCategorySub>
-                          {Math.round(res?.main?.feels_like)}º
-                        </WeatherCategorySub>
-                      </WeatherCategoryText>
                       <WeatherCategoryText>
                         <WeatherCategoryMain>최고</WeatherCategoryMain>
                         <WeatherCategorySub>
@@ -195,6 +184,12 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
                         <WeatherCategoryMain>최저</WeatherCategoryMain>
                         <WeatherCategorySub>
                           {Math.round(res?.main.temp_min)}º
+                        </WeatherCategorySub>
+                      </WeatherCategoryText>
+                      <WeatherCategoryText>
+                        <WeatherCategoryMain>체감</WeatherCategoryMain>
+                        <WeatherCategorySub>
+                          {Math.round(res?.main?.feels_like)}º
                         </WeatherCategorySub>
                       </WeatherCategoryText>
                       <WeatherCategoryText>
@@ -269,7 +264,7 @@ const WeatherInfoBtn = styled.button`
 
 const WeatherDateBox = styled.div`
   text-align: center;
-  height: 50px;
+  height: 54px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -282,8 +277,8 @@ const WeatherDate = styled.span`
   width: 52px;
   font-size: 14px;
   font-weight: bold;
-  width: 54px;
-  padding: 4px 10px;
+  width: 50px;
+  padding: 6px 10px;
   border-radius: 9999px;
   background-color: #48a3ff;
   color: #fff;
@@ -328,7 +323,8 @@ const WeatherCategoryBox = styled.div`
 `;
 
 const WeatherCategoryText = styled.div`
-  &:not(:last-of-type) {
+  width: 70px;
+  &:not(:nth-of-type(3), :nth-of-type(4)) {
     margin-bottom: 14px;
   }
 `;
@@ -343,13 +339,20 @@ const WeatherCategoryIconBox = styled.span`
 
 const WeatherCategoryIcon = styled.img`
   display: block;
-  margin: 6px 0 0;
+  margin: -4px 0 2px;
   width: 100px;
 `;
 
 const WeatherCategoryIconText = styled.span`
   user-select: text;
   font-weight: bold;
+
+  &:not(:last-of-type) {
+    margin-top: 20px;
+  }
+  &:not(:first-of-type) {
+    font-size: 20px;
+  }
 `;
 
 const WeatherCategoryMain = styled.span`
@@ -375,7 +378,7 @@ const Arrow = styled.div`
   height: 22px;
   /* right: -12px; */
   transform: translate(0, -50%);
-  top: -25px;
+  top: -27px;
   border-radius: 50%;
   border: 1px solid #48a3ff;
   background-color: #fff;

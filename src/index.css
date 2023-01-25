@@ -3,6 +3,56 @@
    License: none (public domain)
 */
 
+@font-face {
+  font-family: "GmarketSans";
+  font-weight: 300;
+  src: url("./styles/fonts/GmarketSansLight.woff") format("woff");
+  font-display: swap;
+}
+@font-face {
+  font-family: "GmarketSans";
+  font-weight: 500;
+  src: url("./styles/fonts/GmarketSansMedium.woff") format("woff");
+  font-display: swap;
+}
+@font-face {
+  font-family: "GmarketSans";
+  font-weight: 700;
+  src: url("./styles/fonts/GmarketSansBold.woff") format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 100;
+  src: url("../src/styles/fonts/Pretendard-Thin.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 300;
+  src: url("../src/styles/fonts/Pretendard-Light.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 400;
+  src: url("../src/styles/fonts/Pretendard-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 500;
+  src: url("../src/styles/fonts/Pretendard-Medium.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 700;
+  src: url("../src/styles/fonts/Pretendard-Bold.woff2") format("woff2");
+  font-display: swap;
+}
+
 html,
 body,
 div,
@@ -83,7 +133,8 @@ summary,
 time,
 mark,
 audio,
-video {
+video,
+textarea {
   margin: 0;
   padding: 0;
   border: 0;
@@ -92,10 +143,19 @@ video {
   box-sizing: border-box;
   text-decoration: none; /* 링크의 밑줄 제거 */
   color: inherit; /* 링크의 색상 제거 */
-  line-height: 1.4;
   letter-spacing: -0.015em;
+  font-family: "Pretendard", Apple SD Gothic Neo, Malgun Gothic, sans-serif;
+  /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
+  font-style: normal;
+
   scroll-behavior: smooth;
 }
+
+/* span {
+  display: inline-block;
+  margin-top: 4px;
+} */
+
 /* HTML5 display-role reset for older browsers */
 article,
 aside,

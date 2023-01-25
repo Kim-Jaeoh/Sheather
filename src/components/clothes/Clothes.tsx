@@ -130,7 +130,7 @@ const WeatherDateListMain = styled.p`
   font-size: 14px;
   font-weight: bold;
   text-align: center;
-  padding: 2px 10px;
+  padding: 6px 10px;
   width: 52px;
   margin: 28px 0;
 

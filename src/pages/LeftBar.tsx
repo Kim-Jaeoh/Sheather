@@ -165,11 +165,13 @@ const MenuList = styled.li`
   -webkit-user-select: none;
   user-select: none;
   border: 2px solid transparent;
-
   border-radius: 9999px;
   cursor: pointer;
   transition: all 0.15s ease-in-out;
 `;
+
 const MenuText = styled.h2`
+  font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
+  margin-bottom: -4px; // 폰트 교체로 인해 여백 제거
   padding-left: 16px;
 `;
