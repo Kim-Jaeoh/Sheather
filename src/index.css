@@ -147,8 +147,17 @@ textarea {
   font-family: "Pretendard", Apple SD Gothic Neo, Malgun Gothic, sans-serif;
   /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
   font-style: normal;
-
+  /* color: #222; */
+  font-variant-numeric: tabular-nums;
   scroll-behavior: smooth;
+}
+
+button {
+  border: none;
+  outline: none;
+  /* margin: 0; */
+  /* padding: 0; */
+  background-color: transparent;
 }
 
 /* span {
@@ -195,15 +204,17 @@ table {
 
 ::-webkit-scrollbar {
   width: auto;
+  /* width: 10px; */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #48a3ff;
-  border-radius: 10px;
+  background: #929292;
+  border-radius: 9999px;
   background-clip: padding-box;
   border: 4px solid transparent;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgb(230, 230, 230);
+  /* background: rgb(230, 230, 230); */
+  background: #fafafa;
 }

@@ -7,7 +7,7 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { store } from "./app/store";
 import { Provider } from "react-redux";
-import { Spinner } from "./utils/Spinner";
+import { Spinner } from "./assets/Spinner";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

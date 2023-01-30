@@ -13,6 +13,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { WeathersFiveDataType } from "../../types/type";
 import ShareWeather from "../modal/shareWeather/ShareWeather";
+import { Skeleton, Stack } from "@mui/material";
+import SliderSkeleton from "../../assets/skeleton/SliderSkeleton";
+import ColorList from "../../assets/ColorList";
 
 type PropsType<T> = {
   data: T[];
@@ -120,7 +123,8 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
       {shareBtn && (
         <ShareWeather shareBtn={shareBtn} shareBtnClick={shareBtnClick} />
       )}
-      {data && data[0] && (
+      {/* {clothesBtn ? ( */}
+      {data && data[0] ? (
         <Wrapper>
           <WeatherDateBox>
             <WeatherDate>{day}</WeatherDate>
@@ -145,6 +149,13 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
                       <WeatherInfoBtn onClick={() => clothBtnClick(index)}>
                         <TbShirt />
                       </WeatherInfoBtn>
+                      <WeatherDateListBox now={res?.dt_txt}>
+                        <WeatherDateList now={res?.dt_txt}>
+                          {!res?.dt_txt
+                            ? "지금"
+                            : `${res?.dt_txt?.split(":")[0].split(" ")[1]}시`}
+                        </WeatherDateList>
+                      </WeatherDateListBox>
                       <WeatherInfoBtn
                         onClick={() => {
                           shareBtnClick();
@@ -154,13 +165,13 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
                         <FiShare />
                       </WeatherInfoBtn>
                     </WeatherInfoBox>
-                    <WeatherDateListBox now={res?.dt_txt}>
+                    {/* <WeatherDateListBox now={res?.dt_txt}>
                       <WeatherDateList now={res?.dt_txt}>
                         {!res?.dt_txt
                           ? "지금"
                           : `${res?.dt_txt?.split(":")[0].split(" ")[1]}시`}
                       </WeatherDateList>
-                    </WeatherDateListBox>
+                    </WeatherDateListBox> */}
                     <WeatherCategoryIconBox>
                       <WeatherCategoryIconText>
                         {res?.weather[0]?.description}
@@ -206,6 +217,8 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
             })}
           </Slider>
         </Wrapper>
+      ) : (
+        <SliderSkeleton />
       )}
     </>
   );
@@ -213,10 +226,11 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
 
 export default React.memo(SlickSlider);
 
+const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+
 const Wrapper = styled.div`
   background: #fff;
-  border-bottom: 2px solid #222;
-  /* border-top: 1px solid #dbdbdb; */
+  border-bottom: 2px solid ${secondColor};
   &:not(:last-of-type) {
     margin-bottom: 30px;
   }
@@ -224,11 +238,12 @@ const Wrapper = styled.div`
 
 const Container = styled.div`
   width: 100%;
+  height: 100%;
+  /* height: 330px; */
   padding: 14px;
   word-wrap: break-word;
-  /* margin-right: -2px; */
   position: relative;
-  border-right: 1px solid #dbdbdb;
+  border-right: 1px solid ${fourthColor};
 `;
 
 const WeatherInfoBox = styled.div`
@@ -241,7 +256,7 @@ const WeatherInfoBox = styled.div`
 const WeatherInfoBtn = styled.button`
   width: 28px;
   height: 28px;
-  border: 1px solid #dbdbdb;
+  border: 1px solid ${fourthColor};
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -269,12 +284,11 @@ const WeatherDateBox = styled.div`
   align-items: center;
   justify-content: center;
   margin-top: -2px;
-  border-top: 2px solid #222;
-  border-bottom: 2px solid #222;
+  border-top: 2px solid ${secondColor};
+  border-bottom: 2px solid ${secondColor};
 `;
 
 const WeatherDate = styled.span`
-  width: 52px;
   font-size: 14px;
   font-weight: bold;
   width: 50px;
@@ -282,7 +296,6 @@ const WeatherDate = styled.span`
   border-radius: 9999px;
   background-color: #48a3ff;
   color: #fff;
-  /* border: 1px solid #dbdbdb; */
 `;
 
 const WeatherList = styled.div<{
@@ -299,7 +312,7 @@ const WeatherList = styled.div<{
   word-wrap: break-word;
 `;
 
-const WeatherDateListBox = styled.div<{ now: string }>`
+const WeatherDateListBox = styled.div<{ now?: string }>`
   width: 52px;
   border: 1px solid ${(props) => (!props?.now ? "#48a3ff" : "#b3b3b3")};
   border-radius: 9999px;
@@ -308,7 +321,7 @@ const WeatherDateListBox = styled.div<{ now: string }>`
   padding: 2px 10px;
 `;
 
-const WeatherDateList = styled.span<{ now: string }>`
+const WeatherDateList = styled.span<{ now?: string }>`
   color: ${(props) => !props?.now && "#48a3ff"};
   font-size: 14px;
   font-weight: bold;
@@ -323,7 +336,7 @@ const WeatherCategoryBox = styled.div`
 `;
 
 const WeatherCategoryText = styled.div`
-  width: 70px;
+  width: 76px;
   &:not(:nth-of-type(3), :nth-of-type(4)) {
     margin-bottom: 14px;
   }
@@ -357,16 +370,17 @@ const WeatherCategoryIconText = styled.span`
 
 const WeatherCategoryMain = styled.span`
   user-select: text;
-  border: 1px solid #b3b3b3;
+  border: 1px solid ${thirdColor};
   border-radius: 9999px;
   padding: 2px 6px;
   margin-right: 8px;
-  font-size: 10px;
+  font-size: 12px;
+  color: ${thirdColor};
 `;
 
 const WeatherCategorySub = styled.span`
   user-select: text;
-  font-size: 12px;
+  font-size: 14px;
   span {
     font-size: 10px;
   }

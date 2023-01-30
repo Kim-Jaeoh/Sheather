@@ -1,4 +1,3 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Modal } from "@mui/material";
 import styled from "@emotion/styled";
 import { ResDataType } from "../../slider/SlickSlider";
@@ -7,7 +6,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { useHandleResizeTextArea } from "../../../hooks/useHandleResizeTextArea";
 import ShareWeatherForm from "./ShareWeatherForm";
-import Slider from "react-slick";
+import toast, { Toaster } from "react-hot-toast";
+import useTagCurrentWear from "../../../hooks/useTagCurrentWear";
+import useTagRecommendWear from "../../../hooks/useTagRecommendWear";
+import ColorList from "../../../assets/ColorList";
 
 type Props = {
   shareBtn: boolean;
@@ -19,104 +21,238 @@ const ShareWeather = ({ shareBtn, shareBtnClick }: Props) => {
     return state.weather;
   });
 
+  console.log(shareWeatherData);
+
+  const {
+    currentNewTag,
+    currentTags,
+    onChangeCurrent,
+    onKeyPressCurrent,
+    onDeleteCurrentTag,
+    onDeleteCurrentText,
+  } = useTagCurrentWear();
+
+  const {
+    RecommendNewTag,
+    RecommendTags,
+    onChangeRecommend,
+    onkeyPressRecommend,
+    onDeleteRecommendTag,
+    onDeleteRecommendText,
+  } = useTagRecommendWear();
+
+  const onBlur = () => {
+    if (currentNewTag !== "" || RecommendNewTag !== "") {
+      toast.error("입력 후 엔터나 스페이스바를 눌러주세요.");
+    }
+  };
+
+  const DateBox = styled.div`
+    border: 1px solid ${mainColor};
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: ${mainColor};
+    letter-spacing: -0.8px;
+  `;
+
   return (
     <Modal open={shareBtn} onClose={shareBtnClick} disableScrollLock={false}>
-      <Container>
-        <Header>
-          <HeaderCategory>Share</HeaderCategory>
-          <CloseBox onClick={shareBtnClick}>
-            <IoMdClose />
-          </CloseBox>
-        </Header>
-        <WeatherCategoryBox>
-          <WeatherCategoryText>
-            <WeatherCategoryMain>온도</WeatherCategoryMain>
-            <WeatherCategorySub>
-              {Math.round(shareWeatherData?.main.temp)}º
-            </WeatherCategorySub>
-          </WeatherCategoryText>
-          <WeatherCategoryText>
-            <WeatherCategoryMain>체감</WeatherCategoryMain>
-            <WeatherCategorySub>
-              {Math.round(shareWeatherData?.main?.feels_like)}º
-            </WeatherCategorySub>
-          </WeatherCategoryText>
-          <WeatherCategoryText>
-            <WeatherCategoryMain>최고</WeatherCategoryMain>
-            <WeatherCategorySub>
-              {Math.round(shareWeatherData?.main.temp_max)}º
-            </WeatherCategorySub>
-          </WeatherCategoryText>
-          <WeatherCategoryText>
-            <WeatherCategoryMain>최저</WeatherCategoryMain>
-            <WeatherCategorySub>
-              {Math.round(shareWeatherData?.main.temp_min)}º
-            </WeatherCategorySub>
-          </WeatherCategoryText>
-          <WeatherCategoryText>
-            <WeatherCategoryMain>바람</WeatherCategoryMain>
-            <WeatherCategorySub>
-              {Math.round(shareWeatherData?.wind.speed)}
-              <span>m/s</span>
-            </WeatherCategorySub>
-          </WeatherCategoryText>
-        </WeatherCategoryBox>
-        <WearInfoBox>
-          <WearInfo>
-            <WearInfoMain>현재 착장</WearInfoMain>
-            <WearInfoSub>패딩, 두꺼운 스웨터, 면바지</WearInfoSub>
-          </WearInfo>
-          <WearInfo>
-            <WearInfoMain>추천 착장</WearInfoMain>
-            <WearInfoSub>목도리, 장갑, 히트텍</WearInfoSub>
-          </WearInfo>
-        </WearInfoBox>
-        <ShareWeatherForm />
-      </Container>
+      <>
+        <Toaster position="bottom-left" reverseOrder={false} />
+        <Container>
+          <Header>
+            <HeaderCategory>
+              <DateBox>
+                {!shareWeatherData?.dt_txt ? (
+                  "오늘 지금"
+                ) : (
+                  <>
+                    {shareWeatherData?.dt_txt?.split("-")[2].split(" ")[0]}일
+                    &nbsp;
+                    {shareWeatherData?.dt_txt?.split(":")[0].split(" ")[1]}시
+                  </>
+                )}
+              </DateBox>
+              <WeatherIcon>
+                <img
+                  src={`http://openweathermap.org/img/wn/${shareWeatherData?.weather[0].icon}@2x.png`}
+                  alt="weather icon"
+                />
+              </WeatherIcon>
+              <p>{shareWeatherData?.weather[0].description}</p>
+            </HeaderCategory>
+            <CloseBox onClick={shareBtnClick}>
+              <IoMdClose />
+            </CloseBox>
+          </Header>
+          <WeatherCategoryBox>
+            <WeatherCategoryText>
+              <WeatherCategoryMain>온도</WeatherCategoryMain>
+              <WeatherCategorySub>
+                {Math.round(shareWeatherData?.main.temp)}º
+              </WeatherCategorySub>
+            </WeatherCategoryText>
+            <WeatherCategoryText>
+              <WeatherCategoryMain>체감</WeatherCategoryMain>
+              <WeatherCategorySub>
+                {Math.round(shareWeatherData?.main?.feels_like)}º
+              </WeatherCategorySub>
+            </WeatherCategoryText>
+            <WeatherCategoryText>
+              <WeatherCategoryMain>최고</WeatherCategoryMain>
+              <WeatherCategorySub>
+                {Math.round(shareWeatherData?.main.temp_max)}º
+              </WeatherCategorySub>
+            </WeatherCategoryText>
+            <WeatherCategoryText>
+              <WeatherCategoryMain>최저</WeatherCategoryMain>
+              <WeatherCategorySub>
+                {Math.round(shareWeatherData?.main.temp_min)}º
+              </WeatherCategorySub>
+            </WeatherCategoryText>
+            <WeatherCategoryText>
+              <WeatherCategoryMain>바람</WeatherCategoryMain>
+              <WeatherCategorySub>
+                {Math.round(shareWeatherData?.wind.speed)}
+                <span>m/s</span>
+              </WeatherCategorySub>
+            </WeatherCategoryText>
+          </WeatherCategoryBox>
+
+          <WearInfoBox>
+            <WearInfo>
+              <WearInfoMain htmlFor="currentTag">현재 착장</WearInfoMain>
+              <TagComponent>
+                {currentTags.map((myTag, index) => (
+                  <Tag
+                    onClick={(e) => onDeleteCurrentTag(myTag)}
+                    key={myTag.concat(`${index}`)}
+                  >
+                    <TagName key={myTag}>{myTag}</TagName>
+                    <TagButton type="button">
+                      <IoMdClose style={{ color: "${mainColor}" }} />
+                    </TagButton>
+                  </Tag>
+                ))}
+                {currentTags.length < 8 && (
+                  <TextBox>
+                    <Input
+                      id="currentTag"
+                      name="currentNewTag"
+                      type="text"
+                      value={currentNewTag}
+                      onChange={onChangeCurrent}
+                      onKeyDown={onKeyPressCurrent}
+                      onBlur={onBlur}
+                      placeholder="입력"
+                      autoComplete="off"
+                    />
+                    <TextRemoveButton
+                      type="button"
+                      onClick={onDeleteCurrentText}
+                    >
+                      <IoMdClose />
+                    </TextRemoveButton>
+                  </TextBox>
+                )}
+              </TagComponent>
+            </WearInfo>
+            <WearInfo>
+              <WearInfoMain htmlFor="recommendTag">추천 착장</WearInfoMain>
+              <TagComponent>
+                {RecommendTags.map((myTag, index) => (
+                  <TagSecond
+                    onClick={(e) => onDeleteRecommendTag(myTag)}
+                    key={myTag.concat(`${index}`)}
+                  >
+                    <TagNameSecond key={myTag}>{myTag}</TagNameSecond>
+                    <TagButton type="button">
+                      <IoMdClose style={{ color: "#20af60" }} />
+                    </TagButton>
+                  </TagSecond>
+                ))}
+                {RecommendTags.length < 8 && (
+                  <TextBox>
+                    <Input
+                      id="recommendTag"
+                      name="RecommendNewTag"
+                      type="text"
+                      value={RecommendNewTag}
+                      onChange={onChangeRecommend}
+                      onKeyDown={onkeyPressRecommend}
+                      onBlur={onBlur}
+                      placeholder="입력"
+                      autoComplete="off"
+                    />
+                    <TextRemoveButton
+                      type="button"
+                      onClick={onDeleteRecommendText}
+                    >
+                      <IoMdClose />
+                    </TextRemoveButton>
+                  </TextBox>
+                )}
+              </TagComponent>
+            </WearInfo>
+          </WearInfoBox>
+          <ShareWeatherForm />
+        </Container>
+      </>
     </Modal>
   );
 };
 
 export default ShareWeather;
 
+const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+
 const Container = styled.div`
-  width: 500px;
-  height: 800px;
+  width: 480px;
+  height: 700px;
+  box-sizing: border-box;
   position: absolute;
   left: 50%;
-  top: 40%;
-  transform: translate(-50%, -40%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   margin: 0 auto;
   background: #fff;
   border-radius: 12px;
-  /* overflow: hidden; */
-  overflow: auto;
-  border: 2px solid #222;
-  box-shadow: 12px 12px 0 -2px #48a3ff, 12px 12px #222222;
-  /* box-shadow: 0px 14px 0 -2px #48a3ff, 0px 14px #222222; */
+  /* overflow: auto; */
+  border: 2px solid ${secondColor};
+  box-shadow: 12px 12px 0 -2px ${mainColor}, 12px 12px ${secondColor};
   &::-webkit-scrollbar {
     display: none;
   }
 `;
 
 const Header = styled.header`
-  height: 48px;
+  height: 52px;
   display: flex;
   align-items: center;
-  /* justify-content: center; */
-  border-bottom: 2px solid #222;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 2px solid ${thirdColor};
   padding: 0 12px;
   position: sticky;
   background: rgba(255, 255, 255, 0.808);
   top: 0px;
-  backdrop-filter: blur(12px);
   z-index: 10;
 `;
 
-const HeaderCategory = styled.h2`
-  font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
-  margin-bottom: -4px; // 폰트 여백으로 인한 조정
+const HeaderCategory = styled.div`
+  p {
+    font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
+    margin-bottom: -4px; // 폰트 여백으로 인한 조정
+  }
+
   user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 const CloseBox = styled.div`
@@ -131,7 +267,7 @@ const CloseBox = styled.div`
 
   &:hover,
   &:focus {
-    color: #48a3ff;
+    color: ${mainColor};
   }
 
   svg {
@@ -141,46 +277,38 @@ const CloseBox = styled.div`
 
 const WeatherCategoryBox = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
   width: 100%;
+  /* gap: 28px; */
   padding: 12px;
-  border-bottom: 2px solid #222;
+  border-bottom: 2px solid ${thirdColor};
 `;
 
 const WeatherCategoryText = styled.div`
   display: flex;
   align-items: center;
-  &:not(:last-of-type) {
+`;
+
+const WeatherIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  img {
+    display: block;
+    width: 100%;
   }
 `;
 
-const WeatherCategoryIconBox = styled.span`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 26px;
-`;
-
-const WeatherCategoryIcon = styled.img`
-  display: block;
-  margin: 6px 0 0;
-  width: 100px;
-`;
-
-const WeatherCategoryIconText = styled.span`
-  user-select: text;
-  font-weight: bold;
-`;
-
 const WeatherCategoryMain = styled.span`
-  user-select: text;
-  border: 1px solid #b3b3b3;
+  border: 1px solid ${thirdColor};
+  color: ${thirdColor};
   border-radius: 9999px;
-  padding: 2px 6px;
-  margin-right: 8px;
+  padding: 4px 8px;
+  margin-right: 10px;
   font-size: 12px;
 `;
 
@@ -192,40 +320,110 @@ const WeatherCategorySub = styled.span`
   }
 `;
 
-const WearInfoBox = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* justify-content: space-evenly; */
-  /* flex-wrap: wrap; */
+const WearInfoBox = styled.section`
   width: 100%;
-  /* padding: 12px; */
-  border-bottom: 2px solid #222;
-  text-align: center;
+  border-bottom: 2px solid ${thirdColor};
 `;
 
 const WearInfo = styled.div`
-  /* height: 100%; */
-  flex: 1 1 250px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
 
   &:not(:last-of-type) {
-    border-right: 2px solid #222;
+    border-bottom: 2px solid ${thirdColor};
   }
   padding: 12px;
 `;
 
-const WearInfoMain = styled.h3`
+const WearInfoMain = styled.label`
+  flex: 0 0 auto;
   user-select: text;
-  border: 1px solid #b3b3b3;
+  border: 1px solid ${thirdColor};
+  color: ${thirdColor};
   border-radius: 9999px;
   width: 64px;
-  margin: 0 auto;
-  padding: 4px 6px;
+  text-align: center;
+  padding: 4px 8px;
   font-size: 12px;
-  margin-bottom: 10px;
+  margin-right: 12px;
 `;
 
-const WearInfoSub = styled.span`
-  user-select: text;
+const TagComponent = styled.ul`
+  display: flex;
+  align-items: center;
+  border-radius: 0.6rem;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const Input = styled.input`
+  width: 50px;
+  outline: none;
+  padding: 6px;
+  border-radius: 4px;
+  border: none;
+
+  &::placeholder {
+    font-size: 12px;
+  }
+  &:focus::placeholder {
+    opacity: 0.4;
+    color: #9e9e9e;
+    transition: all 0.2s;
+  }
+`;
+
+const Tag = styled.li`
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 4px 0px 4px 8px;
   font-size: 14px;
+  cursor: pointer;
+  background-color: rgba(72, 163, 255, 0.1);
+  &:hover {
+    background-color: rgba(72, 163, 255, 0.2);
+  }
+  color: ${mainColor};
+`;
+
+const TagSecond = styled(Tag)`
+  background-color: rgba(32, 175, 96, 0.1);
+  &:hover {
+    background-color: rgba(32, 175, 96, 0.2);
+  }
+`;
+
+const TagButton = styled.button`
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  svg {
+    color: ${thirdColor};
+    font-size: 16px;
+  }
+`;
+
+const TagName = styled.span`
+  color: ${mainColor};
+`;
+
+const TagNameSecond = styled.span`
+  color: #20af60;
+`;
+
+const TextBox = styled.div`
+  /* width: 110px; */
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid ${thirdColor};
+`;
+
+const TextRemoveButton = styled(TagButton)`
+  padding: 6px;
+  margin-left: -6px;
 `;

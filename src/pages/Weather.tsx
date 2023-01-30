@@ -8,7 +8,7 @@ import {
   WeatherMapDataType,
   WeathersFiveDataType,
 } from "../types/type";
-import { Spinner } from "../utils/Spinner";
+import { Spinner } from "../assets/Spinner";
 const SlickSlider = lazy(() => import("../components/slider/SlickSlider"));
 
 const Weather = () => {
@@ -165,7 +165,7 @@ const Weather = () => {
         <Container>
           <WeatherBox>
             <>
-              <SlickSlider data={timeCheck} />
+              {dayCheck && <SlickSlider data={timeCheck} />}
               <SlickSlider data={dayPlusCheck ? timePlusCheck : filterData2} />
               <SlickSlider data={filterData3} />
               <SlickSlider data={filterData4} />

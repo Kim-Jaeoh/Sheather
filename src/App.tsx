@@ -4,11 +4,11 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import LeftBar from "./pages/LeftBar";
 import RightBar from "./pages/RightBar";
-import Header from "./pages/Header";
+import Header from "./components/header/Header";
 import Footer from "./pages/Footer";
 import Message from "./pages/Message";
 import Explore from "./pages/Explore";
-import { Spinner } from "./utils/Spinner";
+import { Spinner } from "./assets/Spinner";
 const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {

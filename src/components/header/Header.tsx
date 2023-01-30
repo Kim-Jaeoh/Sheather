@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
-import useCurrentLocation from "../hooks/useCurrentLocation";
-import { WeatherDataType } from "../types/type";
+import useCurrentLocation from "../../hooks/useCurrentLocation";
+import { WeatherDataType } from "../../types/type";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";

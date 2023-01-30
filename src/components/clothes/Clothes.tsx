@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useMemo } from "react";
 import styled from "@emotion/styled";
 import { IoMdArrowBack } from "react-icons/io";
-import TempClothes from "../../utils/TempClothes";
+import TempClothes from "../../assets/TempClothes";
 
 type Props = {
   index: number;
@@ -132,7 +132,8 @@ const WeatherDateListMain = styled.p`
   text-align: center;
   padding: 6px 10px;
   width: 52px;
-  margin: 28px 0;
+  height: 28px;
+  /* margin: 28px 0; */
 
   opacity: 0;
   animation-name: slideDown;
@@ -154,6 +155,9 @@ const WeatherDateListMain = styled.p`
 `;
 
 const WeatherDateListSub = styled.ul`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   height: 100%;
 `;
 
@@ -163,7 +167,7 @@ const WeatherDateSubList = styled.li`
   align-items: center;
   font-weight: bold;
   &:not(:last-of-type) {
-    margin-bottom: 16px;
+    margin-bottom: 28px;
   }
 
   opacity: 0;
