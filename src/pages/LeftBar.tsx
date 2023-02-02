@@ -68,7 +68,7 @@ const MenuBox = styled.ul<{ pathname: string }>`
   a:nth-of-type(1):hover li:hover,
   a:nth-of-type(1):focus li:focus {
     border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px #e29be9, 0px 6px #222222;
+    box-shadow: 0px 6px 0 -2px #e74b7a, 0px 6px #222222;
   }
 
   a:nth-of-type(2):hover li:hover,
@@ -86,7 +86,7 @@ const MenuBox = styled.ul<{ pathname: string }>`
   a:nth-of-type(4):hover li:hover,
   a:nth-of-type(4):focus li:focus {
     border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px #45de5f, 0px 6px #222222;
+    box-shadow: 0px 6px 0 -2px #30c56e, 0px 6px #222222;
   }
 
   /* 메뉴 클릭 했을 때 */
@@ -96,7 +96,7 @@ const MenuBox = styled.ul<{ pathname: string }>`
     border: ${(props) =>
       props.pathname === "/" ? "2px solid #222222" : "2px solid transparent"};
     box-shadow: ${(props) =>
-      props.pathname === "/" ? "0px 6px 0 -2px #e29be9, 0px 6px #222" : "0"};
+      props.pathname === "/" ? "0px 6px 0 -2px #e74b7a, 0px 6px #222" : "0"};
   }
   a:nth-of-type(2) li {
     font-weight: ${(props) =>
@@ -131,7 +131,7 @@ const MenuBox = styled.ul<{ pathname: string }>`
         : "2px solid transparent"};
     box-shadow: ${(props) =>
       props.pathname === "/explore"
-        ? "0px 6px 0 -2px #45de5f, 0px 6px #222"
+        ? "0px 6px 0 -2px #30c56e, 0px 6px #222"
         : "0"};
   }
 `;

@@ -247,6 +247,7 @@ const HeaderCategory = styled.div`
   p {
     font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
     margin-bottom: -4px; // 폰트 여백으로 인한 조정
+    font-size: 14px;
   }
 
   user-select: none;
@@ -266,7 +267,7 @@ const CloseBox = styled.div`
   cursor: pointer;
 
   &:hover,
-  &:focus {
+  &:active {
     color: ${mainColor};
   }
 

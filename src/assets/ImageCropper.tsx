@@ -18,19 +18,19 @@ import { MdOutlineRotateLeft } from "react-icons/md";
 interface AspectRatio {
   value: number;
   text: string;
+  padding: string;
 }
 
 type Props = {
   onOpen: boolean;
   imageUrl: string;
-  croppedImage: string; // crop할 이미지
   cropInit: Point;
   zoomInit: number;
   aspectInit: AspectRatio;
   onCancel?: MouseEventHandler<HTMLDivElement>;
   setCroppedImageFor?: (
     imageUrl: string,
-    crop?: any,
+    crop?: Point,
     zoom?: number,
     aspect?: AspectRatio,
     croppedImageUrl?: string
@@ -41,7 +41,6 @@ type Props = {
 const ImageCropper = ({
   onOpen,
   imageUrl,
-  croppedImage, // crop할 이미지
   cropInit,
   zoomInit,
   aspectInit,
@@ -55,9 +54,10 @@ const ImageCropper = ({
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const aspectRatios = [
-    { value: 1 / 1, text: "1/1" },
-    { value: 3 / 4, text: "3/4" },
-    { value: 4 / 3, text: "4/3" },
+    // padding-top 계산 = (세로/가로 * 100)
+    { value: 1 / 1, text: "1/1", padding: "100%" }, // padding-top: 100%;
+    { value: 3 / 4, text: "3/4", padding: "133.33%" }, // padding-top: 133.33%
+    { value: 4 / 3, text: "4/3", padding: "75%" }, // padding-top: 75%
   ];
 
   useEffect(() => {

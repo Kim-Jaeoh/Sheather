@@ -16,7 +16,7 @@ const RightBar = (props: Props) => {
 
 export default RightBar;
 
-const Container = styled.nav`
+const Container = styled.section`
   flex: 0 1 auto;
   max-height: 100%;
   position: relative;

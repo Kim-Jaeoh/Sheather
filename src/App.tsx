@@ -57,7 +57,7 @@ const Background = styled.div`
   font-variant-numeric: tabular-nums;
 `;
 
-const Wrapper = styled.main`
+const Wrapper = styled.div`
   display: flex;
   max-width: 1300px;
   min-width: 320px;
@@ -65,7 +65,7 @@ const Wrapper = styled.main`
   margin: 0 auto;
 `;
 
-const Main = styled.div`
+const Main = styled.main`
   flex: 1 1 auto;
   width: 800px;
   height: auto;

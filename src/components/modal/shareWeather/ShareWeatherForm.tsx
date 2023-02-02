@@ -27,6 +27,8 @@ type Props = {};
 const ShareWeatherForm = (props: Props) => {
   const [text, setText] = useState("");
   const [focus, setFocus] = useState(null);
+  const [clickImage, setClickImage] = useState(false);
+  const [clickImageNum, setClickImageNum] = useState(null);
   const [attachments, setAttachments] = useState([]);
   const [selectedImage, setSelectImage] = useState(null);
   const textAreaRef = useRef<HTMLTextAreaElement>();
@@ -188,6 +190,11 @@ const ShareWeatherForm = (props: Props) => {
     fileInput.current.value = "";
   };
 
+  const onImageClick = (index: number) => {
+    setClickImage((prev) => !prev);
+    setClickImageNum(index);
+  };
+
   return (
     <>
       <TextFormBox>
@@ -223,7 +230,6 @@ const ShareWeatherForm = (props: Props) => {
             <ImageCropper
               onOpen={Boolean(selectedImage)}
               imageUrl={selectedImage.imageUrl}
-              croppedImage={selectedImage.imageUrl}
               cropInit={selectedImage.crop}
               zoomInit={selectedImage.zoom}
               aspectInit={selectedImage.aspect}
@@ -235,34 +241,54 @@ const ShareWeatherForm = (props: Props) => {
             <>
               {attachments?.map((res, index) => {
                 return (
-                  <ImageBox key={index} length={attachments.length}>
-                    <ImageWrap
-                      onMouseLeave={() => setFocus("")}
-                      onMouseEnter={() => setFocus(index)}
-                    >
-                      {focus === index && (
-                        <CropBtn
-                          onClick={() => {
-                            setSelectImage(res);
-                          }}
-                        >
-                          <BiCrop />
-                          자르기
-                        </CropBtn>
-                      )}
-                      <ImageRemove onClick={() => onRemoveImage(res)}>
-                        <IoMdClose />
-                      </ImageRemove>
-                      <Images
-                        src={
-                          res.croppedImageUrl
-                            ? res.croppedImageUrl
-                            : res.imageUrl
-                        }
-                        alt=""
-                      />
-                    </ImageWrap>
-                  </ImageBox>
+                  <ImageContainer key={index}>
+                    {clickImage && index === clickImageNum && (
+                      <WatchImageWrapper>
+                        <WatchImageBox>
+                          <CloseBox onClick={() => onImageClick(index)}>
+                            <IoMdClose />
+                          </CloseBox>
+                          <WatchImage
+                            src={
+                              res.croppedImageUrl
+                                ? res.croppedImageUrl
+                                : res.imageUrl
+                            }
+                            alt=""
+                          />
+                        </WatchImageBox>
+                      </WatchImageWrapper>
+                    )}
+                    <ImageBox length={attachments.length}>
+                      <ImageWrap
+                        onMouseLeave={() => setFocus("")}
+                        onMouseEnter={() => setFocus(index)}
+                      >
+                        {focus === index && (
+                          <CropBtn
+                            onClick={() => {
+                              setSelectImage(res);
+                            }}
+                          >
+                            <BiCrop />
+                            자르기
+                          </CropBtn>
+                        )}
+                        <ImageRemove onClick={() => onRemoveImage(res)}>
+                          <IoMdClose />
+                        </ImageRemove>
+                        <Images
+                          onClick={() => onImageClick(index)}
+                          src={
+                            res.croppedImageUrl
+                              ? res.croppedImageUrl
+                              : res.imageUrl
+                          }
+                          alt=""
+                        />
+                      </ImageWrap>
+                    </ImageBox>
+                  </ImageContainer>
                 );
               })}
             </>
@@ -317,6 +343,55 @@ const ShareWeatherForm = (props: Props) => {
 export default ShareWeatherForm;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+
+const ImageContainer = styled.div``;
+
+const WatchImageWrapper = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.8);
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const WatchImageBox = styled.div`
+  max-width: 700px;
+  max-height: 700px;
+  position: relative;
+`;
+
+const CloseBox = styled.div`
+  width: 48px;
+  height: 48px;
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+
+  &:hover,
+  &:focus {
+    color: ${mainColor};
+  }
+
+  svg {
+    font-size: 24px;
+  }
+`;
+
+const WatchImage = styled.img`
+  width: 100%;
+  object-fit: contain;
+  display: block;
+`;
 
 const TextFormBox = styled.form`
   width: 100%;
@@ -420,7 +495,6 @@ const Wrapper = styled.div<{ length?: number }>`
   width: 100%;
   height: 100%;
   padding: 12px;
-
   gap: 16px;
   justify-content: flex-start;
   /* justify-content: space-between; */
