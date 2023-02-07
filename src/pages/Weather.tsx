@@ -183,13 +183,16 @@ const Weather = () => {
 export default Weather;
 
 const Container = styled.main`
+  overflow: hidden;
+  /* width: 700px; */
   height: 100%;
+  background: #48a3ff;
 `;
 
 const WeatherBox = styled.div`
   position: relative;
-
+  padding: 20px;
   > div:last-of-type {
-    border-bottom: none;
+    /* border-bottom: none; */
   }
 `;

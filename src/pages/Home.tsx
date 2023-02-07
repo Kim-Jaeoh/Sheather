@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import useCurrentLocation from "../hooks/useCurrentLocation";
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
-import axios from "axios";
 import a from "../assets/test1.jpeg";
 import b from "../assets/test2.jpeg";
 import c from "../assets/test3.jpeg";
@@ -13,12 +10,21 @@ import defaultAccount from "../assets/account_img_default.png";
 import ColorList from "../assets/ColorList";
 import { FaRegHeart } from "react-icons/fa";
 import { BsCalendar3 } from "react-icons/bs";
+import Calendar from "react-calendar";
+import "../styles/Calendar.css"; // css import
+import { Spinner } from "../assets/Spinner";
+import { Skeleton } from "@mui/material";
+import FeedModal from "../components/modal/feed/FeedModal";
+import DetailFeed from "../components/feed/DetailFeed";
+import { Link } from "react-router-dom";
 
 const Home = () => {
-  const testArray = [a, b, c, d, e, f];
-  const getWidth = new Image(); // 이미지 정보 얻기
   const [selectCategory, setSelectCategory] = useState(0);
   const [selectTime, setSelectTime] = useState(null);
+  const [changeValue, setChangeValue] = useState<Date | null>(new Date());
+  const [isCalendar, setIsCalendar] = useState(false);
+  const testArray = [a, b, c, d, e, f];
+  let getWidth = new Image(); // 이미지 정보 얻기
 
   const timeArray = [
     "00 ~ 03시",
@@ -29,88 +35,170 @@ const Home = () => {
     "19 ~ 21시",
   ];
 
-  return (
-    <Container>
-      <DateBox>
-        <DateIcon>
-          <BsCalendar3 />
-        </DateIcon>
-        <Date>23-02-03</Date>
-      </DateBox>
-      <SelectTimeBox select={selectCategory}>
-        <SelectCategory>
-          <SelectCurrentTime
-            onClick={() => setSelectCategory(0)}
-            select={selectCategory}
-            num={0}
-          >
-            최신
-          </SelectCurrentTime>
-          <SelectCurrentTime
-            onClick={() => setSelectCategory(1)}
-            select={selectCategory}
-            num={1}
-          >
-            인기
-          </SelectCurrentTime>
-        </SelectCategory>
-        {selectCategory === 1 && (
-          <SelectDetailTime>
-            {timeArray.map((time, index) => (
-              <SelectTime
-                onClick={() => setSelectTime(index)}
-                num={index}
-                key={time}
-                select={selectTime}
-              >
-                {time}
-              </SelectTime>
-            ))}
-          </SelectDetailTime>
-        )}
-      </SelectTimeBox>
+  const onClickCalendar = () => setIsCalendar((prev) => !prev);
 
-      <CardBox>
-        {testArray ? (
-          testArray.map((res, index) => {
-            getWidth.src = res;
-            return (
-              <CardList key={res}>
-                <Card aspect={getWidth.width}>
-                  <CardLengthBox>
-                    <CardLength>+3</CardLength>
-                  </CardLengthBox>
-                  <CardImage src={res} alt="" />
-                </Card>
-                <UserBox>
-                  <UserInfoBox>
-                    <UserImageBox>
-                      <UserImage src={res ? res : defaultAccount} alt="" />
-                    </UserImageBox>
-                    <UserName>test_test</UserName>
-                    <UserReactBox>
-                      <UserIcon>
-                        <FaRegHeart />
-                      </UserIcon>
-                      <UserReactNum>30</UserReactNum>
-                    </UserReactBox>
-                  </UserInfoBox>
-                  <UserText>
-                    🖤💙🤍 #밸런타인챌린지 #KREAM스타일 #KREAM챌린지
-                    #스타일챌린지 #크림스타일 #크림챌린지 #dailylook #데일리룩
-                  </UserText>
-                </UserBox>
-              </CardList>
-            );
-          })
-        ) : (
-          <div>로딩중</div>
+  const CalendarBox = styled.div`
+    z-index: 99;
+    position: absolute;
+    right: 10px;
+    top: 36px;
+  `;
+
+  const CalendarText = () => {
+    return (
+      changeValue.getFullYear() +
+      "-" +
+      (changeValue.getMonth() + 1 < 10
+        ? "0" + (changeValue.getMonth() + 1)
+        : changeValue.getMonth() + 1) +
+      "-" +
+      (changeValue.getDate() < 10
+        ? "0" + changeValue.getDate()
+        : changeValue.getDate())
+    );
+  };
+
+  const [getSize, setGetSize] = useState<boolean>(false);
+  // const [openFeedModal, setOpenFeedModal] = useState<boolean>(false);
+
+  // const onOpenFeedModal = () => setOpenFeedModal((prev) => !prev);
+
+  return (
+    <>
+      <Container>
+        {isCalendar && (
+          <CalendarBox>
+            <Calendar onChange={setChangeValue} value={changeValue} />
+          </CalendarBox>
         )}
-      </CardBox>
-    </Container>
+        <DateBox onClick={onClickCalendar}>
+          <DateIcon>
+            <BsCalendar3 />
+          </DateIcon>
+          <DateText>{CalendarText()}</DateText>
+        </DateBox>
+        <SelectTimeBox select={selectCategory}>
+          <SelectCategory>
+            <SelectCurrentTime
+              onClick={() => setSelectCategory(0)}
+              select={selectCategory}
+              num={0}
+            >
+              최신
+            </SelectCurrentTime>
+            <SelectCurrentTime
+              onClick={() => setSelectCategory(1)}
+              select={selectCategory}
+              num={1}
+            >
+              인기
+            </SelectCurrentTime>
+          </SelectCategory>
+          {selectCategory === 1 && (
+            <SelectDetailTime>
+              {timeArray.map((time, index) => (
+                <SelectTime
+                  onClick={() => setSelectTime(index)}
+                  num={index}
+                  key={time}
+                  select={selectTime}
+                >
+                  {time}
+                </SelectTime>
+              ))}
+            </SelectDetailTime>
+          )}
+        </SelectTimeBox>
+
+        {testArray ? (
+          <CardBox>
+            {testArray.map((res, index) => {
+              getWidth.onload = () => {
+                setGetSize(getWidth.complete);
+              };
+              getWidth.src = res;
+              return (
+                <CardList key={index}>
+                  <Card to={"/detail"} aspect={getWidth.width}>
+                    {getSize && (
+                      <>
+                        <WeatherEmojiBox>
+                          <WeatherEmoji>추워요</WeatherEmoji>
+                        </WeatherEmojiBox>
+                        <CardLengthBox>
+                          <CardLength>+3</CardLength>
+                        </CardLengthBox>
+                        <CardImage src={res} alt="" />
+                      </>
+                    )}
+                  </Card>
+                  <UserBox>
+                    <UserInfoBox>
+                      <UserImageBox>
+                        <UserImage src={res ? res : defaultAccount} alt="" />
+                      </UserImageBox>
+                      <UserName>test_test</UserName>
+                      <UserReactBox>
+                        <UserIcon>
+                          <FaRegHeart />
+                        </UserIcon>
+                        <UserReactNum>30</UserReactNum>
+                      </UserReactBox>
+                    </UserInfoBox>
+                    <UserText>
+                      🖤💙🤍 #밸런타인챌린지 #KREAM스타일 #KREAM챌린지
+                      #스타일챌린지 #크림스타일 #크림챌린지 #dailylook #데일리룩
+                    </UserText>
+                  </UserBox>
+                </CardList>
+              );
+            })}
+          </CardBox>
+        ) : (
+          <CardBox>
+            {Array.from({ length: 9 }).map((res, index) => {
+              return (
+                <CardList
+                  style={{
+                    border: "2px solid #dbdbdb",
+                    width: "238px",
+                    height: "344px",
+                  }}
+                >
+                  <Card
+                    to={""}
+                    style={{
+                      width: "234px",
+                      height: "234px",
+                      padding: "12px",
+                      borderBottom: "2px solid #dbdbdb",
+                    }}
+                  >
+                    <Skeleton
+                      width={"100%"}
+                      height={"100%"}
+                      variant="rounded"
+                    />
+                  </Card>
+                  <UserBox
+                    style={{ width: "234px", height: "104px", padding: "12px" }}
+                  >
+                    <Skeleton
+                      width={"100%"}
+                      height={"100%"}
+                      variant="rounded"
+                    />
+                  </UserBox>
+                </CardList>
+              );
+            })}
+          </CardBox>
+        )}
+      </Container>
+    </>
   );
 };
-export default Home;
+export default React.memo(Home);
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
@@ -169,9 +257,9 @@ const SelectCurrentTime = styled.li<{ select: number; num: number }>`
   border-radius: 9999px;
   color: ${(props) => (props.num === props.select ? "#fff" : `${thirdColor}`)};
   background: ${(props) =>
-    props.num === props.select ? "#e74b7a" : "transparent"};
+    props.num === props.select ? "#ff5673" : "transparent"};
   border: 2px solid
-    ${(props) => (props.num === props.select ? "#e74b7a" : "tranparent")};
+    ${(props) => (props.num === props.select ? "#ff5673" : "tranparent")};
   padding: 6px 12px;
   font-size: 18px;
   font-weight: bold;
@@ -205,7 +293,7 @@ const DateBox = styled.div`
   right: 12px;
   color: ${thirdColor};
 `;
-const Date = styled.span`
+const DateText = styled.span`
   font-size: 14px;
 `;
 
@@ -219,7 +307,7 @@ const DateIcon = styled.span`
 
 const CardBox = styled.ul`
   width: 100%;
-  column-width: 230px;
+  column-width: 300px;
   column-gap: 20px;
 `;
 
@@ -250,13 +338,33 @@ const CardList = styled.li`
   }
 `;
 
-const Card = styled.div<{ aspect: number }>`
+const Card = styled(Link)<{ aspect?: number }>`
+  display: block;
   position: relative;
   cursor: pointer;
   outline: none;
   overflow: hidden;
   border-bottom: 2px solid ${secondColor};
-  padding-top: ${(props) => (props.aspect === 525 ? "100%" : "133.33%")};
+  /* padding-top: ${(props) => (props.aspect === 525 ? "100%" : "133.33%")}; */
+`;
+
+const WeatherEmojiBox = styled.div`
+  position: absolute;
+  z-index: 1;
+  top: 8px;
+  left: 8px;
+  background-color: rgba(34, 34, 34, 0.4);
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+`;
+
+const WeatherEmoji = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
 `;
 
 const CardLengthBox = styled.div`
@@ -278,16 +386,16 @@ const CardLength = styled.span`
 `;
 
 const CardImage = styled.img`
-  position: absolute;
+  /* position: absolute;
   left: 0;
   top: 0;
   right: 0;
-  bottom: 0;
+  bottom: 0; */
   image-rendering: auto;
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* object-fit: cover; */
 `;
 
 const UserBox = styled.div`

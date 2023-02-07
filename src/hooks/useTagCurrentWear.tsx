@@ -10,18 +10,19 @@ const useTagCurrentWear = () => {
   const { currentNewTag, currentTags } = inputs;
 
   const onChangeCurrent = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputs({
-      ...inputs,
-      [e.target.name]: e.target.value,
+    // setInputs({
+    //   ...inputs,
+    //   [e.target.name]: e.target.value,
+    // });
+    // if (e.target.name === "currentNewTag") {
+    setInputs((prev) => {
+      return {
+        ...prev,
+        currentNewTag: e.target.value,
+        // currentNewTag: prev.currentNewTag,
+      };
     });
-    if (e.target.name === "currentNewTag") {
-      setInputs((prev) => {
-        return {
-          ...prev,
-          currentNewTag: prev.currentNewTag,
-        };
-      });
-    }
+    // }
   };
 
   const onKeyPressCurrent = (e: React.KeyboardEvent<HTMLElement>) => {

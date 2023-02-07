@@ -9,18 +9,18 @@ const useTagRecommendWear = () => {
   const { RecommendNewTag, RecommendTags } = inputs;
 
   const onChangeRecommend = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputs({
-      ...inputs,
-      [e.target.name]: e.target.value,
+    // setInputs({
+    //   ...inputs,
+    //   [e.target.name]: e.target.value,
+    // });
+    // if (e.target.name === "RecommendNewTag") {
+    setInputs((prev) => {
+      return {
+        ...prev,
+        RecommendNewTag: e.target.value,
+      };
     });
-    if (e.target.name === "RecommendNewTag") {
-      setInputs((prev) => {
-        return {
-          ...prev,
-          RecommendNewTag: prev.RecommendNewTag,
-        };
-      });
-    }
+    // }
   };
 
   const onkeyPressRecommend = (e: React.KeyboardEvent<HTMLElement>) => {

@@ -9,7 +9,10 @@ import Footer from "./pages/Footer";
 import Message from "./pages/Message";
 import Explore from "./pages/Explore";
 import { Spinner } from "./assets/Spinner";
-const Weather = lazy(() => import("./pages/Weather"));
+import DetailFeed from "./components/feed/DetailFeed";
+import Weather from "./pages/Weather";
+import SrollToTop from "./hooks/useScrollToTop";
+// const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
   console.log(`
@@ -27,6 +30,7 @@ const App = () => {
 
   return (
     <Suspense fallback={<Spinner />}>
+      <SrollToTop />
       <Background>
         <Wrapper>
           <LeftBar />
@@ -35,6 +39,7 @@ const App = () => {
             <Container>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/detail" element={<DetailFeed />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/message" element={<Message />} />
                 <Route path="/explore" element={<Explore />} />
@@ -59,21 +64,21 @@ const Background = styled.div`
 
 const Wrapper = styled.div`
   display: flex;
-  max-width: 1300px;
+  max-width: 1280px;
   min-width: 320px;
   height: 100%;
   margin: 0 auto;
 `;
 
 const Main = styled.main`
-  flex: 1 1 auto;
-  width: 800px;
+  /* flex: 1 1 auto; */
+  width: 700px;
   height: auto;
   padding: 0 20px;
 `;
 
 const Container = styled.div`
+  width: 100%;
   border-left: 2px solid #222222;
   border-right: 2px solid #222222;
-  width: 100%;
 `;

@@ -6,46 +6,58 @@ type Props = {};
 
 const SliderSkeleton = (props: Props) => {
   return (
-    <Stack
-      spacing={0}
-      sx={{
-        background: "#FAFAFA",
-      }}
-    >
-      <Header>
-        <Skeleton
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          height={50}
-        />
-      </Header>
-      <SliderBox>
-        {Array.from({ length: 4 }).map((res, index) => {
-          return (
-            <Slider key={index}>
-              <Skeleton
-                key={index}
-                variant="rectangular"
-                sx={{
-                  flex: "1 1 auto",
-                }}
-                width={"100%"}
-                height={"100%"}
-              />
-            </Slider>
-          );
-        })}
-      </SliderBox>
-    </Stack>
+    <Wrapper>
+      <Stack
+        spacing={0}
+        sx={{
+          background: "#FAFAFA",
+          margin: 0,
+          padding: 0,
+          overflow: "hidden",
+        }}
+      >
+        <Header>
+          <Skeleton
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            height={50}
+          />
+        </Header>
+        <SliderBox>
+          {Array.from({ length: 4 }).map((res, index) => {
+            return (
+              <Slider key={index}>
+                <Skeleton
+                  key={index}
+                  variant="rectangular"
+                  width={"100%"}
+                  height={"100%"}
+                />
+              </Slider>
+            );
+          })}
+        </SliderBox>
+      </Stack>
+    </Wrapper>
   );
 };
 
 export default SliderSkeleton;
 
 const secondColor = "#dbdbdb";
+
+const Wrapper = styled.div`
+  &:not(:last-of-type) {
+    margin-bottom: 30px;
+  }
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid ${secondColor};
+`;
 
 const Header = styled.header`
   border-top: 2px solid ${secondColor};
@@ -59,15 +71,15 @@ const Header = styled.header`
 
 const SliderBox = styled.ul`
   display: flex;
-  width: 100%;
-  height: 332px;
-  margin-bottom: 30px;
-  border-bottom: 2px solid ${secondColor};
+  height: 296px;
+  gap: 12px;
+  padding: 12px;
+  background: #fff;
 `;
 
 const Slider = styled.li`
-  padding: 14px;
-  width: 100%;
-  border-right: 1px solid ${secondColor};
+  padding: 12px;
+  /* width: 100%; */
+  flex: 1 1 auto;
   background: #fff;
 `;

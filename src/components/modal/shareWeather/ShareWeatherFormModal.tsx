@@ -57,7 +57,7 @@ const ShareWeatherForm = (props: Props) => {
   const compressImage = async (image: File) => {
     try {
       const options = {
-        maxSizeMb: 1,
+        maxSizeMb: 2,
         maxWidthOrHeight: 900,
       };
       return await imageCompression(image, options);
@@ -111,7 +111,7 @@ const ShareWeatherForm = (props: Props) => {
 
     if (attachments.length + files.length > 3) {
       fileInput.current.value = ""; // 파일 문구 없애기
-      return toast.error("최대 3개 사진만 첨부할 수 있습니다.");
+      return toast.error("최대 3장의 사진만 첨부할 수 있습니다.");
     }
 
     for (let i = 0; i < files.length; i++) {
@@ -201,7 +201,7 @@ const ShareWeatherForm = (props: Props) => {
         <Wrapper length={attachments.length}>
           <InputImageLabel htmlFor="attach-file">
             <ImageBox style={{ flexDirection: "column" }}>
-              <EmojiBox style={{ width: "48px", height: "48px" }}>
+              <EmojiBox>
                 <EmojiIcon>
                   <BsFillImageFill
                     style={{
@@ -303,39 +303,39 @@ const ShareWeatherForm = (props: Props) => {
           ref={textAreaRef}
           placeholder="무슨 일이 일어나고 있나요?"
         />
+        <BtnBox>
+          <EmojiBox ref={emojiRef}>
+            <EmojiIcon onClick={toggleEmoji}>
+              <GrEmoji />
+            </EmojiIcon>
+            {/* 해결: clickEmoji이 true일 때만 실행해서 textarea 버벅이지 않음 */}
+            {clickEmoji && (
+              <Emoji>
+                <EmojiPicker
+                  searchDisabled={true}
+                  lazyLoadEmojis={true}
+                  onEmojiClick={onEmojiClick}
+                  width={340}
+                  height={340}
+                />
+              </Emoji>
+            )}
+          </EmojiBox>
+          <EditInfo>
+            <TextAreaLength>
+              <TextAreaLengthColor>
+                {textAreaRef?.current?.value
+                  ? textAreaRef?.current?.value.trim().length
+                  : 0}
+              </TextAreaLengthColor>
+              /120
+            </TextAreaLength>
+            <EditBtn>
+              <EditText>SHARE</EditText>
+            </EditBtn>
+          </EditInfo>
+        </BtnBox>
       </TextFormBox>
-      <BtnBox>
-        <EmojiBox ref={emojiRef}>
-          <EmojiIcon onClick={toggleEmoji}>
-            <GrEmoji />
-          </EmojiIcon>
-          {/* 해결: clickEmoji이 true일 때만 실행해서 textarea 버벅이지 않음 */}
-          {clickEmoji && (
-            <Emoji>
-              <EmojiPicker
-                searchDisabled={true}
-                lazyLoadEmojis={true}
-                onEmojiClick={onEmojiClick}
-                width={340}
-                height={340}
-              />
-            </Emoji>
-          )}
-        </EmojiBox>
-        <EditInfo>
-          <TextAreaLength>
-            <TextAreaLengthColor>
-              {textAreaRef?.current?.value
-                ? textAreaRef?.current?.value.trim().length
-                : 0}
-            </TextAreaLengthColor>
-            /120
-          </TextAreaLength>
-          <EditBtn>
-            <EditText>SHARE</EditText>
-          </EditBtn>
-        </EditInfo>
-      </BtnBox>
     </>
   );
 };
@@ -361,8 +361,8 @@ const WatchImageWrapper = styled.div`
 `;
 
 const WatchImageBox = styled.div`
-  max-width: 700px;
-  max-height: 700px;
+  max-width: 900px;
+  max-height: 900px;
   position: relative;
 `;
 
@@ -396,20 +396,24 @@ const WatchImage = styled.img`
 const TextFormBox = styled.form`
   width: 100%;
   overflow-x: hidden;
-  border-bottom: 2px solid ${thirdColor};
+  /* border-bottom: 2px solid ${thirdColor}; */
 `;
 
 const TextArea = styled.textarea`
   display: block;
   width: 100%;
-  height: 306px;
+  height: 280px;
   font-size: 16px;
   line-height: 24px;
   resize: none;
   outline: none;
   border: none;
   padding: 20px;
+  border-bottom: 1px solid ${thirdColor};
 
+  &::placeholder {
+    font-size: 14px;
+  }
   &:focus::placeholder {
     opacity: 0.4;
     color: ${thirdColor};
@@ -503,7 +507,7 @@ const Wrapper = styled.div<{ length?: number }>`
   /* min-width: 480px; */
   /* max-height: 480px; */
   overflow: hidden;
-  border-bottom: 2px solid ${thirdColor};
+  border-bottom: 1px solid ${thirdColor};
 `;
 
 const ImageBox = styled.div<{ length?: number }>`
@@ -533,10 +537,12 @@ const ImageWrap = styled.div`
   justify-content: center;
 `;
 
-const ImageLength = styled.p``;
+const ImageLength = styled.p`
+  font-size: 14px;
+`;
 
 const ImageLengthColor = styled.span`
-  color: ${mainColor}; ;
+  color: ${mainColor};
 `;
 
 const Images = styled.img`

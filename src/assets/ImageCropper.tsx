@@ -182,7 +182,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.div`
   width: 480px;
-  height: 700px;
+  height: 736px;
   background: #fff;
   position: relative;
   left: 50%;
@@ -253,7 +253,8 @@ const CloseBox = styled.div`
 
 const CropBox = styled.div`
   position: absolute;
-  top: 48px;
+  /* top: 48px; */
+  top: 52px;
   left: 50%;
   right: 0;
   bottom: 0;

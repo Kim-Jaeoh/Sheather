@@ -20,7 +20,7 @@ const Container = styled.section`
   flex: 0 1 auto;
   max-height: 100%;
   position: relative;
-  width: 240px;
+  width: 290px;
   background: #fff;
 `;
 

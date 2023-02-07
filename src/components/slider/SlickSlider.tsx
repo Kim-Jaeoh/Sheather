@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "./slick-theme.css";
+
 import styled from "@emotion/styled";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiShare } from "react-icons/fi";
@@ -12,7 +13,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { WeathersFiveDataType } from "../../types/type";
-import ShareWeather from "../modal/shareWeather/ShareWeather";
+import ShareWeather from "../modal/shareWeather/ShareWeatherModal";
 import { Skeleton, Stack } from "@mui/material";
 import SliderSkeleton from "../../assets/skeleton/SliderSkeleton";
 import ColorList from "../../assets/ColorList";
@@ -43,8 +44,8 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
   const settings = {
     infinite: false,
     speed: 500,
-    slidesToShow: data?.length <= 3 ? 4 : 4,
-    slidesToScroll: 2,
+    slidesToShow: 4,
+    slidesToScroll: 1,
     nextArrow: (
       <NextArrow>
         <span>
@@ -118,6 +119,8 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
     setShareBtn((prev) => !prev);
   };
 
+  console.log(data);
+
   return (
     <>
       {shareBtn && (
@@ -165,13 +168,7 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
                         <FiShare />
                       </WeatherInfoBtn>
                     </WeatherInfoBox>
-                    {/* <WeatherDateListBox now={res?.dt_txt}>
-                      <WeatherDateList now={res?.dt_txt}>
-                        {!res?.dt_txt
-                          ? "지금"
-                          : `${res?.dt_txt?.split(":")[0].split(" ")[1]}시`}
-                      </WeatherDateList>
-                    </WeatherDateListBox> */}
+
                     <WeatherCategoryIconBox>
                       <WeatherCategoryIconText>
                         {res?.weather[0]?.description}
@@ -230,9 +227,13 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Wrapper = styled.div`
   background: #fff;
-  border-bottom: 2px solid ${secondColor};
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid ${secondColor};
+  box-shadow: 8px 8px 0px rgba(26, 80, 134, 0.4);
   &:not(:last-of-type) {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
 `;
 
@@ -336,7 +337,11 @@ const WeatherCategoryBox = styled.div`
 `;
 
 const WeatherCategoryText = styled.div`
-  width: 76px;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   &:not(:nth-of-type(3), :nth-of-type(4)) {
     margin-bottom: 14px;
   }
@@ -372,8 +377,8 @@ const WeatherCategoryMain = styled.span`
   user-select: text;
   border: 1px solid ${thirdColor};
   border-radius: 9999px;
-  padding: 2px 6px;
-  margin-right: 8px;
+  padding: 0px 6px;
+  margin-bottom: 4px;
   font-size: 12px;
   color: ${thirdColor};
 `;
@@ -410,7 +415,7 @@ const Arrow = styled.div`
 `;
 
 const NextArrow = styled(Arrow)`
-  right: 325px;
+  right: 270px;
 
   span {
     svg {
@@ -420,7 +425,7 @@ const NextArrow = styled(Arrow)`
 `;
 
 const PrevArrow = styled(Arrow)`
-  left: 325px;
+  left: 270px;
   span {
     svg {
       padding-right: 2px;

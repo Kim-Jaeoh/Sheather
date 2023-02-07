@@ -1,14 +1,16 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
 import { WeatherDataType } from "../../types/type";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
+import { Spinner } from "../../assets/Spinner";
 
 const Header = () => {
   const { location } = useCurrentLocation();
+  const { pathname } = useLocation();
   const [weather, setWeather] = useState<WeatherDataType | null>(null);
   const [address, setAddress] = useState({
     name: "",
@@ -16,6 +18,24 @@ const Header = () => {
     region_2depth_name: "",
     region_3depth_name: "",
   });
+
+  console.log(pathname);
+
+  const changeColor = useMemo(() => {
+    if (pathname.includes("detail")) {
+      return "#ff5673";
+    }
+    if (pathname.includes("weather")) {
+      return "#48a3ff";
+    }
+    if (pathname.includes("message")) {
+      return "#ff5c1b";
+    }
+    if (pathname.includes("explore")) {
+      return "#30c56e";
+    }
+    return "#ff5673";
+  }, [pathname]);
 
   // 날씨 정보 받아오기
   const weatherApi = async () =>
@@ -57,12 +77,6 @@ const Header = () => {
     }
   );
 
-  // useEffect(() => {
-  //   if (location) {
-  //     setWeather(weatherData?.data);
-  //   }
-  // }, [location, weatherData?.data]);
-
   useEffect(() => {
     if (location && regionData?.data) {
       const { documents } = regionData?.data;
@@ -75,7 +89,7 @@ const Header = () => {
       {!isLoading ? (
         <Container>
           <WeatherBox>
-            <NowBox>
+            <NowBox changeColor={changeColor}>
               <p>NOW</p>
             </NowBox>
             <WeatherInfo>
@@ -100,7 +114,7 @@ const Header = () => {
             </WeatherInfo>
             <WeatherInfo>
               <InfoText>현재</InfoText>
-              <WeatherTemp>
+              <WeatherTemp changeColor={changeColor}>
                 {Math.round(weatherData?.data?.main.temp)}
                 <sup>º</sup>
               </WeatherTemp>
@@ -126,7 +140,7 @@ const Header = () => {
           </WeatherBox>
         </Container>
       ) : (
-        <div>로딩중..</div>
+        <Container />
       )}
     </>
   );
@@ -137,6 +151,7 @@ export default Header;
 const Container = styled.nav`
   position: sticky;
   top: 0;
+  /* width: 800px; */
   height: 80px;
   border: 2px solid #222222;
   background-color: #fff;
@@ -151,10 +166,10 @@ const WeatherBox = styled.div`
   align-items: center;
 `;
 
-const NowBox = styled.div`
-  width: 24px;
+const NowBox = styled.div<{ changeColor: string }>`
+  width: 22px;
   height: 100%;
-  background-color: #48a3ff;
+  background-color: ${(props) => props.changeColor};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -164,8 +179,6 @@ const NowBox = styled.div`
   p {
     font-size: 14px;
     letter-spacing: 2px;
-    margin-top: -2px;
-    margin-right: -2px;
     font-weight: bold;
     color: #fff;
     transform: rotate(-90deg);
@@ -216,11 +229,11 @@ const InfoText = styled.span`
   justify-content: center;
 `;
 
-const WeatherTemp = styled.p`
+const WeatherTemp = styled.p<{ changeColor?: string }>`
   font-size: 20px;
   height: 50px;
   font-weight: bold;
-  color: #48a3ff;
+  color: ${(props) => props.changeColor};
   display: flex;
   align-items: center;
   justify-content: center;

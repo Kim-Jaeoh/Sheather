@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@egjs/flicking-plugins": "^4.7.0",
+    "@egjs/react-flicking": "^4.10.6",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.11.6",
@@ -22,9 +24,10 @@
     "emoji-picker-react": "^4.4.7",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
+    "react-calendar": "^4.0.0",
     "react-dom": "^18.2.0",
     "react-easy-crop": "^4.6.3",
-    "react-horizontal-scrolling-menu": "^3.2.3",
+    "react-horizontal-scrolling-menu": "^3.2.2",
     "react-hot-toast": "^2.4.0",
     "react-icons": "^4.7.1",
     "react-redux": "^8.0.5",
@@ -61,6 +64,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-calendar": "^3.9.0",
     "@types/react-slick": "^0.23.10"
   }
 }

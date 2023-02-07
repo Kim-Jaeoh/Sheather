@@ -51,7 +51,7 @@ const Container = styled.nav`
   flex: 0 1 auto;
   max-height: 100%;
   position: relative;
-  width: 240px;
+  width: 250px;
   background: #fff;
   user-select: none;
 `;
@@ -68,7 +68,7 @@ const MenuBox = styled.ul<{ pathname: string }>`
   a:nth-of-type(1):hover li:hover,
   a:nth-of-type(1):focus li:focus {
     border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px #e74b7a, 0px 6px #222222;
+    box-shadow: 0px 6px 0 -2px #ff5673, 0px 6px #222222;
   }
 
   a:nth-of-type(2):hover li:hover,
@@ -92,11 +92,16 @@ const MenuBox = styled.ul<{ pathname: string }>`
   /* 메뉴 클릭 했을 때 */
 
   a:nth-of-type(1) li {
-    font-weight: ${(props) => (props.pathname === "/" ? "bold" : "normal")};
+    font-weight: ${(props) =>
+      props.pathname === ("/" || "/detail") ? "bold" : "normal"};
     border: ${(props) =>
-      props.pathname === "/" ? "2px solid #222222" : "2px solid transparent"};
+      props.pathname === ("/" || "/detail")
+        ? "2px solid #222222"
+        : "2px solid transparent"};
     box-shadow: ${(props) =>
-      props.pathname === "/" ? "0px 6px 0 -2px #e74b7a, 0px 6px #222" : "0"};
+      props.pathname === ("/" || "/detail")
+        ? "0px 6px 0 -2px #ff5673, 0px 6px #222"
+        : "0"};
   }
   a:nth-of-type(2) li {
     font-weight: ${(props) =>
