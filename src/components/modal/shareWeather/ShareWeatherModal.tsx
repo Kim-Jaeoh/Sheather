@@ -28,6 +28,7 @@ const ShareWeather = ({ shareBtn, shareBtnClick }: Props) => {
   const [select, setIsCurrentCheck] = useState(null);
   const [outerCheck, setOuterCheck] = useState(null);
   const [topCheck, setTopCheck] = useState(null);
+  const [innerTopCheck, setInnerTopCheck] = useState(null);
   const [bottomCheck, setBottomCheck] = useState(null);
   const [etcCheck, setEtcCheck] = useState(null);
   const { ClothesCategory } = TempClothes();
@@ -73,6 +74,9 @@ const ShareWeather = ({ shareBtn, shareBtnClick }: Props) => {
     }
     if (name === "top") {
       setTopCheck(index);
+    }
+    if (name === "innerTop") {
+      setInnerTopCheck(index);
     }
     if (name === "bottom") {
       setBottomCheck(index);
@@ -123,39 +127,6 @@ const ShareWeather = ({ shareBtn, shareBtnClick }: Props) => {
               <IoMdClose />
             </CloseBox>
           </Header>
-          {/* <WeatherCategoryBox>
-            <WeatherCategoryText>
-              <WeatherCategoryMain>온도</WeatherCategoryMain>
-              <WeatherCategorySub>
-                {Math.round(shareWeatherData?.main.temp)}º
-              </WeatherCategorySub>
-            </WeatherCategoryText>
-            <WeatherCategoryText>
-              <WeatherCategoryMain>체감</WeatherCategoryMain>
-              <WeatherCategorySub>
-                {Math.round(shareWeatherData?.main?.feels_like)}º
-              </WeatherCategorySub>
-            </WeatherCategoryText>
-            <WeatherCategoryText>
-              <WeatherCategoryMain>최고</WeatherCategoryMain>
-              <WeatherCategorySub>
-                {Math.round(shareWeatherData?.main.temp_max)}º
-              </WeatherCategorySub>
-            </WeatherCategoryText>
-            <WeatherCategoryText>
-              <WeatherCategoryMain>최저</WeatherCategoryMain>
-              <WeatherCategorySub>
-                {Math.round(shareWeatherData?.main.temp_min)}º
-              </WeatherCategorySub>
-            </WeatherCategoryText>
-            <WeatherCategoryText>
-              <WeatherCategoryMain>바람</WeatherCategoryMain>
-              <WeatherCategorySub>
-                {Math.round(shareWeatherData?.wind.speed)}
-                <span>m/s</span>
-              </WeatherCategorySub>
-            </WeatherCategoryText>
-          </WeatherCategoryBox> */}
 
           <WearInfoBox>
             <WearCondition>
@@ -273,9 +244,54 @@ const ShareWeather = ({ shareBtn, shareBtnClick }: Props) => {
                   </TagBox>
                 </Flicking>
               </WearInfo>
+              <WearInfo>
+                <WearInfoMain select={innerTopCheck}>내의</WearInfoMain>
+                {innerTopCheck !== 0 ? (
+                  <Flicking
+                    onChanged={(e) => console.log(e)}
+                    moveType="freeScroll"
+                    bound={true}
+                    align="prev"
+                  >
+                    <TagBox>
+                      {ClothesCategory.innerTop.map((res, index) => (
+                        <Tag key={index}>
+                          <TagInput
+                            id={index.toString()}
+                            name="range"
+                            type="radio"
+                            style={{
+                              marginTop: "2px",
+                              marginRight: "4px",
+                              display: "none",
+                            }}
+                            required
+                          />
+                          <TagLabel
+                            select={innerTopCheck}
+                            index={index}
+                            onClick={() => onClick(index, "innerTop")}
+                            htmlFor={index.toString()}
+                          >
+                            {res}
+                          </TagLabel>
+                        </Tag>
+                      ))}
+                    </TagBox>
+                  </Flicking>
+                ) : (
+                  <AddTagBox>
+                    <Tag>
+                      <AddTag onClick={() => setInnerTopCheck(null)}>+</AddTag>
+                    </Tag>
+                  </AddTagBox>
+                )}
+              </WearInfo>
 
               <WearInfo>
-                <WearInfoMain select={bottomCheck}>하의</WearInfoMain>
+                <WearInfoMain select={bottomCheck} select2={topCheck}>
+                  하의
+                </WearInfoMain>
                 {topCheck !== 1 && bottomCheck !== 0 ? (
                   <Flicking
                     onChanged={(e) => console.log(e)}
@@ -583,13 +599,15 @@ const WearInfo = styled.div`
   }
 `;
 
-const WearInfoMain = styled.div<{ select: number }>`
+const WearInfoMain = styled.div<{ select: number; select2?: number }>`
   flex: 0 0 auto;
   user-select: text;
   /* border: 1px solid ${thirdColor}; */
   /* color: ${thirdColor}; */
-  font-weight: ${(props) => (props.select !== null ? "bold" : "normal")};
-  color: ${(props) => (props.select !== null ? mainColor : thirdColor)};
+  font-weight: ${(props) =>
+    props.select !== null || props?.select2 === 1 ? "bold" : "normal"};
+  color: ${(props) =>
+    props.select !== null || props?.select2 === 1 ? mainColor : thirdColor};
   /* border-radius: 9999px; */
   min-width: 55px;
   text-align: center;

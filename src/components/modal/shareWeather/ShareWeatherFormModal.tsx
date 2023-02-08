@@ -66,42 +66,6 @@ const ShareWeatherForm = (props: Props) => {
     }
   };
 
-  // // 방법 1. forEach()
-  // const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   // const files = e.target.files!;
-  //   const {
-  //     currentTarget: { files },
-  //   } = e;
-  //   if (!files[0]) return;
-  //   if (attachments.length + files.length > 3) {
-  //     fileInput.current.value = ""; // 파일 문구 없애기
-  //     return alert("최대 3개 사진만 첨부할 수 있습니다.");
-  //   }
-  //   const readAndPreview = async (file: any) => {
-  //     if (/\.(jpe?g|png|gif)$/i.test(file.name)) {
-  //       const reader = new FileReader();
-  //       reader.onload = () =>
-  //         setAttachments((prev) => [
-  //           ...prev,
-  //           {
-  //             imageUrl: reader.result,
-  //             crop: null,
-  //             zoom: null,
-  //             aspect: null,
-  //             croppedImageUrl: null,
-  //           },
-  //         ]);
-  //       const compressedImage = await compressImage(file);
-  //       reader.readAsDataURL(compressedImage);
-  //     }
-  //   };
-  //   if (files) {
-  //     Array.from(files).forEach(readAndPreview);
-  //   }
-  //   console.log(files.length);
-  // };
-
-  // 방법 2. for()
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       currentTarget: { files },
@@ -195,6 +159,7 @@ const ShareWeatherForm = (props: Props) => {
     setClickImageNum(index);
   };
 
+  console.log(clickEmoji);
   return (
     <>
       <TextFormBox>
@@ -402,7 +367,7 @@ const TextFormBox = styled.form`
 const TextArea = styled.textarea`
   display: block;
   width: 100%;
-  height: 280px;
+  height: 244px;
   font-size: 16px;
   line-height: 24px;
   resize: none;
@@ -454,6 +419,7 @@ const Emoji = styled.div`
   position: absolute;
   top: -294px;
   left: -360px;
+  z-index: 9999;
 `;
 
 const EditInfo = styled.div`

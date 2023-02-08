@@ -1,13 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import { store } from "./app/store";
+import { persistor, store } from "./app/store";
 import { Provider } from "react-redux";
-import { Spinner } from "./assets/Spinner";
+import { PersistGate } from "redux-persist/integration/react";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -17,13 +16,15 @@ const queryClient = new QueryClient();
 
 root.render(
   <Provider store={store}>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        {/* <React.StrictMode> */}
-        <App />
-        {/* </React.StrictMode> */}
-      </BrowserRouter>
-    </QueryClientProvider>
+    <PersistGate loading={null} persistor={persistor}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          {/* <React.StrictMode> */}
+          <App />
+          {/* </React.StrictMode> */}
+        </BrowserRouter>
+      </QueryClientProvider>
+    </PersistGate>
   </Provider>
 );
 

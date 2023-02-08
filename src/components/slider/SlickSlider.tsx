@@ -119,8 +119,6 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
     setShareBtn((prev) => !prev);
   };
 
-  console.log(data);
-
   return (
     <>
       {shareBtn && (
@@ -231,7 +229,7 @@ const Wrapper = styled.div`
   border-radius: 12px;
   overflow: hidden;
   border: 2px solid ${secondColor};
-  box-shadow: 8px 8px 0px rgba(26, 80, 134, 0.4);
+  box-shadow: 8px 8px 0px rgba(35, 92, 150, 0.3);
   &:not(:last-of-type) {
     margin-bottom: 20px;
   }

@@ -1,13 +1,35 @@
-import { configureStore } from "@reduxjs/toolkit";
+import {
+  combineReducers,
+  configureStore,
+  getDefaultMiddleware,
+} from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
 import getWeather from "./getWeather";
+import getCurrentUser from "./user";
+import storage from "redux-persist/lib/storage";
+import { persistReducer, persistStore } from "redux-persist";
+
+//persist 설정
+const persistConfig = {
+  key: "root",
+  storage,
+  // whitelist: ["특정 리듀서"] // 특정한 reducer만 localStorage에 저장하고 싶을 경우
+};
+
+const rootReducer = combineReducers({
+  weather: getWeather.reducer,
+  user: getCurrentUser.reducer,
+});
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: {
-    weather: getWeather.reducer,
-  },
-  // middleware: (getDefaultMiddleware) => getDefaultMiddleware(),
+  reducer: persistedReducer,
+  middleware: getDefaultMiddleware({
+    serializableCheck: false,
+  }),
 });
+export const persistor = persistStore(store);
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;

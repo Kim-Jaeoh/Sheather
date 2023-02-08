@@ -6,3 +6,4 @@ declare module "*.otf";
 declare module "*.ttf";
 declare module "*.woff";
 declare module "*.woff2";
+declare module "redux-persist/lib/storage";

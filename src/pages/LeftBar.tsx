@@ -2,15 +2,70 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Link, useLocation } from "react-router-dom";
 import { AiOutlineHome, AiFillHome } from "react-icons/ai";
-import { BsChatDots, BsChatDotsFill, BsSun, BsSunFill } from "react-icons/bs";
+import {
+  BsChatDots,
+  BsChatDotsFill,
+  BsPersonCircle,
+  BsSun,
+  BsSunFill,
+} from "react-icons/bs";
 import { CiSearch } from "react-icons/ci";
 import { FiSearch } from "react-icons/fi";
 import { BiSearch } from "react-icons/bi";
+import AuthFormModal from "../components/modal/auth/AuthFormModal";
+import { useDispatch } from "react-redux";
+import { currentUser, loginToken, Type } from "../app/user";
+import { authService, dbService } from "../fbase";
+import { RootState } from "../app/store";
+import { useSelector } from "react-redux";
+import { doc, onSnapshot } from "firebase/firestore";
 
 type Props = {};
 
 const LeftBar = (props: Props) => {
+  const [myInfo, setMyInfo] = useState(null);
   const { pathname } = useLocation();
+  const dispatch = useDispatch();
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
+
+  const [select, setSelect] = useState(false);
+
+  const onClick = () => {
+    setSelect((prev) => !prev);
+  };
+
+  const onLogOutClick = () => {
+    const ok = window.confirm("로그아웃 하시겠어요?");
+    if (ok) {
+      authService.signOut();
+      dispatch(loginToken(false));
+      dispatch(
+        currentUser({
+          uid: "",
+          createdAt: "",
+          profileURL: "",
+          email: "",
+          displayName: "",
+          description: "",
+          follower: [],
+          following: [],
+        })
+      );
+    }
+  };
+
+  // 본인 정보 가져오기
+  useEffect(() => {
+    if (userLogin) {
+      onSnapshot(doc(dbService, "users", userObj?.email), (doc) =>
+        setMyInfo(doc.data())
+      );
+    }
+  }, [userLogin, userObj]);
 
   return (
     <Container>
@@ -40,6 +95,26 @@ const LeftBar = (props: Props) => {
             <MenuText>탐색</MenuText>
           </MenuList>
         </MenuLink>
+        <MenuLink to="/profile">
+          <MenuList>
+            <BsPersonCircle />
+            <MenuText>프로필</MenuText>
+          </MenuList>
+        </MenuLink>
+        <div onClick={onClick}>
+          <MenuList>
+            <FiSearch />
+            <MenuText>로그인</MenuText>
+          </MenuList>
+        </div>
+        <div onClick={onLogOutClick}>
+          <MenuList>
+            <FiSearch />
+            <MenuText>로그아웃</MenuText>
+          </MenuList>
+        </div>
+        <div>{myInfo && myInfo.displayName}</div>
+        {select && <AuthFormModal modalOpen={select} modalClose={onClick} />}
       </MenuBox>
     </Container>
   );
@@ -87,6 +162,12 @@ const MenuBox = styled.ul<{ pathname: string }>`
   a:nth-of-type(4):focus li:focus {
     border: 2px solid #222222;
     box-shadow: 0px 6px 0 -2px #30c56e, 0px 6px #222222;
+  }
+
+  a:nth-of-type(5):hover li:hover,
+  a:nth-of-type(5):focus li:focus {
+    border: 2px solid #222222;
+    box-shadow: 0px 6px 0 -2px #6f4ccf, 0px 6px #222222;
   }
 
   /* 메뉴 클릭 했을 때 */
@@ -137,6 +218,18 @@ const MenuBox = styled.ul<{ pathname: string }>`
     box-shadow: ${(props) =>
       props.pathname === "/explore"
         ? "0px 6px 0 -2px #30c56e, 0px 6px #222"
+        : "0"};
+  }
+  a:nth-of-type(5) li {
+    font-weight: ${(props) =>
+      props.pathname === "/profile" ? "bold" : "normal"};
+    border: ${(props) =>
+      props.pathname === "/profile"
+        ? "2px solid #222222"
+        : "2px solid transparent"};
+    box-shadow: ${(props) =>
+      props.pathname === "/profile"
+        ? "0px 6px 0 -2px #6f4ccf, 0px 6px #222"
         : "0"};
   }
 `;

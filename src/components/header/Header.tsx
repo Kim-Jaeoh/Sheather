@@ -19,8 +19,6 @@ const Header = () => {
     region_3depth_name: "",
   });
 
-  console.log(pathname);
-
   const changeColor = useMemo(() => {
     if (pathname.includes("detail")) {
       return "#ff5673";
@@ -33,6 +31,9 @@ const Header = () => {
     }
     if (pathname.includes("explore")) {
       return "#30c56e";
+    }
+    if (pathname.includes("profile")) {
+      return "#6f4ccf";
     }
     return "#ff5673";
   }, [pathname]);

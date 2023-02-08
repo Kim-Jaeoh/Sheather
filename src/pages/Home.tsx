@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import a from "../assets/test1.jpeg";
 import b from "../assets/test2.jpeg";
@@ -16,14 +16,16 @@ import { Spinner } from "../assets/Spinner";
 import { Skeleton } from "@mui/material";
 import FeedModal from "../components/modal/feed/FeedModal";
 import DetailFeed from "../components/feed/DetailFeed";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import data from "../assets/data.json";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
   const [selectTime, setSelectTime] = useState(null);
+  const [getSize, setGetSize] = useState<boolean>(false);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isCalendar, setIsCalendar] = useState(false);
-  const testArray = [a, b, c, d, e, f];
+  // const testArray = [a, b, c, d, e, f];
   let getWidth = new Image(); // 이미지 정보 얻기
 
   const timeArray = [
@@ -36,6 +38,24 @@ const Home = () => {
   ];
 
   const onClickCalendar = () => setIsCalendar((prev) => !prev);
+
+  const feed = useMemo(() => {
+    if (selectCategory === 0) {
+      return data.feed;
+    }
+    if (selectCategory === 1) {
+      return data.feed
+        .filter((res) => res.like)
+        .sort((a: any, b: any) => b.like - a.like);
+    }
+    if (selectCategory === 2) {
+      return data.feed
+        .filter((res) => res.like)
+        .sort((a: any, b: any) => b.like - a.like);
+    }
+  }, [selectCategory]);
+
+  console.log(new Date(1664207202124));
 
   const CalendarBox = styled.div`
     z-index: 99;
@@ -58,7 +78,6 @@ const Home = () => {
     );
   };
 
-  const [getSize, setGetSize] = useState<boolean>(false);
   // const [openFeedModal, setOpenFeedModal] = useState<boolean>(false);
 
   // const onOpenFeedModal = () => setOpenFeedModal((prev) => !prev);
@@ -93,8 +112,15 @@ const Home = () => {
             >
               인기
             </SelectCurrentTime>
+            <SelectCurrentTime
+              onClick={() => setSelectCategory(2)}
+              select={selectCategory}
+              num={2}
+            >
+              시간별
+            </SelectCurrentTime>
           </SelectCategory>
-          {selectCategory === 1 && (
+          {selectCategory === 2 && (
             <SelectDetailTime>
               {timeArray.map((time, index) => (
                 <SelectTime
@@ -110,45 +136,56 @@ const Home = () => {
           )}
         </SelectTimeBox>
 
-        {testArray ? (
+        {feed ? (
           <CardBox>
-            {testArray.map((res, index) => {
+            {feed.map((res, index) => {
               getWidth.onload = () => {
                 setGetSize(getWidth.complete);
               };
-              getWidth.src = res;
+              getWidth.src = res.url[0];
               return (
                 <CardList key={index}>
-                  <Card to={"/detail"} aspect={getWidth.width}>
+                  <Card
+                    // onClick={() => onClickDetail(res.email)}
+                    aspect={getWidth.width}
+                    to={"/detail"}
+                    state={res.email}
+                  >
                     {getSize && (
                       <>
                         <WeatherEmojiBox>
-                          <WeatherEmoji>추워요</WeatherEmoji>
+                          <WeatherEmoji>{res.feel}</WeatherEmoji>
                         </WeatherEmojiBox>
                         <CardLengthBox>
-                          <CardLength>+3</CardLength>
+                          {res.url.length > 1 && (
+                            <CardLength>+{res.url.length}</CardLength>
+                          )}
                         </CardLengthBox>
-                        <CardImage src={res} alt="" />
+                        <CardImage
+                          onContextMenu={(e) => e.preventDefault()}
+                          src={res.url[0]}
+                          alt=""
+                        />
                       </>
                     )}
                   </Card>
                   <UserBox>
                     <UserInfoBox>
-                      <UserImageBox>
-                        <UserImage src={res ? res : defaultAccount} alt="" />
+                      <UserImageBox onContextMenu={(e) => e.preventDefault()}>
+                        <UserImage
+                          src={res.url ? res.url[0] : defaultAccount}
+                          alt=""
+                        />
                       </UserImageBox>
-                      <UserName>test_test</UserName>
+                      <UserName>{res.displayName}</UserName>
                       <UserReactBox>
                         <UserIcon>
                           <FaRegHeart />
                         </UserIcon>
-                        <UserReactNum>30</UserReactNum>
+                        <UserReactNum>{res.like}</UserReactNum>
                       </UserReactBox>
                     </UserInfoBox>
-                    <UserText>
-                      🖤💙🤍 #밸런타인챌린지 #KREAM스타일 #KREAM챌린지
-                      #스타일챌린지 #크림스타일 #크림챌린지 #dailylook #데일리룩
-                    </UserText>
+                    <UserText>{res.text}</UserText>
                   </UserBox>
                 </CardList>
               );
@@ -215,7 +252,7 @@ const SelectTimeBox = styled.nav<{ select: number }>`
   flex-direction: column;
   margin: 0 auto;
   margin-top: 20px;
-  margin-bottom: ${(props) => (props.select === 1 ? "60px" : "40px")};
+  margin-bottom: ${(props) => (props.select === 2 ? "60px" : "40px")};
   /* padding: 0 0 14px; */
 `;
 
@@ -399,7 +436,7 @@ const CardImage = styled.img`
 `;
 
 const UserBox = styled.div`
-  padding: 12px 8px 12px;
+  padding: 12px 12px;
 `;
 
 const UserInfoBox = styled.div`
@@ -429,7 +466,7 @@ const UserName = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
-  padding: 0 8px;
+  padding: 8px;
   white-space: nowrap;
   font-size: 14px;
   letter-spacing: -0.15px;

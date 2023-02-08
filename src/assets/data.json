@@ -1,0 +1,142 @@
+{
+  "feed": [
+    {
+      "url": ["./image/test1.jpeg"],
+      "displayName": "ynxx.k",
+      "email": "ynxx@test.com",
+      "createdAt": "1664207382124",
+      "like": "161",
+      "text": "날씨 살짝 좋은 거 같아요!",
+      "feel": "😥 조금 더워요",
+      "wearInfo": {
+        "outer": "",
+        "top": "긴팔",
+        "bottom": "면바지",
+        "etc": ""
+      },
+      "weatherInfo": {
+        "temp": "4",
+        "wind": "4",
+        "weatherIcon": "02d",
+        "weather": "약간의 구름이 낀 하늘"
+      },
+      "reply": [
+        {
+          "displayName": "5dong2",
+          "email": "5dong2@test.com",
+          "text": "좋아요~"
+        }
+      ]
+    },
+    {
+      "url": ["./image/test2.jpeg"],
+      "displayName": "5dong2",
+      "email": "5dong2@test.com",
+      "createdAt": "1664207202124",
+      "like": "51",
+      "text": "패딩 필쑤우!",
+      "feel": "🥶 추워요",
+      "wearInfo": {
+        "outer": "패딩",
+        "top": "긴팔",
+        "bottom": "면바지",
+        "etc": ""
+      },
+      "weatherInfo": {
+        "temp": "-3",
+        "wind": "2",
+        "weatherIcon": "01n",
+        "weather": "맑음"
+      },
+      "reply": [{ "displayName": "test1", "text": "좋아요~" }]
+    },
+    {
+      "url": ["./image/test3.jpeg"],
+      "displayName": "d2_b_",
+      "email": "d2b@test.com",
+      "createdAt": "1662407382124",
+      "like": "79",
+      "text": "바람 선선한 날에 바다 보니까 기분 쏘 뀼!",
+      "feel": "😄 적당해요",
+      "wearInfo": {
+        "outer": "",
+        "top": "맨투맨",
+        "bottom": "반바지",
+        "etc": ""
+      },
+      "weatherInfo": {
+        "temp": "16",
+        "wind": "4",
+        "weatherIcon": "01n",
+        "weather": "맑음"
+      },
+      "reply": [{ "displayName": "test1", "text": "좋아요~" }]
+    },
+    {
+      "url": ["./image/test4.jpeg"],
+      "displayName": "dam.trust",
+      "email": "dam@test.com",
+      "createdAt": "1664270382124",
+      "like": "94",
+      "text": "추울 줄 알고 가죽자켓 입었는데 살짝 애매쓰",
+      "feel": "😥 조금 더워요",
+      "wearInfo": {
+        "outer": "가죽 자켓",
+        "top": "긴팔",
+        "bottom": "청바지",
+        "etc": ""
+      },
+      "weatherInfo": {
+        "temp": "1",
+        "wind": "2",
+        "weatherIcon": "04d",
+        "weather": "온흐림"
+      },
+      "reply": [{ "displayName": "test1", "text": "좋아요~" }]
+    },
+    {
+      "url": ["./image/test5.jpeg"],
+      "displayName": "hongjo_ov",
+      "email": "hongjo@test.com",
+      "createdAt": "1664207832124",
+      "like": "60",
+      "text": "날씨 좋은 거 같아요!",
+      "feel": "😄 적당해요",
+      "wearInfo": {
+        "outer": "자켓",
+        "top": "셔츠",
+        "bottom": "치마",
+        "etc": ""
+      },
+      "weatherInfo": {
+        "temp": "5",
+        "wind": "2",
+        "weatherIcon": "03d",
+        "weather": "구름조금"
+      },
+      "reply": [{ "displayName": "test1", "text": "좋아요~" }]
+    },
+    {
+      "url": ["./image/test6.jpeg"],
+      "displayName": "jjaongs",
+      "email": "jjaongs@test.com",
+      "createdAt": "1664207389124",
+      "like": "53",
+      "text": "아직 반바지는 오바쓰",
+      "feel": "😬 조금 추워요",
+      "wearInfo": {
+        "outer": "",
+        "top": "맨투맨, 셔츠",
+        "bottom": "반바지",
+        "etc": ""
+      },
+      "weatherInfo": {
+        "temp": "4",
+        "wind": "2",
+        "weatherIcon": "04n",
+        "weather": "튼구름"
+      },
+      "reply": [{ "displayName": "test1", "text": "좋아요~" }]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
@@ -12,6 +12,8 @@ import { Spinner } from "./assets/Spinner";
 import DetailFeed from "./components/feed/DetailFeed";
 import Weather from "./pages/Weather";
 import SrollToTop from "./hooks/useScrollToTop";
+import { authService } from "./fbase";
+import Profile from "./pages/Profile";
 // const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
@@ -28,6 +30,21 @@ const App = () => {
   　　＼/　　　/
   `);
 
+  const [init, setInit] = useState(false);
+  const [userObj, setUserObj] = useState(null);
+
+  useEffect(() => {
+    // 유저 상태 변화 추적(로그인, 로그아웃, 어플리케이션 초기화 시)
+    authService.onAuthStateChanged(async (user) => {
+      if (user) {
+        setUserObj(user);
+      } else {
+        setUserObj(null);
+      }
+      setInit(true); // 어플리케이션이 언제 시작해도 onAuthStateChanged가 실행돼야 하기 때문에 true
+    });
+  }, []);
+
   return (
     <Suspense fallback={<Spinner />}>
       <SrollToTop />
@@ -43,6 +60,7 @@ const App = () => {
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/message" element={<Message />} />
                 <Route path="/explore" element={<Explore />} />
+                <Route path="/profile" element={<Profile />} />
               </Routes>
             </Container>
             <Footer />

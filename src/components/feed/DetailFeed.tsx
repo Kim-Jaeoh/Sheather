@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
 import { BiBookmark, BiLeftArrowAlt } from "react-icons/bi";
-import { useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import defaultAccount from "../../assets/account_img_default.png";
 import a from "../..//assets/test1.jpeg";
@@ -12,10 +17,19 @@ import "slick-carousel/slick/slick.css";
 import "./slick-theme.css";
 import Flicking from "@egjs/react-flicking";
 import "../../styles/flicking.css";
-import { BsBookmark } from "react-icons/bs";
+import { BsBookmark, BsSun } from "react-icons/bs";
 import { FiShare } from "react-icons/fi";
+import data from "../../assets/data.json";
+import { IoShirtOutline } from "react-icons/io5";
 
 const DetailFeed = () => {
+  const { feed } = data;
+  const { state } = useLocation();
+
+  const detailInfo = useMemo(() => {
+    return feed.filter((res) => state === res.email);
+  }, [feed, state]);
+
   const settings = {
     infinite: false,
     speed: 500,
@@ -38,17 +52,44 @@ const DetailFeed = () => {
     ),
   };
 
+  const timeToString = (timestamp: number) => {
+    const today = new Date();
+    const timeValue = new Date(timestamp);
+
+    const betweenTime = Math.floor(
+      (today.getTime() - timeValue.getTime()) / 1000 / 60
+    );
+    if (betweenTime < 1) return "방금 전";
+    if (betweenTime < 60) {
+      return `${betweenTime}분 전`;
+    }
+
+    const betweenTimeHour = Math.floor(betweenTime / 60);
+    if (betweenTimeHour < 24) {
+      return `${betweenTimeHour}시간 전`;
+    }
+
+    const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
+    if (betweenTimeDay < 365) {
+      return `${betweenTimeDay}일 전`;
+    }
+
+    return `${Math.floor(betweenTimeDay / 365)}년 전`;
+  };
+
   return (
     <Wrapper>
       <Container>
         <Header>
           <UserInfoBox>
             <UserImageBox>
-              <UserImage src={a} alt="" />
+              <UserImage src={detailInfo[0].url[0]} alt="" />
             </UserImageBox>
             <UserWriteInfo>
-              <UserName>test_test</UserName>
-              <WriteDate>2일전</WriteDate>
+              <UserName>{detailInfo[0].displayName}</UserName>
+              <WriteDate>
+                {timeToString(Number(detailInfo[0].createdAt))}
+              </WriteDate>
             </UserWriteInfo>
             <FollowBtnBox>팔로우</FollowBtnBox>
           </UserInfoBox>
@@ -56,7 +97,9 @@ const DetailFeed = () => {
         <WearDetailBox>
           <WearDetail>
             <WearInfoBox>
-              <WearInfoMain>해당 날씨</WearInfoMain>
+              <WearInfoMain>
+                <BsSun />
+              </WearInfoMain>
               <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
@@ -69,19 +112,16 @@ const DetailFeed = () => {
                       <Tag>
                         <WeatherIcon>
                           <img
-                            src={`http://openweathermap.org/img/wn/02d@2x.png`}
+                            src={`http://openweathermap.org/img/wn/${detailInfo[0].weatherInfo.weatherIcon}@2x.png`}
                             alt="weather icon"
                           />
                         </WeatherIcon>
-                        약간의 구름이 낀 하늘
+                        {detailInfo[0].weatherInfo.weather}
                       </Tag>
-                    </TagBox>
-                    <TagBox>
-                      <Tag>4º</Tag>
-                    </TagBox>
-                    <TagBox>
+                      <Tag>{detailInfo[0].weatherInfo.temp}º</Tag>
                       <Tag>
-                        4<span>m/s</span>
+                        {detailInfo[0].weatherInfo.wind}
+                        <span>m/s</span>
                       </Tag>
                     </TagBox>
                   </WearInfo>
@@ -91,7 +131,9 @@ const DetailFeed = () => {
           </WearDetail>
           <WearDetail>
             <WearInfoBox>
-              <WearInfoMain>현재 착장</WearInfoMain>
+              <WearInfoMain>
+                <IoShirtOutline />
+              </WearInfoMain>
               <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
@@ -101,13 +143,19 @@ const DetailFeed = () => {
                 >
                   <WearInfo>
                     <TagBox>
-                      <Tag>😥 조금 더워요</Tag>
-                    </TagBox>
-                    <TagBox>
-                      <Tag>긴팔</Tag>
-                    </TagBox>
-                    <TagBox>
-                      <Tag>면바지</Tag>
+                      <Tag>{detailInfo[0].feel}</Tag>
+                      {detailInfo[0].wearInfo.outer && (
+                        <Tag>{detailInfo[0].wearInfo.outer}</Tag>
+                      )}
+                      {detailInfo[0].wearInfo.top && (
+                        <Tag>{detailInfo[0].wearInfo.top}</Tag>
+                      )}
+                      {detailInfo[0].wearInfo.bottom && (
+                        <Tag>{detailInfo[0].wearInfo.bottom}</Tag>
+                      )}
+                      {detailInfo[0].wearInfo.etc && (
+                        <Tag>{detailInfo[0].wearInfo.etc}</Tag>
+                      )}
                     </TagBox>
                   </WearInfo>
                 </Flicking>
@@ -115,14 +163,21 @@ const DetailFeed = () => {
             </WearInfoBox>
           </WearDetail>
         </WearDetailBox>
-        <Slider {...settings}>
-          <Card>
-            <CardImage src={a} alt="" />
+        {detailInfo[0].url.length > 1 ? (
+          <Slider {...settings}>
+            {detailInfo[0].url.map((res, index) => {
+              return (
+                <Card key={index}>
+                  <CardImage src={res} alt="" />
+                </Card>
+              );
+            })}
+          </Slider>
+        ) : (
+          <Card onContextMenu={(e) => e.preventDefault()}>
+            <CardImage src={detailInfo[0].url[0]} alt="" />
           </Card>
-          <Card>
-            <CardImage src={a} alt="" />
-          </Card>
-        </Slider>
+        )}
         <InfoBox>
           <TextBox>
             <UserReactBox>
@@ -138,10 +193,10 @@ const DetailFeed = () => {
                 <FiShare />
               </Icon>
             </UserReactBox>
-            <UserReactNum>공감 20개</UserReactNum>
+            <UserReactNum>공감 {detailInfo[0].like}</UserReactNum>
             <UserTextBox>
-              <UserId>test_test</UserId>
-              <UserText>진짜 너무 더워여........</UserText>
+              <UserId>{detailInfo[0].displayName}</UserId>
+              <UserText>{detailInfo[0].text}</UserText>
             </UserTextBox>
           </TextBox>
         </InfoBox>
@@ -159,7 +214,7 @@ const Wrapper = styled.main`
   /* height: 100%; */
   /* width: 500px;
   margin: 0 auto; */
-  padding: 20px;
+  padding: 20px 60px 30px;
   background: #ff5673;
 `;
 
@@ -168,7 +223,24 @@ const Container = styled.main`
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 8px 8px 0px rgba(134, 25, 44, 0.4);
+  box-shadow: #d43d59 1px 1px, #d43d59 0px 0px, #d43d59 1px 1px, #d43d59 2px 2px,
+    #d43d59 3px 3px, #d43d59 4px 4px, #d43d59 5px 5px, #d43d59 6px 6px,
+    #d43d59 7px 7px, #d43d59 8px 8px, #d43d59 9px 9px, #d43d59 10px 10px,
+    #d43d59 11px 11px, #d43d59 12px 12px, #d43d59 13px 13px, #d43d59 14px 14px,
+    #d43d59 15px 15px, #d43d59 16px 16px, #d43d59 17px 17px, #d43d59 18px 18px,
+    #d43d59 19px 19px, #d43d59 20px 20px, #d43d59 21px 21px, #d43d59 22px 22px,
+    #d43d59 23px 23px, #d43d59 24px 24px, #d43d59 25px 25px, #d43d59 26px 26px,
+    #d43d59 27px 27px, #d43d59 28px 28px, #d43d59 29px 29px, #d43d59 30px 30px,
+    #d43d59 31px 31px, #d43d59 32px 32px, #d43d59 33px 33px, #d43d59 34px 34px,
+    #d43d59 35px 35px, #d43d59 36px 36px, #d43d59 37px 37px, #d43d59 38px 38px,
+    #d43d59 39px 39px, #d43d59 40px 40px, #d43d59 41px 41px, #d43d59 42px 42px,
+    #d43d59 43px 43px, #d43d59 44px 44px, #d43d59 45px 45px, #d43d59 46px 46px,
+    #d43d59 47px 47px, #d43d59 48px 48px, #d43d59 49px 49px, #d43d59 50px 50px,
+    #d43d59 51px 51px, #d43d59 52px 52px, #d43d59 53px 53px, #d43d59 54px 54px,
+    #d43d59 55px 55px, #d43d59 56px 56px, #d43d59 57px 57px, #d43d59 58px 58px,
+    #d43d59 59px 59px, #d43d59 60px 60px, #d43d59 61px 61px, #d43d59 62px 62px,
+    #d43d59 63px 63px;
+  /* box-shadow: 8px 8px 0px #86192c4c; */
 `;
 
 const Header = styled.div`
@@ -209,6 +281,7 @@ const UserName = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 16px;
+  font-weight: bold;
   letter-spacing: -0.15px;
   color: rgba(34, 34, 34, 0.8);
 `;
@@ -218,7 +291,9 @@ const FollowBtnBox = styled.button`
   align-items: center;
   justify-content: center;
   margin-left: auto;
-  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 10px 16px;
   /* width: 82px; */
   /* height: 30px; */
   color: #fff;
@@ -238,9 +313,11 @@ const UserImage = styled.img`
 const Card = styled.div`
   display: block;
   position: relative;
-  cursor: pointer;
+  /* cursor: pointer; */
+  user-select: none;
   outline: none;
   overflow: hidden;
+  /* max-height: 532px; */
   border-bottom: 1px solid ${thirdColor};
 `;
 
@@ -278,13 +355,19 @@ const WearInfoBox = styled.div`
 const WearInfoMain = styled.div`
   flex: 0 0 auto;
   user-select: text;
-  color: ${thirdColor};
+  color: ${secondColor};
   /* min-width: 55px; */
   text-align: center;
-  padding-right: 8px;
   margin-right: 8px;
-  border-right: 1px solid ${thirdColor};
-  font-size: 12px;
+  /* padding-right: 8px; */
+  /* border-right: 1px solid ${thirdColor}; */
+  font-size: 14px;
+
+  svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const FlickingBox = styled.div`
@@ -352,7 +435,7 @@ const Tag = styled.div`
 
 const InfoBox = styled.div`
   /* height: 300px; */
-  padding: 12px;
+  padding: 20px;
   margin-top: -4px;
   /* border-bottom: 1px solid ${thirdColor}; */
 `;
@@ -367,13 +450,13 @@ const UserReactBox = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-left: -2px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 `;
 
 const UserReactNum = styled.p`
   font-size: 14px;
   /* color: ${thirdColor}; */
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 `;
 
 const IconBox = styled.div`
