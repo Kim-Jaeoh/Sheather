@@ -1,11 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import a from "../assets/test1.jpeg";
-import b from "../assets/test2.jpeg";
-import c from "../assets/test3.jpeg";
-import d from "../assets/test4.jpeg";
-import e from "../assets/test5.jpeg";
-import f from "../assets/test6.jpeg";
 import defaultAccount from "../assets/account_img_default.png";
 import ColorList from "../assets/ColorList";
 import { FaRegHeart } from "react-icons/fa";
@@ -17,7 +11,11 @@ import { Skeleton } from "@mui/material";
 import FeedModal from "../components/modal/feed/FeedModal";
 import DetailFeed from "../components/feed/DetailFeed";
 import { Link, useNavigate } from "react-router-dom";
-import data from "../assets/data.json";
+import datas from "../assets/data.json";
+import { useQuery } from "@tanstack/react-query";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { UserType } from "../app/user";
+import { FeedType } from "../types/type";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
@@ -25,44 +23,71 @@ const Home = () => {
   const [getSize, setGetSize] = useState<boolean>(false);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isCalendar, setIsCalendar] = useState(false);
-  // const testArray = [a, b, c, d, e, f];
-  let getWidth = new Image(); // 이미지 정보 얻기
+
+  const feedApi = async () => {
+    const { data } = await axios.get("http://localhost:4000/api/feedData");
+    return data;
+  };
+
+  // 단기 예보 정보 가져오기
+  const { data: feedData, isLoading } = useQuery(["feedApi"], feedApi, {
+    refetchOnWindowFocus: false,
+    onError: (e) => console.log(e),
+  });
 
   const timeArray = [
     "00 ~ 03시",
-    "04 ~ 06시",
-    "07 ~ 12시",
-    "13 ~ 15시",
-    "16 ~ 18시",
-    "19 ~ 21시",
+    "03 ~ 06시",
+    "06 ~ 09시",
+    "09 ~ 12시",
+    "12 ~ 15시",
+    "15 ~ 18시",
+    "18 ~ 21시",
   ];
 
   const onClickCalendar = () => setIsCalendar((prev) => !prev);
 
   const feed = useMemo(() => {
+    const date = (time: number) => new Date(time);
+    const timeRanges = [
+      [0, 3],
+      [3, 6],
+      [6, 9],
+      [9, 12],
+      [12, 15],
+      [15, 18],
+      [18, 21],
+    ];
+
+    // 최신
     if (selectCategory === 0) {
-      return data.feed;
+      setSelectTime(null); // 시간대별 초기화
+      return feedData;
     }
+
+    // 인기
     if (selectCategory === 1) {
-      return data.feed
-        .filter((res) => res.like)
-        .sort((a: any, b: any) => b.like - a.like);
+      setSelectTime(null); // 시간대별 초기화
+      return feedData
+        .filter((res: FeedType) => res.like)
+        .sort((a: FeedType, b: FeedType) => b.like - a.like);
     }
+
+    // 시간별
     if (selectCategory === 2) {
-      return data.feed
-        .filter((res) => res.like)
-        .sort((a: any, b: any) => b.like - a.like);
+      const selectedTimeRange = timeRanges.find(
+        (range) => range[0] === selectTime * 3 // selectTime이 0부터 시작이라 3을 곱해서 맞는 index 값 추출
+      );
+
+      if (selectTime !== null) {
+        return feedData.filter((res: FeedType) => {
+          const hour = date(Number(res.createdAt)).getHours();
+          return hour >= selectedTimeRange[0] && hour < selectedTimeRange[1];
+        });
+      }
+      return feedData;
     }
-  }, [selectCategory]);
-
-  console.log(new Date(1664207202124));
-
-  const CalendarBox = styled.div`
-    z-index: 99;
-    position: absolute;
-    right: 10px;
-    top: 36px;
-  `;
+  }, [feedData, selectCategory, selectTime]);
 
   const CalendarText = () => {
     return (
@@ -77,10 +102,6 @@ const Home = () => {
         : changeValue.getDate())
     );
   };
-
-  // const [openFeedModal, setOpenFeedModal] = useState<boolean>(false);
-
-  // const onOpenFeedModal = () => setOpenFeedModal((prev) => !prev);
 
   return (
     <>
@@ -126,33 +147,35 @@ const Home = () => {
                 <SelectTime
                   onClick={() => setSelectTime(index)}
                   num={index}
-                  key={time}
+                  key={index}
                   select={selectTime}
                 >
                   {time}
+                  {/* {`${time[0]} ~ ${time[1]}시`} */}
                 </SelectTime>
               ))}
             </SelectDetailTime>
           )}
         </SelectTimeBox>
 
-        {feed ? (
+        {!isLoading ? (
           <CardBox>
-            {feed.map((res, index) => {
+            {feed?.map((res: FeedType, index: number) => {
+              const getWidth = new Image(); // 이미지 정보 얻기
               getWidth.onload = () => {
                 setGetSize(getWidth.complete);
               };
               getWidth.src = res.url[0];
               return (
-                <CardList key={index}>
-                  <Card
-                    // onClick={() => onClickDetail(res.email)}
-                    aspect={getWidth.width}
-                    to={"/detail"}
-                    state={res.email}
-                  >
-                    {getSize && (
-                      <>
+                <CardList key={res.email}>
+                  {!isLoading && (
+                    <>
+                      <Card
+                        // onClick={() => onClickDetail(res.email)}
+                        aspect={getWidth.width}
+                        to={"/detail"}
+                        state={res.email}
+                      >
                         <WeatherEmojiBox>
                           <WeatherEmoji>{res.feel}</WeatherEmoji>
                         </WeatherEmojiBox>
@@ -161,32 +184,36 @@ const Home = () => {
                             <CardLength>+{res.url.length}</CardLength>
                           )}
                         </CardLengthBox>
-                        <CardImage
-                          onContextMenu={(e) => e.preventDefault()}
-                          src={res.url[0]}
-                          alt=""
-                        />
-                      </>
-                    )}
-                  </Card>
-                  <UserBox>
-                    <UserInfoBox>
-                      <UserImageBox onContextMenu={(e) => e.preventDefault()}>
-                        <UserImage
-                          src={res.url ? res.url[0] : defaultAccount}
-                          alt=""
-                        />
-                      </UserImageBox>
-                      <UserName>{res.displayName}</UserName>
-                      <UserReactBox>
-                        <UserIcon>
-                          <FaRegHeart />
-                        </UserIcon>
-                        <UserReactNum>{res.like}</UserReactNum>
-                      </UserReactBox>
-                    </UserInfoBox>
-                    <UserText>{res.text}</UserText>
-                  </UserBox>
+                        <CardImageBox>
+                          <CardImage
+                            onContextMenu={(e) => e.preventDefault()}
+                            src={res.url[0]}
+                            alt=""
+                          />
+                        </CardImageBox>
+                      </Card>
+                      <UserBox>
+                        <UserInfoBox>
+                          <UserImageBox
+                            onContextMenu={(e) => e.preventDefault()}
+                          >
+                            <UserImage
+                              src={res.url ? res.url[0] : defaultAccount}
+                              alt=""
+                            />
+                          </UserImageBox>
+                          <UserName>{res.displayName}</UserName>
+                          <UserReactBox>
+                            <UserIcon>
+                              <FaRegHeart />
+                            </UserIcon>
+                            <UserReactNum>{res.like}</UserReactNum>
+                          </UserReactBox>
+                        </UserInfoBox>
+                        <UserText>{res.text}</UserText>
+                      </UserBox>
+                    </>
+                  )}
                 </CardList>
               );
             })}
@@ -196,17 +223,18 @@ const Home = () => {
             {Array.from({ length: 9 }).map((res, index) => {
               return (
                 <CardList
+                  key={index}
                   style={{
                     border: "2px solid #dbdbdb",
-                    width: "238px",
-                    height: "344px",
+                    width: "318px",
+                    height: "404px",
                   }}
                 >
                   <Card
                     to={""}
                     style={{
-                      width: "234px",
-                      height: "234px",
+                      width: "314px",
+                      height: "314px",
                       padding: "12px",
                       borderBottom: "2px solid #dbdbdb",
                     }}
@@ -218,7 +246,7 @@ const Home = () => {
                     />
                   </Card>
                   <UserBox
-                    style={{ width: "234px", height: "104px", padding: "12px" }}
+                    style={{ width: "314px", height: "84px", padding: "12px" }}
                   >
                     <Skeleton
                       width={"100%"}
@@ -238,6 +266,13 @@ const Home = () => {
 export default React.memo(Home);
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+
+const CalendarBox = styled.div`
+  z-index: 99;
+  position: absolute;
+  right: 10px;
+  top: 36px;
+`;
 
 const Container = styled.main`
   height: 100%;
@@ -344,18 +379,18 @@ const DateIcon = styled.span`
 
 const CardBox = styled.ul`
   width: 100%;
-  column-width: 300px;
+  column-width: 318px;
   column-gap: 20px;
 `;
 
 const CardList = styled.li`
   display: inline-block;
   margin-bottom: 20px;
-  border-radius: 12px;
+  border-radius: 8px;
   border: 2px solid ${secondColor};
   overflow: hidden;
   position: relative;
-
+  width: 100%;
   animation-name: slideUp;
   animation-duration: 0.4s;
   animation-timing-function: ease-in-out;
@@ -382,7 +417,8 @@ const Card = styled(Link)<{ aspect?: number }>`
   outline: none;
   overflow: hidden;
   border-bottom: 2px solid ${secondColor};
-  /* padding-top: ${(props) => (props.aspect === 525 ? "100%" : "133.33%")}; */
+  /* width: 318px; */
+  padding-top: ${(props) => (props.aspect === 525 ? "100%" : "132.8%")};
 `;
 
 const WeatherEmojiBox = styled.div`
@@ -422,17 +458,27 @@ const CardLength = styled.span`
   color: #fff;
 `;
 
+const CardImageBox = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  width: 100%;
+`;
+
 const CardImage = styled.img`
-  /* position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0; */
   image-rendering: auto;
   display: block;
   width: 100%;
   height: 100%;
   /* object-fit: cover; */
+  /* position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  object-fit: cover; */
 `;
 
 const UserBox = styled.div`

@@ -401,7 +401,7 @@ const Container = styled.div`
   transform: translate(-50%, -50%);
   /* margin: 0 auto; */
   background: #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   /* overflow: auto; */
   border: 2px solid ${secondColor};
   box-shadow: 12px 12px 0 -2px ${mainColor}, 12px 12px ${secondColor};

@@ -65,3 +65,30 @@ export interface WeathersFiveDataType extends WeatherDataType {
 export interface WeatherMapDataType {
   list: WeathersFiveDataType[];
 }
+
+export interface FeedType {
+  url: string[];
+  displayName: string;
+  email: string;
+  createdAt: number;
+  like: number;
+  text: string;
+  feel: string;
+  wearInfo: {
+    outer: string;
+    top: string;
+    bottom: string;
+    etc: string;
+  };
+  weatherInfo: {
+    temp: number;
+    wind: number;
+    weatherIcon: string;
+    weather: string;
+  };
+  reply: {
+    displayName: string;
+    email: string;
+    text: string;
+  }[];
+}

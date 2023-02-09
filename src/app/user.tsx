@@ -22,23 +22,6 @@ export interface UserType {
   };
 }
 
-export interface Type {
-  uid: string;
-  createdAt: number;
-  email: string;
-  profileURL: string;
-  displayName: string;
-  description: string;
-  follower: {
-    followerId: string;
-    followerAt: number;
-  }[];
-  following: {
-    followingId: string;
-    followingAt: number;
-  }[];
-}
-
 const initialState: UserType = {
   loginToken: false,
   currentUser: {

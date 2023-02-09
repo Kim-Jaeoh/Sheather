@@ -14,15 +14,13 @@ import { FiSearch } from "react-icons/fi";
 import { BiSearch } from "react-icons/bi";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import { useDispatch } from "react-redux";
-import { currentUser, loginToken, Type } from "../app/user";
+import { currentUser, loginToken } from "../app/user";
 import { authService, dbService } from "../fbase";
 import { RootState } from "../app/store";
 import { useSelector } from "react-redux";
 import { doc, onSnapshot } from "firebase/firestore";
 
-type Props = {};
-
-const LeftBar = (props: Props) => {
+const LeftBar = () => {
   const [myInfo, setMyInfo] = useState(null);
   const { pathname } = useLocation();
   const dispatch = useDispatch();

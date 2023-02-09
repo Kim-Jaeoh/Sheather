@@ -21,10 +21,12 @@ import { BsBookmark, BsSun } from "react-icons/bs";
 import { FiShare } from "react-icons/fi";
 import data from "../../assets/data.json";
 import { IoShirtOutline } from "react-icons/io5";
+import useTimeFormat from "../../hooks/useTimeFormat";
 
 const DetailFeed = () => {
   const { feed } = data;
   const { state } = useLocation();
+  const { timeToString, timeToString2 } = useTimeFormat();
 
   const detailInfo = useMemo(() => {
     return feed.filter((res) => state === res.email);
@@ -52,31 +54,6 @@ const DetailFeed = () => {
     ),
   };
 
-  const timeToString = (timestamp: number) => {
-    const today = new Date();
-    const timeValue = new Date(timestamp);
-
-    const betweenTime = Math.floor(
-      (today.getTime() - timeValue.getTime()) / 1000 / 60
-    );
-    if (betweenTime < 1) return "방금 전";
-    if (betweenTime < 60) {
-      return `${betweenTime}분 전`;
-    }
-
-    const betweenTimeHour = Math.floor(betweenTime / 60);
-    if (betweenTimeHour < 24) {
-      return `${betweenTimeHour}시간 전`;
-    }
-
-    const betweenTimeDay = Math.floor(betweenTime / 60 / 24);
-    if (betweenTimeDay < 365) {
-      return `${betweenTimeDay}일 전`;
-    }
-
-    return `${Math.floor(betweenTimeDay / 365)}년 전`;
-  };
-
   return (
     <Wrapper>
       <Container>
@@ -88,7 +65,7 @@ const DetailFeed = () => {
             <UserWriteInfo>
               <UserName>{detailInfo[0].displayName}</UserName>
               <WriteDate>
-                {timeToString(Number(detailInfo[0].createdAt))}
+                {timeToString2(Number(detailInfo[0].createdAt))}
               </WriteDate>
             </UserWriteInfo>
             <FollowBtnBox>팔로우</FollowBtnBox>
@@ -272,7 +249,7 @@ const UserWriteInfo = styled.div`
 `;
 
 const WriteDate = styled.span`
-  font-size: 14px;
+  font-size: 12px;
 `;
 
 const UserName = styled.div`
@@ -349,7 +326,6 @@ const WearDetail = styled.div`
 const WearInfoBox = styled.div`
   display: flex;
   align-items: center;
-  cursor: pointer;
 `;
 
 const WearInfoMain = styled.div`
@@ -372,6 +348,7 @@ const WearInfoMain = styled.div`
 
 const FlickingBox = styled.div`
   position: relative;
+  cursor: pointer;
 
   /* &::before {
     left: 0px;

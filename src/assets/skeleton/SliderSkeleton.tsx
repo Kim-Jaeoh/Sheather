@@ -54,7 +54,7 @@ const Wrapper = styled.div`
     margin-bottom: 30px;
   }
   background: #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   border: 2px solid ${secondColor};
 `;

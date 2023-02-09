@@ -226,7 +226,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Wrapper = styled.div`
   background: #fff;
   width: 100%;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   border: 2px solid ${secondColor};
   box-shadow: 8px 8px 0px rgba(35, 92, 150, 0.3);
