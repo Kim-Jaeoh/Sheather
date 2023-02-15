@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import defaultAccount from "../assets/account_img_default.png";
 import ColorList from "../assets/ColorList";
-import { FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { BsCalendar3 } from "react-icons/bs";
 import Calendar from "react-calendar";
 import "../styles/Calendar.css"; // css import
@@ -12,28 +12,41 @@ import FeedModal from "../components/modal/feed/FeedModal";
 import DetailFeed from "../components/feed/DetailFeed";
 import { Link, useNavigate } from "react-router-dom";
 import datas from "../assets/data.json";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { UserType } from "../app/user";
 import { FeedType } from "../types/type";
+import { useSelector } from "react-redux";
+import { RootState } from "../app/store";
+import useToggleLike from "../hooks/useToggleLike";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
   const [selectTime, setSelectTime] = useState(null);
   const [getSize, setGetSize] = useState<boolean>(false);
+  const [liked, setLiked] = useState<boolean>(false);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isCalendar, setIsCalendar] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
 
   const feedApi = async () => {
-    const { data } = await axios.get("http://localhost:4000/api/feedData");
+    const { data } = await axios.get("http://localhost:4000/api/feed");
     return data;
   };
 
-  // 단기 예보 정보 가져오기
-  const { data: feedData, isLoading } = useQuery(["feedApi"], feedApi, {
-    refetchOnWindowFocus: false,
-    onError: (e) => console.log(e),
-  });
+  // 피드 리스트 가져오기
+  const { data: feedData, isLoading } = useQuery<FeedType[]>(
+    ["feed"],
+    feedApi,
+    {
+      refetchOnWindowFocus: false,
+      onError: (e) => console.log(e),
+    }
+  );
 
   const timeArray = [
     "00 ~ 03시",
@@ -43,6 +56,7 @@ const Home = () => {
     "12 ~ 15시",
     "15 ~ 18시",
     "18 ~ 21시",
+    "21 ~ 00시",
   ];
 
   const onClickCalendar = () => setIsCalendar((prev) => !prev);
@@ -57,20 +71,21 @@ const Home = () => {
       [12, 15],
       [15, 18],
       [18, 21],
+      [21, 24],
     ];
 
     // 최신
     if (selectCategory === 0) {
       setSelectTime(null); // 시간대별 초기화
-      return feedData;
+      return feedData
+        ?.filter((res) => res.createdAt)
+        .sort((a, b) => a.createdAt - b.createdAt);
     }
 
     // 인기
     if (selectCategory === 1) {
       setSelectTime(null); // 시간대별 초기화
-      return feedData
-        .filter((res: FeedType) => res.like)
-        .sort((a: FeedType, b: FeedType) => b.like - a.like);
+      return feedData.sort((a, b) => b.like.length - a.like.length);
     }
 
     // 시간별
@@ -80,7 +95,7 @@ const Home = () => {
       );
 
       if (selectTime !== null) {
-        return feedData.filter((res: FeedType) => {
+        return feedData.filter((res) => {
           const hour = date(Number(res.createdAt)).getHours();
           return hour >= selectedTimeRange[0] && hour < selectedTimeRange[1];
         });
@@ -101,6 +116,67 @@ const Home = () => {
         ? "0" + changeValue.getDate()
         : changeValue.getDate())
     );
+  };
+
+  const { toggleLike } = useToggleLike();
+  // // 좋아요
+  // const { mutate } = useMutation(
+  //   (response: {
+  //     parentEmail: string;
+  //     like: { email: string; likedAt: number }[];
+  //   }) => axios.patch("http://localhost:4000/api/like", response),
+  //   {
+  //     onSuccess: () => {
+  //       queryClient.invalidateQueries(["feed"]);
+  //     },
+  //   }
+  // );
+
+  // const toggleLike = async (res: FeedType) => {
+  //   const copy = [...res.like];
+  //   const findEmail = copy.filter((res) => res.email === userObj.email);
+  //   const filter = copy.filter((res) => res.email !== userObj.email);
+  //   if (findEmail.length === 0) {
+  //     setLiked(true);
+  //     mutate({
+  //       parentEmail: res.email,
+  //       like: [...copy, { email: userObj.email, likedAt: +new Date() }],
+  //     });
+  //   } else {
+  //     setLiked(false);
+  //     mutate({
+  //       parentEmail: res.email,
+  //       like: filter,
+  //     });
+  //   }
+  // };
+
+  let checkSize: number;
+  let checkAspect: number;
+  const sizes = (aspect: string) => {
+    if (aspect === "4/3") {
+      return (checkSize = 36);
+      // return { checkSize: 36, checkAspect: 74.8 };
+    }
+    if (aspect === "1/1") {
+      return (checkSize = 44);
+      // return { checkSize: 44, checkAspect: 100 };
+    }
+    if (aspect === "3/4") {
+      return (checkSize = 54);
+      // return { checkSize: 54, checkAspect: 74.8 };
+    }
+  };
+  const sizeAspect = (aspect: string) => {
+    if (aspect === "4/3") {
+      return (checkAspect = 74.8);
+    }
+    if (aspect === "1/1") {
+      return (checkAspect = 100);
+    }
+    if (aspect === "3/4") {
+      return (checkAspect = 132.8);
+    }
   };
 
   return (
@@ -151,7 +227,6 @@ const Home = () => {
                   select={selectTime}
                 >
                   {time}
-                  {/* {`${time[0]} ~ ${time[1]}시`} */}
                 </SelectTime>
               ))}
             </SelectDetailTime>
@@ -159,61 +234,59 @@ const Home = () => {
         </SelectTimeBox>
 
         {!isLoading ? (
-          <CardBox>
-            {feed?.map((res: FeedType, index: number) => {
-              const getWidth = new Image(); // 이미지 정보 얻기
-              getWidth.onload = () => {
-                setGetSize(getWidth.complete);
-              };
-              getWidth.src = res.url[0];
+          <CardBox feedLength={feed.length}>
+            {feed?.map((res, index: number) => {
+              sizes(res.imgAspect);
+              sizeAspect(res.imgAspect);
               return (
-                <CardList key={res.email}>
-                  {!isLoading && (
-                    <>
-                      <Card
-                        // onClick={() => onClickDetail(res.email)}
-                        aspect={getWidth.width}
-                        to={"/detail"}
-                        state={res.email}
+                <CardList size={checkSize} key={res.createdAt}>
+                  <Card
+                    aspect={checkAspect}
+                    to={"/detail"}
+                    state={res.createdAt}
+                  >
+                    <WeatherEmojiBox>
+                      <WeatherEmoji>{res.feel}</WeatherEmoji>
+                    </WeatherEmojiBox>
+                    <CardLengthBox>
+                      {res.url.length > 1 && (
+                        <CardLength>+{res.url.length}</CardLength>
+                      )}
+                    </CardLengthBox>
+                    <CardImageBox>
+                      <CardImage
+                        onContextMenu={(e) => e.preventDefault()}
+                        src={res.url[0]}
+                        alt=""
+                      />
+                    </CardImageBox>
+                  </Card>
+                  <UserBox>
+                    <UserInfoBox>
+                      <UserImageBox onContextMenu={(e) => e.preventDefault()}>
+                        <UserImage
+                          src={res.url ? res.url[0] : defaultAccount}
+                          alt=""
+                        />
+                      </UserImageBox>
+                      <UserName>{res.displayName}</UserName>
+                      <UserReactBox
+                        type="button"
+                        onClick={() => toggleLike(res)}
                       >
-                        <WeatherEmojiBox>
-                          <WeatherEmoji>{res.feel}</WeatherEmoji>
-                        </WeatherEmojiBox>
-                        <CardLengthBox>
-                          {res.url.length > 1 && (
-                            <CardLength>+{res.url.length}</CardLength>
+                        <UserIcon>
+                          {res.like.filter((asd) => asd.email === userObj.email)
+                            .length > 0 ? (
+                            <FaHeart style={{ color: "#FF5673" }} />
+                          ) : (
+                            <FaRegHeart />
                           )}
-                        </CardLengthBox>
-                        <CardImageBox>
-                          <CardImage
-                            onContextMenu={(e) => e.preventDefault()}
-                            src={res.url[0]}
-                            alt=""
-                          />
-                        </CardImageBox>
-                      </Card>
-                      <UserBox>
-                        <UserInfoBox>
-                          <UserImageBox
-                            onContextMenu={(e) => e.preventDefault()}
-                          >
-                            <UserImage
-                              src={res.url ? res.url[0] : defaultAccount}
-                              alt=""
-                            />
-                          </UserImageBox>
-                          <UserName>{res.displayName}</UserName>
-                          <UserReactBox>
-                            <UserIcon>
-                              <FaRegHeart />
-                            </UserIcon>
-                            <UserReactNum>{res.like}</UserReactNum>
-                          </UserReactBox>
-                        </UserInfoBox>
-                        <UserText>{res.text}</UserText>
-                      </UserBox>
-                    </>
-                  )}
+                        </UserIcon>
+                        <UserReactNum>{res.like.length}</UserReactNum>
+                      </UserReactBox>
+                    </UserInfoBox>
+                    <UserText>{res.text}</UserText>
+                  </UserBox>
                 </CardList>
               );
             })}
@@ -276,7 +349,7 @@ const CalendarBox = styled.div`
 
 const Container = styled.main`
   height: 100%;
-  padding: 20px;
+  padding: 20px 10px 10px;
   position: relative;
 `;
 
@@ -377,20 +450,32 @@ const DateIcon = styled.span`
   justify-content: center;
 `;
 
-const CardBox = styled.ul`
+const CardBox = styled.ul<{ feedLength?: number }>`
+  /* width: 100%;
+  display: ${(props) => props.feedLength === 2 && `flex`};
+  column-width: ${(props) =>
+    (props.feedLength === 1 || props.feedLength > 2) && `318px`};
+  column-gap: 20px; */
   width: 100%;
-  column-width: 318px;
-  column-gap: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 10px;
 `;
 
-const CardList = styled.li`
-  display: inline-block;
-  margin-bottom: 20px;
-  border-radius: 8px;
+const CardList = styled.li<{ size?: number }>`
+  /* border-radius: 8px;
   border: 2px solid ${secondColor};
   overflow: hidden;
   position: relative;
   width: 100%;
+  margin-bottom: 20px;
+  height: 100%; */
+  margin: 10px;
+  border-radius: 8px;
+  border: 2px solid ${secondColor};
+  overflow: hidden;
+  grid-row-end: span ${(props) => props.size};
+
   animation-name: slideUp;
   animation-duration: 0.4s;
   animation-timing-function: ease-in-out;
@@ -418,7 +503,7 @@ const Card = styled(Link)<{ aspect?: number }>`
   overflow: hidden;
   border-bottom: 2px solid ${secondColor};
   /* width: 318px; */
-  padding-top: ${(props) => (props.aspect === 525 ? "100%" : "132.8%")};
+  padding-top: ${(props) => `${props.aspect}%`};
 `;
 
 const WeatherEmojiBox = styled.div`
@@ -519,8 +604,10 @@ const UserName = styled.div`
   color: rgba(34, 34, 34, 0.8);
 `;
 
-const UserReactBox = styled.div`
+const UserReactBox = styled.button`
   display: flex;
+  margin: 0;
+  padding: 0;
   align-items: center;
 `;
 
@@ -531,10 +618,13 @@ const UserIcon = styled.div`
   height: 20px;
   cursor: pointer;
   color: ${thirdColor};
+  svg {
+    margin-right: 4px;
+    font-size: 16px;
+  }
 `;
 
 const UserReactNum = styled.p`
-  margin-left: 2px;
   font-size: 14px;
   color: ${thirdColor};
 `;

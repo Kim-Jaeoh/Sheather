@@ -33,36 +33,12 @@ const ShareWeather = ({ shareBtn, shareBtnClick }: Props) => {
   const [etcCheck, setEtcCheck] = useState(null);
   const { ClothesCategory } = TempClothes();
 
-  // const {
-  //   currentNewTag,
-  //   currentTags,
-  //   onChangeCurrent,
-  //   onKeyPressCurrent,
-  //   onDeleteCurrentTag,
-  //   onDeleteCurrentText,
-  // } = useTagCurrentWear();
-
-  // const {
-  //   topNewTag,
-  //   topTags,
-  //   onChangetop,
-  //   onkeyPresstop,
-  //   onDeletetopTag,
-  //   onDeletetopText,
-  // } = useTagtopWear();
-
-  // const onBlur = () => {
-  //   if (currentNewTag !== "" || topNewTag !== "") {
-  //     toast.error("입력 후 엔터나 스페이스바를 눌러주세요.");
-  //   }
-  // };
-
   const CurrentEmoji = [
-    "🥵 더워요",
-    "😥 조금 더워요",
-    "😄 적당해요",
-    "😬 조금 추워요",
-    "🥶 추워요",
+    ["🥵 더워요"],
+    ["😥 조금 더워요"],
+    ["😄 적당해요"],
+    ["😬 조금 추워요"],
+    ["🥶 추워요"],
   ];
 
   const onClick = (index: number, name: string) => {
@@ -380,7 +356,16 @@ const ShareWeather = ({ shareBtn, shareBtnClick }: Props) => {
               </WearInfo>
             </WearDetailBox>
           </WearInfoBox>
-          <ShareWeatherForm />
+          {/* <ShareWeatherForm
+            currentEmoji={CurrentEmoji}
+            select={select}
+            outerCheck={outerCheck}
+            topCheck={topCheck}
+            innerTopCheck={innerTopCheck}
+            bottomCheck={bottomCheck}
+            etcCheck={etcCheck}
+            // shareBtnClick={shareBtnClick}
+          /> */}
         </Container>
       </>
     </Modal>

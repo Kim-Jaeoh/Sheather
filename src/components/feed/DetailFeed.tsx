@@ -8,7 +8,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import defaultAccount from "../../assets/account_img_default.png";
 import a from "../..//assets/test1.jpeg";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
@@ -19,18 +19,45 @@ import Flicking from "@egjs/react-flicking";
 import "../../styles/flicking.css";
 import { BsBookmark, BsSun } from "react-icons/bs";
 import { FiShare } from "react-icons/fi";
-import data from "../../assets/data.json";
+import datas from "../../assets/data.json";
 import { IoShirtOutline } from "react-icons/io5";
 import useTimeFormat from "../../hooks/useTimeFormat";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { FeedType } from "../../types/type";
+import { connectStorageEmulator } from "firebase/storage";
+import { MdPlace } from "react-icons/md";
+import useToggleLike from "../../hooks/useToggleLike";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
 
 const DetailFeed = () => {
-  const { feed } = data;
+  // const { feed } = data;
   const { state } = useLocation();
+  const { toggleLike } = useToggleLike();
   const { timeToString, timeToString2 } = useTimeFormat();
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
+
+  const feedApi = async () => {
+    const { data } = await axios.get("http://localhost:4000/api/feed");
+    return data;
+  };
+
+  // 피드 리스트 가져오기
+  const { data: feedData, isLoading } = useQuery<FeedType[]>(
+    ["feed"],
+    feedApi,
+    {
+      refetchOnWindowFocus: false,
+      onError: (e) => console.log(e),
+    }
+  );
 
   const detailInfo = useMemo(() => {
-    return feed.filter((res) => state === res.email);
-  }, [feed, state]);
+    return feedData?.filter((res) => state === res.createdAt);
+  }, [feedData, state]);
 
   const settings = {
     infinite: false,
@@ -38,6 +65,7 @@ const DetailFeed = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     dots: true,
+    // variableWidth: true,
     nextArrow: (
       <NextArrow>
         <span>
@@ -55,130 +83,144 @@ const DetailFeed = () => {
   };
 
   return (
-    <Wrapper>
-      <Container>
-        <Header>
-          <UserInfoBox>
-            <UserImageBox>
-              <UserImage src={detailInfo[0].url[0]} alt="" />
-            </UserImageBox>
-            <UserWriteInfo>
-              <UserName>{detailInfo[0].displayName}</UserName>
-              <WriteDate>
-                {timeToString2(Number(detailInfo[0].createdAt))}
-              </WriteDate>
-            </UserWriteInfo>
-            <FollowBtnBox>팔로우</FollowBtnBox>
-          </UserInfoBox>
-        </Header>
-        <WearDetailBox>
-          <WearDetail>
-            <WearInfoBox>
-              <WearInfoMain>
-                <BsSun />
-              </WearInfoMain>
-              <FlickingBox>
-                <Flicking
-                  onChanged={(e) => console.log(e)}
-                  moveType="freeScroll"
-                  bound={true}
-                  align="prev"
-                >
-                  <WearInfo>
-                    <TagBox>
-                      <Tag>
-                        <WeatherIcon>
-                          <img
-                            src={`http://openweathermap.org/img/wn/${detailInfo[0].weatherInfo.weatherIcon}@2x.png`}
-                            alt="weather icon"
-                          />
-                        </WeatherIcon>
-                        {detailInfo[0].weatherInfo.weather}
-                      </Tag>
-                      <Tag>{detailInfo[0].weatherInfo.temp}º</Tag>
-                      <Tag>
-                        {detailInfo[0].weatherInfo.wind}
-                        <span>m/s</span>
-                      </Tag>
-                    </TagBox>
-                  </WearInfo>
-                </Flicking>
-              </FlickingBox>
-            </WearInfoBox>
-          </WearDetail>
-          <WearDetail>
-            <WearInfoBox>
-              <WearInfoMain>
-                <IoShirtOutline />
-              </WearInfoMain>
-              <FlickingBox>
-                <Flicking
-                  onChanged={(e) => console.log(e)}
-                  moveType="freeScroll"
-                  bound={true}
-                  align="prev"
-                >
-                  <WearInfo>
-                    <TagBox>
-                      <Tag>{detailInfo[0].feel}</Tag>
-                      {detailInfo[0].wearInfo.outer && (
-                        <Tag>{detailInfo[0].wearInfo.outer}</Tag>
+    <>
+      {feedData && (
+        <Wrapper>
+          <Container>
+            <Header>
+              <UserInfoBox>
+                <UserImageBox>
+                  <UserImage src={detailInfo[0]?.url[0]} alt="" />
+                </UserImageBox>
+                <UserWriteInfo>
+                  <UserName>{detailInfo[0].displayName}</UserName>
+                  <WriteDate>
+                    {timeToString2(Number(detailInfo[0].createdAt))}
+                  </WriteDate>
+                </UserWriteInfo>
+                <FollowBtnBox>팔로우</FollowBtnBox>
+              </UserInfoBox>
+            </Header>
+            <WearDetailBox>
+              <WearDetail>
+                <WearInfoBox>
+                  <WearInfoMain>
+                    <BsSun />
+                  </WearInfoMain>
+                  <FlickingBox>
+                    <Flicking
+                      onChanged={(e) => console.log(e)}
+                      moveType="freeScroll"
+                      bound={true}
+                      align="prev"
+                    >
+                      <WearInfo>
+                        <TagBox>
+                          <Tag>
+                            <MdPlace />
+                            {detailInfo[0].region}
+                          </Tag>
+                          <Tag>
+                            <WeatherIcon>
+                              <img
+                                src={`http://openweathermap.org/img/wn/${detailInfo[0].weatherInfo.weatherIcon}@2x.png`}
+                                alt="weather icon"
+                              />
+                            </WeatherIcon>
+                            {detailInfo[0].weatherInfo.weather}
+                          </Tag>
+                          <Tag>{detailInfo[0].weatherInfo.temp}º</Tag>
+                          <Tag>
+                            {detailInfo[0].weatherInfo.wind}
+                            <span>m/s</span>
+                          </Tag>
+                        </TagBox>
+                      </WearInfo>
+                    </Flicking>
+                  </FlickingBox>
+                </WearInfoBox>
+              </WearDetail>
+              <WearDetail>
+                <WearInfoBox>
+                  <WearInfoMain>
+                    <IoShirtOutline />
+                  </WearInfoMain>
+                  <FlickingBox>
+                    <Flicking
+                      onChanged={(e) => console.log(e)}
+                      moveType="freeScroll"
+                      bound={true}
+                      align="prev"
+                    >
+                      <WearInfo>
+                        <TagBox>
+                          <Tag>{detailInfo[0].feel}</Tag>
+                          {detailInfo[0].wearInfo.outer && (
+                            <Tag>{detailInfo[0].wearInfo.outer}</Tag>
+                          )}
+                          {detailInfo[0].wearInfo.top && (
+                            <Tag>{detailInfo[0].wearInfo.top}</Tag>
+                          )}
+                          {detailInfo[0].wearInfo.bottom && (
+                            <Tag>{detailInfo[0].wearInfo.bottom}</Tag>
+                          )}
+                          {detailInfo[0].wearInfo.etc && (
+                            <Tag>{detailInfo[0].wearInfo.etc}</Tag>
+                          )}
+                        </TagBox>
+                      </WearInfo>
+                    </Flicking>
+                  </FlickingBox>
+                </WearInfoBox>
+              </WearDetail>
+            </WearDetailBox>
+            {detailInfo[0].url.length > 1 ? (
+              <Slider {...settings}>
+                {detailInfo[0].url.map((res, index) => {
+                  return (
+                    <Card key={index}>
+                      <CardImage src={res} alt="" />
+                    </Card>
+                  );
+                })}
+              </Slider>
+            ) : (
+              <Card onContextMenu={(e) => e.preventDefault()}>
+                <CardImage src={detailInfo[0].url[0]} alt="" />
+              </Card>
+            )}
+            <InfoBox>
+              <TextBox>
+                <UserReactBox onClick={() => toggleLike(detailInfo[0])}>
+                  <IconBox>
+                    <Icon>
+                      {detailInfo[0].like.filter(
+                        (asd) => asd.email === userObj.email
+                      ).length > 0 ? (
+                        <FaHeart style={{ color: "#FF5673" }} />
+                      ) : (
+                        <FaRegHeart />
                       )}
-                      {detailInfo[0].wearInfo.top && (
-                        <Tag>{detailInfo[0].wearInfo.top}</Tag>
-                      )}
-                      {detailInfo[0].wearInfo.bottom && (
-                        <Tag>{detailInfo[0].wearInfo.bottom}</Tag>
-                      )}
-                      {detailInfo[0].wearInfo.etc && (
-                        <Tag>{detailInfo[0].wearInfo.etc}</Tag>
-                      )}
-                    </TagBox>
-                  </WearInfo>
-                </Flicking>
-              </FlickingBox>
-            </WearInfoBox>
-          </WearDetail>
-        </WearDetailBox>
-        {detailInfo[0].url.length > 1 ? (
-          <Slider {...settings}>
-            {detailInfo[0].url.map((res, index) => {
-              return (
-                <Card key={index}>
-                  <CardImage src={res} alt="" />
-                </Card>
-              );
-            })}
-          </Slider>
-        ) : (
-          <Card onContextMenu={(e) => e.preventDefault()}>
-            <CardImage src={detailInfo[0].url[0]} alt="" />
-          </Card>
-        )}
-        <InfoBox>
-          <TextBox>
-            <UserReactBox>
-              <IconBox>
-                <Icon>
-                  <FaRegHeart />
-                </Icon>
-                <Icon>
-                  <FaRegBookmark />
-                </Icon>
-              </IconBox>
-              <Icon>
-                <FiShare />
-              </Icon>
-            </UserReactBox>
-            <UserReactNum>공감 {detailInfo[0].like}</UserReactNum>
-            <UserTextBox>
-              <UserId>{detailInfo[0].displayName}</UserId>
-              <UserText>{detailInfo[0].text}</UserText>
-            </UserTextBox>
-          </TextBox>
-        </InfoBox>
-      </Container>
-    </Wrapper>
+                    </Icon>
+                    <Icon>
+                      <FaRegBookmark />
+                    </Icon>
+                  </IconBox>
+                  <Icon>
+                    <FiShare />
+                  </Icon>
+                </UserReactBox>
+                <UserReactNum>공감 {detailInfo[0].like.length}</UserReactNum>
+                <UserTextBox>
+                  <UserId>{detailInfo[0].displayName}</UserId>
+                  <UserText>{detailInfo[0].text}</UserText>
+                </UserTextBox>
+              </TextBox>
+            </InfoBox>
+          </Container>
+        </Wrapper>
+      )}
+    </>
   );
 };
 
@@ -284,7 +326,7 @@ const UserImage = styled.img`
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* object-fit: cover; */
 `;
 
 const Card = styled.div`
@@ -299,7 +341,7 @@ const Card = styled.div`
 `;
 
 const CardImage = styled.img`
-  object-fit: cover;
+  /* object-fit: cover; */
   display: block;
   width: 100%;
   height: 100%;
@@ -406,6 +448,12 @@ const Tag = styled.div`
   align-items: center;
   border: 1px solid ${thirdColor};
   border-radius: 4px;
+
+  svg {
+    margin-right: 2px;
+    font-size: 12px;
+    color: ${secondColor};
+  }
   /* cursor: pointer; */
   /* background: ${mainColor}; */
 `;

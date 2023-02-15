@@ -29,14 +29,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
   const navigate = useNavigate();
   const toggleAccount = () => setNewAccount(!newAccount);
 
-  // const modalFixed = useModalScrollFixed(signModal); // 모달 스크롤 픽스
-
-  // const reloadState = useCallback(() => {
-  //   toggleSignModal();
-  //   toggleModal();
-  //   navigate(0);
-  // }, [navigate, toggleModal, toggleSignModal]);
-
   const SignUser = async (e: React.FormEvent) => {
     e.preventDefault();
 

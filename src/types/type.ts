@@ -1,3 +1,5 @@
+import { Point } from "react-easy-crop";
+
 export interface LocationCoordsType {
   coords: {
     latitude: number;
@@ -69,9 +71,13 @@ export interface WeatherMapDataType {
 export interface FeedType {
   url: string[];
   displayName: string;
+  imgAspect: string;
   email: string;
   createdAt: number;
-  like: number;
+  like: {
+    email: string;
+    likedAt: number;
+  }[];
   text: string;
   feel: string;
   wearInfo: {
@@ -86,9 +92,26 @@ export interface FeedType {
     weatherIcon: string;
     weather: string;
   };
+  region: string;
   reply: {
     displayName: string;
     email: string;
     text: string;
   }[];
+}
+
+export interface AspectRatio {
+  value: number;
+  text: string;
+  paddingTop: number;
+}
+
+export interface ImageType {
+  length: any;
+  imageUrl: string;
+  crop?: Point;
+  zoom?: number;
+  aspect?: AspectRatio;
+  croppedImageUrl?: string;
+  name?: string;
 }

@@ -31,6 +31,7 @@
     "react-horizontal-scrolling-menu": "^3.2.2",
     "react-hot-toast": "^2.4.0",
     "react-icons": "^4.7.1",
+    "react-multiple-image-input": "^1.0.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",

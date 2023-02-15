@@ -11,13 +11,6 @@ import { Spinner } from "../../assets/Spinner";
 const Header = () => {
   const { location } = useCurrentLocation();
   const { pathname } = useLocation();
-  const [weather, setWeather] = useState<WeatherDataType | null>(null);
-  const [address, setAddress] = useState({
-    name: "",
-    region_1depth_name: "",
-    region_2depth_name: "",
-    region_3depth_name: "",
-  });
 
   const changeColor = useMemo(() => {
     if (pathname.includes("detail")) {
@@ -77,13 +70,6 @@ const Header = () => {
       enabled: Boolean(weatherData?.data),
     }
   );
-
-  useEffect(() => {
-    if (location && regionData?.data) {
-      const { documents } = regionData?.data;
-      setAddress(documents[0]?.address);
-    }
-  }, [location, regionData?.data]);
 
   return (
     <>

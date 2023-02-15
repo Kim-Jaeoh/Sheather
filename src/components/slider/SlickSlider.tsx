@@ -17,6 +17,7 @@ import ShareWeather from "../modal/shareWeather/ShareWeatherModal";
 import { Skeleton, Stack } from "@mui/material";
 import SliderSkeleton from "../../assets/skeleton/SliderSkeleton";
 import ColorList from "../../assets/ColorList";
+import ShareWeatherImage from "../modal/shareWeather/ShareWeatherImage";
 
 type PropsType<T> = {
   data: T[];
@@ -40,6 +41,10 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
   const [shareBtn, setShareBtn] = useState(false);
   const [selected, setSelected] = useState(null);
   const dispach = useDispatch();
+
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
 
   const settings = {
     infinite: false,
@@ -116,13 +121,30 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
   };
 
   const shareBtnClick = () => {
-    setShareBtn((prev) => !prev);
+    setShareBtn(true);
+    if (shareBtn) {
+      const ok = window.confirm(
+        "게시물을 삭제하시겠어요? 지금 나가면 수정 내용이 저장되지 않습니다."
+      );
+      if (ok) {
+        setShareBtn(false);
+      }
+    }
   };
+
+  const timeStamp = Math.floor(+new Date() / 1000);
 
   return (
     <>
-      {shareBtn && (
+      {/* {shareBtn && (
         <ShareWeather shareBtn={shareBtn} shareBtnClick={shareBtnClick} />
+      )} */}
+      {shareBtn && (
+        <ShareWeatherImage
+          shareBtn={shareBtn}
+          setShareBtn={setShareBtn}
+          shareBtnClick={shareBtnClick}
+        />
       )}
       {/* {clothesBtn ? ( */}
       {data && data[0] ? (
@@ -157,14 +179,18 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
                             : `${res?.dt_txt?.split(":")[0].split(" ")[1]}시`}
                         </WeatherDateList>
                       </WeatherDateListBox>
-                      <WeatherInfoBtn
-                        onClick={() => {
-                          shareBtnClick();
-                          dispach(shareWeather(res));
-                        }}
-                      >
-                        <FiShare />
-                      </WeatherInfoBtn>
+                      {!res?.dt_txt && userObj.displayName && (
+                        <WeatherInfoBtn
+                          // disabled={timeStamp < res.dt - 9 * 60 * 60} // -9시간
+                          disabled={Boolean(res?.dt_txt)} // -9시간
+                          onClick={() => {
+                            shareBtnClick();
+                            dispach(shareWeather(res));
+                          }}
+                        >
+                          <FiShare />
+                        </WeatherInfoBtn>
+                      )}
                     </WeatherInfoBox>
 
                     <WeatherCategoryIconBox>
@@ -261,11 +287,14 @@ const WeatherInfoBtn = styled.button`
   align-items: center;
   justify-content: center;
   background-color: #fff;
-  cursor: pointer;
   transition: all 0.1s;
   outline: none;
+  cursor: pointer;
+  :disabled {
+    cursor: default;
+  }
 
-  &:hover {
+  &:not(:disabled):hover {
     border: 1px solid #48a3ff;
     svg {
       color: #48a3ff;
@@ -313,6 +342,9 @@ const WeatherList = styled.div<{
 
 const WeatherDateListBox = styled.div<{ now?: string }>`
   width: 52px;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
   border: 1px solid ${(props) => (!props?.now ? "#48a3ff" : "#b3b3b3")};
   border-radius: 9999px;
   margin: 0 auto;

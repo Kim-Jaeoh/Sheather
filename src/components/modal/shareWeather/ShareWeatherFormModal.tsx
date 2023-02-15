@@ -1,42 +1,21 @@
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-} from "react";
+import React, { useCallback, useRef } from "react";
 import styled from "@emotion/styled";
 import { GrEmoji } from "react-icons/gr";
-import { IoCloseSharp } from "react-icons/io5";
-import { FiImage } from "react-icons/fi";
-import { useHandleResizeTextArea } from "../../../hooks/useHandleResizeTextArea";
 import { useEmojiModalOutClick } from "../../../hooks/useEmojiModalOutClick";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import imageCompression from "browser-image-compression";
-import Slider from "react-slick";
-import ImageCropper from "../../../assets/ImageCropper";
-import { IoMdClose } from "react-icons/io";
-import { Point } from "react-easy-crop";
 import ColorList from "../../../assets/ColorList";
 import { toast } from "react-hot-toast";
-import { BsFillImageFill } from "react-icons/bs";
-import { BiCrop } from "react-icons/bi";
 
-type Props = {};
+type Props = {
+  text?: string;
+  setText?: React.Dispatch<React.SetStateAction<string>>;
+};
 
-const ShareWeatherForm = (props: Props) => {
-  const [text, setText] = useState("");
-  const [focus, setFocus] = useState(null);
-  const [clickImage, setClickImage] = useState(false);
-  const [clickImageNum, setClickImageNum] = useState(null);
-  const [attachments, setAttachments] = useState([]);
-  const [selectedImage, setSelectImage] = useState(null);
+const ShareWeatherFormModal = (props: Props) => {
+  const { text, setText } = props;
+
   const textAreaRef = useRef<HTMLTextAreaElement>();
   const emojiRef = useRef<HTMLDivElement>();
-  const fileInput = useRef<HTMLInputElement>();
-  const [fileName, setFileName] = useState([]);
-
-  const { handleResizeHeight } = useHandleResizeTextArea(textAreaRef);
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -53,213 +32,9 @@ const ShareWeatherForm = (props: Props) => {
     setText((prev) => prev + emojiData.emoji);
   };
 
-  // 이미지 압축
-  const compressImage = async (image: File) => {
-    try {
-      const options = {
-        maxSizeMb: 2,
-        maxWidthOrHeight: 900,
-      };
-      return await imageCompression(image, options);
-    } catch (error) {
-      console.log("에러", error);
-    }
-  };
-
-  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      currentTarget: { files },
-    } = e;
-
-    if (!files) return;
-
-    if (attachments.length + files.length > 3) {
-      fileInput.current.value = ""; // 파일 문구 없애기
-      return toast.error("최대 3장의 사진만 첨부할 수 있습니다.");
-    }
-
-    for (let i = 0; i < files.length; i++) {
-      if (fileName.find((file) => files[i].name === file)) {
-        return toast.error("중복된 사진은 첨부할 수 없습니다.");
-      }
-
-      const compressedImage = await compressImage(files[i]); // 이미지 압축
-      const reader = new FileReader(); // 파일 이름 읽기
-
-      /* 파일 선택 누르고 이미지 한 개 선택 뒤 다시 파일선택 누르고 취소 누르면
-        Failed to execute 'readAsDataURL' on 'FileReader': parameter 1 is not of type 'Blob'. 이런 오류가 나옴. -> if문으로 예외 처리 */
-      if (files[i]) {
-        reader.readAsDataURL(compressedImage);
-      }
-
-      reader.onloadend = (finishedEvent) => {
-        const {
-          target: { result },
-        } = finishedEvent;
-
-        setAttachments((prev) => [
-          ...prev,
-          {
-            imageUrl: result,
-            croppedImageUrl: null,
-            crop: null,
-            zoom: null,
-            aspect: null,
-            name: files[i].name,
-          },
-        ]);
-      };
-      setFileName((prev) => {
-        return [...prev, files[i].name];
-      });
-    }
-  };
-
-  const setCroppedImageFor = (
-    imageUrl: string,
-    crop?: Point,
-    zoom?: number,
-    aspect?: { value: number; text: string },
-    croppedImageUrl?: string
-  ) => {
-    const newAttachmentList = [...attachments];
-    const attachmentIndex = attachments.findIndex(
-      (x) => x?.imageUrl === imageUrl
-    );
-    const attachment = attachments[attachmentIndex];
-    const newAttachment = {
-      ...attachment,
-      croppedImageUrl,
-      crop,
-      zoom,
-      aspect,
-    };
-    newAttachmentList[attachmentIndex] = newAttachment;
-    setAttachments(newAttachmentList);
-    setSelectImage(null);
-  };
-
-  const onCancel = () => {
-    setSelectImage(null);
-  };
-
-  const resetImage = (imageUrl: string) => {
-    setCroppedImageFor(imageUrl);
-  };
-
-  const onRemoveImage = (res: { imageUrl: string; name?: string }) => {
-    setAttachments(
-      attachments.filter((image) => image.imageUrl !== res.imageUrl)
-    );
-    fileInput.current.value = "";
-  };
-
-  const onImageClick = (index: number) => {
-    setClickImage((prev) => !prev);
-    setClickImageNum(index);
-  };
-
-  console.log(clickEmoji);
   return (
     <>
       <TextFormBox>
-        <Wrapper length={attachments.length}>
-          <InputImageLabel htmlFor="attach-file">
-            <ImageBox style={{ flexDirection: "column" }}>
-              <EmojiBox>
-                <EmojiIcon>
-                  <BsFillImageFill
-                    style={{
-                      color: `${mainColor}`,
-                      width: "24px",
-                      height: "24px",
-                    }}
-                  />
-                </EmojiIcon>
-                <InputImage
-                  id="attach-file"
-                  accept="image/*"
-                  multiple
-                  ref={fileInput}
-                  required
-                  type="file"
-                  onChange={onFileChange}
-                />
-              </EmojiBox>
-              <ImageLength>
-                <ImageLengthColor>{attachments.length}</ImageLengthColor>/3
-              </ImageLength>
-            </ImageBox>
-          </InputImageLabel>
-          {selectedImage ? (
-            <ImageCropper
-              onOpen={Boolean(selectedImage)}
-              imageUrl={selectedImage.imageUrl}
-              cropInit={selectedImage.crop}
-              zoomInit={selectedImage.zoom}
-              aspectInit={selectedImage.aspect}
-              onCancel={onCancel}
-              setCroppedImageFor={setCroppedImageFor}
-              resetImage={resetImage}
-            />
-          ) : (
-            <>
-              {attachments?.map((res, index) => {
-                return (
-                  <ImageContainer key={index}>
-                    {clickImage && index === clickImageNum && (
-                      <WatchImageWrapper>
-                        <WatchImageBox>
-                          <CloseBox onClick={() => onImageClick(index)}>
-                            <IoMdClose />
-                          </CloseBox>
-                          <WatchImage
-                            src={
-                              res.croppedImageUrl
-                                ? res.croppedImageUrl
-                                : res.imageUrl
-                            }
-                            alt=""
-                          />
-                        </WatchImageBox>
-                      </WatchImageWrapper>
-                    )}
-                    <ImageBox length={attachments.length}>
-                      <ImageWrap
-                        onMouseLeave={() => setFocus("")}
-                        onMouseEnter={() => setFocus(index)}
-                      >
-                        {focus === index && (
-                          <CropBtn
-                            onClick={() => {
-                              setSelectImage(res);
-                            }}
-                          >
-                            <BiCrop />
-                            자르기
-                          </CropBtn>
-                        )}
-                        <ImageRemove onClick={() => onRemoveImage(res)}>
-                          <IoMdClose />
-                        </ImageRemove>
-                        <Images
-                          onClick={() => onImageClick(index)}
-                          src={
-                            res.croppedImageUrl
-                              ? res.croppedImageUrl
-                              : res.imageUrl
-                          }
-                          alt=""
-                        />
-                      </ImageWrap>
-                    </ImageBox>
-                  </ImageContainer>
-                );
-              })}
-            </>
-          )}
-        </Wrapper>
-
         <TextArea
           spellCheck="false"
           maxLength={120}
@@ -295,9 +70,6 @@ const ShareWeatherForm = (props: Props) => {
               </TextAreaLengthColor>
               /120
             </TextAreaLength>
-            <EditBtn>
-              <EditText>SHARE</EditText>
-            </EditBtn>
           </EditInfo>
         </BtnBox>
       </TextFormBox>
@@ -305,7 +77,7 @@ const ShareWeatherForm = (props: Props) => {
   );
 };
 
-export default ShareWeatherForm;
+export default ShareWeatherFormModal;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
@@ -358,7 +130,7 @@ const WatchImage = styled.img`
   display: block;
 `;
 
-const TextFormBox = styled.form`
+const TextFormBox = styled.div`
   width: 100%;
   overflow-x: hidden;
   /* border-bottom: 2px solid ${thirdColor}; */
@@ -429,8 +201,8 @@ const EditInfo = styled.div`
 `;
 
 const TextAreaLength = styled.p`
-  padding-right: 12px;
-  border-right: 1px solid ${thirdColor};
+  /* padding-right: 12px; */
+  /* border-right: 1px solid ${thirdColor}; */
 `;
 
 const TextAreaLengthColor = styled.span`
