@@ -7,12 +7,10 @@ import {
 } from "firebase/auth";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { useDispatch } from "react-redux";
-// import { setCurrentUser, setLoginToken } from "../../reducer/user";
 import { useNavigate } from "react-router-dom";
 import { IoCloseOutline } from "react-icons/io5";
 import { authService, dbService } from "../../../fbase";
 import { currentUser, loginToken } from "../../../app/user";
-// import { useModalScrollFixed } from "../../hooks/useModalScrollFixed";
 
 type Props = {
   modalOpen: boolean;
@@ -54,7 +52,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
         );
         alert("로그인 되었습니다.");
         modalClose();
-        // reloadState();
+        window.location.reload();
       } else {
         await createUserWithEmailAndPassword(authService, email, password).then(
           async (result) => {
@@ -63,6 +61,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
             await setDoc(doc(usersRef, user.email), {
               uid: user.uid,
               createdAt: Date.now(),
+              bookmark: [],
               profileURL: "",
               email: user.email,
               displayName: user.email.split("@")[0],
@@ -71,11 +70,11 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               following: [],
             });
 
-            // dispatch(loginToken("login"));
             dispatch(
               currentUser({
                 uid: user.uid,
                 createdAt: Date.now(),
+                bookmark: [],
                 profileURL: "",
                 email: user.email,
                 displayName: user.email.split("@")[0],

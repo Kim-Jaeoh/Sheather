@@ -69,6 +69,7 @@ export interface WeatherMapDataType {
 }
 
 export interface FeedType {
+  id: string;
   url: string[];
   displayName: string;
   imgAspect: string;
@@ -94,7 +95,9 @@ export interface FeedType {
   };
   region: string;
   reply: {
+    parentId: string;
     displayName: string;
+    replyAt: number;
     email: string;
     text: string;
   }[];

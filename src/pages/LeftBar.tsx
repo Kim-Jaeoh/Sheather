@@ -53,6 +53,7 @@ const LeftBar = () => {
           following: [],
         })
       );
+      window.location.reload();
     }
   };
 

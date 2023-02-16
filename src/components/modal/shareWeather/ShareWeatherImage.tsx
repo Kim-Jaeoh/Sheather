@@ -25,6 +25,7 @@ import axios from "axios";
 import useCurrentLocation from "../../../hooks/useCurrentLocation";
 import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
+import uuid from "react-uuid";
 
 type Props = {
   shareBtn: boolean;
@@ -240,6 +241,7 @@ const ShareWeatherImage = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
     if (isNextClick) {
       await axios
         .post("http://localhost:4000/api/feed", {
+          id: uuid(),
           url: attachments.map((res) =>
             res.croppedImageUrl ? res.croppedImageUrl : res.imageUrl
           ),
@@ -470,7 +472,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Container = styled.form`
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* overflow: hidden; */
   width: 480px;
   height: 736px;
   box-sizing: border-box;

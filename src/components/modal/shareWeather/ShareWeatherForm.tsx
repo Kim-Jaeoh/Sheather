@@ -1,20 +1,9 @@
-import { Modal } from "@mui/material";
 import styled from "@emotion/styled";
-import { IoMdClose } from "react-icons/io";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../app/store";
 import ShareWeatherFormModal from "./ShareWeatherFormModal";
-import toast, { Toaster } from "react-hot-toast";
 import ColorList from "../../../assets/ColorList";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TempClothes from "../../../assets/TempClothes";
-import { VisibilityContext, ScrollMenu } from "react-horizontal-scrolling-menu";
 import Flicking from "@egjs/react-flicking";
 import "../../../styles/flicking.css";
-import { CiTempHigh } from "react-icons/ci";
-import { WiStrongWind } from "react-icons/wi";
-import { TbWindmill } from "react-icons/tb";
-import { BsWind } from "react-icons/bs";
 
 type props = {
   text: string;
@@ -59,11 +48,11 @@ const ShareWeatherForm = (props: props) => {
   ];
 
   return (
-    <>
-      <Container>
-        <WearInfoBox>
-          <WearCondition>
-            <WearInfoMain select={select}>현재 착장</WearInfoMain>
+    <Container>
+      <WearInfoBox>
+        <WearCondition>
+          <WearInfoMain select={select}>현재 착장</WearInfoMain>
+          <FlickingBox>
             <Flicking
               onChanged={(e) => console.log(e)}
               moveType="freeScroll"
@@ -95,12 +84,14 @@ const ShareWeatherForm = (props: props) => {
                 ))}
               </TagBox>
             </Flicking>
-          </WearCondition>
+          </FlickingBox>
+        </WearCondition>
 
-          <WearDetailBox>
-            <WearInfo>
-              <WearInfoMain select={outerCheck}>아우터</WearInfoMain>
-              {outerCheck !== 0 ? (
+        <WearDetailBox>
+          <WearInfo>
+            <WearInfoMain select={outerCheck}>아우터</WearInfoMain>
+            {outerCheck !== 0 ? (
+              <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
                   moveType="freeScroll"
@@ -132,16 +123,18 @@ const ShareWeatherForm = (props: props) => {
                     ))}
                   </TagBox>
                 </Flicking>
-              ) : (
-                <AddTagBox>
-                  <Tag>
-                    <AddTag onClick={() => setOuterCheck(null)}>+</AddTag>
-                  </Tag>
-                </AddTagBox>
-              )}
-            </WearInfo>
-            <WearInfo>
-              <WearInfoMain select={topCheck}>상의</WearInfoMain>
+              </FlickingBox>
+            ) : (
+              <AddTagBox>
+                <Tag>
+                  <AddTag onClick={() => setOuterCheck(null)}>+</AddTag>
+                </Tag>
+              </AddTagBox>
+            )}
+          </WearInfo>
+          <WearInfo>
+            <WearInfoMain select={topCheck}>상의</WearInfoMain>
+            <FlickingBox>
               <Flicking
                 onChanged={(e) => console.log(e)}
                 moveType="freeScroll"
@@ -173,10 +166,12 @@ const ShareWeatherForm = (props: props) => {
                   ))}
                 </TagBox>
               </Flicking>
-            </WearInfo>
-            <WearInfo>
-              <WearInfoMain select={innerTopCheck}>내의</WearInfoMain>
-              {innerTopCheck !== 0 ? (
+            </FlickingBox>
+          </WearInfo>
+          <WearInfo>
+            <WearInfoMain select={innerTopCheck}>내의</WearInfoMain>
+            {innerTopCheck !== 0 ? (
+              <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
                   moveType="freeScroll"
@@ -208,20 +203,22 @@ const ShareWeatherForm = (props: props) => {
                     ))}
                   </TagBox>
                 </Flicking>
-              ) : (
-                <AddTagBox>
-                  <Tag>
-                    <AddTag onClick={() => setInnerTopCheck(null)}>+</AddTag>
-                  </Tag>
-                </AddTagBox>
-              )}
-            </WearInfo>
+              </FlickingBox>
+            ) : (
+              <AddTagBox>
+                <Tag>
+                  <AddTag onClick={() => setInnerTopCheck(null)}>+</AddTag>
+                </Tag>
+              </AddTagBox>
+            )}
+          </WearInfo>
 
-            <WearInfo>
-              <WearInfoMain select={bottomCheck} select2={topCheck}>
-                하의
-              </WearInfoMain>
-              {topCheck !== 1 && bottomCheck !== 0 ? (
+          <WearInfo>
+            <WearInfoMain select={bottomCheck} select2={topCheck}>
+              하의
+            </WearInfoMain>
+            {topCheck !== 1 && bottomCheck !== 0 ? (
+              <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
                   moveType="freeScroll"
@@ -253,18 +250,20 @@ const ShareWeatherForm = (props: props) => {
                     ))}
                   </TagBox>
                 </Flicking>
-              ) : (
-                <AddTagBox>
-                  <Tag>
-                    <AddTag onClick={() => setBottomCheck(null)}>+</AddTag>
-                  </Tag>
-                </AddTagBox>
-              )}
-            </WearInfo>
+              </FlickingBox>
+            ) : (
+              <AddTagBox>
+                <Tag>
+                  <AddTag onClick={() => setBottomCheck(null)}>+</AddTag>
+                </Tag>
+              </AddTagBox>
+            )}
+          </WearInfo>
 
-            <WearInfo>
-              <WearInfoMain select={etcCheck}>기타</WearInfoMain>
-              {etcCheck !== 0 ? (
+          <WearInfo>
+            <WearInfoMain select={etcCheck}>기타</WearInfoMain>
+            {etcCheck !== 0 ? (
+              <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
                   moveType="freeScroll"
@@ -297,19 +296,19 @@ const ShareWeatherForm = (props: props) => {
                       ))}
                   </TagBox>
                 </Flicking>
-              ) : (
-                <AddTagBox>
-                  <Tag>
-                    <AddTag onClick={() => setEtcCheck(null)}>+</AddTag>
-                  </Tag>
-                </AddTagBox>
-              )}
-            </WearInfo>
-          </WearDetailBox>
-        </WearInfoBox>
-        <ShareWeatherFormModal text={text} setText={setText} />
-      </Container>
-    </>
+              </FlickingBox>
+            ) : (
+              <AddTagBox>
+                <Tag>
+                  <AddTag onClick={() => setEtcCheck(null)}>+</AddTag>
+                </Tag>
+              </AddTagBox>
+            )}
+          </WearInfo>
+        </WearDetailBox>
+      </WearInfoBox>
+      <ShareWeatherFormModal text={text} setText={setText} />
+    </Container>
   );
 };
 
@@ -318,134 +317,8 @@ export default ShareWeatherForm;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.div`
-  /* width: 480px; */
-  /* height: 736px; */
-  /* box-sizing: border-box;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%); */
   background: #fff;
-  /* border-radius: 8px;
-  border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px ${mainColor}, 12px 12px ${secondColor};
-  &::-webkit-scrollbar {
-    display: none;
-  } */
-`;
-
-const Header = styled.header`
-  height: 52px;
-  display: flex;
-  align-items: center;
-  border-radius: 12px 12px 0 0;
-  border-bottom: 2px solid ${secondColor};
-  padding: 0 12px;
-  position: sticky;
-  background: rgba(255, 255, 255, 0.808);
-  top: 0px;
-  z-index: 10;
-`;
-
-const HeaderCategory = styled.div`
-  p {
-    /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
-    /* margin-bottom: -4px; // 폰트 여백으로 인한 조정 */
-  }
-  font-size: 16px;
-  font-weight: bold;
-
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-`;
-
-const DateBox = styled.div`
-  /* border: 1px solid ${mainColor}; */
-  /* border-radius: 9999px; */
-  /* padding: 4px 8px; */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: bold;
-  color: ${mainColor};
-  letter-spacing: -0.8px;
-`;
-
-const CloseBox = styled.div`
-  width: 48px;
-  height: 48px;
-  position: absolute;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  &:hover,
-  &:active {
-    color: ${mainColor};
-  }
-
-  svg {
-    font-size: 24px;
-  }
-`;
-
-const WeatherCategoryBox = styled.div`
-  display: flex;
-  /* flex-wrap: wrap; */
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  /* gap: 28px; */
-  padding: 12px;
-  border-bottom: 2px solid ${thirdColor};
-`;
-
-const WeatherCategoryText = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const WeatherIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  margin: 0 -10px;
-  img {
-    display: block;
-    width: 100%;
-  }
-`;
-
-const WeatherCategoryMain = styled.span`
-  border: 1px solid ${thirdColor};
-  color: ${thirdColor};
-  border-radius: 9999px;
-  padding: 4px 8px;
-  margin-right: 10px;
-  font-size: 12px;
-`;
-
-const WeatherCategorySub = styled.span`
-  user-select: text;
-  /* display: flex; */
-  /* align-items: center; */
-  /* gap: 4px; */
-  font-size: 14px;
-  svg {
-    /* width: 20px; */
-    /* height: 20px; */
-    font-size: 20px;
-  }
-  span {
-    font-size: 12px;
-  }
+  position: relative;
 `;
 
 const WearInfoBox = styled.section`
@@ -464,7 +337,32 @@ const WearCondition = styled.div`
     border-bottom: 1px solid ${thirdColor};
   }
 `;
+const FlickingBox = styled.div`
+  position: relative;
+  cursor: pointer;
 
+  /* &::before {
+    left: 0px;
+    background: linear-gradient(to right, #fafafa, rgba(255, 255, 255, 0));
+    position: absolute;
+    top: 0px;
+    z-index: 10;
+    height: 120%;
+    width: 14px;
+    content: "";
+  } */
+
+  &::after {
+    right: 0px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fafafa);
+    position: absolute;
+    top: 0px;
+    z-index: 10;
+    height: 100%;
+    width: 14px;
+    content: "";
+  }
+`;
 const TagBox = styled.div`
   display: flex;
   user-select: none;
@@ -541,16 +439,4 @@ const WearInfoMain = styled.div<{ select: number; select2?: number }>`
   border-right: 1px solid ${thirdColor};
   font-size: 12px;
   margin-right: 12px;
-`;
-
-const TagButton = styled.button`
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  svg {
-    color: ${thirdColor};
-    font-size: 16px;
-  }
 `;

@@ -1,33 +1,29 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import defaultAccount from "../assets/account_img_default.png";
 import ColorList from "../assets/ColorList";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { BsCalendar3 } from "react-icons/bs";
 import Calendar from "react-calendar";
 import "../styles/Calendar.css"; // css import
-import { Spinner } from "../assets/Spinner";
 import { Skeleton } from "@mui/material";
-import FeedModal from "../components/modal/feed/FeedModal";
-import DetailFeed from "../components/feed/DetailFeed";
-import { Link, useNavigate } from "react-router-dom";
-import datas from "../assets/data.json";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { UserType } from "../app/user";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { FeedType } from "../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import useToggleLike from "../hooks/useToggleLike";
+import { FiShare } from "react-icons/fi";
+import useToggleBookmark from "../hooks/useToggleBookmark";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
   const [selectTime, setSelectTime] = useState(null);
-  const [getSize, setGetSize] = useState<boolean>(false);
-  const [liked, setLiked] = useState<boolean>(false);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isCalendar, setIsCalendar] = useState(false);
-  const queryClient = useQueryClient();
+  const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
+  const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
 
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
@@ -58,8 +54,6 @@ const Home = () => {
     "18 ~ 21시",
     "21 ~ 00시",
   ];
-
-  const onClickCalendar = () => setIsCalendar((prev) => !prev);
 
   const feed = useMemo(() => {
     const date = (time: number) => new Date(time);
@@ -104,6 +98,8 @@ const Home = () => {
     }
   }, [feedData, selectCategory, selectTime]);
 
+  const onClickCalendar = () => setIsCalendar((prev) => !prev); // 캘린더 토글
+
   const CalendarText = () => {
     return (
       changeValue.getFullYear() +
@@ -117,39 +113,6 @@ const Home = () => {
         : changeValue.getDate())
     );
   };
-
-  const { toggleLike } = useToggleLike();
-  // // 좋아요
-  // const { mutate } = useMutation(
-  //   (response: {
-  //     parentEmail: string;
-  //     like: { email: string; likedAt: number }[];
-  //   }) => axios.patch("http://localhost:4000/api/like", response),
-  //   {
-  //     onSuccess: () => {
-  //       queryClient.invalidateQueries(["feed"]);
-  //     },
-  //   }
-  // );
-
-  // const toggleLike = async (res: FeedType) => {
-  //   const copy = [...res.like];
-  //   const findEmail = copy.filter((res) => res.email === userObj.email);
-  //   const filter = copy.filter((res) => res.email !== userObj.email);
-  //   if (findEmail.length === 0) {
-  //     setLiked(true);
-  //     mutate({
-  //       parentEmail: res.email,
-  //       like: [...copy, { email: userObj.email, likedAt: +new Date() }],
-  //     });
-  //   } else {
-  //     setLiked(false);
-  //     mutate({
-  //       parentEmail: res.email,
-  //       like: filter,
-  //     });
-  //   }
-  // };
 
   let checkSize: number;
   let checkAspect: number;
@@ -270,19 +233,27 @@ const Home = () => {
                         />
                       </UserImageBox>
                       <UserName>{res.displayName}</UserName>
-                      <UserReactBox
-                        type="button"
-                        onClick={() => toggleLike(res)}
-                      >
-                        <UserIcon>
-                          {res.like.filter((asd) => asd.email === userObj.email)
+                      <UserReactBox>
+                        <UserIconBox>
+                          <UserIcon onClick={() => toggleLike(res)}>
+                            {res.like.filter(
+                              (asd) => asd.email === userObj.email
+                            ).length > 0 ? (
+                              <FaHeart style={{ color: "#FF5673" }} />
+                            ) : (
+                              <FaRegHeart />
+                            )}
+                          </UserIcon>
+                          <UserReactNum>{res.like.length}</UserReactNum>
+                        </UserIconBox>
+                        <UserIcon onClick={() => toggleBookmark(res.id)}>
+                          {userObj?.bookmark?.filter((id) => id === res.id)
                             .length > 0 ? (
-                            <FaHeart style={{ color: "#FF5673" }} />
+                            <FaBookmark style={{ color: "#FF5673" }} />
                           ) : (
-                            <FaRegHeart />
+                            <FaRegBookmark />
                           )}
                         </UserIcon>
-                        <UserReactNum>{res.like.length}</UserReactNum>
                       </UserReactBox>
                     </UserInfoBox>
                     <UserText>{res.text}</UserText>
@@ -459,7 +430,8 @@ const CardBox = styled.ul<{ feedLength?: number }>`
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-auto-rows: 10px;
+  /* grid-auto-rows: 10px; */
+  grid-auto-rows: auto;
 `;
 
 const CardList = styled.li<{ size?: number }>`
@@ -470,12 +442,14 @@ const CardList = styled.li<{ size?: number }>`
   width: 100%;
   margin-bottom: 20px;
   height: 100%; */
+  display: flex;
+  flex-direction: column;
+
   margin: 10px;
   border-radius: 8px;
   border: 2px solid ${secondColor};
   overflow: hidden;
-  grid-row-end: span ${(props) => props.size};
-
+  grid-row-end: span ${(props) => (props.size ? props.size : 43)};
   animation-name: slideUp;
   animation-duration: 0.4s;
   animation-timing-function: ease-in-out;
@@ -568,6 +542,7 @@ const CardImage = styled.img`
 
 const UserBox = styled.div`
   padding: 12px 12px;
+  flex: 1;
 `;
 
 const UserInfoBox = styled.div`
@@ -604,10 +579,16 @@ const UserName = styled.div`
   color: rgba(34, 34, 34, 0.8);
 `;
 
-const UserReactBox = styled.button`
+const UserReactBox = styled.div`
   display: flex;
   margin: 0;
   padding: 0;
+  align-items: center;
+  gap: 12px;
+`;
+
+const UserIconBox = styled.div`
+  display: flex;
   align-items: center;
 `;
 
@@ -619,13 +600,13 @@ const UserIcon = styled.div`
   cursor: pointer;
   color: ${thirdColor};
   svg {
-    margin-right: 4px;
     font-size: 16px;
   }
 `;
 
 const UserReactNum = styled.p`
   font-size: 14px;
+  margin-left: 4px;
   color: ${thirdColor};
 `;
 

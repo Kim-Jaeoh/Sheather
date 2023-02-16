@@ -16,7 +16,7 @@ const useToggleLike = () => {
     (response: {
       parentEmail: string;
       like: { email: string; likedAt: number }[];
-    }) => axios.patch("http://localhost:4000/api/like", response),
+    }) => axios.post("http://localhost:4000/api/like", response),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -24,10 +24,13 @@ const useToggleLike = () => {
     }
   );
 
-  const toggleLike = async (res: FeedType) => {
+  const toggleLike = (res: FeedType) => {
     const copy = [...res.like];
     const findEmail = copy.filter((res) => res.email === userObj.email);
     const filter = copy.filter((res) => res.email !== userObj.email);
+    if (!userObj.email) {
+      return alert("로그인하기~~");
+    }
     if (findEmail.length === 0) {
       mutate({
         parentEmail: res.email,

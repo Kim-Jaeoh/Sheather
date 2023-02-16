@@ -10,7 +10,7 @@ export const useHandleResizeTextArea = (ref: Props) => {
     if (ref === null || ref.current === null) {
       return;
     }
-    ref.current.style.height = "auto";
+    ref.current.style.height = "18px";
     ref.current.style.height = ref.current.scrollHeight + "px";
   }, [ref]);
 

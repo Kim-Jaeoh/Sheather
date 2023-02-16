@@ -1,16 +1,14 @@
-import React, { useEffect, useMemo } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
-import { BiBookmark, BiLeftArrowAlt } from "react-icons/bi";
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
-import { FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
-import defaultAccount from "../../assets/account_img_default.png";
-import a from "../..//assets/test1.jpeg";
+import { useLocation } from "react-router-dom";
+import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -19,26 +17,33 @@ import Flicking from "@egjs/react-flicking";
 import "../../styles/flicking.css";
 import { BsBookmark, BsSun } from "react-icons/bs";
 import { FiShare } from "react-icons/fi";
-import datas from "../../assets/data.json";
 import { IoShirtOutline } from "react-icons/io5";
 import useTimeFormat from "../../hooks/useTimeFormat";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { FeedType } from "../../types/type";
-import { connectStorageEmulator } from "firebase/storage";
 import { MdPlace } from "react-icons/md";
 import useToggleLike from "../../hooks/useToggleLike";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
+import useToggleBookmark from "../../hooks/useToggleBookmark";
+import DetailFeedReply from "./DetailFeedReply";
+import Emoji from "../../assets/Emoji";
+import { useHandleResizeTextArea } from "../../hooks/useHandleResizeTextArea";
 
 const DetailFeed = () => {
-  // const { feed } = data;
+  const [replyText, setReplyText] = useState("");
+
   const { state } = useLocation();
   const { toggleLike } = useToggleLike();
+  const { toggleBookmark } = useToggleBookmark();
   const { timeToString, timeToString2 } = useTimeFormat();
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  const { handleResizeHeight } = useHandleResizeTextArea(textRef);
+  const queryClient = useQueryClient();
 
   const feedApi = async () => {
     const { data } = await axios.get("http://localhost:4000/api/feed");
@@ -59,13 +64,83 @@ const DetailFeed = () => {
     return feedData?.filter((res) => state === res.createdAt);
   }, [feedData, state]);
 
+  const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setReplyText(e.target.value);
+  }, []);
+
+  type ReplyPayload = {
+    id?: string;
+    reply?: {
+      parentId: string;
+      displayName: string;
+      replyAt: number;
+      email: string;
+      text: string | number;
+    }[];
+  };
+
+  // 댓글 업로드
+  const { mutate } = useMutation(
+    (response: ReplyPayload) =>
+      axios.post("http://localhost:4000/api/reply", response),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["feed"]);
+      },
+    }
+  );
+
+  // 댓글 삭제
+  const { mutate: mutateDelete } = useMutation(
+    (response: ReplyPayload) =>
+      axios.delete("http://localhost:4000/api/reply", { data: response }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["feed"]);
+      },
+    }
+  );
+
+  // 댓글 업로드
+  const onReply = (res: FeedType) => {
+    const copy = [...res.reply];
+    mutate({
+      id: res.id,
+      reply: [
+        ...copy,
+        {
+          parentId: res.id,
+          displayName: userObj.displayName,
+          replyAt: +new Date(),
+          email: userObj.email,
+          text: replyText,
+        },
+      ],
+    });
+    setReplyText("");
+  };
+
+  // 댓글 삭제
+  const onDelete = (res: {
+    parentId?: string;
+    email: string;
+    displayName: string;
+    text: string;
+    replyAt: number;
+  }) => {
+    const filter = detailInfo[0].reply.filter((asd) => asd.text !== res.text);
+    mutateDelete({
+      id: res.parentId,
+      reply: [...filter],
+    });
+  };
+
   const settings = {
     infinite: false,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
     dots: true,
-    // variableWidth: true,
     nextArrow: (
       <NextArrow>
         <span>
@@ -85,140 +160,187 @@ const DetailFeed = () => {
   return (
     <>
       {feedData && (
-        <Wrapper>
-          <Container>
-            <Header>
-              <UserInfoBox>
-                <UserImageBox>
-                  <UserImage src={detailInfo[0]?.url[0]} alt="" />
-                </UserImageBox>
-                <UserWriteInfo>
-                  <UserName>{detailInfo[0].displayName}</UserName>
-                  <WriteDate>
-                    {timeToString2(Number(detailInfo[0].createdAt))}
-                  </WriteDate>
-                </UserWriteInfo>
-                <FollowBtnBox>팔로우</FollowBtnBox>
-              </UserInfoBox>
-            </Header>
-            <WearDetailBox>
-              <WearDetail>
-                <WearInfoBox>
-                  <WearInfoMain>
-                    <BsSun />
-                  </WearInfoMain>
-                  <FlickingBox>
-                    <Flicking
-                      onChanged={(e) => console.log(e)}
-                      moveType="freeScroll"
-                      bound={true}
-                      align="prev"
-                    >
-                      <WearInfo>
-                        <TagBox>
-                          <Tag>
-                            <MdPlace />
-                            {detailInfo[0].region}
-                          </Tag>
-                          <Tag>
-                            <WeatherIcon>
-                              <img
-                                src={`http://openweathermap.org/img/wn/${detailInfo[0].weatherInfo.weatherIcon}@2x.png`}
-                                alt="weather icon"
-                              />
-                            </WeatherIcon>
-                            {detailInfo[0].weatherInfo.weather}
-                          </Tag>
-                          <Tag>{detailInfo[0].weatherInfo.temp}º</Tag>
-                          <Tag>
-                            {detailInfo[0].weatherInfo.wind}
-                            <span>m/s</span>
-                          </Tag>
-                        </TagBox>
-                      </WearInfo>
-                    </Flicking>
-                  </FlickingBox>
-                </WearInfoBox>
-              </WearDetail>
-              <WearDetail>
-                <WearInfoBox>
-                  <WearInfoMain>
-                    <IoShirtOutline />
-                  </WearInfoMain>
-                  <FlickingBox>
-                    <Flicking
-                      onChanged={(e) => console.log(e)}
-                      moveType="freeScroll"
-                      bound={true}
-                      align="prev"
-                    >
-                      <WearInfo>
-                        <TagBox>
-                          <Tag>{detailInfo[0].feel}</Tag>
-                          {detailInfo[0].wearInfo.outer && (
-                            <Tag>{detailInfo[0].wearInfo.outer}</Tag>
-                          )}
-                          {detailInfo[0].wearInfo.top && (
-                            <Tag>{detailInfo[0].wearInfo.top}</Tag>
-                          )}
-                          {detailInfo[0].wearInfo.bottom && (
-                            <Tag>{detailInfo[0].wearInfo.bottom}</Tag>
-                          )}
-                          {detailInfo[0].wearInfo.etc && (
-                            <Tag>{detailInfo[0].wearInfo.etc}</Tag>
-                          )}
-                        </TagBox>
-                      </WearInfo>
-                    </Flicking>
-                  </FlickingBox>
-                </WearInfoBox>
-              </WearDetail>
-            </WearDetailBox>
-            {detailInfo[0].url.length > 1 ? (
-              <Slider {...settings}>
-                {detailInfo[0].url.map((res, index) => {
-                  return (
-                    <Card key={index}>
-                      <CardImage src={res} alt="" />
+        <>
+          {detailInfo.map((res) => {
+            const reply = res.reply.sort(
+              (a: { replyAt: number }, b: { replyAt: number }) =>
+                b.replyAt - a.replyAt
+            );
+            return (
+              <Wrapper key={res.id}>
+                <Container>
+                  <Header>
+                    <UserInfoBox>
+                      <UserImageBox>
+                        <UserImage src={res?.url[0]} alt="" />
+                      </UserImageBox>
+                      <UserWriteInfo>
+                        <UserName>{res.displayName}</UserName>
+                        <WriteDate>
+                          {timeToString2(Number(res.createdAt))}
+                        </WriteDate>
+                      </UserWriteInfo>
+                      <FollowBtnBox>팔로우</FollowBtnBox>
+                    </UserInfoBox>
+                  </Header>
+                  <WearDetailBox>
+                    <WearDetail>
+                      <WearInfoBox>
+                        <WearInfoMain>
+                          <BsSun />
+                        </WearInfoMain>
+                        <FlickingBox>
+                          <Flicking
+                            onChanged={(e) => console.log(e)}
+                            moveType="freeScroll"
+                            bound={true}
+                            align="prev"
+                          >
+                            <WearInfo>
+                              <TagBox>
+                                <Tag>
+                                  <MdPlace />
+                                  {res.region}
+                                </Tag>
+                                <Tag>
+                                  <WeatherIcon>
+                                    <img
+                                      src={`http://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
+                                      alt="weather icon"
+                                    />
+                                  </WeatherIcon>
+                                  {res.weatherInfo.weather}
+                                </Tag>
+                                <Tag>{res.weatherInfo.temp}º</Tag>
+                                <Tag>
+                                  {res.weatherInfo.wind}
+                                  <span>m/s</span>
+                                </Tag>
+                              </TagBox>
+                            </WearInfo>
+                          </Flicking>
+                        </FlickingBox>
+                      </WearInfoBox>
+                    </WearDetail>
+                    <WearDetail>
+                      <WearInfoBox>
+                        <WearInfoMain>
+                          <IoShirtOutline />
+                        </WearInfoMain>
+                        <FlickingBox>
+                          <Flicking
+                            onChanged={(e) => console.log(e)}
+                            moveType="freeScroll"
+                            bound={true}
+                            align="prev"
+                          >
+                            <WearInfo>
+                              <TagBox>
+                                <Tag>{res.feel}</Tag>
+                                {res.wearInfo.outer && (
+                                  <Tag>{res.wearInfo.outer}</Tag>
+                                )}
+                                {res.wearInfo.top && (
+                                  <Tag>{res.wearInfo.top}</Tag>
+                                )}
+                                {res.wearInfo.bottom && (
+                                  <Tag>{res.wearInfo.bottom}</Tag>
+                                )}
+                                {res.wearInfo.etc && (
+                                  <Tag>{res.wearInfo.etc}</Tag>
+                                )}
+                              </TagBox>
+                            </WearInfo>
+                          </Flicking>
+                        </FlickingBox>
+                      </WearInfoBox>
+                    </WearDetail>
+                  </WearDetailBox>
+                  {res.url.length > 1 ? (
+                    <Slider {...settings}>
+                      {res.url.map((res, index) => {
+                        return (
+                          <Card key={index}>
+                            <CardImage src={res} alt="" />
+                          </Card>
+                        );
+                      })}
+                    </Slider>
+                  ) : (
+                    <Card onContextMenu={(e) => e.preventDefault()}>
+                      <CardImage src={res.url[0]} alt="" />
                     </Card>
-                  );
-                })}
-              </Slider>
-            ) : (
-              <Card onContextMenu={(e) => e.preventDefault()}>
-                <CardImage src={detailInfo[0].url[0]} alt="" />
-              </Card>
-            )}
-            <InfoBox>
-              <TextBox>
-                <UserReactBox onClick={() => toggleLike(detailInfo[0])}>
-                  <IconBox>
-                    <Icon>
-                      {detailInfo[0].like.filter(
-                        (asd) => asd.email === userObj.email
-                      ).length > 0 ? (
-                        <FaHeart style={{ color: "#FF5673" }} />
-                      ) : (
-                        <FaRegHeart />
+                  )}
+                  <InfoBox>
+                    <TextBox>
+                      <UserReactBox>
+                        <IconBox>
+                          <Icon onClick={() => toggleLike(res)}>
+                            {res.like.filter(
+                              (res) => res.email === userObj.email
+                            ).length > 0 ? (
+                              <FaHeart style={{ color: "#FF5673" }} />
+                            ) : (
+                              <FaRegHeart />
+                            )}
+                          </Icon>
+                          <Icon onClick={() => toggleBookmark(res.id)}>
+                            {userObj?.bookmark?.filter((id) => id === res.id)
+                              .length > 0 ? (
+                              <FaBookmark style={{ color: "#FF5673" }} />
+                            ) : (
+                              <FaRegBookmark />
+                            )}
+                          </Icon>
+                        </IconBox>
+                        <Icon>
+                          <FiShare />
+                        </Icon>
+                      </UserReactBox>
+                      <UserReactNum>공감 {res.like.length}개</UserReactNum>
+                      <UserTextBox>
+                        <UserText>{res.text}</UserText>
+                      </UserTextBox>
+                    </TextBox>
+                    <ReplyBox>
+                      {res.reply.length > 0 && (
+                        <>
+                          <UserReactNum>댓글 {res.reply.length}개</UserReactNum>
+                          {reply.map((reply, index) => {
+                            return (
+                              <DetailFeedReply
+                                key={index}
+                                reply={reply}
+                                onDelete={onDelete}
+                              />
+                            );
+                          })}
+                        </>
                       )}
-                    </Icon>
-                    <Icon>
-                      <FaRegBookmark />
-                    </Icon>
-                  </IconBox>
-                  <Icon>
-                    <FiShare />
-                  </Icon>
-                </UserReactBox>
-                <UserReactNum>공감 {detailInfo[0].like.length}</UserReactNum>
-                <UserTextBox>
-                  <UserId>{detailInfo[0].displayName}</UserId>
-                  <UserText>{detailInfo[0].text}</UserText>
-                </UserTextBox>
-              </TextBox>
-            </InfoBox>
-          </Container>
-        </Wrapper>
+                      <ReplyEditBox>
+                        <ReplyEditText
+                          spellCheck="false"
+                          maxLength={120}
+                          value={replyText}
+                          ref={textRef}
+                          onChange={onChange}
+                          onInput={handleResizeHeight}
+                          placeholder="댓글 달기..."
+                        />
+                        {replyText.length > 0 && (
+                          <ReplyEditBtn onClick={() => onReply(res)}>
+                            게시
+                          </ReplyEditBtn>
+                        )}
+                        <Emoji setText={setReplyText} textRef={textRef} />
+                      </ReplyEditBox>
+                    </ReplyBox>
+                  </InfoBox>
+                </Container>
+              </Wrapper>
+            );
+          })}
+        </>
       )}
     </>
   );
@@ -403,7 +525,7 @@ const FlickingBox = styled.div`
     content: "";
   } */
 
-  /* &::after {
+  &::after {
     right: 0px;
     background: linear-gradient(to right, rgba(255, 255, 255, 0), #fafafa);
     position: absolute;
@@ -412,7 +534,7 @@ const FlickingBox = styled.div`
     height: 100%;
     width: 14px;
     content: "";
-  } */
+  }
 `;
 
 const WearInfo = styled.div`
@@ -470,6 +592,51 @@ const TextBox = styled.div`
   flex-direction: column;
 `;
 
+const ReplyBox = styled.div`
+  margin-top: 30px;
+  /* display: flex; */
+  /* flex-direction: column; */
+`;
+
+const ReplyEditBox = styled.div`
+  padding-top: 20px;
+  margin-top: 24px;
+  width: 100%;
+  height: 100%;
+  border-top: 1px solid ${fourthColor};
+  /* height: 32px; */
+  /* max-height: 80px; */
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const ReplyEditText = styled.textarea`
+  display: block;
+  width: 100%;
+  height: 24px;
+  max-height: 80px;
+  resize: none;
+  border: none;
+  outline: none;
+  line-height: 24px;
+`;
+
+const ReplyEditBtn = styled.div`
+  display: flex;
+  flex: 1 0 auto;
+  margin: 0 8px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-weight: bold;
+  color: #d43d59;
+  font-size: 14px;
+  cursor: pointer;
+`;
+
 const UserReactBox = styled.div`
   display: flex;
   align-items: center;
@@ -479,9 +646,9 @@ const UserReactBox = styled.div`
 `;
 
 const UserReactNum = styled.p`
-  font-size: 14px;
-  /* color: ${thirdColor}; */
-  margin-bottom: 10px;
+  font-size: 15px;
+  color: ${thirdColor};
+  margin-bottom: 6px;
 `;
 
 const IconBox = styled.div`
@@ -516,9 +683,21 @@ const UserId = styled.p`
   font-size: 14px;
   font-weight: bold;
   display: inline-block;
+  cursor: pointer;
 `;
 
-const UserText = styled.span``;
+const UserText = styled.span`
+  font-size: 16px;
+  white-space: pre-wrap;
+`;
+
+const ReplyTextBox = styled(UserTextBox)`
+  line-height: 24px;
+`;
+
+const ReplyText = styled(UserText)`
+  font-size: 14px;
+`;
 
 const Arrow = styled.div`
   position: absolute;
