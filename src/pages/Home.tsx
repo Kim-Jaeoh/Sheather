@@ -1,11 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import defaultAccount from "../assets/account_img_default.png";
 import ColorList from "../assets/ColorList";
 import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
-import { BsCalendar3 } from "react-icons/bs";
-import Calendar from "react-calendar";
-import "../styles/Calendar.css"; // css import
 import { Skeleton } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -14,17 +11,19 @@ import { FeedType } from "../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import useToggleLike from "../hooks/useToggleLike";
-import { FiShare } from "react-icons/fi";
 import useToggleBookmark from "../hooks/useToggleBookmark";
+import moment from "moment";
+import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
-  const [selectTime, setSelectTime] = useState(null);
+  const [feed, setFeed] = useState(null);
+  const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
-  const [isCalendar, setIsCalendar] = useState(false);
+  const [isDetailModal, setIsDetailModal] = useState(false);
+  const [isDetailDone, setIsDetailDone] = useState(false);
   const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
   const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
-
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
@@ -44,90 +43,56 @@ const Home = () => {
     }
   );
 
-  const timeArray = [
-    "00 ~ 03시",
-    "03 ~ 06시",
-    "06 ~ 09시",
-    "09 ~ 12시",
-    "12 ~ 15시",
-    "15 ~ 18시",
-    "18 ~ 21시",
-    "21 ~ 00시",
-  ];
-
-  const feed = useMemo(() => {
+  useEffect(() => {
     const date = (time: number) => new Date(time);
-    const timeRanges = [
-      [0, 3],
-      [3, 6],
-      [6, 9],
-      [9, 12],
-      [12, 15],
-      [15, 18],
-      [18, 21],
-      [21, 24],
-    ];
 
     // 최신
     if (selectCategory === 0) {
-      setSelectTime(null); // 시간대별 초기화
-      return feedData
-        ?.filter((res) => res.createdAt)
-        .sort((a, b) => a.createdAt - b.createdAt);
+      return setFeed(
+        feedData
+          ?.filter((res) => res.createdAt)
+          .sort((a, b) => a.createdAt - b.createdAt)
+      );
     }
 
     // 인기
     if (selectCategory === 1) {
-      setSelectTime(null); // 시간대별 초기화
-      return feedData.sort((a, b) => b.like.length - a.like.length);
+      return setFeed(feedData.sort((a, b) => b.like.length - a.like.length));
     }
 
     // 시간별
     if (selectCategory === 2) {
-      const selectedTimeRange = timeRanges.find(
-        (range) => range[0] === selectTime * 3 // selectTime이 0부터 시작이라 3을 곱해서 맞는 index 값 추출
-      );
-
-      if (selectTime !== null) {
-        return feedData.filter((res) => {
-          const hour = date(Number(res.createdAt)).getHours();
-          return hour >= selectedTimeRange[0] && hour < selectedTimeRange[1];
-        });
+      if (isDetailDone) {
+        // 1. 글 작성 날짜와 캘린더 날짜 비교
+        const dayFilter = feedData.filter(
+          (res) =>
+            moment(res?.createdAt).format("YYYY-MM-DD") ===
+            moment(changeValue).format("YYYY-MM-DD")
+        );
+        // 1의 값에 시간 지정
+        return setFeed(
+          dayFilter
+            .filter((res) => {
+              const hour = date(Number(res.createdAt)).getHours();
+              return hour >= rangeTime[0] && hour < rangeTime[1];
+            })
+            .sort((a, b) => a.like.length - b.like.length)
+        );
       }
-      return feedData;
     }
-  }, [feedData, selectCategory, selectTime]);
-
-  const onClickCalendar = () => setIsCalendar((prev) => !prev); // 캘린더 토글
-
-  const CalendarText = () => {
-    return (
-      changeValue.getFullYear() +
-      "-" +
-      (changeValue.getMonth() + 1 < 10
-        ? "0" + (changeValue.getMonth() + 1)
-        : changeValue.getMonth() + 1) +
-      "-" +
-      (changeValue.getDate() < 10
-        ? "0" + changeValue.getDate()
-        : changeValue.getDate())
-    );
-  };
+  }, [selectCategory, feedData, isDetailDone, rangeTime, changeValue]);
 
   let checkSize: number;
   let checkAspect: number;
   const sizes = (aspect: string) => {
     if (aspect === "4/3") {
       return (checkSize = 36);
-      // return { checkSize: 36, checkAspect: 74.8 };
     }
     if (aspect === "1/1") {
       return (checkSize = 44);
-      // return { checkSize: 44, checkAspect: 100 };
     }
     if (aspect === "3/4") {
       return (checkSize = 54);
-      // return { checkSize: 54, checkAspect: 74.8 };
     }
   };
   const sizeAspect = (aspect: string) => {
@@ -142,20 +107,25 @@ const Home = () => {
     }
   };
 
+  const onSelectCategory2 = () => {
+    setSelectCategory(2);
+    setIsDetailDone(false);
+    setIsDetailModal(true);
+  };
+
+  const onReset = () => {
+    setRangeTime([0, 23]);
+    setChangeValue(new Date());
+  };
+
+  const onDone = () => {
+    setIsDetailDone(true);
+    setIsDetailModal(false);
+  };
+
   return (
     <>
       <Container>
-        {isCalendar && (
-          <CalendarBox>
-            <Calendar onChange={setChangeValue} value={changeValue} />
-          </CalendarBox>
-        )}
-        <DateBox onClick={onClickCalendar}>
-          <DateIcon>
-            <BsCalendar3 />
-          </DateIcon>
-          <DateText>{CalendarText()}</DateText>
-        </DateBox>
         <SelectTimeBox select={selectCategory}>
           <SelectCategory>
             <SelectCurrentTime
@@ -173,32 +143,39 @@ const Home = () => {
               인기
             </SelectCurrentTime>
             <SelectCurrentTime
-              onClick={() => setSelectCategory(2)}
+              onClick={onSelectCategory2}
               select={selectCategory}
               num={2}
             >
               시간별
             </SelectCurrentTime>
           </SelectCategory>
-          {selectCategory === 2 && (
-            <SelectDetailTime>
-              {timeArray.map((time, index) => (
-                <SelectTime
-                  onClick={() => setSelectTime(index)}
-                  num={index}
-                  key={index}
-                  select={selectTime}
-                >
-                  {time}
-                </SelectTime>
-              ))}
-            </SelectDetailTime>
+
+          {selectCategory === 2 && isDetailModal && (
+            <RangeTimeModal
+              rangeTime={rangeTime}
+              setRangeTime={setRangeTime}
+              changeValue={changeValue}
+              setChangeValue={setChangeValue}
+              onReset={onReset}
+              onDone={onDone}
+            />
           )}
         </SelectTimeBox>
 
-        {!isLoading ? (
-          <CardBox feedLength={feed.length}>
-            {feed?.map((res, index: number) => {
+        {isDetailDone && selectCategory === 2 && (
+          <SelectDetailTimeBox>
+            <SelectDetailTime>
+              {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
+              {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
+              {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
+            </SelectDetailTime>
+          </SelectDetailTimeBox>
+        )}
+
+        {!isLoading && feed ? (
+          <CardBox feedLength={feed?.length}>
+            {feed?.map((res: FeedType, index: number) => {
               sizes(res.imgAspect);
               sizeAspect(res.imgAspect);
               return (
@@ -303,6 +280,12 @@ const Home = () => {
             })}
           </CardBox>
         )}
+
+        {feed && feed.length < 1 && (
+          <NotInfoBox>
+            <NotInfo>해당 날짜의 글이 존재하지 않습니다.</NotInfo>
+          </NotInfoBox>
+        )}
       </Container>
     </>
   );
@@ -311,13 +294,6 @@ export default React.memo(Home);
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const CalendarBox = styled.div`
-  z-index: 99;
-  position: absolute;
-  right: 10px;
-  top: 36px;
-`;
-
 const Container = styled.main`
   height: 100%;
   padding: 20px 10px 10px;
@@ -325,24 +301,21 @@ const Container = styled.main`
 `;
 
 const SelectTimeBox = styled.nav<{ select: number }>`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   margin: 0 auto;
   margin-top: 20px;
-  margin-bottom: ${(props) => (props.select === 2 ? "60px" : "40px")};
+  margin-bottom: ${(props) => (props.select === 2 ? "20px" : "40px")};
   /* padding: 0 0 14px; */
 `;
 
-const SelectDetailTime = styled.ul`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 10px;
-  padding-top: 16px;
-  border-top: 1px solid #c7c7c7;
-
+const SelectDetailTimeBox = styled.div`
+  width: 100%;
+  padding: 0 10px;
+  margin-bottom: 10px;
   animation-name: slideDown;
   animation-duration: 0.5s;
   animation-timing-function: ease-in-out;
@@ -362,6 +335,17 @@ const SelectDetailTime = styled.ul`
   }
 `;
 
+const SelectDetailTime = styled.p`
+  width: 100%;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  color: ${thirdColor};
+  padding-top: 10px;
+  border-top: 1px solid ${fourthColor};
+`;
+
 const SelectCategory = styled.ul`
   display: flex;
   align-items: center;
@@ -379,69 +363,17 @@ const SelectCurrentTime = styled.li<{ select: number; num: number }>`
   padding: 6px 12px;
   font-size: 18px;
   font-weight: bold;
-  /* margin-bottom: 8px; */
   cursor: pointer;
-`;
-
-const SelectTime = styled.li<{ num: number; select: number }>`
-  cursor: pointer;
-  font-size: 14px;
-  letter-spacing: -0.8px;
-  &:not(:first-of-type) {
-    padding-left: 12px;
-  }
-  &:not(:last-of-type) {
-    padding-right: 12px;
-    border-right: 1px solid ${thirdColor};
-  }
-  font-weight: ${(props) => (props.num === props.select ? "bold" : "normal")};
-  color: ${(props) => (props.num === props.select ? secondColor : thirdColor)};
-`;
-
-const DateBox = styled.div`
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  color: ${thirdColor};
-`;
-const DateText = styled.span`
-  font-size: 14px;
-`;
-
-const DateIcon = styled.span`
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
 const CardBox = styled.ul<{ feedLength?: number }>`
-  /* width: 100%;
-  display: ${(props) => props.feedLength === 2 && `flex`};
-  column-width: ${(props) =>
-    (props.feedLength === 1 || props.feedLength > 2) && `318px`};
-  column-gap: 20px; */
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  /* grid-auto-rows: 10px; */
   grid-auto-rows: auto;
 `;
 
 const CardList = styled.li<{ size?: number }>`
-  /* border-radius: 8px;
-  border: 2px solid ${secondColor};
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  margin-bottom: 20px;
-  height: 100%; */
   display: flex;
   flex-direction: column;
 
@@ -451,8 +383,8 @@ const CardList = styled.li<{ size?: number }>`
   overflow: hidden;
   grid-row-end: span ${(props) => (props.size ? props.size : 43)};
   animation-name: slideUp;
-  animation-duration: 0.4s;
-  animation-timing-function: ease-in-out;
+  animation-duration: 0.3s;
+  animation-timing-function: linear;
 
   @keyframes slideUp {
     0% {
@@ -476,7 +408,6 @@ const Card = styled(Link)<{ aspect?: number }>`
   outline: none;
   overflow: hidden;
   border-bottom: 2px solid ${secondColor};
-  /* width: 318px; */
   padding-top: ${(props) => `${props.aspect}%`};
 `;
 
@@ -531,13 +462,6 @@ const CardImage = styled.img`
   display: block;
   width: 100%;
   height: 100%;
-  /* object-fit: cover; */
-  /* position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  object-fit: cover; */
 `;
 
 const UserBox = styled.div`
@@ -622,3 +546,13 @@ const UserText = styled.p`
   font-size: 14px;
   letter-spacing: -0.21px;
 `;
+
+const NotInfoBox = styled.div`
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const NotInfo = styled.div``;

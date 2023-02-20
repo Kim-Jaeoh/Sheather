@@ -13,10 +13,8 @@ const useToggleLike = () => {
 
   // 좋아요
   const { mutate } = useMutation(
-    (response: {
-      parentEmail: string;
-      like: { email: string; likedAt: number }[];
-    }) => axios.post("http://localhost:4000/api/like", response),
+    (response: { id: string; like: { email: string; likedAt: number }[] }) =>
+      axios.post("http://localhost:4000/api/like", response),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -25,6 +23,7 @@ const useToggleLike = () => {
   );
 
   const toggleLike = (res: FeedType) => {
+    console.log(res);
     const copy = [...res.like];
     const findEmail = copy.filter((res) => res.email === userObj.email);
     const filter = copy.filter((res) => res.email !== userObj.email);
@@ -33,12 +32,12 @@ const useToggleLike = () => {
     }
     if (findEmail.length === 0) {
       mutate({
-        parentEmail: res.email,
+        id: res.id,
         like: [...copy, { email: userObj.email, likedAt: +new Date() }],
       });
     } else {
       mutate({
-        parentEmail: res.email,
+        id: res.id,
         like: filter,
       });
     }

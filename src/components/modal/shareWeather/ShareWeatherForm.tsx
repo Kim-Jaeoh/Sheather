@@ -319,6 +319,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Container = styled.div`
   background: #fff;
   position: relative;
+  border-radius: 0 0 12px 12px;
 `;
 
 const WearInfoBox = styled.section`

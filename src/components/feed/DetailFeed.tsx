@@ -332,7 +332,12 @@ const DetailFeed = () => {
                             게시
                           </ReplyEditBtn>
                         )}
-                        <Emoji setText={setReplyText} textRef={textRef} />
+                        <Emoji
+                          setText={setReplyText}
+                          textRef={textRef}
+                          right={0}
+                          bottom={30}
+                        />
                       </ReplyEditBox>
                     </ReplyBox>
                   </InfoBox>
@@ -360,6 +365,7 @@ const Wrapper = styled.main`
 `;
 
 const Container = styled.main`
+  position: relative;
   border: 2px solid ${secondColor};
   border-radius: 12px;
   overflow: hidden;
@@ -606,7 +612,7 @@ const ReplyEditBox = styled.div`
   border-top: 1px solid ${fourthColor};
   /* height: 32px; */
   /* max-height: 80px; */
-  position: relative;
+  /* position: relative; */
   display: flex;
   align-items: center;
 `;

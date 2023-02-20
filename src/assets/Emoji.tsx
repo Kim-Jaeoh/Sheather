@@ -4,12 +4,14 @@ import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { GrEmoji } from "react-icons/gr";
 import { useEmojiModalOutClick } from "../hooks/useEmojiModalOutClick";
 
-type props = {
+type Props = {
   textRef?: React.MutableRefObject<HTMLTextAreaElement>;
   setText?: React.Dispatch<React.SetStateAction<string>>;
+  right: number;
+  bottom: number;
 };
 
-const Emoji = ({ setText, textRef }: props) => {
+const Emoji = ({ setText, textRef, right, bottom }: Props) => {
   const emojiRef = useRef<HTMLDivElement>();
   // 이모지 모달 밖 클릭 시 창 닫기
   const { clickEmoji, toggleEmoji } = useEmojiModalOutClick(emojiRef, textRef);
@@ -26,7 +28,7 @@ const Emoji = ({ setText, textRef }: props) => {
       </EmojiIcon>
       {/* 해결: clickEmoji이 true일 때만 실행해서 textarea 버벅이지 않음 */}
       {clickEmoji && (
-        <EmojiPickerBox>
+        <EmojiPickerBox right={right} bottom={bottom}>
           <EmojiPicker
             searchDisabled={true}
             lazyLoadEmojis={true}
@@ -67,10 +69,14 @@ const EmojiIcon = styled.div`
   }
 `;
 
-const EmojiPickerBox = styled.div`
+const EmojiPickerBox = styled.div<{ right: number; bottom: number }>`
   position: absolute;
-  top: -294px;
-  left: -360px;
+  /* top: -294px; */
+  /* left: -360px; */
+  right: ${(props) => props.right}px;
+  bottom: ${(props) => props.bottom}px;
+  /* right: 0px;
+  bottom: 30px; */
   z-index: 9999;
 `;
 

@@ -32,7 +32,7 @@ const ShareWeatherFormModal = (props: Props) => {
         placeholder="무슨 일이 일어나고 있나요?"
       />
       <BtnBox>
-        <Emoji setText={setText} textRef={textRef} />
+        <Emoji setText={setText} textRef={textRef} right={32} bottom={-10} />
         <EditInfo>
           <TextAreaLength>
             <TextAreaLengthColor>
