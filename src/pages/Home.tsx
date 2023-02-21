@@ -14,11 +14,12 @@ import useToggleLike from "../hooks/useToggleLike";
 import useToggleBookmark from "../hooks/useToggleBookmark";
 import moment from "moment";
 import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
+import HomeSkeleton from "../assets/skeleton/HomeSkeleton";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
   const [feed, setFeed] = useState(null);
-  const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
+  const [rangeTime, setRangeTime] = useState<number[]>([1, 24]);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isDetailModal, setIsDetailModal] = useState(false);
   const [isDetailDone, setIsDetailDone] = useState(false);
@@ -63,17 +64,17 @@ const Home = () => {
     // 시간별
     if (selectCategory === 2) {
       if (isDetailDone) {
-        // 1. 글 작성 날짜와 캘린더 날짜 비교
+        // 1). 글 작성 날짜와 캘린더 날짜 비교
         const dayFilter = feedData.filter(
           (res) =>
             moment(res?.createdAt).format("YYYY-MM-DD") ===
             moment(changeValue).format("YYYY-MM-DD")
         );
-        // 1의 값에 시간 지정
+        // 1)의 값에 시간 지정
         return setFeed(
           dayFilter
             .filter((res) => {
-              const hour = date(Number(res.createdAt)).getHours();
+              const hour = date(res.createdAt).getHours();
               return hour >= rangeTime[0] && hour < rangeTime[1];
             })
             .sort((a, b) => a.like.length - b.like.length)
@@ -114,7 +115,7 @@ const Home = () => {
   };
 
   const onReset = () => {
-    setRangeTime([0, 23]);
+    setRangeTime([1, 24]);
     setChangeValue(new Date());
   };
 
@@ -240,45 +241,7 @@ const Home = () => {
             })}
           </CardBox>
         ) : (
-          <CardBox>
-            {Array.from({ length: 9 }).map((res, index) => {
-              return (
-                <CardList
-                  key={index}
-                  style={{
-                    border: "2px solid #dbdbdb",
-                    width: "318px",
-                    height: "404px",
-                  }}
-                >
-                  <Card
-                    to={""}
-                    style={{
-                      width: "314px",
-                      height: "314px",
-                      padding: "12px",
-                      borderBottom: "2px solid #dbdbdb",
-                    }}
-                  >
-                    <Skeleton
-                      width={"100%"}
-                      height={"100%"}
-                      variant="rounded"
-                    />
-                  </Card>
-                  <UserBox
-                    style={{ width: "314px", height: "84px", padding: "12px" }}
-                  >
-                    <Skeleton
-                      width={"100%"}
-                      height={"100%"}
-                      variant="rounded"
-                    />
-                  </UserBox>
-                </CardList>
-              );
-            })}
-          </CardBox>
+          <HomeSkeleton />
         )}
 
         {feed && feed.length < 1 && (
@@ -307,9 +270,8 @@ const SelectTimeBox = styled.nav<{ select: number }>`
   justify-content: center;
   flex-direction: column;
   margin: 0 auto;
-  margin-top: 20px;
-  margin-bottom: ${(props) => (props.select === 2 ? "20px" : "40px")};
-  /* padding: 0 0 14px; */
+  margin-top: 10px;
+  margin-bottom: 20px;
 `;
 
 const SelectDetailTimeBox = styled.div`

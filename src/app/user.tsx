@@ -1,6 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ResDataType } from "../components/slider/SlickSlider";
-import { WeatherDataType, WeathersFiveDataType } from "../types/type";
+import { createSlice } from "@reduxjs/toolkit";
 
 export interface UserType {
   loginToken?: boolean;

@@ -1,20 +1,11 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
 import { useLocation } from "react-router-dom";
 import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "./slick-theme.css";
 import Flicking from "@egjs/react-flicking";
-import "../../styles/flicking.css";
+import "../../styles/DetailFlicking.css";
 import { BsBookmark, BsSun } from "react-icons/bs";
 import { FiShare } from "react-icons/fi";
 import { IoShirtOutline } from "react-icons/io5";
@@ -30,10 +21,10 @@ import useToggleBookmark from "../../hooks/useToggleBookmark";
 import DetailFeedReply from "./DetailFeedReply";
 import Emoji from "../../assets/Emoji";
 import { useHandleResizeTextArea } from "../../hooks/useHandleResizeTextArea";
+import useFlickingArrow from "../../hooks/useFlickingArrow";
 
 const DetailFeed = () => {
   const [replyText, setReplyText] = useState("");
-
   const { state } = useLocation();
   const { toggleLike } = useToggleLike();
   const { toggleBookmark } = useToggleBookmark();
@@ -135,27 +126,19 @@ const DetailFeed = () => {
     });
   };
 
-  const settings = {
-    infinite: false,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    dots: true,
-    nextArrow: (
-      <NextArrow>
-        <span>
-          <IoIosArrowForward />
-        </span>
-      </NextArrow>
-    ),
-    prevArrow: (
-      <PrevArrow>
-        <span>
-          <IoIosArrowBack />
-        </span>
-      </PrevArrow>
-    ),
-  };
+  const {
+    flickingRef,
+    visible,
+    visible2,
+    setSlideIndex,
+    onClickArrowPrev,
+    onClickArrowNext,
+  } = useFlickingArrow({
+    dataLength: detailInfo[0].url.length,
+    lastLength: 1,
+  });
+
+  const [onMouse, setOnMouse] = useState(false);
 
   return (
     <>
@@ -189,7 +172,7 @@ const DetailFeed = () => {
                         <WearInfoMain>
                           <BsSun />
                         </WearInfoMain>
-                        <FlickingBox>
+                        <FlickingCategoryBox>
                           <Flicking
                             onChanged={(e) => console.log(e)}
                             moveType="freeScroll"
@@ -219,7 +202,7 @@ const DetailFeed = () => {
                               </TagBox>
                             </WearInfo>
                           </Flicking>
-                        </FlickingBox>
+                        </FlickingCategoryBox>
                       </WearInfoBox>
                     </WearDetail>
                     <WearDetail>
@@ -227,7 +210,7 @@ const DetailFeed = () => {
                         <WearInfoMain>
                           <IoShirtOutline />
                         </WearInfoMain>
-                        <FlickingBox>
+                        <FlickingCategoryBox>
                           <Flicking
                             onChanged={(e) => console.log(e)}
                             moveType="freeScroll"
@@ -252,21 +235,57 @@ const DetailFeed = () => {
                               </TagBox>
                             </WearInfo>
                           </Flicking>
-                        </FlickingBox>
+                        </FlickingCategoryBox>
                       </WearInfoBox>
                     </WearDetail>
                   </WearDetailBox>
                   {res.url.length > 1 ? (
-                    <Slider {...settings}>
-                      {res.url.map((res, index) => {
-                        return (
-                          <Card key={index}>
-                            <CardImage src={res} alt="" />
-                          </Card>
-                        );
-                      })}
-                    </Slider>
+                    // <Slider {...settings}>
+                    <FlickingImageBox
+                      onMouseOver={() => setOnMouse(true)}
+                      onMouseLeave={() => setOnMouse(false)}
+                    >
+                      {onMouse && (
+                        <>
+                          <PrevArrow
+                            onClick={onClickArrowPrev}
+                            visible={visible}
+                          >
+                            <ArrowIcon>
+                              <IoIosArrowBack />
+                            </ArrowIcon>
+                          </PrevArrow>
+                          <NextArrow
+                            onClick={onClickArrowNext}
+                            visible={visible2}
+                          >
+                            <ArrowIcon>
+                              <IoIosArrowForward />
+                            </ArrowIcon>
+                          </NextArrow>
+                        </>
+                      )}
+                      <Flicking
+                        align="prev"
+                        panelsPerView={1}
+                        ref={flickingRef}
+                        bound={true}
+                        moveType={"strict"}
+                        onChanged={(e) => {
+                          setSlideIndex(e.index);
+                        }}
+                      >
+                        {res.url.map((res, index) => {
+                          return (
+                            <Card key={index}>
+                              <CardImage src={res} alt="" />
+                            </Card>
+                          );
+                        })}
+                      </Flicking>
+                    </FlickingImageBox>
                   ) : (
+                    // </Slider>
                     <Card onContextMenu={(e) => e.preventDefault()}>
                       <CardImage src={res.url[0]} alt="" />
                     </Card>
@@ -516,21 +535,9 @@ const WearInfoMain = styled.div`
   }
 `;
 
-const FlickingBox = styled.div`
+const FlickingCategoryBox = styled.div`
   position: relative;
   cursor: pointer;
-
-  /* &::before {
-    left: 0px;
-    background: linear-gradient(to right, #fafafa, rgba(255, 255, 255, 0));
-    position: absolute;
-    top: 0px;
-    z-index: 10;
-    height: 120%;
-    width: 14px;
-    content: "";
-  } */
-
   &::after {
     right: 0px;
     background: linear-gradient(to right, rgba(255, 255, 255, 0), #fafafa);
@@ -540,6 +547,12 @@ const FlickingBox = styled.div`
     height: 100%;
     width: 14px;
     content: "";
+  }
+`;
+
+const FlickingImageBox = styled(FlickingCategoryBox)`
+  &::after {
+    display: none;
   }
 `;
 
@@ -712,7 +725,7 @@ const Arrow = styled.div`
   top: 50%;
   transform: translate(0, -50%);
   border-radius: 50%;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.8);
   z-index: 10;
   transition: all 0.1s;
   color: #e74b7a;
@@ -726,9 +739,19 @@ const Arrow = styled.div`
   }
 `;
 
-const NextArrow = styled(Arrow)`
-  right: 20px;
+const ArrowIcon = styled.span`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
+const NextArrow = styled(Arrow)<{ visible: boolean }>`
+  right: 20px;
+  color: ${(props) => !props.visible && fourthColor};
+  border-color: ${(props) => !props.visible && fourthColor};
+  cursor: ${(props) => !props.visible && "default"};
   span {
     svg {
       padding-left: 2px;
@@ -736,9 +759,11 @@ const NextArrow = styled(Arrow)`
   }
 `;
 
-const PrevArrow = styled(Arrow)`
+const PrevArrow = styled(Arrow)<{ visible: boolean }>`
   left: 20px;
-
+  color: ${(props) => !props.visible && fourthColor};
+  border-color: ${(props) => !props.visible && fourthColor};
+  cursor: ${(props) => !props.visible && "default"};
   span {
     svg {
       padding-right: 2px;

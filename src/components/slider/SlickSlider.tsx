@@ -1,8 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "./slick-theme.css";
-
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiShare } from "react-icons/fi";
@@ -13,17 +9,18 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { WeathersFiveDataType } from "../../types/type";
-import ShareWeather from "../modal/shareWeather/ShareWeatherModal";
-import { Skeleton, Stack } from "@mui/material";
 import SliderSkeleton from "../../assets/skeleton/SliderSkeleton";
 import ColorList from "../../assets/ColorList";
-import ShareWeatherImage from "../modal/shareWeather/ShareWeatherImage";
+import ShareWeatherModal from "../modal/shareWeather/ShareWeatherModal";
+import Flicking from "@egjs/react-flicking";
+import "../../styles/SlickSliderFlicking.css";
+import useFlickingArrow from "../../hooks/useFlickingArrow";
 
-type PropsType<T> = {
-  data: T[];
+type PropsType = {
+  data: WeathersFiveDataType[];
 };
 
-export interface ResDataType {
+interface ResDataType {
   dt?: number;
   dt_txt?: string;
   weather?: { description: string; icon: string }[];
@@ -36,7 +33,7 @@ export interface ResDataType {
   wind?: { speed: number };
 }
 
-const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
+const SlickSlider = ({ data }: PropsType) => {
   const [clothesBtn, setClothesBtn] = useState(false);
   const [shareBtn, setShareBtn] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -45,55 +42,6 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
-
-  const settings = {
-    infinite: false,
-    speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 1,
-    nextArrow: (
-      <NextArrow>
-        <span>
-          <IoIosArrowForward />
-        </span>
-      </NextArrow>
-    ),
-    prevArrow: (
-      <PrevArrow>
-        <span>
-          <IoIosArrowBack />
-        </span>
-      </PrevArrow>
-    ),
-
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 2,
-          infinite: true,
-        },
-      },
-      {
-        breakpoint: 600,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          initialSlide: 2,
-          infinite: true,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: true,
-        },
-      },
-    ],
-  };
 
   // 오늘 날짜인지 boolean 체크
   const dayCheck = useMemo(() => {
@@ -132,27 +80,49 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
     }
   };
 
-  const timeStamp = Math.floor(+new Date() / 1000);
+  const {
+    flickingRef,
+    visible,
+    visible2,
+    setSlideIndex,
+    onClickArrowPrev,
+    onClickArrowNext,
+  } = useFlickingArrow({ dataLength: data.length, lastLength: 4 });
 
   return (
     <>
-      {/* {shareBtn && (
-        <ShareWeather shareBtn={shareBtn} shareBtnClick={shareBtnClick} />
-      )} */}
       {shareBtn && (
-        <ShareWeatherImage
+        <ShareWeatherModal
           shareBtn={shareBtn}
           setShareBtn={setShareBtn}
           shareBtnClick={shareBtnClick}
         />
       )}
-      {/* {clothesBtn ? ( */}
       {data && data[0] ? (
         <Wrapper>
           <WeatherDateBox>
             <WeatherDate>{day}</WeatherDate>
           </WeatherDateBox>
-          <Slider {...settings}>
+          <PrevArrow onClick={onClickArrowPrev} visible={visible}>
+            <ArrowIcon>
+              <IoIosArrowBack />
+            </ArrowIcon>
+          </PrevArrow>
+          <NextArrow onClick={onClickArrowNext} visible={visible2}>
+            <ArrowIcon>
+              <IoIosArrowForward />
+            </ArrowIcon>
+          </NextArrow>
+          <Flicking
+            align="prev"
+            panelsPerView={4}
+            circular={false}
+            ref={flickingRef}
+            bound={true}
+            onChanged={(e) => {
+              setSlideIndex(e.index);
+            }}
+          >
             {data?.map((res: ResDataType, index: number) => {
               return (
                 <Container key={res?.dt}>
@@ -172,6 +142,7 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
                       <WeatherInfoBtn onClick={() => clothBtnClick(index)}>
                         <TbShirt />
                       </WeatherInfoBtn>
+
                       <WeatherDateListBox now={res?.dt_txt}>
                         <WeatherDateList now={res?.dt_txt}>
                           {!res?.dt_txt
@@ -236,7 +207,7 @@ const SlickSlider = ({ data }: PropsType<WeathersFiveDataType>) => {
                 </Container>
               );
             })}
-          </Slider>
+          </Flicking>
         </Wrapper>
       ) : (
         <SliderSkeleton />
@@ -254,6 +225,7 @@ const Wrapper = styled.div`
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
+  position: relative;
   border: 2px solid ${secondColor};
   box-shadow: 8px 8px 0px rgba(35, 92, 150, 0.3);
   &:not(:last-of-type) {
@@ -421,32 +393,34 @@ const WeatherCategorySub = styled.span`
   }
 `;
 
-const Arrow = styled.div`
+const ArrowStandard = styled.div`
   position: absolute;
   width: 22px;
   height: 22px;
-  /* right: -12px; */
   transform: translate(0, -50%);
-  top: -27px;
+  top: 25px;
   border-radius: 50%;
   border: 1px solid #48a3ff;
   background-color: #fff;
   z-index: 10;
   transition: all 0.1s;
   color: #48a3ff;
-
-  span {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  cursor: pointer;
 `;
 
-const NextArrow = styled(Arrow)`
-  right: 270px;
+const ArrowIcon = styled.span`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
+const NextArrow = styled(ArrowStandard)<{ visible: boolean }>`
+  right: 264px;
+  color: ${(props) => !props.visible && fourthColor};
+  border-color: ${(props) => !props.visible && fourthColor};
+  cursor: ${(props) => !props.visible && "default"};
   span {
     svg {
       padding-left: 2px;
@@ -454,8 +428,11 @@ const NextArrow = styled(Arrow)`
   }
 `;
 
-const PrevArrow = styled(Arrow)`
-  left: 270px;
+const PrevArrow = styled(ArrowStandard)<{ visible: boolean }>`
+  left: 264px;
+  color: ${(props) => !props.visible && fourthColor};
+  border-color: ${(props) => !props.visible && fourthColor};
+  cursor: ${(props) => !props.visible && "default"};
   span {
     svg {
       padding-right: 2px;

@@ -1,5 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ResDataType } from "../components/slider/SlickSlider";
+import { createSlice } from "@reduxjs/toolkit";
 import { WeatherDataType, WeathersFiveDataType } from "../types/type";
 
 const initialState: WeathersFiveDataType = {

@@ -68,6 +68,20 @@ export interface WeatherMapDataType {
   list: WeathersFiveDataType[];
 }
 
+//
+export interface ResDataType {
+  dt?: number;
+  dt_txt?: string;
+  weather?: { description: string; icon: string }[];
+  main?: {
+    temp: number;
+    feels_like: number;
+    temp_max: number;
+    temp_min: number;
+  };
+  wind?: { speed: number };
+}
+
 export interface FeedType {
   id: string;
   url: string[];
@@ -80,10 +94,11 @@ export interface FeedType {
     likedAt: number;
   }[];
   text: string;
-  feel: string;
+  feel: string[];
   wearInfo: {
     outer: string;
     top: string;
+    innerTop: string;
     bottom: string;
     etc: string;
   };

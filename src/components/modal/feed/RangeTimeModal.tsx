@@ -6,7 +6,8 @@ import Calendar from "react-calendar";
 import "../../../styles/Calendar.css"; // css import
 import { BsCalendar3 } from "react-icons/bs";
 import Slider from "rc-slider";
-import "rc-slider/assets/index.css";
+import "../../../styles/RangeTimeModalRcSlider.css";
+// import "rc-slider/assets/index.css";
 
 type Props = {
   rangeTime: number[];
@@ -79,18 +80,18 @@ const RangeTimeModal = (props: Props) => {
       <RangeSlideBox>
         <Slider
           range
-          min={0}
-          max={23}
+          min={1}
+          max={24}
           value={rangeTime}
           onChange={handleSliderChange}
           allowCross={false}
           pushable={1}
-          defaultValue={[0, 23]}
+          defaultValue={[1, 24]}
         />
       </RangeSlideBox>
       <RangeNumberBox>
-        <RangeNumber>0시</RangeNumber>
-        <RangeNumber>23시</RangeNumber>
+        <RangeNumber>1시</RangeNumber>
+        <RangeNumber>24시</RangeNumber>
       </RangeNumberBox>
       <ButtonBox>
         <ResetBtn onClick={onReset}>RESET</ResetBtn>
@@ -110,7 +111,7 @@ const RangeBox = styled.div`
   position: absolute;
   border-radius: 8px;
   top: 40px;
-  border: 1px solid ${secondColor};
+  border: 2px solid ${secondColor};
   width: 300px;
   background: #fff;
   animation-name: slideDown;
@@ -176,6 +177,7 @@ const ResetBtn = styled.button`
 
 const DoneBtn = styled.button`
   font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 9999px;
