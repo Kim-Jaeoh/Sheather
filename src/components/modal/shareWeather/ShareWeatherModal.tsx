@@ -419,7 +419,6 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
                         </ImageRemove>
                         <Images
                           onClick={() => {
-                            // !isNextClick && setSelectImage(attachments[index]);
                             !isNextClick && setSelectImageNum(index);
                           }}
                           src={

@@ -7,9 +7,13 @@ import "../../../styles/Calendar.css"; // css import
 import { BsCalendar3 } from "react-icons/bs";
 import Slider from "rc-slider";
 import "../../../styles/RangeTimeModalRcSlider.css";
+import { Modal, Backdrop } from "@mui/material";
+import { IoMdClose } from "react-icons/io";
 // import "rc-slider/assets/index.css";
 
 type Props = {
+  modalOpen: boolean;
+  modalClose: () => void;
   rangeTime: number[];
   setRangeTime: React.Dispatch<React.SetStateAction<number[]>>;
   changeValue: Date;
@@ -20,6 +24,8 @@ type Props = {
 
 const RangeTimeModal = (props: Props) => {
   const {
+    modalOpen,
+    modalClose,
     changeValue,
     setChangeValue,
     rangeTime,
@@ -45,58 +51,69 @@ const RangeTimeModal = (props: Props) => {
 
   return (
     <RangeBox>
-      <ViewNumberBox>
-        {isCalendar && (
-          <CalendarBox>
-            <Calendar
-              formatDay={(locale, date) => moment(date).format("DD")} // 날'일' 제외하고 숫자만 보이도록 설정
-              showNeighboringMonth={false} //  이전, 이후 달의 날짜는 보이지 않도록 설정
-              onChange={(e: Date) => {
-                setClickCalendar(e);
-              }}
-              value={changeValue}
-            />
-          </CalendarBox>
-        )}
-        <DateBox onClick={onClickCalendar}>
-          {isCalendar ? (
-            <ResetBtn>CANCLE</ResetBtn>
-          ) : (
-            <>
-              <DateIcon>
-                <BsCalendar3 />
-              </DateIcon>
-              <DateText>{moment(changeValue).format("YYYY-MM-DD")}</DateText>
-            </>
+      <Header onClick={isCalendar ? onClickCalendar : modalClose}>
+        <IoMdClose />
+      </Header>
+      <Container>
+        <ViewNumberBox>
+          {isCalendar && (
+            <CalendarBox>
+              <Calendar
+                formatDay={(locale, date) => moment(date).format("DD")} // 날'일' 제외하고 숫자만 보이도록 설정
+                showNeighboringMonth={false} //  이전, 이후 달의 날짜는 보이지 않도록 설정
+                onChange={(e: Date) => {
+                  setClickCalendar(e);
+                }}
+                value={changeValue}
+              />
+            </CalendarBox>
           )}
-        </DateBox>
-        {rangeTime && (
-          <ViewNumber>
-            {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
-            {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
-          </ViewNumber>
-        )}
-      </ViewNumberBox>
-      <RangeSlideBox>
-        <Slider
-          range
-          min={1}
-          max={24}
-          value={rangeTime}
-          onChange={handleSliderChange}
-          allowCross={false}
-          pushable={1}
-          defaultValue={[1, 24]}
-        />
-      </RangeSlideBox>
-      <RangeNumberBox>
-        <RangeNumber>1시</RangeNumber>
-        <RangeNumber>24시</RangeNumber>
-      </RangeNumberBox>
-      <ButtonBox>
-        <ResetBtn onClick={onReset}>RESET</ResetBtn>
-        <DoneBtn onClick={onDone}>DONE</DoneBtn>
-      </ButtonBox>
+          <DateBox onClick={onClickCalendar}>
+            <DateIcon>
+              <BsCalendar3 />
+            </DateIcon>
+            <DateText>{moment(changeValue).format("YYYY-MM-DD")}</DateText>
+          </DateBox>
+          {/* <DateBox onClick={onClickCalendar}>
+            {isCalendar ? (
+              <ResetBtn>CANCLE</ResetBtn>
+            ) : (
+              <>
+                <DateIcon>
+                  <BsCalendar3 />
+                </DateIcon>
+                <DateText>{moment(changeValue).format("YYYY-MM-DD")}</DateText>
+              </>
+            )}
+          </DateBox> */}
+          {rangeTime && (
+            <ViewNumber>
+              {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
+              {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
+            </ViewNumber>
+          )}
+        </ViewNumberBox>
+        <RangeSlideBox>
+          <Slider
+            range
+            min={1}
+            max={24}
+            value={rangeTime}
+            onChange={handleSliderChange}
+            allowCross={false}
+            pushable={1}
+            defaultValue={[1, 24]}
+          />
+        </RangeSlideBox>
+        <RangeNumberBox>
+          <RangeNumber>1시</RangeNumber>
+          <RangeNumber>24시</RangeNumber>
+        </RangeNumberBox>
+        <ButtonBox>
+          <ResetBtn onClick={onReset}>RESET</ResetBtn>
+          <DoneBtn onClick={onDone}>DONE</DoneBtn>
+        </ButtonBox>
+      </Container>
     </RangeBox>
   );
 };
@@ -106,15 +123,15 @@ export default RangeTimeModal;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const RangeBox = styled.div`
-  padding: 20px;
-  z-index: 100;
   position: absolute;
-  border-radius: 8px;
   top: 40px;
+  /* padding: 20px; */
+  z-index: 100;
+  border-radius: 8px;
   border: 2px solid ${secondColor};
   width: 300px;
   background: #fff;
-  animation-name: slideDown;
+  /* animation-name: slideDown;
   animation-duration: 0.5s;
   animation-timing-function: ease-in-out;
 
@@ -130,7 +147,35 @@ const RangeBox = styled.div`
       opacity: 1;
       transform: translateY(0px);
     }
+  } */
+`;
+
+const Header = styled.header`
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  overflow: hidden;
+  border-bottom: 1px solid ${thirdColor};
+  svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 8px;
   }
+`;
+
+const CancleBox = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid ${thirdColor};
+`;
+
+const Container = styled.div`
+  padding: 20px;
 `;
 
 const ViewNumberBox = styled.div`
@@ -191,31 +236,29 @@ const DoneBtn = styled.button`
     background: #ff5673;
   }
 
-  transition: all 0.2s linear;
+  transition: all 0.15s linear;
 `;
 
 const CalendarBox = styled.div`
   z-index: 99;
   position: absolute;
   left: -1px;
-  top: 56px;
-  bottom: 0px;
+  top: 37px;
+  bottom: 0;
   right: -1px;
-  > div {
+  > div:last-of-type {
     padding: 10px;
     border-radius: 0 0 8px 8px;
+    border-top: none;
   }
 `;
 
 const DateBox = styled.div`
   display: flex;
-  /* justify-content: end; */
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  /* position: absolute; */
-  /* top: 12px; */
-  /* right: 12px; */
+
   color: ${secondColor};
 `;
 const DateText = styled.span`

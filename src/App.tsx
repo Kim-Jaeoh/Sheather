@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import LeftBar from "./pages/LeftBar";
 import RightBar from "./pages/RightBar";
@@ -17,23 +17,23 @@ import Profile from "./pages/Profile";
 // const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
-  console.log(`
-  ╭ ◜◝ ͡ ◜◝ ͡ ◜◝ ͡ ◜◝  ◜◝╮
- 💗 이 토이프로젝트 재밌다  💗
-  ╰ ◟◞ ͜ ◟ ͜ ◟◞ ͜ ◟ ͜ ◟◞◟◞╯
-  　ｏ
-  　　 。
-  　　　｡
-  　　∧＿∧
-  　 (*　･ω･)
-  ＿(__つ/￣￣￣/_
-  　　＼/　　　/
-  `);
-
   const [init, setInit] = useState(false);
   const [userObj, setUserObj] = useState(null);
 
   useEffect(() => {
+    console.log(`
+    ╭ ◜◝ ͡ ◜◝ ͡ ◜◝ ͡ ◜◝  ◜◝╮
+   💗 이 토이프로젝트 재밌다  💗
+    ╰ ◟◞ ͜ ◟ ͜ ◟◞ ͜ ◟ ͜ ◟◞◟◞╯
+    　ｏ
+    　　 。
+    　　　｡
+    　　∧＿∧
+    　 (*　･ω･)
+    ＿(__つ/￣￣￣/_
+    　　＼/　　　/
+    `);
+
     // 유저 상태 변화 추적(로그인, 로그아웃, 어플리케이션 초기화 시)
     authService.onAuthStateChanged(async (user) => {
       if (user) {
@@ -55,12 +55,16 @@ const App = () => {
             <Header />
             <Container>
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/feed/*" element={<Home />} />
                 <Route path="/detail" element={<DetailFeed />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/message" element={<Message />} />
                 <Route path="/explore" element={<Explore />} />
-                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/*" element={<Profile />} />
+                <Route
+                  path="/"
+                  element={<Navigate replace to="/feed/recent" />}
+                />
               </Routes>
             </Container>
             <Footer />

@@ -62,6 +62,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               uid: user.uid,
               createdAt: Date.now(),
               bookmark: [],
+              like: [],
               profileURL: "",
               email: user.email,
               displayName: user.email.split("@")[0],
@@ -74,6 +75,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               currentUser({
                 uid: user.uid,
                 createdAt: Date.now(),
+                like: [],
                 bookmark: [],
                 profileURL: "",
                 email: user.email,

@@ -70,7 +70,7 @@ const LeftBar = () => {
     <Container>
       <MenuBox pathname={pathname}>
         <LogoBox>SHEATHER</LogoBox>
-        <MenuLink to="/">
+        <MenuLink to="/feed/recent">
           <MenuList>
             <AiOutlineHome />
             <MenuText>피드</MenuText>
@@ -94,7 +94,7 @@ const LeftBar = () => {
             <MenuText>탐색</MenuText>
           </MenuList>
         </MenuLink>
-        <MenuLink to="/profile">
+        <MenuLink to="/profile/post">
           <MenuList>
             <BsPersonCircle />
             <MenuText>프로필</MenuText>
@@ -173,13 +173,13 @@ const MenuBox = styled.ul<{ pathname: string }>`
 
   a:nth-of-type(1) li {
     font-weight: ${(props) =>
-      props.pathname === ("/" || "/detail") ? "bold" : "normal"};
+      props.pathname.includes("/feed" || "/detail") ? "bold" : "normal"};
     border: ${(props) =>
-      props.pathname === ("/" || "/detail")
+      props.pathname.includes("/feed" || "/detail")
         ? "2px solid #222222"
         : "2px solid transparent"};
     box-shadow: ${(props) =>
-      props.pathname === ("/" || "/detail")
+      props.pathname.includes("/feed" || "/detail")
         ? "0px 6px 0 -2px #ff5673, 0px 6px #222"
         : "0"};
   }
@@ -264,7 +264,7 @@ const MenuList = styled.li`
   border: 2px solid transparent;
   border-radius: 9999px;
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: all 0.15s linear;
 `;
 
 const MenuText = styled.h2`

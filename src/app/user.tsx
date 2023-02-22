@@ -10,6 +10,7 @@ export interface UserType {
     displayName: string;
     description: string;
     bookmark: string[];
+    like: string[];
     follower: {
       followerId: string;
       followerAt: number;
@@ -27,6 +28,7 @@ const initialState: UserType = {
     uid: "",
     createdAt: 0,
     bookmark: [],
+    like: [],
     profileURL: "",
     email: "",
     displayName: "",

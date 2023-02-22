@@ -13,10 +13,6 @@ const useFlickingArrow = ({ dataLength, lastLength }: Props) => {
   const [visible, setVisible] = useState(true);
   const [visible2, setVisible2] = useState(true);
 
-  useEffect(() => {
-    console.log(slideIndex);
-  }, [slideIndex]);
-
   // 이미지 변경 시마다 슬라이드 이동
   useEffect(() => {
     moveToFlicking(slideIndex);

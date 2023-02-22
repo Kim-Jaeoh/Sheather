@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
 import { useLocation } from "react-router-dom";
@@ -52,7 +58,7 @@ const DetailFeed = () => {
   );
 
   const detailInfo = useMemo(() => {
-    return feedData?.filter((res) => state === res.createdAt);
+    return feedData?.filter((res) => state === res.id);
   }, [feedData, state]);
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -134,7 +140,7 @@ const DetailFeed = () => {
     onClickArrowPrev,
     onClickArrowNext,
   } = useFlickingArrow({
-    dataLength: detailInfo[0].url.length,
+    dataLength: detailInfo && detailInfo[0]?.url.length,
     lastLength: 1,
   });
 
@@ -240,7 +246,6 @@ const DetailFeed = () => {
                     </WearDetail>
                   </WearDetailBox>
                   {res.url.length > 1 ? (
-                    // <Slider {...settings}>
                     <FlickingImageBox
                       onMouseOver={() => setOnMouse(true)}
                       onMouseLeave={() => setOnMouse(false)}
@@ -285,7 +290,6 @@ const DetailFeed = () => {
                       </Flicking>
                     </FlickingImageBox>
                   ) : (
-                    // </Slider>
                     <Card onContextMenu={(e) => e.preventDefault()}>
                       <CardImage src={res.url[0]} alt="" />
                     </Card>
@@ -295,9 +299,8 @@ const DetailFeed = () => {
                       <UserReactBox>
                         <IconBox>
                           <Icon onClick={() => toggleLike(res)}>
-                            {res.like.filter(
-                              (res) => res.email === userObj.email
-                            ).length > 0 ? (
+                            {userObj?.like?.filter((id) => id === res.id)
+                              .length > 0 ? (
                               <FaHeart style={{ color: "#FF5673" }} />
                             ) : (
                               <FaRegHeart />
@@ -376,17 +379,15 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Wrapper = styled.main`
   position: relative;
   overflow: hidden;
-  /* height: 100%; */
-  /* width: 500px;
-  margin: 0 auto; */
-  padding: 20px 60px 30px;
+  padding: 34px;
+  /* padding: 20px 60px 30px; */
   background: #ff5673;
 `;
 
 const Container = styled.main`
   position: relative;
   border: 2px solid ${secondColor};
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   background: #fff;
   box-shadow: #d43d59 1px 1px, #d43d59 0px 0px, #d43d59 1px 1px, #d43d59 2px 2px,
@@ -410,7 +411,7 @@ const Container = styled.main`
 `;
 
 const Header = styled.div`
-  padding: 12px;
+  padding: 14px;
   border-bottom: 1px solid ${thirdColor};
 `;
 
@@ -473,7 +474,7 @@ const UserImage = styled.img`
   display: block;
   width: 100%;
   height: 100%;
-  /* object-fit: cover; */
+  object-fit: cover;
 `;
 
 const Card = styled.div`
@@ -484,7 +485,7 @@ const Card = styled.div`
   outline: none;
   overflow: hidden;
   /* max-height: 532px; */
-  border-bottom: 1px solid ${thirdColor};
+  /* border-bottom: 1px solid ${thirdColor}; */
 `;
 
 const CardImage = styled.img`
@@ -499,11 +500,11 @@ const WearDetailBox = styled.div`
   overflow: hidden;
   display: flex;
   align-items: center;
-  border-bottom: 2px solid ${secondColor};
+  border-bottom: 1px solid ${thirdColor};
 `;
 
 const WearDetail = styled.div`
-  padding: 12px;
+  padding: 14px;
   display: flex;
   flex: 1;
   align-items: center;
@@ -577,7 +578,6 @@ const WeatherIcon = styled.div`
 
 const TagBox = styled.div`
   display: flex;
-  /* user-select: none; */
   flex: nowrap;
   gap: 8px;
 `;
@@ -595,15 +595,11 @@ const Tag = styled.div`
     font-size: 12px;
     color: ${secondColor};
   }
-  /* cursor: pointer; */
-  /* background: ${mainColor}; */
 `;
 
 const InfoBox = styled.div`
-  /* height: 300px; */
   padding: 20px;
-  margin-top: -4px;
-  /* border-bottom: 1px solid ${thirdColor}; */
+  border-top: 1px solid ${thirdColor};
 `;
 
 const TextBox = styled.div`
