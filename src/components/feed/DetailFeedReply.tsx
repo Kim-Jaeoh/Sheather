@@ -6,22 +6,11 @@ import defaultAccount from "../../assets/account_img_default.png";
 import useTimeFormat from "../../hooks/useTimeFormat";
 import ColorList from "../../assets/ColorList";
 import { IoMdClose } from "react-icons/io";
+import { replyType } from "../../types/type";
 
 type Props = {
-  reply: {
-    parentId?: string;
-    email: string;
-    displayName: string;
-    text: string;
-    replyAt: number;
-  };
-  onDelete: (text: {
-    parentId?: string;
-    email: string;
-    displayName: string;
-    text: string;
-    replyAt: number;
-  }) => void;
+  reply: replyType;
+  onDelete: (text: replyType) => void;
 };
 
 const DetailFeedReply = ({ reply, onDelete }: Props) => {

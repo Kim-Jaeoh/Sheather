@@ -1,24 +1,38 @@
 import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { onSnapshot, doc, getDoc } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { MdGridOn } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { Link, Navigate, Route, Routes } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { RootState } from "../app/store";
 import ColorList from "../assets/ColorList";
 import ProfilePost from "../components/profile/ProfilePost";
+import { dbService } from "../fbase";
 import { FeedType } from "../types/type";
 
-type Props = {};
+interface LocationProps {
+  state: string;
+}
 
-const Profile = (props: Props) => {
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
+const Profile = () => {
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
+
+  const { state } = useLocation() as LocationProps;
   const [selectCategory, setSelectCategory] = useState(0);
   const [post, setPost] = useState(null);
+  const [account, setAccount] = useState(null);
+
+  // 계정 정보 가져오기
+  useEffect(() => {
+    onSnapshot(doc(dbService, "users", state), (doc) => setAccount(doc.data()));
+  }, [userLogin, state]);
 
   const feedApi = async () => {
     const { data } = await axios.get("http://localhost:4000/api/feed");
@@ -36,94 +50,118 @@ const Profile = (props: Props) => {
   );
 
   const myPost: FeedType[] = useMemo(() => {
-    const filter = feedData?.filter((res) => res.email === userObj.email);
+    const filter = feedData?.filter((res) => res.email === account?.email);
     return filter;
-  }, [feedData, userObj.email]);
+  }, [feedData, account?.email]);
 
   useEffect(() => {
     if (selectCategory === 0) {
       const myPostfilter = feedData?.filter(
-        (res) => res.email === userObj.email
+        (res) => res.email === account?.email
       );
       setPost(myPostfilter);
     }
     if (selectCategory === 1) {
       const myLikeFilter = feedData?.filter((res) =>
-        userObj.like.includes(res.id)
+        account?.like.includes(res.id)
       );
       setPost(myLikeFilter);
     }
     if (selectCategory === 2) {
       const myBookmarkFilter = feedData?.filter((res) =>
-        userObj.bookmark.includes(res.id)
+        account?.bookmark.includes(res.id)
       );
       setPost(myBookmarkFilter);
     }
-  }, [feedData, selectCategory, userObj.bookmark, userObj.email, userObj.like]);
-
-  const onImageClick = () => {};
+  }, [
+    feedData,
+    selectCategory,
+    account?.bookmark,
+    account?.email,
+    account?.like,
+  ]);
 
   return (
-    <Wrapper>
-      <Container>
-        <ProfileBox>
-          <ProfileImageBox>
-            <ProfileImage src={userObj.profileURL} alt="profile" />
-          </ProfileImageBox>
-          <ProfileDetailBox>
-            <ProfileDetail>
-              <ProfileInfoBox>
-                <ProfileName>{userObj.displayName}</ProfileName>
-                <ProfileDesc>{userObj.description}</ProfileDesc>
-              </ProfileInfoBox>
-              <ProfileEditBtn>프로필 수정</ProfileEditBtn>
-            </ProfileDetail>
-            <ProfileActBox>
-              <ProfileLike>게시글 {myPost?.length}</ProfileLike>
-              <ProfileLike>팔로워 {userObj.follower.length}</ProfileLike>
-              <ProfileLike>팔로잉 {userObj.following.length}</ProfileLike>
-            </ProfileActBox>
-            <ProfileEditBox></ProfileEditBox>
-          </ProfileDetailBox>
-        </ProfileBox>
-        <CategoryBox>
-          <Category
-            onClick={() => setSelectCategory(0)}
-            select={selectCategory}
-            num={0}
-            to="post"
-          >
-            <MdGridOn />
-            게시글
-          </Category>
-          <Category
-            onClick={() => setSelectCategory(1)}
-            select={selectCategory}
-            num={1}
-            to="like"
-          >
-            <FaRegHeart />
-            좋아요
-          </Category>
-          <Category
-            onClick={() => setSelectCategory(2)}
-            select={selectCategory}
-            num={2}
-            to="bookmark"
-          >
-            <FaRegBookmark />
-            북마크
-          </Category>
-        </CategoryBox>
-        <CardList length={post?.length}>
-          <Routes>
-            <Route path="post" element={<ProfilePost myPost={post} />} />
-            <Route path="like" element={<ProfilePost myPost={post} />} />
-            <Route path="bookmark" element={<ProfilePost myPost={post} />} />
-          </Routes>
-        </CardList>
-      </Container>
-    </Wrapper>
+    <>
+      {account && (
+        <Wrapper>
+          <Container>
+            <ProfileBox>
+              <ProfileImageBox>
+                <ProfileImage src={account?.profileURL} alt="profile image" />
+              </ProfileImageBox>
+              <ProfileDetailBox>
+                <ProfileDetail>
+                  <ProfileInfoBox>
+                    <ProfileName>{account?.displayName}</ProfileName>
+                    <ProfileDesc>{account?.description}</ProfileDesc>
+                  </ProfileInfoBox>
+                  {account?.email === userObj.email ? (
+                    <ProfileEditBtn>프로필 수정</ProfileEditBtn>
+                  ) : (
+                    <FollowBtnBox>팔로우</FollowBtnBox>
+                  )}
+                </ProfileDetail>
+                <ProfileActBox>
+                  <ProfileLike>게시글 {myPost?.length}</ProfileLike>
+                  <ProfileLike>팔로워 {account?.follower.length}</ProfileLike>
+                  <ProfileLike>팔로잉 {account?.following.length}</ProfileLike>
+                </ProfileActBox>
+                <ProfileEditBox></ProfileEditBox>
+              </ProfileDetailBox>
+            </ProfileBox>
+            <CategoryBox>
+              <Category
+                onClick={() => setSelectCategory(0)}
+                select={selectCategory}
+                num={0}
+                to={`${account?.displayName}/post`}
+                state={account?.email}
+              >
+                <MdGridOn />
+                게시글
+              </Category>
+              <Category
+                onClick={() => setSelectCategory(1)}
+                select={selectCategory}
+                num={1}
+                to={`${account?.displayName}/like`}
+                state={account?.email}
+              >
+                <FaRegHeart />
+                좋아요
+              </Category>
+              <Category
+                onClick={() => setSelectCategory(2)}
+                select={selectCategory}
+                num={2}
+                to={`${account?.displayName}/bookmark`}
+                state={account?.email}
+              >
+                <FaRegBookmark />
+                북마크
+              </Category>
+            </CategoryBox>
+            <CardList length={post?.length}>
+              <Routes>
+                <Route
+                  path={`${account?.displayName}/post`}
+                  element={<ProfilePost myPost={post} />}
+                />
+                <Route
+                  path={`${account?.displayName}/like`}
+                  element={<ProfilePost myPost={post} />}
+                />
+                <Route
+                  path={`${account?.displayName}/bookmark`}
+                  element={<ProfilePost myPost={post} />}
+                />
+              </Routes>
+            </CardList>
+          </Container>
+        </Wrapper>
+      )}
+    </>
   );
 };
 
@@ -134,12 +172,14 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Wrapper = styled.div`
   position: relative;
   overflow: hidden;
+  height: 100%;
   padding: 34px;
   background: #6f4ccf;
 `;
 
 const Container = styled.div`
   position: relative;
+  height: 100%;
   padding: 20px;
   border: 2px solid ${secondColor};
   border-radius: 8px;
@@ -246,6 +286,22 @@ const ProfileEditBtn = styled.button`
     background-color: #6f4ccf;
     color: #fff;
   }
+`;
+
+const FollowBtnBox = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 10px 16px;
+  /* width: 82px; */
+  /* height: 30px; */
+  color: #fff;
+  border-radius: 9999px;
+  background: #000;
+  cursor: pointer;
 `;
 
 const CategoryBox = styled.ul`

@@ -1,83 +1,52 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import defaultAccount from "../assets/account_img_default.png";
 import ColorList from "../assets/ColorList";
-import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
-import { Skeleton } from "@mui/material";
-import { Link, Route, Routes } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { FeedType } from "../types/type";
-import { useSelector } from "react-redux";
-import { RootState } from "../app/store";
-import useToggleLike from "../hooks/useToggleLike";
-import useToggleBookmark from "../hooks/useToggleBookmark";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
 import moment from "moment";
 import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
-import HomeSkeleton from "../assets/skeleton/HomeSkeleton";
-import FeedCategory from "../components/modal/feed/FeedCategory";
+import FeedCategory from "../components/feed/FeedCategory";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
-  const [feed, setFeed] = useState(null);
-  const [rangeTime, setRangeTime] = useState<number[]>([1, 24]);
+  const [url, setUrl] = useState(`http://localhost:4000/api/feed/recent?`);
+  const [dateCategory, setDateCategory] = useState("recent");
+  const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isDetailModal, setIsDetailModal] = useState(false);
   const [isDetailDone, setIsDetailDone] = useState(false);
 
-  const feedApi = async () => {
-    const { data } = await axios.get("http://localhost:4000/api/feed");
-    return data;
-  };
-
-  // 피드 리스트 가져오기
-  const { data: feedData, isLoading } = useQuery<FeedType[]>(
-    ["feed"],
-    feedApi,
-    {
-      refetchOnWindowFocus: false,
-      onError: (e) => console.log(e),
-    }
-  );
+  const value = useMemo(() => {
+    return moment(changeValue).format("YYYYMMDD");
+  }, [changeValue]);
 
   useEffect(() => {
-    const date = (time: number) => new Date(time);
-
     // 최신
     if (selectCategory === 0) {
-      return setFeed(
-        feedData
-          ?.filter((res) => res.createdAt)
-          .sort((a, b) => a.createdAt - b.createdAt)
-      );
+      return setUrl("http://localhost:4000/api/feed/recent?");
     }
 
     // 인기
     if (selectCategory === 1) {
-      return setFeed(feedData.sort((a, b) => b.like.length - a.like.length));
+      return setUrl("http://localhost:4000/api/feed/popular?");
     }
 
     // 시간별
     if (selectCategory === 2) {
       if (isDetailDone) {
-        // 1). 글 작성 날짜와 캘린더 날짜 비교
-        const dayFilter = feedData.filter(
-          (res) =>
-            moment(res?.createdAt).format("YYYY-MM-DD") ===
-            moment(changeValue).format("YYYY-MM-DD")
-        );
-        // 1)의 값에 시간 지정
-        return setFeed(
-          dayFilter
-            .filter((res) => {
-              const hour = date(res.createdAt).getHours();
-              return hour >= rangeTime[0] && hour < rangeTime[1];
-            })
-            .sort((a, b) => a.like.length - b.like.length)
+        return setUrl(
+          `http://localhost:4000/api/feed/date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
         );
       }
     }
-  }, [selectCategory, feedData, isDetailDone, rangeTime, changeValue]);
+  }, [
+    changeValue,
+    dateCategory,
+    isDetailDone,
+    rangeTime,
+    selectCategory,
+    value,
+  ]);
 
   const onSelectCategory2 = () => {
     setSelectCategory(2);
@@ -97,82 +66,76 @@ const Home = () => {
 
   const onModalClose = () => {
     setIsDetailModal((prev) => !prev);
+    if (url.includes("recent")) {
+      setSelectCategory(0);
+    }
+    if (url.includes("popular")) {
+      setSelectCategory(1);
+    }
   };
 
   return (
-    <>
-      <Container>
-        <SelectTimeBox select={selectCategory}>
-          <SelectCategory>
-            <SelectCurrentTime
-              to="recent"
-              onClick={() => setSelectCategory(0)}
-              select={selectCategory}
-              num={0}
-            >
-              최신
-            </SelectCurrentTime>
-            <SelectCurrentTime
-              to="popular"
-              onClick={() => setSelectCategory(1)}
-              select={selectCategory}
-              num={1}
-            >
-              인기
-            </SelectCurrentTime>
-            <SelectCurrentTime
-              to="date"
-              onClick={onSelectCategory2}
-              select={selectCategory}
-              num={2}
-            >
-              시간별
-            </SelectCurrentTime>
-          </SelectCategory>
+    <Container>
+      <SelectTimeBox select={selectCategory}>
+        <SelectCategory>
+          <SelectCurrentTime
+            to="recent"
+            onClick={() => setSelectCategory(0)}
+            select={selectCategory}
+            num={0}
+          >
+            최신
+          </SelectCurrentTime>
+          <SelectCurrentTime
+            to="popular"
+            onClick={() => setSelectCategory(1)}
+            select={selectCategory}
+            num={1}
+          >
+            인기
+          </SelectCurrentTime>
+          <SelectCurrentTime
+            to="date"
+            onClick={onSelectCategory2}
+            select={selectCategory}
+            num={2}
+          >
+            시간별
+          </SelectCurrentTime>
+        </SelectCategory>
 
-          {selectCategory === 2 && isDetailModal && (
-            <RangeTimeModal
-              modalOpen={isDetailModal}
-              modalClose={onModalClose}
-              rangeTime={rangeTime}
-              setRangeTime={setRangeTime}
-              changeValue={changeValue}
-              setChangeValue={setChangeValue}
-              onReset={onReset}
-              onDone={onDone}
-            />
-          )}
-        </SelectTimeBox>
-
-        {isDetailDone && selectCategory === 2 && (
-          <SelectDetailTimeBox>
-            <SelectDetailTime>
-              {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
-              {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
-              {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
-            </SelectDetailTime>
-          </SelectDetailTimeBox>
+        {selectCategory === 2 && isDetailModal && (
+          <RangeTimeModal
+            modalOpen={isDetailModal}
+            modalClose={onModalClose}
+            rangeTime={rangeTime}
+            setRangeTime={setRangeTime}
+            changeValue={changeValue}
+            setChangeValue={setChangeValue}
+            onReset={onReset}
+            onDone={onDone}
+          />
         )}
+      </SelectTimeBox>
 
-        {!isLoading && feed ? (
-          <CardBox feedLength={feed?.length}>
-            <Routes>
-              <Route path="recent" element={<FeedCategory feed={feed} />} />
-              <Route path="popular" element={<FeedCategory feed={feed} />} />
-              <Route path="date" element={<FeedCategory feed={feed} />} />
-            </Routes>
-          </CardBox>
-        ) : (
-          <HomeSkeleton />
-        )}
+      {isDetailDone && selectCategory === 2 && (
+        <SelectDetailTimeBox>
+          <div onClick={() => setDateCategory("popular")}>인기순</div>
+          <div onClick={() => setDateCategory("recent")}>최신순</div>
+          <SelectDetailTime>
+            {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
+            {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
+            {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
+          </SelectDetailTime>
+        </SelectDetailTimeBox>
+      )}
 
-        {feed && feed.length < 1 && (
-          <NotInfoBox>
-            <NotInfo>해당 날짜의 글이 존재하지 않습니다.</NotInfo>
-          </NotInfoBox>
-        )}
-      </Container>
-    </>
+      <Routes>
+        <Route path="recent" element={<FeedCategory url={url} />} />
+        <Route path="popular" element={<FeedCategory url={url} />} />
+        <Route path="date" element={<FeedCategory url={url} />} />
+      </Routes>
+    </Container>
   );
 };
 export default React.memo(Home);
@@ -249,20 +212,3 @@ const SelectCurrentTime = styled(Link)<{ select: number; num: number }>`
   font-weight: bold;
   cursor: pointer;
 `;
-
-const CardBox = styled.ul<{ feedLength?: number }>`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-auto-rows: auto;
-`;
-
-const NotInfoBox = styled.div`
-  width: 100%;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const NotInfo = styled.div``;

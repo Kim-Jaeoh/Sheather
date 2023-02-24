@@ -96,13 +96,13 @@ const RangeTimeModal = (props: Props) => {
         <RangeSlideBox>
           <Slider
             range
-            min={1}
-            max={24}
+            min={0}
+            max={23}
             value={rangeTime}
             onChange={handleSliderChange}
             allowCross={false}
             pushable={1}
-            defaultValue={[1, 24]}
+            defaultValue={[0, 23]}
           />
         </RangeSlideBox>
         <RangeNumberBox>

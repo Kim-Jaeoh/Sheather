@@ -21,7 +21,7 @@ import { useSelector } from "react-redux";
 import { doc, onSnapshot } from "firebase/firestore";
 
 const LeftBar = () => {
-  const [myInfo, setMyInfo] = useState(null);
+  // const [myInfo, setMyInfo] = useState(null);
   const { pathname } = useLocation();
   const dispatch = useDispatch();
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -57,15 +57,6 @@ const LeftBar = () => {
     }
   };
 
-  // 본인 정보 가져오기
-  useEffect(() => {
-    if (userLogin) {
-      onSnapshot(doc(dbService, "users", userObj?.email), (doc) =>
-        setMyInfo(doc.data())
-      );
-    }
-  }, [userLogin, userObj]);
-
   return (
     <Container>
       <MenuBox pathname={pathname}>
@@ -94,7 +85,11 @@ const LeftBar = () => {
             <MenuText>탐색</MenuText>
           </MenuList>
         </MenuLink>
-        <MenuLink to="/profile/post">
+        <MenuLink
+          onClick={() => !userLogin && onClick()}
+          to={userLogin && `/profile/${userObj?.displayName}/post`}
+          state={userObj?.email}
+        >
           <MenuList>
             <BsPersonCircle />
             <MenuText>프로필</MenuText>
@@ -112,7 +107,7 @@ const LeftBar = () => {
             <MenuText>로그아웃</MenuText>
           </MenuList>
         </div>
-        <div>{myInfo && myInfo.displayName}</div>
+        <div>{userObj && userObj.displayName}</div>
         {select && <AuthFormModal modalOpen={select} modalClose={onClick} />}
       </MenuBox>
     </Container>

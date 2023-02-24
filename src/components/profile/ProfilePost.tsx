@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { FeedType } from "../../types/type";
 
 type props = {
@@ -7,12 +7,15 @@ type props = {
 };
 
 const ProfilePost = ({ myPost }: props) => {
+  // const param = useParams();
+  const { pathname } = useLocation();
+
   return (
     <>
       {myPost?.map((res, index) => {
         return (
           <Card key={res.id}>
-            <Link to="/detail" state={res.id}>
+            <Link to={"/profile/detail"} state={res.id}>
               {/* <WeatherEmojiBox>
               <WeatherEmoji>{res.feel}</WeatherEmoji>
             </WeatherEmojiBox> */}

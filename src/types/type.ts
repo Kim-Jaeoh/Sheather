@@ -82,6 +82,15 @@ export interface ResDataType {
   wind?: { speed: number };
 }
 
+export interface replyType {
+  parentId: string;
+  replyId: string;
+  email: string;
+  displayName: string;
+  text: string;
+  replyAt: number;
+}
+
 export interface FeedType {
   id: string;
   url: string[];
@@ -109,13 +118,7 @@ export interface FeedType {
     weather: string;
   };
   region: string;
-  reply: {
-    parentId: string;
-    displayName: string;
-    replyAt: number;
-    email: string;
-    text: string;
-  }[];
+  reply: replyType[];
 }
 
 export interface AspectRatio {

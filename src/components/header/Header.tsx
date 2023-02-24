@@ -13,7 +13,7 @@ const Header = () => {
   const { pathname } = useLocation();
 
   const changeColor = useMemo(() => {
-    if (pathname.includes("detail")) {
+    if (pathname.includes("feed")) {
       return "#ff5673";
     }
     if (pathname.includes("weather")) {
@@ -28,7 +28,6 @@ const Header = () => {
     if (pathname.includes("profile")) {
       return "#6f4ccf";
     }
-    return "#ff5673";
   }, [pathname]);
 
   // 날씨 정보 받아오기

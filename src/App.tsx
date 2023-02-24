@@ -56,15 +56,20 @@ const App = () => {
             <Container>
               <Routes>
                 <Route path="/feed/*" element={<Home />} />
-                <Route path="/detail" element={<DetailFeed />} />
+                <Route path="/feed/detail" element={<DetailFeed />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/message" element={<Message />} />
                 <Route path="/explore" element={<Explore />} />
                 <Route path="/profile/*" element={<Profile />} />
+                <Route path="/profile/detail" element={<DetailFeed />} />
                 <Route
                   path="/"
                   element={<Navigate replace to="/feed/recent" />}
                 />
+                {/* <Route
+                  path="/profile"
+                  element={<Navigate replace to="/profile/post" />}
+                /> */}
               </Routes>
             </Container>
             <Footer />
@@ -95,11 +100,14 @@ const Wrapper = styled.div`
 const Main = styled.main`
   /* flex: 1 1 auto; */
   width: 700px;
+  display: flex;
+  flex-direction: column;
   height: auto;
   padding: 0 20px;
 `;
 
 const Container = styled.div`
+  flex: 1;
   width: 100%;
   border-left: 2px solid #222222;
   border-right: 2px solid #222222;
