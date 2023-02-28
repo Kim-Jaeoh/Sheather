@@ -146,7 +146,7 @@ textarea {
   letter-spacing: -0.015em;
   font-family: "Pretendard", Apple SD Gothic Neo, Malgun Gothic, sans-serif;
   /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
-  font-style: normal;
+  font-style: 400;
   /* color: #222; */
   font-variant-numeric: tabular-nums;
   scroll-behavior: smooth;

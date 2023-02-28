@@ -4,21 +4,19 @@ import { FeedType } from "../../types/type";
 
 type props = {
   myPost: FeedType[];
+  email: string;
 };
 
-const ProfilePost = ({ myPost }: props) => {
-  // const param = useParams();
-  const { pathname } = useLocation();
-
+const ProfilePost = ({ myPost, email }: props) => {
   return (
     <>
       {myPost?.map((res, index) => {
         return (
           <Card key={res.id}>
-            <Link to={"/profile/detail"} state={res.id}>
-              {/* <WeatherEmojiBox>
-              <WeatherEmoji>{res.feel}</WeatherEmoji>
-            </WeatherEmojiBox> */}
+            <Link to={"/profile/detail"} state={{ id: res.id, email: email }}>
+              <WeatherEmojiBox>
+                <WeatherEmoji>{res.feel.split(" ")[0]}</WeatherEmoji>
+              </WeatherEmojiBox>
               {res.url.length > 1 && (
                 <CardLengthBox>
                   <CardLength>+{res.url.length}</CardLength>
@@ -39,15 +37,11 @@ const Card = styled.li`
   cursor: pointer;
   border-radius: 8px;
   display: block;
-  /* flex: auto; */
   width: 180px;
   height: 180px;
   max-height: 100%;
   position: relative;
   border: 1px solid #eee;
-  /* width: 33%; */
-  /* height: 33%; */
-  /* width: 180px; */
   overflow: hidden;
 `;
 
@@ -64,7 +58,7 @@ const WeatherEmojiBox = styled.div`
 const WeatherEmoji = styled.div`
   display: flex;
   align-items: center;
-  padding: 4px 6px;
+  padding: 4px;
   font-size: 12px;
   font-weight: bold;
   color: #fff;

@@ -9,7 +9,8 @@ import {
   WeathersFiveDataType,
 } from "../types/type";
 import { Spinner } from "../assets/Spinner";
-const SlickSlider = lazy(() => import("../components/slider/SlickSlider"));
+import { Toaster } from "react-hot-toast";
+const WeatherSlider = lazy(() => import("../components/weather/WeatherSlider"));
 
 const Weather = () => {
   const [weathers, setWeathers] = useState<WeathersFiveDataType | null>(null);
@@ -163,13 +164,16 @@ const Weather = () => {
     <>
       {!isLoading ? (
         <Container>
+          <Toaster position="bottom-left" reverseOrder={false} />
           <WeatherBox>
             <>
-              {dayCheck && <SlickSlider data={timeCheck} />}
-              <SlickSlider data={dayPlusCheck ? timePlusCheck : filterData2} />
-              <SlickSlider data={filterData3} />
-              <SlickSlider data={filterData4} />
-              <SlickSlider data={filterData5} />
+              {dayCheck && <WeatherSlider data={timeCheck} />}
+              <WeatherSlider
+                data={dayPlusCheck ? timePlusCheck : filterData2}
+              />
+              <WeatherSlider data={filterData3} />
+              <WeatherSlider data={filterData4} />
+              <WeatherSlider data={filterData5} />
             </>
           </WeatherBox>
         </Container>

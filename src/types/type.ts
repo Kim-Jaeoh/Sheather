@@ -68,7 +68,6 @@ export interface WeatherMapDataType {
   list: WeathersFiveDataType[];
 }
 
-//
 export interface ResDataType {
   dt?: number;
   dt_txt?: string;
@@ -94,6 +93,7 @@ export interface replyType {
 export interface FeedType {
   id: string;
   url: string[];
+  name?: string;
   displayName: string;
   imgAspect: string;
   email: string;
@@ -103,7 +103,7 @@ export interface FeedType {
     likedAt: number;
   }[];
   text: string;
-  feel: string[];
+  feel: string;
   wearInfo: {
     outer: string;
     top: string;
@@ -128,7 +128,6 @@ export interface AspectRatio {
 }
 
 export interface ImageType {
-  length: any;
   imageUrl: string;
   crop?: Point;
   zoom?: number;

@@ -21,7 +21,6 @@ import { useSelector } from "react-redux";
 import { doc, onSnapshot } from "firebase/firestore";
 
 const LeftBar = () => {
-  // const [myInfo, setMyInfo] = useState(null);
   const { pathname } = useLocation();
   const dispatch = useDispatch();
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -47,6 +46,7 @@ const LeftBar = () => {
           createdAt: "",
           profileURL: "",
           email: "",
+          name: "",
           displayName: "",
           description: "",
           follower: [],
@@ -216,13 +216,13 @@ const MenuBox = styled.ul<{ pathname: string }>`
   }
   a:nth-of-type(5) li {
     font-weight: ${(props) =>
-      props.pathname === "/profile" ? "bold" : "normal"};
+      props.pathname.includes("/profile") ? "bold" : "normal"};
     border: ${(props) =>
-      props.pathname === "/profile"
+      props.pathname.includes("/profile")
         ? "2px solid #222222"
         : "2px solid transparent"};
     box-shadow: ${(props) =>
-      props.pathname === "/profile"
+      props.pathname.includes("/profile")
         ? "0px 6px 0 -2px #6f4ccf, 0px 6px #222"
         : "0"};
   }

@@ -7,10 +7,10 @@ import {
 } from "firebase/auth";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { IoCloseOutline } from "react-icons/io5";
 import { authService, dbService } from "../../../fbase";
 import { currentUser, loginToken } from "../../../app/user";
+import defaultAccount from "../../../assets/account_img_default.png";
 
 type Props = {
   modalOpen: boolean;
@@ -24,7 +24,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
   const [newAccount, setNewAccount] = useState(true);
   const [error, setError] = useState("");
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const toggleAccount = () => setNewAccount(!newAccount);
 
   const SignUser = async (e: React.FormEvent) => {
@@ -32,7 +31,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
 
     try {
       let user;
-
       if (newAccount) {
         await signInWithEmailAndPassword(authService, email, password).then(
           async (result) => {
@@ -63,8 +61,9 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               createdAt: Date.now(),
               bookmark: [],
               like: [],
-              profileURL: "",
+              profileURL: defaultAccount,
               email: user.email,
+              name: "",
               displayName: user.email.split("@")[0],
               description: "",
               follower: [],
@@ -77,8 +76,9 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                 createdAt: Date.now(),
                 like: [],
                 bookmark: [],
-                profileURL: "",
+                profileURL: defaultAccount,
                 email: user.email,
+                name: "",
                 displayName: user.email.split("@")[0],
                 description: "",
                 follower: [],
@@ -91,7 +91,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
             setEmail("");
             setPassword("");
             setError("");
-            // reloadState();
           }
         );
       }
@@ -152,9 +151,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
       <Wrapper>
         <Container>
-          <LogoBox>
-            {/* <Logo src={KakaoLogo} alt="kakao" loading="lazy" /> */}
-          </LogoBox>
+          <LogoBox></LogoBox>
           <ListDelete onClick={modalClose}>
             <IoCloseOutline />
           </ListDelete>

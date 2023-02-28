@@ -110,8 +110,8 @@ const RangeTimeModal = (props: Props) => {
           <RangeNumber>24시</RangeNumber>
         </RangeNumberBox>
         <ButtonBox>
-          <ResetBtn onClick={onReset}>RESET</ResetBtn>
-          <DoneBtn onClick={onDone}>DONE</DoneBtn>
+          <ResetBtn onClick={onReset}>초기화</ResetBtn>
+          <DoneBtn onClick={onDone}>완료</DoneBtn>
         </ButtonBox>
       </Container>
     </RangeBox>
@@ -206,7 +206,7 @@ const RangeNumber = styled.p`
 `;
 
 const ButtonBox = styled.div`
-  margin: 0 -6px -6px;
+  margin: 0 0px -6px;
   margin-top: 20px;
   display: flex;
   align-content: center;

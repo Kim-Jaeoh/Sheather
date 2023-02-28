@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiShare } from "react-icons/fi";
 import { TbShirt } from "react-icons/tb";
-import Clothes from "../clothes/Clothes";
+import WeatherClothes from "./WeatherClothes";
 import { shareWeather } from "../../app/getWeather";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -33,7 +33,7 @@ interface ResDataType {
   wind?: { speed: number };
 }
 
-const SlickSlider = ({ data }: PropsType) => {
+const WeatherSlider = ({ data }: PropsType) => {
   const [clothesBtn, setClothesBtn] = useState(false);
   const [shareBtn, setShareBtn] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -127,7 +127,7 @@ const SlickSlider = ({ data }: PropsType) => {
               return (
                 <Container key={res?.dt}>
                   {index === selected && clothesBtn && (
-                    <Clothes
+                    <WeatherClothes
                       index={index}
                       clothBtnClick={() => clothBtnClick(index)}
                       temp={res?.main?.temp}
@@ -216,7 +216,7 @@ const SlickSlider = ({ data }: PropsType) => {
   );
 };
 
-export default React.memo(SlickSlider);
+export default React.memo(WeatherSlider);
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 

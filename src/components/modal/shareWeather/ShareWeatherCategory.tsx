@@ -34,12 +34,12 @@ const ShareWeatherCategory = (props: props) => {
   } = props;
   const { ClothesCategory } = TempClothes();
 
-  const CurrentEmoji = [
-    ["🥵 더워요"],
-    ["😥 조금 더워요"],
-    ["😄 적당해요"],
-    ["😬 조금 추워요"],
-    ["🥶 추워요"],
+  const currentEmoji = [
+    "🥵 더워요",
+    "😥 조금 더워요",
+    "😄 적당해요",
+    "😬 조금 추워요",
+    "🥶 추워요",
   ];
 
   return (
@@ -55,7 +55,7 @@ const ShareWeatherCategory = (props: props) => {
               align="prev"
             >
               <TagBox>
-                {CurrentEmoji.map((res, index) => (
+                {currentEmoji.map((res, index) => (
                   <Tag key={index}>
                     <TagInput
                       id={index.toString()}

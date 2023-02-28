@@ -103,7 +103,7 @@ const ReplyId = styled.p`
   display: inline;
   margin-right: 8px;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 600;
   display: inline-block;
   cursor: pointer;
 `;

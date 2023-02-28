@@ -120,8 +120,24 @@ const Home = () => {
 
       {isDetailDone && selectCategory === 2 && (
         <SelectDetailTimeBox>
-          <div onClick={() => setDateCategory("popular")}>인기순</div>
-          <div onClick={() => setDateCategory("recent")}>최신순</div>
+          <SelectCategoryBox>
+            <SelectCategoryBtn
+              select={dateCategory}
+              category={"recent"}
+              type="button"
+              onClick={() => setDateCategory("recent")}
+            >
+              최신순
+            </SelectCategoryBtn>
+            <SelectCategoryBtn
+              select={dateCategory}
+              category={"popular"}
+              type="button"
+              onClick={() => setDateCategory("popular")}
+            >
+              인기순
+            </SelectCategoryBtn>
+          </SelectCategoryBox>
           <SelectDetailTime>
             {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
             {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
@@ -180,6 +196,23 @@ const SelectDetailTimeBox = styled.div`
       transform: translateY(0px);
     }
   }
+`;
+
+const SelectCategoryBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 12px;
+  margin-bottom: 10px;
+`;
+
+const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
+  padding: 0;
+  transition: all 0.15s linear;
+  font-size: 14px;
+  font-weight: ${(props) =>
+    props.select === props.category ? "bold" : "normal"};
+  cursor: pointer;
 `;
 
 const SelectDetailTime = styled.p`

@@ -8,16 +8,17 @@ export interface UserType {
     email: string;
     profileURL: string;
     displayName: string;
+    name: string;
     description: string;
     bookmark: string[];
     like: string[];
     follower: {
-      followerId: string;
-      followerAt: number;
+      id: string;
+      time: number;
     }[];
     following: {
-      followingId: string;
-      followingAt: number;
+      id: string;
+      time: number;
     }[];
   };
 }
@@ -31,6 +32,7 @@ const initialState: UserType = {
     like: [],
     profileURL: "",
     email: "",
+    name: "",
     displayName: "",
     description: "",
     follower: [],

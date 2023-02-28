@@ -10,10 +10,12 @@ import ColorList from "../../assets/ColorList";
 import { useLocation, useParams } from "react-router-dom";
 import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
-import Flicking from "@egjs/react-flicking";
+import Flicking, { ViewportSlot } from "@egjs/react-flicking";
 import "../../styles/DetailFlicking.css";
+import { Pagination } from "@egjs/flicking-plugins";
+import "@egjs/flicking-plugins/dist/pagination.css";
 import { BsBookmark, BsSun } from "react-icons/bs";
-import { FiShare } from "react-icons/fi";
+import { FiMoreHorizontal, FiShare } from "react-icons/fi";
 import { IoShirtOutline } from "react-icons/io5";
 import useTimeFormat from "../../hooks/useTimeFormat";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -31,6 +33,11 @@ import useFlickingArrow from "../../hooks/useFlickingArrow";
 import { Link } from "react-router-dom";
 import uuid from "react-uuid";
 import useToggleFollow from "../../hooks/useToggleFollow";
+import { getDoc, doc } from "firebase/firestore";
+import { dbService } from "../../fbase";
+import FeedProfileImage from "./FeedProfileImage";
+import FeedProfileDisplayName from "./FeedProfileDisplayName";
+import { Skeleton } from "@mui/material";
 
 type ReplyPayload = {
   id?: string;
@@ -43,6 +50,14 @@ type ReplyPayload = {
   }[];
 };
 
+type locationProps = {
+  state: {
+    id: string;
+    email: string;
+  };
+  pathname: string;
+};
+
 const DetailFeed = () => {
   const textRef = useRef<HTMLTextAreaElement>(null);
   const { currentUser: userObj } = useSelector((state: RootState) => {
@@ -50,7 +65,8 @@ const DetailFeed = () => {
   });
   const [replyText, setReplyText] = useState("");
   const [onMouse, setOnMouse] = useState(false);
-  const { state, pathname } = useLocation();
+  const [isMore, setIsMore] = useState(false);
+  const { state, pathname } = useLocation() as locationProps;
   const { toggleLike } = useToggleLike();
   const { toggleBookmark } = useToggleBookmark();
   const { toggleFollow } = useToggleFollow();
@@ -65,17 +81,13 @@ const DetailFeed = () => {
   };
 
   // 피드 리스트 가져오기
-  const { data: feedData, isLoading } = useQuery<FeedType[]>(
-    ["feed"],
-    feedApi,
-    {
-      refetchOnWindowFocus: false,
-      onError: (e) => console.log(e),
-    }
-  );
+  const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {
+    refetchOnWindowFocus: false,
+    onError: (e) => console.log(e),
+  });
 
   const detailInfo = useMemo(() => {
-    return feedData?.filter((res) => state === res.id);
+    return feedData?.filter((res) => state.id === res.id);
   }, [feedData, state]);
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -135,6 +147,7 @@ const DetailFeed = () => {
 
   const {
     flickingRef,
+    slideIndex,
     visible,
     visible2,
     setSlideIndex,
@@ -163,6 +176,10 @@ const DetailFeed = () => {
     }
   }, [pathname]);
 
+  const onMoreClick = () => {
+    setIsMore((prev) => !prev);
+  };
+
   return (
     <>
       {feedData && (
@@ -181,29 +198,33 @@ const DetailFeed = () => {
                         to={`/profile/${res.displayName}/post`}
                         state={res.email}
                       >
-                        <UserImage src={res?.url[0]} alt="" />
+                        <FeedProfileImage email={res.email} />
                       </UserImageBox>
                       <UserWriteInfo>
-                        <UserName
+                        <UserNameBox
                           to={`/profile/${res.displayName}/post`}
                           state={res.email}
                         >
-                          {res.displayName}
-                        </UserName>
+                          <FeedProfileDisplayName email={res.email} />
+                        </UserNameBox>
                         <WriteDate>
                           {timeToString2(Number(res.createdAt))}
                         </WriteDate>
                       </UserWriteInfo>
-                      {res.email !== userObj.email && (
+                      {res.email !== userObj.email ? (
                         <FollowBtnBox onClick={() => toggleFollow(res.email)}>
                           {userObj?.following.filter((obj) =>
-                            obj.followingId.includes(res.email)
+                            obj.id.includes(res.email)
                           ).length !== 0 ? (
                             <FollowingBtn>팔로잉</FollowingBtn>
                           ) : (
                             <FollowBtn>팔로우</FollowBtn>
                           )}
                         </FollowBtnBox>
+                      ) : (
+                        <MoreBtn type="button" onClick={onMoreClick}>
+                          <FiMoreHorizontal />
+                        </MoreBtn>
                       )}
                     </UserInfoBox>
                   </Header>
@@ -290,6 +311,7 @@ const DetailFeed = () => {
                           <PrevArrow
                             onClick={onClickArrowPrev}
                             visible={visible}
+                            bgColor={bgColor}
                           >
                             <ArrowIcon>
                               <IoIosArrowBack />
@@ -298,6 +320,7 @@ const DetailFeed = () => {
                           <NextArrow
                             onClick={onClickArrowNext}
                             visible={visible2}
+                            bgColor={bgColor}
                           >
                             <ArrowIcon>
                               <IoIosArrowForward />
@@ -323,6 +346,13 @@ const DetailFeed = () => {
                           );
                         })}
                       </Flicking>
+                      <PaginationButton>
+                        {Array.from({ length: 3 }, (value, index) => (
+                          <PaginationSpan key={index} slideIndex={slideIndex}>
+                            <span />
+                          </PaginationSpan>
+                        ))}
+                      </PaginationButton>
                     </FlickingImageBox>
                   ) : (
                     <Card onContextMenu={(e) => e.preventDefault()}>
@@ -336,7 +366,7 @@ const DetailFeed = () => {
                           <Icon onClick={() => toggleLike(res)}>
                             {userObj?.like?.filter((id) => id === res.id)
                               .length > 0 ? (
-                              <FaHeart style={{ color: "#FF5673" }} />
+                              <FaHeart style={{ color: bgColor }} />
                             ) : (
                               <FaRegHeart />
                             )}
@@ -344,7 +374,7 @@ const DetailFeed = () => {
                           <Icon onClick={() => toggleBookmark(res.id)}>
                             {userObj?.bookmark?.filter((id) => id === res.id)
                               .length > 0 ? (
-                              <FaBookmark style={{ color: "#FF5673" }} />
+                              <FaBookmark style={{ color: bgColor }} />
                             ) : (
                               <FaRegBookmark />
                             )}
@@ -514,6 +544,7 @@ const UserImageBox = styled(Link)`
   border: 1px solid ${fourthColor};
   object-fit: cover;
   cursor: pointer;
+  position: relative;
 `;
 
 const UserWriteInfo = styled.div`
@@ -528,19 +559,32 @@ const WriteDate = styled.span`
   font-size: 12px;
 `;
 
-const UserName = styled(Link)`
+const UserNameBox = styled(Link)`
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 500;
   letter-spacing: -0.15px;
-  color: rgba(34, 34, 34, 0.8);
+  color: ${secondColor};
 `;
 
-const FollowBtnBox = styled.div`
+const FollowBtnBox = styled.div``;
+
+const MoreBtn = styled.button`
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin-right: -6px;
+  cursor: pointer;
+  svg {
+    font-size: 20px;
+  }
 `;
 
 const FollowBtn = styled.button`
@@ -656,8 +700,51 @@ const FlickingCategoryBox = styled.div`
 `;
 
 const FlickingImageBox = styled(FlickingCategoryBox)`
+  position: relative;
   &::after {
     display: none;
+  }
+`;
+
+const PaginationButton = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  position: absolute;
+  bottom: 18px;
+  z-index: 10;
+
+  /* @media screen and (min-width: 640px) {
+    margin: 0 30px;
+  } */
+`;
+
+const PaginationSpan = styled.span<{ slideIndex: number }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    border-radius: 100%;
+    display: inline-block;
+    font-size: 1rem;
+    width: 6px;
+    height: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 0 3px;
+  }
+
+  &:nth-of-type(${(props) => props.slideIndex + 1}) {
+    span {
+      background-color: #222;
+      /* transform: scaleX(30px); */
+      /* width: 6px; */
+      /* height: 6px; */
+      /* border-radius: 3px; */
+    }
   }
 `;
 
@@ -828,7 +915,6 @@ const Arrow = styled.div`
   background-color: rgba(255, 255, 255, 0.8);
   z-index: 10;
   transition: all 0.1s;
-  color: #e74b7a;
 
   span {
     width: 100%;
@@ -847,10 +933,10 @@ const ArrowIcon = styled.span`
   justify-content: center;
 `;
 
-const NextArrow = styled(Arrow)<{ visible: boolean }>`
+const NextArrow = styled(Arrow)<{ visible: boolean; bgColor: string }>`
   right: 20px;
-  color: ${(props) => !props.visible && fourthColor};
-  border-color: ${(props) => !props.visible && fourthColor};
+  color: ${(props) => (!props.visible ? thirdColor : props.bgColor)};
+  border-color: ${(props) => (!props.visible ? thirdColor : props.bgColor)};
   cursor: ${(props) => !props.visible && "default"};
   span {
     svg {
@@ -859,10 +945,10 @@ const NextArrow = styled(Arrow)<{ visible: boolean }>`
   }
 `;
 
-const PrevArrow = styled(Arrow)<{ visible: boolean }>`
+const PrevArrow = styled(Arrow)<{ visible: boolean; bgColor: string }>`
   left: 20px;
-  color: ${(props) => !props.visible && fourthColor};
-  border-color: ${(props) => !props.visible && fourthColor};
+  color: ${(props) => (!props.visible ? thirdColor : props.bgColor)};
+  border-color: ${(props) => (!props.visible ? thirdColor : props.bgColor)};
   cursor: ${(props) => !props.visible && "default"};
   span {
     svg {

@@ -33,8 +33,8 @@ const useToggleLike = () => {
         })
       );
     } else {
-      const copy = [...userObj.like];
-      copy.push(resId);
+      const copy = [resId, ...userObj.like];
+      // copy.push(resId);
       await updateDoc(doc(dbService, "users", userObj.email), {
         like: copy,
       });
@@ -68,7 +68,7 @@ const useToggleLike = () => {
     if (findEmail.length === 0) {
       mutate({
         id: res.id,
-        like: [...copy, { email: userObj.email, likedAt: +new Date() }],
+        like: [{ email: userObj.email, likedAt: +new Date() }, ...copy],
       });
       fbLike(res.id);
     } else {

@@ -1,19 +1,26 @@
 import React from "react";
 import styled from "@emotion/styled";
-import FadeLoader from "react-spinners/FadeLoader";
-
-const Box = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 99;
-`;
+import { RotatingLines } from "react-loader-spinner";
 
 export const Spinner = () => {
   return (
     <Box>
-      <FadeLoader color="#363636" height={14} width={6} radius={5} margin={2} />
+      <RotatingLines
+        strokeColor="grey"
+        strokeWidth="3"
+        animationDuration="1"
+        width="30"
+        visible={true}
+      />
     </Box>
   );
 };
+
+const Box = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+`;

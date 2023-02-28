@@ -10,6 +10,12 @@ import useToggleBookmark from "../../hooks/useToggleBookmark";
 import useToggleLike from "../../hooks/useToggleLike";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import HomeSkeleton from "../../assets/skeleton/HomeSkeleton";
+import { useEffect, useState } from "react";
+import { getDoc, doc } from "firebase/firestore";
+import { UserType } from "../../app/user";
+import { dbService } from "../../fbase";
+import FeedProfileImage from "./FeedProfileImage";
+import FeedProfileDisplayName from "./FeedProfileDisplayName";
 
 type Props = {
   feed?: FeedType[];
@@ -58,12 +64,13 @@ const FeedCategory = ({ url, feed }: Props) => {
               {dataList?.pages?.flat().map((res: FeedType, index: number) => {
                 sizes(res.imgAspect);
                 sizeAspect(res.imgAspect);
+
                 return (
                   <CardList size={checkSize} key={res.id}>
                     <Card
                       aspect={checkAspect}
                       to={"/feed/detail"}
-                      state={res.id}
+                      state={{ id: res.id, email: res.email }}
                     >
                       <WeatherEmojiBox>
                         <WeatherEmoji>{res.feel}</WeatherEmoji>
@@ -88,17 +95,14 @@ const FeedCategory = ({ url, feed }: Props) => {
                           state={res.email}
                           onContextMenu={(e) => e.preventDefault()}
                         >
-                          <UserImage
-                            src={res.url ? res.url[0] : defaultAccount}
-                            alt=""
-                          />
+                          <FeedProfileImage email={res.email} />
                         </UserImageBox>
-                        <UserName
+                        <UserNameBox
                           to={`/profile/${res.displayName}/post`}
                           state={res.email}
                         >
-                          {res.displayName}
-                        </UserName>
+                          <FeedProfileDisplayName email={res.email} />
+                        </UserNameBox>
                         <UserReactBox>
                           <UserIconBox>
                             <UserIcon onClick={() => toggleLike(res)}>
@@ -269,6 +273,7 @@ const UserImageBox = styled(Link)`
   border: 1px solid ${fourthColor};
   object-fit: cover;
   cursor: pointer;
+  position: relative;
 `;
 
 const UserImage = styled.img`
@@ -278,16 +283,18 @@ const UserImage = styled.img`
   image-rendering: auto;
 `;
 
-const UserName = styled(Link)`
+const UserNameBox = styled(Link)`
   cursor: pointer;
   overflow: hidden;
+  position: relative;
   text-overflow: ellipsis;
   flex: 1;
   padding: 8px;
   white-space: nowrap;
   font-size: 14px;
+  font-weight: 500;
   letter-spacing: -0.15px;
-  color: rgba(34, 34, 34, 0.8);
+  color: ${secondColor};
 `;
 
 const UserReactBox = styled.div`

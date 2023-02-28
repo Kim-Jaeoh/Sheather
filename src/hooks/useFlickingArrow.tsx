@@ -66,6 +66,7 @@ const useFlickingArrow = ({ dataLength, lastLength }: Props) => {
 
   return {
     flickingRef,
+    slideIndex,
     visible,
     visible2,
     setSlideIndex,

@@ -29,8 +29,7 @@ const useToggleBookmark = () => {
         })
       );
     } else {
-      const copy = [...userObj.bookmark];
-      copy.push(resId);
+      const copy = [resId, ...userObj.bookmark];
       await updateDoc(doc(dbService, "users", userObj.email), {
         bookmark: copy,
       });

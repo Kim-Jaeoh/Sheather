@@ -51,12 +51,12 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
   const { ClothesCategory } = TempClothes();
   const { location } = useCurrentLocation();
 
-  const CurrentEmoji = [
-    ["🥵 더워요"],
-    ["😥 조금 더워요"],
-    ["😄 적당해요"],
-    ["😬 조금 추워요"],
-    ["🥶 추워요"],
+  const currentEmoji = [
+    "🥵 더워요",
+    "😥 조금 더워요",
+    "😄 적당해요",
+    "😬 조금 추워요",
+    "🥶 추워요",
   ];
 
   // 현재 주소 받아오기
@@ -270,7 +270,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
         createdAt: +new Date(),
         like: [],
         text: text,
-        feel: CurrentEmoji[select],
+        feel: currentEmoji[select],
         wearInfo: {
           outer: ClothesCategory.outer[outerCheck],
           top: ClothesCategory.top[topCheck],
@@ -287,13 +287,13 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
         region: regionData?.data?.documents[0]?.address?.region_1depth_name,
         reply: [],
       });
+      toast.success("업로드 되었습니다.");
     }
   };
 
   return (
     <Modal open={shareBtn} onClose={shareBtnClick} disableScrollLock={false}>
       <>
-        <Toaster position="bottom-left" reverseOrder={false} />
         <Container onSubmit={onSubmit}>
           <Header>
             <IconBox onClick={onPrevClick}>

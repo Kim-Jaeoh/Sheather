@@ -3,14 +3,18 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { onSnapshot, doc, getDoc } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
+import { Toaster } from "react-hot-toast";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { MdGridOn } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { RootState } from "../app/store";
 import ColorList from "../assets/ColorList";
+import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
+import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
 import ProfilePost from "../components/profile/ProfilePost";
 import { dbService } from "../fbase";
+import useToggleFollow from "../hooks/useToggleFollow";
 import { FeedType } from "../types/type";
 
 interface LocationProps {
@@ -23,11 +27,15 @@ const Profile = () => {
       return state.user;
     }
   );
-
-  const { state } = useLocation() as LocationProps;
   const [selectCategory, setSelectCategory] = useState(0);
   const [post, setPost] = useState(null);
   const [account, setAccount] = useState(null);
+  const [followInfo, setFollowInfo] = useState(null);
+  const [followCategory, setFollowCategory] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const { state } = useLocation() as LocationProps;
+  const { toggleFollow } = useToggleFollow();
 
   // 계정 정보 가져오기
   useEffect(() => {
@@ -49,28 +57,34 @@ const Profile = () => {
     }
   );
 
+  // 게시글 숫자
   const myPost: FeedType[] = useMemo(() => {
     const filter = feedData?.filter((res) => res.email === account?.email);
     return filter;
   }, [feedData, account?.email]);
 
+  // 피드 필터링 해서 가져오기
   useEffect(() => {
     if (selectCategory === 0) {
-      const myPostfilter = feedData?.filter(
-        (res) => res.email === account?.email
-      );
+      const myPostfilter = feedData
+        ?.filter((res) => res.email === account?.email)
+        .sort((a, b) => b.createdAt - a.createdAt);
       setPost(myPostfilter);
     }
     if (selectCategory === 1) {
-      const myLikeFilter = feedData?.filter((res) =>
-        account?.like.includes(res.id)
-      );
+      const myLikeFilter = account.like
+        ?.map((res: string) => {
+          return feedData?.filter((asd) => asd.id === res);
+        })
+        .flat();
       setPost(myLikeFilter);
     }
     if (selectCategory === 2) {
-      const myBookmarkFilter = feedData?.filter((res) =>
-        account?.bookmark.includes(res.id)
-      );
+      const myBookmarkFilter = account.bookmark
+        ?.map((res: string) => {
+          return feedData?.filter((asd) => asd.id === res);
+        })
+        .flat();
       setPost(myBookmarkFilter);
     }
   }, [
@@ -81,10 +95,43 @@ const Profile = () => {
     account?.like,
   ]);
 
+  const onModalClick = () => {
+    setModalOpen((prev) => !prev);
+  };
+
+  const onClickFollowInfo = (res: []) => {
+    setFollowInfo(res);
+  };
+
+  const onEditModalClick = () => {
+    setEditModalOpen((prev) => !prev);
+  };
+
   return (
     <>
       {account && (
         <Wrapper>
+          <Toaster position="bottom-left" reverseOrder={false} />
+          {editModalOpen && (
+            <ProfileEditModal
+              modalOpen={editModalOpen}
+              modalClose={onEditModalClick}
+            />
+          )}
+          {modalOpen && (
+            <ProfileFollowModal
+              accountName={account?.displayName}
+              modalOpen={modalOpen}
+              followInfo={followInfo}
+              followLength={
+                followCategory === "팔로워"
+                  ? account?.follower.length
+                  : account?.following.length
+              }
+              followCategory={followCategory}
+              modalClose={onModalClick}
+            />
+          )}
           <Container>
             <ProfileBox>
               <ProfileImageBox>
@@ -93,21 +140,57 @@ const Profile = () => {
               <ProfileDetailBox>
                 <ProfileDetail>
                   <ProfileInfoBox>
-                    <ProfileName>{account?.displayName}</ProfileName>
-                    <ProfileDesc>{account?.description}</ProfileDesc>
+                    <ProfileDsName>{account?.displayName}</ProfileDsName>
+                    {account.name && <ProfileName>{account?.name}</ProfileName>}
+                    {account.description && (
+                      <ProfileDesc>{account.description}</ProfileDesc>
+                    )}
                   </ProfileInfoBox>
                   {account?.email === userObj.email ? (
-                    <ProfileEditBtn>프로필 수정</ProfileEditBtn>
+                    <BtnBox>
+                      <ProfileEditBtn onClick={onEditModalClick}>
+                        프로필 수정
+                      </ProfileEditBtn>
+                    </BtnBox>
                   ) : (
-                    <FollowBtnBox>팔로우</FollowBtnBox>
+                    <FollowBtnBox onClick={() => toggleFollow(account.email)}>
+                      {userObj?.following.filter((obj) =>
+                        obj.id.includes(account.email)
+                      ).length !== 0 ? (
+                        <BtnBox>
+                          <FollowingBtn>팔로잉</FollowingBtn>
+                        </BtnBox>
+                      ) : (
+                        <BtnBox>
+                          <FollowBtn>팔로우</FollowBtn>
+                        </BtnBox>
+                      )}
+                    </FollowBtnBox>
                   )}
                 </ProfileDetail>
                 <ProfileActBox>
-                  <ProfileLike>게시글 {myPost?.length}</ProfileLike>
-                  <ProfileLike>팔로워 {account?.follower.length}</ProfileLike>
-                  <ProfileLike>팔로잉 {account?.following.length}</ProfileLike>
+                  <ProfileAct>
+                    게시글 <em>{myPost?.length}</em>
+                  </ProfileAct>
+                  <ProfileAct
+                    onClick={() => {
+                      onModalClick();
+                      onClickFollowInfo(account?.follower);
+                      setFollowCategory("팔로워");
+                    }}
+                  >
+                    팔로워 <em>{account?.follower.length}</em>
+                  </ProfileAct>
+                  <ProfileAct
+                    onClick={() => {
+                      onModalClick();
+                      onClickFollowInfo(account?.following);
+                      setFollowCategory("팔로잉");
+                    }}
+                  >
+                    팔로잉 <em>{account?.following.length}</em>
+                  </ProfileAct>
                 </ProfileActBox>
-                <ProfileEditBox></ProfileEditBox>
               </ProfileDetailBox>
             </ProfileBox>
             <CategoryBox>
@@ -146,15 +229,15 @@ const Profile = () => {
               <Routes>
                 <Route
                   path={`${account?.displayName}/post`}
-                  element={<ProfilePost myPost={post} />}
+                  element={<ProfilePost myPost={post} email={account?.email} />}
                 />
                 <Route
                   path={`${account?.displayName}/like`}
-                  element={<ProfilePost myPost={post} />}
+                  element={<ProfilePost myPost={post} email={account?.email} />}
                 />
                 <Route
                   path={`${account?.displayName}/bookmark`}
-                  element={<ProfilePost myPost={post} />}
+                  element={<ProfilePost myPost={post} email={account?.email} />}
                 />
               </Routes>
             </CardList>
@@ -208,12 +291,13 @@ const ProfileBox = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
+  position: relative;
 `;
 
 const ProfileImageBox = styled.div`
   width: 120px;
   height: 120px;
-  border: 1px solid ${thirdColor};
+  border: 2px solid ${fourthColor};
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -234,7 +318,7 @@ const ProfileDetailBox = styled.div`
 
 const ProfileDetail = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
 `;
 
@@ -243,12 +327,18 @@ const ProfileInfoBox = styled.div`
   padding-right: 20px;
 `;
 
-const ProfileName = styled.p`
+const ProfileDsName = styled.p`
   font-size: 20px;
-  margin-bottom: 10px;
+  line-height: 34px;
+`;
+
+const ProfileName = styled.p`
+  font-size: 14px;
+  margin-top: 4px;
 `;
 
 const ProfileDesc = styled.p`
+  margin-top: 8px;
   font-size: 14px;
   white-space: pre-wrap;
   display: -webkit-box;
@@ -264,12 +354,20 @@ const ProfileActBox = styled.div`
   gap: 20px;
 `;
 
-const ProfileLike = styled.div``;
+const ProfileAct = styled.div`
+  font-size: 14px;
+  &:not(:first-of-type) {
+    cursor: pointer;
+  }
+  em {
+    font-weight: 500;
+  }
+`;
 
-const ProfileEditBox = styled.div`
-  position: absolute;
+const BtnBox = styled.div`
+  /* position: absolute;
   top: 0;
-  right: 0;
+  right: 0; */
 `;
 
 const ProfileEditBtn = styled.button`
@@ -277,9 +375,9 @@ const ProfileEditBtn = styled.button`
   border: 1px solid #6f4ccf;
   color: #6f4ccf;
   font-weight: bold;
-  border-radius: 9999px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s linear;
+  transition: all 0.1s linear;
 
   &:hover,
   &:active {
@@ -288,20 +386,37 @@ const ProfileEditBtn = styled.button`
   }
 `;
 
-const FollowBtnBox = styled.button`
+const FollowBtnBox = styled.div``;
+
+const FollowBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: auto;
   font-weight: bold;
   font-size: 14px;
-  padding: 10px 16px;
-  /* width: 82px; */
-  /* height: 30px; */
+  padding: 8px 16px;
   color: #fff;
-  border-radius: 9999px;
-  background: #000;
+  border-radius: 8px;
+  border: 1px solid ${secondColor};
+  background: ${secondColor};
   cursor: pointer;
+  transition: all 0.1s linear;
+
+  &:hover,
+  &:active {
+    background: #000;
+  }
+`;
+
+const FollowingBtn = styled(FollowBtn)`
+  border: 1px solid ${thirdColor};
+  background: #fff;
+  color: ${secondColor};
+
+  &:hover,
+  &:active {
+    background: ${fourthColor};
+  }
 `;
 
 const CategoryBox = styled.ul`

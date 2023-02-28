@@ -9,7 +9,7 @@ type Props = {
   clothBtnClick: (index: number) => void;
 };
 
-const Clothes = ({ clothBtnClick, index, temp }: Props) => {
+const WeahterClothes = ({ clothBtnClick, index, temp }: Props) => {
   const { tempClothes } = TempClothes(); // 옷 정보
 
   const filterTempClothes = useMemo(() => {
@@ -38,7 +38,7 @@ const Clothes = ({ clothBtnClick, index, temp }: Props) => {
   );
 };
 
-export default Clothes;
+export default WeahterClothes;
 
 const Container = styled.div`
   position: absolute;
