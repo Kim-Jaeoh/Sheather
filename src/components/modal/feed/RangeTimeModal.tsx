@@ -131,6 +131,7 @@ const RangeBox = styled.div`
   border: 2px solid ${secondColor};
   width: 300px;
   background: #fff;
+  box-shadow: 8px 8px 0 -2px #ff5673, 8px 8px ${secondColor};
   /* animation-name: slideDown;
   animation-duration: 0.5s;
   animation-timing-function: ease-in-out;

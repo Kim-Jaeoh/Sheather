@@ -167,7 +167,6 @@ const CardBox = styled.ul`
 const CardList = styled.li<{ size?: number }>`
   display: flex;
   flex-direction: column;
-
   margin: 10px;
   border-radius: 8px;
   border: 2px solid ${secondColor};
@@ -194,6 +193,7 @@ const CardList = styled.li<{ size?: number }>`
 
 const Card = styled(Link)<{ aspect?: number }>`
   display: block;
+
   position: relative;
   cursor: pointer;
   outline: none;
@@ -205,6 +205,7 @@ const Card = styled(Link)<{ aspect?: number }>`
 const WeatherEmojiBox = styled.div`
   position: absolute;
   z-index: 1;
+
   top: 8px;
   left: 8px;
   background-color: rgba(34, 34, 34, 0.4);
@@ -294,6 +295,7 @@ const UserNameBox = styled(Link)`
   font-size: 14px;
   font-weight: 500;
   letter-spacing: -0.15px;
+
   color: ${secondColor};
 `;
 

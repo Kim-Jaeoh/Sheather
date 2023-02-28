@@ -1,5 +1,8 @@
+import Flicking from "@egjs/react-flicking";
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import imageCompression from "browser-image-compression";
 import { onSnapshot, doc, getDoc, updateDoc } from "firebase/firestore";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -11,7 +14,8 @@ import { HiOutlineCamera } from "react-icons/hi";
 import { IoMdClose } from "react-icons/io";
 import { TbCamera } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import uuid from "react-uuid";
 import { text } from "stream/consumers";
 import { RootState } from "../../../app/store";
 import { currentUser, UserType } from "../../../app/user";
@@ -20,269 +24,125 @@ import getCroppedImg from "../../../assets/CropImage";
 import { Spinner } from "../../../assets/Spinner";
 import { dbService } from "../../../fbase";
 import useToggleFollow from "../../../hooks/useToggleFollow";
-import { ImageType } from "../../../types/type";
+import { FeedType, ImageType } from "../../../types/type";
+import ShareWeatherCategory from "../shareWeather/ShareWeatherCategory";
+import ShareWeatherForm from "../shareWeather/ShareWeatherForm";
 
 type Props = {
+  info: FeedType;
   modalOpen: boolean;
   modalClose: () => void;
 };
 
-const FeedEditModal = ({ modalOpen, modalClose }: Props) => {
+const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
   );
-  // const [account, setAccount] = useState([]);
-  // const [isLoading, setIsLoading] = useState(false);
-  const [isImage, setIsImage] = useState(false);
-  const [previewImage, setPreviewImage] = useState(userObj.profileURL); // 미리보기 크롭용
-  const [profileURL, setProfileURL] = useState({
-    imageUrl: userObj.profileURL,
-    croppedImageUrl: null,
-    crop: null,
-    zoom: null,
+  const [checkTag, setCheckTag] = useState({
+    feel: info.feel,
+    outer: info.wearInfo.outer,
+    top: info.wearInfo.top,
+    innerTop: info.wearInfo.innerTop,
+    bottom: info.wearInfo.bottom,
+    etc: info.wearInfo.etc,
   });
-  const [name, setName] = useState(userObj.name);
-  const [displayName, setDisplayName] = useState(userObj.displayName);
-  const [description, setDescription] = useState(userObj.description);
-  const [focusName, setFocusName] = useState(false);
-  const [focusDsName, setFocusDsName] = useState(false);
-  const [focusDesc, setFocusDesc] = useState(false);
-  const [zoom, setZoom] = useState(1);
-  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const textRef = useRef<HTMLTextAreaElement>();
+  const [text, setText] = useState(info.text);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  // zoom, crop 초기화
-  useEffect(() => {
-    if (!profileURL.zoom) {
-      setZoom(1);
-    } else {
-      setZoom(profileURL.zoom);
-    }
-    if (!profileURL.crop) {
-      setCrop({ x: 0, y: 0 });
-    } else {
-      setCrop(profileURL.crop);
-    }
-  }, [profileURL.crop, profileURL.zoom]);
+  const { pathname } = useLocation();
+  const queryClient = useQueryClient();
 
   const onPrevClick = () => {
-    if (isImage) {
-      setProfileURL({ ...profileURL, imageUrl: userObj.profileURL });
-      return setIsImage(false);
-    }
     return modalClose();
   };
 
-  const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-
-  const onChangeDsName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDisplayName(e.target.value);
-  };
-
-  const onChangeDesc = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setDescription(e.target.value);
-    },
-    []
+  // 피드 업로드
+  const { mutate } = useMutation(
+    (response: FeedType) =>
+      axios.patch(`http://localhost:4000/api/feed/${info.id}`, response),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["feed"]);
+        modalClose();
+      },
+    }
   );
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateDoc(doc(dbService, "users", userObj.email), {
-      name: name,
-      displayName: displayName,
-      description: description,
-      profileURL: profileURL.croppedImageUrl
-        ? profileURL.croppedImageUrl
-        : profileURL.imageUrl,
+    mutate({
+      ...info,
+      text: text,
+      feel: checkTag.feel,
+      wearInfo: {
+        outer: checkTag.outer,
+        top: checkTag.top,
+        innerTop: checkTag.innerTop,
+        bottom: checkTag.bottom,
+        etc: checkTag.etc,
+      },
+      editAt: +new Date(),
     });
-    dispatch(
-      currentUser({
-        ...userObj,
-        name: name,
-        displayName: displayName,
-        description: description,
-        profileURL: profileURL.croppedImageUrl
-          ? profileURL.croppedImageUrl
-          : profileURL.imageUrl,
-      })
-    );
     toast.success("수정이 완료 되었습니다.");
-    modalClose();
-    return window.location.reload();
   };
 
-  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      currentTarget: { files },
-    } = e;
-
-    const reader = new FileReader(); // 파일 이름 읽기
-
-    /* 파일 선택 누르고 이미지 한 개 선택 뒤 다시 파일선택 누르고 취소 누르면
-    Failed to execute 'readAsDataURL' on 'FileReader': parameter 1 is not of type 'Blob'. 이런 오류가 나옴. -> if문으로 예외 처리 */
-    if (files) {
-      reader.readAsDataURL(files[0]);
+  const bgColor = useMemo(() => {
+    if (pathname.includes("feed")) {
+      return "#ff5673";
     }
-
-    reader.onloadend = (finishedEvent) => {
-      const {
-        target: { result },
-      } = finishedEvent;
-
-      setPreviewImage(result as string); // 미리보기
-    };
-
-    setIsImage(true);
-  };
-
-  const setCroppedImageFor = async (
-    imageUrl: string,
-    crop?: Point,
-    zoom?: number,
-    croppedImageUrl?: string
-  ) => {
-    const options = {
-      maxSizeMB: 2,
-      maxWidthOrHeight: 150,
-    };
-
-    // 1) 크롭된 이미지 주소(BlobUrl: string)를 File 형태로 변환
-    const CroppedImageUrlToFile = await imageCompression.getFilefromDataUrl(
-      croppedImageUrl,
-      "profile"
-    );
-
-    // 2) 1)에서 변환된 File을 압축
-    const compressedFile = await imageCompression(
-      CroppedImageUrlToFile,
-      options
-    );
-
-    // 3) 압축된 File을 다시 이미지 주소로 변환
-    const compressedCroppedImage = await imageCompression.getDataUrlFromFile(
-      compressedFile
-    );
-
-    setProfileURL({
-      imageUrl,
-      crop,
-      zoom,
-      croppedImageUrl: compressedCroppedImage,
-    });
-  };
-
-  const onCrop = async () => {
-    const croppedImageUrl = await getCroppedImg(
-      previewImage,
-      croppedAreaPixels
-    );
-    setCroppedImageFor(profileURL.imageUrl, crop, zoom, croppedImageUrl);
-    setIsImage(false);
-  };
+    if (pathname.includes("profile")) {
+      return "#6f4ccf";
+    }
+  }, [pathname]);
 
   return (
-    <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
+    <Modal open={modalOpen} onClose={modalClose} disableScrollLock={false}>
       <>
-        <Container onSubmit={onSubmit}>
+        <Container bgColor={bgColor} onSubmit={onSubmit}>
           <Header>
-            <IconBox onClick={onPrevClick}>
+            <IconBox bgColor={bgColor} onClick={onPrevClick}>
               <BiLeftArrowAlt />
             </IconBox>
-            <Category>내 정보 수정</Category>
-            {isImage ? (
-              <EditBtn type="button" onClick={onCrop}>
-                <EditTextEng>CROP</EditTextEng>
-              </EditBtn>
-            ) : (
-              <EditBtn type="submit">
-                <EditText>수정 완료</EditText>
-              </EditBtn>
-            )}
+            <Category>피드 정보 수정</Category>
+            <EditBtn bgColor={bgColor} type="submit">
+              <EditText>수정 완료</EditText>
+            </EditBtn>
           </Header>
 
-          <UserListBox>
-            {userObj.profileURL ? (
-              <UserList>
-                <ProfileImagesBox htmlFor="attach-file">
-                  <ProfileImageBox>
-                    <ProfileImage
-                      src={
-                        profileURL.croppedImageUrl
-                          ? profileURL.croppedImageUrl
-                          : profileURL.imageUrl
-                      }
-                      alt="profile image"
-                    />
-                  </ProfileImageBox>
-                  <ProfileImageIcon>
-                    <TbCamera />
-                  </ProfileImageIcon>
-                  <InputImage
-                    id="attach-file"
-                    accept="image/*"
-                    type="file"
-                    onChange={onFileChange}
-                  />
-                </ProfileImagesBox>
-                <ProfileInfoBox>
-                  <ProfileInfo>
-                    <ProfileCategory>이름</ProfileCategory>
-                    <ProfileName
-                      type="text"
-                      value={name}
-                      onChange={onChangeName}
-                      focus={focusName}
-                      onFocus={() => setFocusName(true)}
-                      onBlur={() => setFocusName(false)}
-                      placeholder="이름"
-                    />
-                  </ProfileInfo>
-                  <ProfileInfo>
-                    <ProfileCategory>사용자 이름</ProfileCategory>
-                    <ProfileName
-                      type="text"
-                      value={displayName}
-                      onChange={onChangeDsName}
-                      focus={focusDsName}
-                      onFocus={() => setFocusDsName(true)}
-                      onBlur={() => setFocusDsName(false)}
-                      placeholder="사용자 이름"
-                    />
-                  </ProfileInfo>
-                  <ProfileInfo>
-                    <ProfileCategory>자기 소개</ProfileCategory>
-                    <ProfileDesc
-                      spellCheck="false"
-                      maxLength={120}
-                      value={description}
-                      onChange={onChangeDesc}
-                      focus={focusDesc}
-                      onFocus={() => setFocusDesc(true)}
-                      onBlur={() => setFocusDesc(false)}
-                      ref={textRef}
-                      placeholder="자기소개를 입력해 주세요"
-                    />
-                    <TextAreaLength>
-                      <TextAreaLengthColor>
-                        {description.trim().length}
-                      </TextAreaLengthColor>
-                      /120
-                    </TextAreaLength>
-                  </ProfileInfo>
-                </ProfileInfoBox>
-              </UserList>
-            ) : (
-              <Spinner />
-            )}
-          </UserListBox>
+          <ImageWrapper>
+            <Flicking
+              onChanged={(e) => console.log(e)}
+              moveType="freeScroll"
+              bound={true}
+              align="prev"
+            >
+              <ImageContainerBox>
+                {Array.from({ length: info.url.length })?.map((res, index) => {
+                  return (
+                    <ImageContainer key={index}>
+                      {info.url[index] ? (
+                        <ImageBox length={info.url.length}>
+                          <ImageWrap>
+                            <Images src={info.url[index]} alt="" />
+                          </ImageWrap>
+                        </ImageBox>
+                      ) : (
+                        <ImageBox style={{ background: "#dbdbdb" }} />
+                      )}
+                    </ImageContainer>
+                  );
+                })}
+              </ImageContainerBox>
+            </Flicking>
+          </ImageWrapper>
+
+          <ShareWeatherCategory
+            bgColor={bgColor}
+            checkTag={checkTag}
+            setCheckTag={setCheckTag}
+          />
+          <ShareWeatherForm bgColor={bgColor} text={text} setText={setText} />
         </Container>
       </>
     </Modal>
@@ -293,11 +153,11 @@ export default FeedEditModal;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Container = styled.form`
+const Container = styled.form<{ bgColor: string }>`
   display: flex;
   flex-direction: column;
   width: 480px;
-  height: 600px;
+  /* height: 100%; */
   box-sizing: border-box;
   position: absolute;
   color: ${secondColor};
@@ -308,8 +168,9 @@ const Container = styled.form`
   background: #fff;
   border-radius: 8px;
   border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
-  overflow: hidden;
+  box-shadow: 12px 12px 0 -2px ${(props) => props.bgColor},
+    12px 12px ${secondColor};
+  /* overflow: hidden; */
 `;
 
 const Header = styled.header`
@@ -322,11 +183,118 @@ const Header = styled.header`
   position: relative;
 `;
 
-const IconBox = styled.div`
+const ImageWrapper = styled.div<{ length?: number }>`
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  padding: 12px;
+  align-items: center;
+  /* justify-content: center; */
+  /* justify-content: space-evenly; */
+  overflow: hidden;
+  position: relative;
+  &::after {
+    right: 0px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fafafa);
+    position: absolute;
+    top: 0px;
+    z-index: 10;
+    height: 100%;
+    width: 14px;
+    content: "";
+  }
+`;
+
+const ImageContainerBox = styled.div`
+  display: flex;
+  user-select: none;
+  flex: nowrap;
+  gap: 12px;
+`;
+
+const ImageContainer = styled.div`
+  font-size: 12px;
+  display: flex;
+  flex: 0 0 auto;
+`;
+const ImageBox = styled.div<{ length?: number }>`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 6px;
+  border: 1px solid ${fourthColor};
+  overflow: hidden;
+  background: #fff;
+  &:hover,
+  &:active {
+    background: #f1f1f1;
+  }
+  transition: all 0.2s;
+`;
+
+const ImageWrap = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const CropBtn = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: 6px;
+  user-select: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: rgb(34, 34, 34, 0.9);
+  color: #fff;
+  border-radius: 9999px;
+  transition: all 0.2s;
+  z-index: 99;
+  svg {
+    margin-right: 4px;
+  }
+`;
+
+const ImageRemove = styled.div`
+  align-items: center;
+  background-color: ${secondColor};
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-size: 16px;
+  justify-content: center;
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  padding: 2px;
+  z-index: 10;
+`;
+
+const Images = styled.img`
+  object-fit: cover;
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  cursor: pointer;
+`;
+
+const IconBox = styled.div<{ bgColor: string }>`
   width: 48px;
   height: 48px;
-  /* position: absolute; */
-  /* right: 0; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -334,7 +302,7 @@ const IconBox = styled.div`
 
   &:hover,
   &:active {
-    color: #6f4ccf;
+    color: ${(props) => props.bgColor};
   }
 
   svg {
@@ -342,7 +310,7 @@ const IconBox = styled.div`
   }
 `;
 
-const EditBtn = styled.button`
+const EditBtn = styled.button<{ bgColor: string }>`
   user-select: none;
   height: 32px;
   margin-right: 12px;
@@ -351,8 +319,8 @@ const EditBtn = styled.button`
   align-items: center;
   justify-content: center;
   margin-left: auto;
-  border: 1px solid #6f4ccf;
-  color: #6f4ccf;
+  border: 1px solid ${(props) => props.bgColor};
+  color: ${(props) => props.bgColor};
   border-radius: 9999px;
   cursor: pointer;
   transition: all 0.2s;
@@ -360,9 +328,9 @@ const EditBtn = styled.button`
 
   &:not(:disabled) {
     :hover {
-      background: #6f4ccf;
+      background: ${(props) => props.bgColor};
       color: #fff;
-      border: 1px solid #6f4ccf;
+      border: 1px solid ${(props) => props.bgColor};
     }
   }
 
@@ -534,8 +502,8 @@ const TextAreaLength = styled.p`
   float: right;
 `;
 
-const TextAreaLengthColor = styled.span`
-  color: #6f4ccf;
+const TextAreaLengthColor = styled.span<{ bgColor: string }>`
+  color: ${(props) => props.bgColor};
 `;
 
 const FollowBtnBox = styled.div``;

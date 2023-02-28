@@ -119,6 +119,7 @@ export interface FeedType {
   };
   region: string;
   reply: replyType[];
+  editAt?: number;
 }
 
 export interface AspectRatio {

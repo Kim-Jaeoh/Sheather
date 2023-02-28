@@ -2,36 +2,39 @@ import styled from "@emotion/styled";
 import ColorList from "../../../assets/ColorList";
 import TempClothes from "../../../assets/TempClothes";
 import Flicking from "@egjs/react-flicking";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 // import "../../../styles/DetailFlicking.css";
 
 type props = {
-  select: number;
-  outerCheck: number;
-  topCheck: number;
-  innerTopCheck: number;
-  bottomCheck: number;
-  etcCheck: number;
-  setOuterCheck: React.Dispatch<number>;
-  setInnerTopCheck: React.Dispatch<number>;
-  setBottomCheck: React.Dispatch<number>;
-  setEtcCheck: React.Dispatch<number>;
-  onClick: (index: number, name: string) => void;
+  bgColor?: string;
+  checkTag?: {
+    feel: string;
+    outer: string;
+    top: string;
+    innerTop: string;
+    bottom: string;
+    etc: string;
+  };
+  setCheckTag: React.Dispatch<
+    React.SetStateAction<{
+      feel: string;
+      outer: string;
+      top: string;
+      innerTop: string;
+      bottom: string;
+      etc: string;
+    }>
+  >;
 };
 
-const ShareWeatherCategory = (props: props) => {
-  const {
-    select,
-    outerCheck,
-    topCheck,
-    innerTopCheck,
-    bottomCheck,
-    etcCheck,
-    setOuterCheck,
-    setInnerTopCheck,
-    setBottomCheck,
-    setEtcCheck,
-    onClick,
-  } = props;
+const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
+  const [select, setIsCurrentCheck] = useState(checkTag.feel);
+  const [outerCheck, setOuterCheck] = useState(checkTag.outer);
+  const [topCheck, setTopCheck] = useState(checkTag.top);
+  const [innerTopCheck, setInnerTopCheck] = useState(checkTag.innerTop);
+  const [bottomCheck, setBottomCheck] = useState(checkTag.bottom);
+  const [etcCheck, setEtcCheck] = useState(checkTag.etc);
   const { ClothesCategory } = TempClothes();
 
   const currentEmoji = [
@@ -42,11 +45,45 @@ const ShareWeatherCategory = (props: props) => {
     "🥶 추워요",
   ];
 
+  const onClick = (value: string, name: string) => {
+    if (name === "current") {
+      setIsCurrentCheck(value);
+    }
+    if (name === "outer") {
+      setOuterCheck(value);
+    }
+    if (name === "top") {
+      setTopCheck(value);
+    }
+    if (name === "innerTop") {
+      setInnerTopCheck(value);
+    }
+    if (name === "bottom") {
+      setBottomCheck(value);
+    }
+    if (name === "etc") {
+      setEtcCheck(value);
+    }
+  };
+
+  useEffect(() => {
+    setCheckTag({
+      feel: select,
+      outer: outerCheck,
+      top: topCheck,
+      innerTop: innerTopCheck,
+      bottom: bottomCheck,
+      etc: etcCheck,
+    });
+  }, [bottomCheck, etcCheck, innerTopCheck, outerCheck, select, topCheck]);
+
   return (
     <Container>
       <WearInfoBox>
         <WearCondition>
-          <WearInfoMain select={select}>현재 착장</WearInfoMain>
+          <WearInfoMain bgColor={bgColor} select={select}>
+            현재 착장
+          </WearInfoMain>
           <FlickingBox>
             <Flicking
               onChanged={(e) => console.log(e)}
@@ -68,9 +105,10 @@ const ShareWeatherCategory = (props: props) => {
                       }}
                     />
                     <TagLabel
+                      bgColor={bgColor}
                       select={select}
-                      index={index}
-                      onClick={() => onClick(index, "current")}
+                      value={res}
+                      onClick={() => onClick(res, "current")}
                       htmlFor={index.toString()}
                     >
                       {res}
@@ -84,8 +122,10 @@ const ShareWeatherCategory = (props: props) => {
 
         <WearDetailBox>
           <WearInfo>
-            <WearInfoMain select={outerCheck}>아우터</WearInfoMain>
-            {outerCheck !== 0 ? (
+            <WearInfoMain bgColor={bgColor} select={outerCheck}>
+              아우터
+            </WearInfoMain>
+            {outerCheck !== "없음" ? (
               <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
@@ -107,9 +147,10 @@ const ShareWeatherCategory = (props: props) => {
                           }}
                         />
                         <TagLabel
+                          bgColor={bgColor}
                           select={outerCheck}
-                          index={index}
-                          onClick={() => onClick(index, "outer")}
+                          value={res}
+                          onClick={() => onClick(res, "outer")}
                           htmlFor={index.toString()}
                         >
                           {res}
@@ -128,7 +169,9 @@ const ShareWeatherCategory = (props: props) => {
             )}
           </WearInfo>
           <WearInfo>
-            <WearInfoMain select={topCheck}>상의</WearInfoMain>
+            <WearInfoMain bgColor={bgColor} select={topCheck}>
+              상의
+            </WearInfoMain>
             <FlickingBox>
               <Flicking
                 onChanged={(e) => console.log(e)}
@@ -150,9 +193,10 @@ const ShareWeatherCategory = (props: props) => {
                         }}
                       />
                       <TagLabel
+                        bgColor={bgColor}
                         select={topCheck}
-                        index={index}
-                        onClick={() => onClick(index, "top")}
+                        value={res}
+                        onClick={() => onClick(res, "top")}
                         htmlFor={index.toString()}
                       >
                         {res}
@@ -164,8 +208,10 @@ const ShareWeatherCategory = (props: props) => {
             </FlickingBox>
           </WearInfo>
           <WearInfo>
-            <WearInfoMain select={innerTopCheck}>내의</WearInfoMain>
-            {innerTopCheck !== 0 ? (
+            <WearInfoMain bgColor={bgColor} select={innerTopCheck}>
+              내의
+            </WearInfoMain>
+            {innerTopCheck !== "없음" ? (
               <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
@@ -187,9 +233,10 @@ const ShareWeatherCategory = (props: props) => {
                           }}
                         />
                         <TagLabel
+                          bgColor={bgColor}
                           select={innerTopCheck}
-                          index={index}
-                          onClick={() => onClick(index, "innerTop")}
+                          value={res}
+                          onClick={() => onClick(res, "innerTop")}
                           htmlFor={index.toString()}
                         >
                           {res}
@@ -209,10 +256,14 @@ const ShareWeatherCategory = (props: props) => {
           </WearInfo>
 
           <WearInfo>
-            <WearInfoMain select={bottomCheck} select2={topCheck}>
+            <WearInfoMain
+              bgColor={bgColor}
+              select={bottomCheck}
+              select2={topCheck}
+            >
               하의
             </WearInfoMain>
-            {topCheck !== 1 && bottomCheck !== 0 ? (
+            {topCheck !== "원피스" && bottomCheck !== "없음" ? (
               <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
@@ -234,9 +285,10 @@ const ShareWeatherCategory = (props: props) => {
                           }}
                         />
                         <TagLabel
+                          bgColor={bgColor}
                           select={bottomCheck}
-                          index={index}
-                          onClick={() => onClick(index, "bottom")}
+                          value={res}
+                          onClick={() => onClick(res, "bottom")}
                           htmlFor={index.toString()}
                         >
                           {res}
@@ -256,8 +308,10 @@ const ShareWeatherCategory = (props: props) => {
           </WearInfo>
 
           <WearInfo>
-            <WearInfoMain select={etcCheck}>기타</WearInfoMain>
-            {etcCheck !== 0 ? (
+            <WearInfoMain bgColor={bgColor} select={etcCheck}>
+              기타
+            </WearInfoMain>
+            {etcCheck !== "없음" ? (
               <FlickingBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
@@ -280,9 +334,10 @@ const ShareWeatherCategory = (props: props) => {
                             }}
                           />
                           <TagLabel
+                            bgColor={bgColor}
                             select={etcCheck}
-                            index={index}
-                            onClick={() => onClick(index, "etc")}
+                            value={res}
+                            onClick={() => onClick(res, "etc")}
                             htmlFor={index.toString()}
                           >
                             {res}
@@ -376,17 +431,21 @@ const TagInput = styled.input`
   display: none;
 `;
 
-const TagLabel = styled.label<{ select: number; index: number }>`
+const TagLabel = styled.label<{
+  bgColor: string;
+  select: string;
+  value: string;
+}>`
   gap: 12px;
   padding: 6px 8px;
   border: 1px solid
     ${(props) =>
-      props.select === props.index ? `${mainColor}` : `${thirdColor}`};
+      props.select === props.value ? props.bgColor : `${thirdColor}`};
   border-radius: 4px;
   cursor: pointer;
-  color: ${(props) => props.select === props.index && `#fff`};
+  color: ${(props) => props.select === props.value && `#fff`};
   background: ${(props) =>
-    props.select === props.index ? `${mainColor}` : "transparent"};
+    props.select === props.value ? props.bgColor : "transparent"};
 `;
 
 const AddTagBox = styled.div`
@@ -416,19 +475,21 @@ const WearInfo = styled.div`
   }
 `;
 
-const WearInfoMain = styled.div<{ select: number; select2?: number }>`
+const WearInfoMain = styled.div<{
+  bgColor: string;
+  select: string;
+  select2?: string;
+}>`
   flex: 0 0 auto;
   user-select: text;
-  /* border: 1px solid ${thirdColor}; */
-  /* color: ${thirdColor}; */
   font-weight: ${(props) =>
-    props.select !== null || props?.select2 === 1 ? "bold" : "normal"};
+    props.select !== null || props?.select2 === "원피스" ? "bold" : "normal"};
   color: ${(props) =>
-    props.select !== null || props?.select2 === 1 ? mainColor : thirdColor};
-  /* border-radius: 9999px; */
+    props.select !== null || props?.select2 === "원피스"
+      ? props.bgColor
+      : thirdColor};
   min-width: 55px;
   text-align: center;
-  /* padding: 4px 6px; */
   padding-right: 6px;
   border-right: 1px solid ${thirdColor};
   font-size: 12px;

@@ -190,7 +190,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
   };
 
   return (
-    <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
+    <Modal open={modalOpen} onClose={modalClose} disableScrollLock={false}>
       <>
         <Container onSubmit={onSubmit}>
           <Header>
@@ -308,7 +308,7 @@ const Container = styled.form`
   display: flex;
   flex-direction: column;
   width: 480px;
-  height: 600px;
+  /* height: 600px; */
   box-sizing: border-box;
   position: absolute;
   color: ${secondColor};

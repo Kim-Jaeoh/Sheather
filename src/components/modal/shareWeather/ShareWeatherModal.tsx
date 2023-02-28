@@ -20,6 +20,7 @@ import { MdPlace } from "react-icons/md";
 import uuid from "react-uuid";
 import ShareWeatherForm from "./ShareWeatherForm";
 import { FeedType } from "../../../types/type";
+import Flicking from "@egjs/react-flicking";
 
 type Props = {
   shareBtn: boolean;
@@ -28,12 +29,14 @@ type Props = {
 };
 
 const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
-  const [select, setIsCurrentCheck] = useState(null);
-  const [outerCheck, setOuterCheck] = useState(null);
-  const [topCheck, setTopCheck] = useState(null);
-  const [innerTopCheck, setInnerTopCheck] = useState(null);
-  const [bottomCheck, setBottomCheck] = useState(null);
-  const [etcCheck, setEtcCheck] = useState(null);
+  const [checkTag, setCheckTag] = useState({
+    feel: null,
+    outer: null,
+    top: null,
+    innerTop: null,
+    bottom: null,
+    etc: null,
+  });
   const [focus, setFocus] = useState(null);
   const [attachments, setAttachments] = useState([]);
   const [selectedImage, setSelectImage] = useState(null);
@@ -48,16 +51,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
   const shareWeatherData = useSelector((state: RootState) => {
     return state.weather;
   });
-  const { ClothesCategory } = TempClothes();
   const { location } = useCurrentLocation();
-
-  const currentEmoji = [
-    "🥵 더워요",
-    "😥 조금 더워요",
-    "😄 적당해요",
-    "😬 조금 추워요",
-    "🥶 추워요",
-  ];
 
   // 현재 주소 받아오기
   const regionApi = async () => {
@@ -85,35 +79,14 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
   // 이미지 추가 시 view 렌더 시 이미지 노출
   useEffect(() => {
     if (selectedImage == null && attachments.length !== 0) {
-      return setSelectImage(attachments[0]);
+      setSelectImage(attachments[0]);
     }
     if (attachments.length === 0) {
-      return setSelectImage(null);
+      setSelectImage(null);
     }
     // 클릭한 이미지
     setSelectImage(attachments[selectedImageNum]);
   }, [attachments, selectedImage, selectedImageNum]);
-
-  const onClick = (index: number, name: string) => {
-    if (name === "current") {
-      setIsCurrentCheck(index);
-    }
-    if (name === "outer") {
-      setOuterCheck(index);
-    }
-    if (name === "top") {
-      setTopCheck(index);
-    }
-    if (name === "innerTop") {
-      setInnerTopCheck(index);
-    }
-    if (name === "bottom") {
-      setBottomCheck(index);
-    }
-    if (name === "etc") {
-      setEtcCheck(index);
-    }
-  };
 
   // 이미지 압축
   const compressImage = async (image: File) => {
@@ -136,9 +109,9 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
 
     if (!files) return;
 
-    if (attachments.length + files.length > 3) {
+    if (attachments.length + files.length > 4) {
       fileInput.current.value = ""; // 파일 문구 없애기
-      return toast.error("최대 3장의 사진만 첨부할 수 있습니다.");
+      return toast.error("최대 4장의 사진만 첨부할 수 있습니다.");
     }
 
     for (let i = 0; i < files.length; i++) {
@@ -199,7 +172,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
     };
     newAttachmentList[attachmentIndex] = newAttachment;
     setAttachments(newAttachmentList);
-    // setSelectImage(null);
+    setSelectImage(null);
   };
 
   const onCancel = () => {
@@ -233,6 +206,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
   };
 
   const onPrevClick = () => {
+    setSelectImage(null);
     if (isNextClick) {
       return setIsNextClick(false);
     }
@@ -270,13 +244,13 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
         createdAt: +new Date(),
         like: [],
         text: text,
-        feel: currentEmoji[select],
+        feel: checkTag.feel,
         wearInfo: {
-          outer: ClothesCategory.outer[outerCheck],
-          top: ClothesCategory.top[topCheck],
-          innerTop: ClothesCategory.innerTop[innerTopCheck],
-          bottom: ClothesCategory.bottom[bottomCheck],
-          etc: ClothesCategory.etc[etcCheck],
+          outer: checkTag.outer,
+          top: checkTag.top,
+          innerTop: checkTag.innerTop,
+          bottom: checkTag.bottom,
+          etc: checkTag.etc,
         },
         weatherInfo: {
           temp: Math.round(shareWeatherData?.main.temp),
@@ -341,12 +315,12 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
                 value={"SHARE"}
                 disabled={
                   text.length === 0 ||
-                  select == null ||
-                  outerCheck == null ||
-                  topCheck == null ||
-                  innerTopCheck == null ||
-                  bottomCheck == null ||
-                  etcCheck == null
+                  checkTag.feel == null ||
+                  checkTag.outer == null ||
+                  checkTag.top == null ||
+                  checkTag.innerTop == null ||
+                  checkTag.bottom == null ||
+                  checkTag.etc == null
                 }
               >
                 <EditText>SHARE</EditText>
@@ -389,70 +363,75 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
                   />
                 </EmojiBox>
                 <ImageLength>
-                  <ImageLengthColor>{attachments.length}</ImageLengthColor>/3
+                  <ImageLengthColor>{attachments.length}</ImageLengthColor>/4
                 </ImageLength>
               </ImageBox>
             </InputImageLabel>
 
-            {Array.from({ length: 3 })?.map((res, index) => {
-              return (
-                <ImageContainer key={index}>
-                  {attachments[index] ? (
-                    <ImageBox length={attachments.length}>
-                      <ImageWrap
-                        onMouseLeave={() => setFocus("")}
-                        onMouseEnter={() => setFocus(index)}
-                      >
-                        {!isNextClick && focus === index && (
-                          <CropBtn>
-                            <BiCrop />
-                            자르기
-                          </CropBtn>
-                        )}
-                        <ImageRemove
-                          onClick={() => {
-                            onRemoveImage(attachments[index], index);
-                            setIsNextClick(false);
-                          }}
-                        >
-                          <IoMdClose />
-                        </ImageRemove>
-                        <Images
-                          onClick={() => {
-                            !isNextClick && setSelectImageNum(index);
-                          }}
-                          src={
-                            attachments[index]?.croppedImageUrl
-                              ? attachments[index]?.croppedImageUrl
-                              : attachments[index]?.imageUrl
-                          }
-                          alt=""
-                        />
-                      </ImageWrap>
-                    </ImageBox>
-                  ) : (
-                    <ImageBox style={{ background: "#dbdbdb" }} />
-                  )}
-                </ImageContainer>
-              );
-            })}
+            <Flicking
+              onChanged={(e) => console.log(e)}
+              moveType="freeScroll"
+              bound={true}
+              align="prev"
+            >
+              <ImageContainerBox>
+                {Array.from({ length: 4 })?.map((res, index) => {
+                  return (
+                    <ImageContainer key={index}>
+                      {attachments[index] ? (
+                        <ImageBox length={attachments?.length}>
+                          <ImageWrap
+                            onMouseLeave={() => setFocus("")}
+                            onMouseEnter={() => setFocus(index)}
+                          >
+                            {!isNextClick && focus === index && (
+                              <CropBtn>
+                                <BiCrop />
+                                자르기
+                              </CropBtn>
+                            )}
+                            <ImageRemove
+                              onClick={() => {
+                                onRemoveImage(attachments[index], index);
+                                setIsNextClick(false);
+                              }}
+                            >
+                              <IoMdClose />
+                            </ImageRemove>
+                            <Images
+                              onClick={() => {
+                                !isNextClick && setSelectImageNum(index);
+                              }}
+                              src={
+                                attachments[index]?.croppedImageUrl
+                                  ? attachments[index]?.croppedImageUrl
+                                  : attachments[index]?.imageUrl
+                              }
+                              alt=""
+                            />
+                          </ImageWrap>
+                        </ImageBox>
+                      ) : (
+                        <ImageBox style={{ background: "#dbdbdb" }} />
+                      )}
+                    </ImageContainer>
+                  );
+                })}
+              </ImageContainerBox>
+            </Flicking>
           </ImageWrapper>
           {isNextClick && (
             <>
               <ShareWeatherCategory
-                select={select}
-                outerCheck={outerCheck}
-                topCheck={topCheck}
-                innerTopCheck={innerTopCheck}
-                bottomCheck={bottomCheck}
-                etcCheck={etcCheck}
-                setOuterCheck={setOuterCheck}
-                setInnerTopCheck={setInnerTopCheck}
-                setBottomCheck={setBottomCheck}
-                setEtcCheck={setEtcCheck}
-                onClick={onClick}
+                bgColor={"#48A3FF"}
+                checkTag={checkTag}
+                setCheckTag={setCheckTag}
               />
-              <ShareWeatherForm text={text} setText={setText} />
+              <ShareWeatherForm
+                bgColor={"#48A3FF"}
+                text={text}
+                setText={setText}
+              />
             </>
           )}
         </Container>
@@ -469,7 +448,7 @@ const Container = styled.form`
   display: flex;
   flex-direction: column;
   width: 480px;
-  height: 736px;
+  /* height: 736px; */
   box-sizing: border-box;
   position: absolute;
   color: ${secondColor};
@@ -492,7 +471,7 @@ const Header = styled.header`
   align-items: center;
   padding-right: 12px;
   border-radius: 12px 12px 0 0;
-  border-bottom: 2px solid ${secondColor};
+  border-bottom: 1px solid ${thirdColor};
   position: sticky;
   background: rgba(255, 255, 255, 0.808);
   top: 0px;
@@ -518,12 +497,22 @@ const WeatherInfoBox = styled.div`
 const ImageWrapper = styled.div<{ length?: number }>`
   display: flex;
   width: 100%;
-  gap: 16px;
-  padding: 20px;
+  gap: 12px;
+  padding: 12px;
   align-items: center;
-  justify-content: space-evenly;
+  /* justify-content: space-evenly; */
   overflow: hidden;
   position: relative;
+  &::after {
+    right: 0px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fafafa);
+    position: absolute;
+    top: 0px;
+    z-index: 10;
+    height: 100%;
+    width: 20px;
+    content: "";
+  }
 `;
 
 const InputImageLabel = styled.label`
@@ -583,8 +572,17 @@ const ImageLengthColor = styled.span`
   color: ${mainColor};
 `;
 
+const ImageContainerBox = styled.div`
+  display: flex;
+  user-select: none;
+  flex: nowrap;
+  gap: 12px;
+`;
+
 const ImageContainer = styled.div`
-  flex: 1;
+  font-size: 12px;
+  display: flex;
+  flex: 0 0 auto;
 `;
 
 const ImageWrap = styled.div`
@@ -592,6 +590,9 @@ const ImageWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 12px;
+  display: flex;
+  flex: 0 0 auto;
 `;
 
 const CropBtn = styled.div`
@@ -641,6 +642,7 @@ const Images = styled.img`
   top: 0;
   bottom: 0;
   right: 0;
+  -webkit-user-drag: none;
   cursor: pointer;
 `;
 

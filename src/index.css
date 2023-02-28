@@ -150,6 +150,7 @@ textarea {
   /* color: #222; */
   font-variant-numeric: tabular-nums;
   scroll-behavior: smooth;
+  -webkit-user-drag: none;
 }
 
 button {
@@ -160,6 +161,7 @@ button {
   font-family: "Pretendard", Apple SD Gothic Neo, Malgun Gothic, sans-serif;
   font-style: normal;
   background-color: transparent;
+  -webkit-user-drag: none;
 }
 
 /* span {

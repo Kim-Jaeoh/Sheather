@@ -6,6 +6,7 @@ import moment from "moment";
 import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
 import FeedCategory from "../components/feed/FeedCategory";
 import { useQueryClient } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
@@ -76,6 +77,7 @@ const Home = () => {
 
   return (
     <Container>
+      <Toaster position="bottom-left" reverseOrder={false} />
       <SelectTimeBox select={selectCategory}>
         <SelectCategory>
           <SelectCurrentTime

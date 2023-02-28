@@ -1,20 +1,15 @@
 import React, { useCallback, useRef } from "react";
 import styled from "@emotion/styled";
-import { GrEmoji } from "react-icons/gr";
-import { useEmojiModalOutClick } from "../../../hooks/useEmojiModalOutClick";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import ColorList from "../../../assets/ColorList";
-import { toast } from "react-hot-toast";
 import Emoji from "../../../assets/Emoji";
 
 type Props = {
+  bgColor?: string;
   text?: string;
   setText?: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const ShareWeatherForm = (props: Props) => {
-  const { text, setText } = props;
-
+const ShareWeatherForm = ({ bgColor, text, setText }: Props) => {
   const textRef = useRef<HTMLTextAreaElement>();
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -35,7 +30,7 @@ const ShareWeatherForm = (props: Props) => {
         <Emoji setText={setText} textRef={textRef} right={32} bottom={-10} />
         <EditInfo>
           <TextAreaLength>
-            <TextAreaLengthColor>
+            <TextAreaLengthColor bgColor={bgColor}>
               {textRef?.current?.value
                 ? textRef?.current?.value.trim().length
                 : 0}
@@ -54,7 +49,6 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const TextFormBox = styled.div`
   width: 100%;
-  /* overflow-x: hidden; */
 `;
 
 const TextArea = styled.textarea`
@@ -98,6 +92,6 @@ const TextAreaLength = styled.p`
   /* border-right: 1px solid ${thirdColor}; */
 `;
 
-const TextAreaLengthColor = styled.span`
-  color: ${mainColor}; ;
+const TextAreaLengthColor = styled.span<{ bgColor: string }>`
+  color: ${(props) => props.bgColor}; ;
 `;

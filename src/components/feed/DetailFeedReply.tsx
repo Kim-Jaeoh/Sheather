@@ -7,13 +7,15 @@ import useTimeFormat from "../../hooks/useTimeFormat";
 import ColorList from "../../assets/ColorList";
 import { IoMdClose } from "react-icons/io";
 import { replyType } from "../../types/type";
+import { UserType } from "../../app/user";
 
 type Props = {
+  userObj: string;
   reply: replyType;
   onDelete: (text: replyType) => void;
 };
 
-const DetailFeedReply = ({ reply, onDelete }: Props) => {
+const DetailFeedReply = ({ userObj, reply, onDelete }: Props) => {
   const [replyCreatorInfo, setReplyCreatorInfo] = useState(null);
   const { timeToString, timeToString2 } = useTimeFormat();
 
@@ -37,9 +39,11 @@ const DetailFeedReply = ({ reply, onDelete }: Props) => {
           </ReplyInfoBox>
           <WriteDate>{timeToString(Number(reply.replyAt))}</WriteDate>
         </UserWriteInfo>
-        <CloseBox onClick={() => onDelete(reply)}>
-          <IoMdClose />
-        </CloseBox>
+        {userObj === reply.email && (
+          <CloseBox onClick={() => onDelete(reply)}>
+            <IoMdClose />
+          </CloseBox>
+        )}
       </UserInfoBox>
     </ReplyBox>
   );

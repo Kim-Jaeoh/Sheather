@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import Flicking, { ViewportSlot } from "@egjs/react-flicking";
@@ -38,6 +38,9 @@ import { dbService } from "../../fbase";
 import FeedProfileImage from "./FeedProfileImage";
 import FeedProfileDisplayName from "./FeedProfileDisplayName";
 import { Skeleton } from "@mui/material";
+import FeedEditModal from "../modal/feed/FeedEditModal";
+import toast, { Toaster } from "react-hot-toast";
+import FeedMoreSelectModal from "../modal/feed/FeedMoreSelectModal";
 
 type ReplyPayload = {
   id?: string;
@@ -66,12 +69,14 @@ const DetailFeed = () => {
   const [replyText, setReplyText] = useState("");
   const [onMouse, setOnMouse] = useState(false);
   const [isMore, setIsMore] = useState(false);
+  const [isFeedEdit, setIsFeedEdit] = useState(false);
   const { state, pathname } = useLocation() as locationProps;
   const { toggleLike } = useToggleLike();
   const { toggleBookmark } = useToggleBookmark();
   const { toggleFollow } = useToggleFollow();
   const { timeToString, timeToString2 } = useTimeFormat();
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
@@ -106,9 +111,11 @@ const DetailFeed = () => {
   );
 
   // 댓글 삭제
-  const { mutate: mutateDelete } = useMutation(
+  const { mutate: mutateReplyDelete } = useMutation(
     (response: ReplyPayload) =>
-      axios.delete("http://localhost:4000/api/reply", { data: response }),
+      axios.delete(`http://localhost:4000/api/reply/${response.id}`, {
+        data: response,
+      }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -137,12 +144,36 @@ const DetailFeed = () => {
   };
 
   // 댓글 삭제
-  const onDelete = (res: replyType) => {
+  const onReplyDelete = (res: replyType) => {
     const filter = detailInfo[0].reply.filter((asd) => asd.text !== res.text);
-    mutateDelete({
+    mutateReplyDelete({
       id: res.parentId,
       reply: [...filter],
     });
+  };
+
+  // 피드 삭제
+  const { mutate: mutateFeedDelete } = useMutation(
+    () => axios.delete(`http://localhost:4000/api/feed/${state.id}`),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["feed"]);
+        onMoreClick();
+        navigate("/");
+      },
+    }
+  );
+
+  // 피드 삭제
+  const onFeedDelete = () => {
+    // const filter = feedData?.filter((res) => state.id !== res.id);
+    if (isMore) {
+      const ok = window.confirm("게시물을 삭제하시겠어요?");
+      if (ok) {
+        mutateFeedDelete();
+        toast.success("삭제가 완료 되었습니다.");
+      }
+    }
   };
 
   const {
@@ -180,10 +211,16 @@ const DetailFeed = () => {
     setIsMore((prev) => !prev);
   };
 
+  const onFeedEditClick = () => {
+    setIsFeedEdit((prev) => !prev);
+    setIsMore(false);
+  };
+
   return (
     <>
       {feedData && (
         <>
+          <Toaster position="bottom-left" reverseOrder={false} />
           {detailInfo.map((res) => {
             const reply = res.reply.sort(
               (a: { replyAt: number }, b: { replyAt: number }) =>
@@ -191,6 +228,21 @@ const DetailFeed = () => {
             );
             return (
               <Wrapper key={res.id} bgColor={bgColor}>
+                {isMore && !isFeedEdit ? (
+                  <FeedMoreSelectModal
+                    bgColor={bgColor}
+                    modalOpen={isMore}
+                    modalClose={onMoreClick}
+                    onFeedEditClick={onFeedEditClick}
+                    onFeedDelete={onFeedDelete}
+                  />
+                ) : (
+                  <FeedEditModal
+                    modalOpen={isFeedEdit}
+                    modalClose={onFeedEditClick}
+                    info={res}
+                  />
+                )}
                 <Container shadowColor={shadowColor}>
                   <Header>
                     <UserInfoBox>
@@ -397,8 +449,9 @@ const DetailFeed = () => {
                             return (
                               <DetailFeedReply
                                 key={index}
+                                userObj={userObj.email}
                                 reply={reply}
-                                onDelete={onDelete}
+                                onDelete={onReplyDelete}
                               />
                             );
                           })}
@@ -570,7 +623,9 @@ const UserNameBox = styled(Link)`
   color: ${secondColor};
 `;
 
-const FollowBtnBox = styled.div``;
+const FollowBtnBox = styled.div`
+  margin-left: auto;
+`;
 
 const MoreBtn = styled.button`
   margin-left: auto;
