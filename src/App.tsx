@@ -4,7 +4,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import LeftBar from "./pages/LeftBar";
 import RightBar from "./pages/RightBar";
-import Header from "./components/header/Header";
 import Footer from "./pages/Footer";
 import Message from "./pages/Message";
 import Explore from "./pages/Explore";
@@ -14,6 +13,7 @@ import Weather from "./pages/Weather";
 import SrollToTop from "./hooks/useScrollToTop";
 import { authService } from "./fbase";
 import Profile from "./pages/Profile";
+import { Toaster } from "react-hot-toast";
 // const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
@@ -48,28 +48,24 @@ const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <SrollToTop />
+      <Toaster position="bottom-left" reverseOrder={false} />
       <Background>
         <Wrapper>
           <LeftBar />
           <Main>
-            <Header />
             <Container>
               <Routes>
                 <Route path="/feed/*" element={<Home />} />
                 <Route path="/feed/detail" element={<DetailFeed />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/message" element={<Message />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/profile/*" element={<Profile />} />
+                <Route path="/explore/*" element={<Explore />} />
+                <Route path="/profile/:id/*" element={<Profile />} />
                 <Route path="/profile/detail" element={<DetailFeed />} />
                 <Route
                   path="/"
                   element={<Navigate replace to="/feed/recent" />}
                 />
-                {/* <Route
-                  path="/profile"
-                  element={<Navigate replace to="/profile/post" />}
-                /> */}
               </Routes>
             </Container>
             <Footer />
@@ -109,6 +105,7 @@ const Main = styled.main`
 const Container = styled.div`
   flex: 1;
   width: 100%;
-  border-left: 2px solid #222222;
-  border-right: 2px solid #222222;
+  /* border-top: 2px solid #222; */
+  border-left: 2px solid #222;
+  border-right: 2px solid #222;
 `;

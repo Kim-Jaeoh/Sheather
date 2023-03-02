@@ -63,6 +63,8 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Container = styled.div`
   width: 100%;
   height: 100%;
+  /* height: 480px; */
+  flex: 1;
   display: flex;
   flex-direction: column;
   /* position: relative; */

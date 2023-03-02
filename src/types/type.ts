@@ -99,8 +99,9 @@ export interface FeedType {
   email: string;
   createdAt: number;
   like: {
-    email: string;
+    displayName: string;
     likedAt: number;
+    email?: string;
   }[];
   text: string;
   feel: string;

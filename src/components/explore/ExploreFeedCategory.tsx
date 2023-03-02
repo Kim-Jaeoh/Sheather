@@ -14,15 +14,15 @@ import { useEffect, useState } from "react";
 import { getDoc, doc } from "firebase/firestore";
 import { UserType } from "../../app/user";
 import { dbService } from "../../fbase";
-import FeedProfileImage from "./FeedProfileImage";
-import FeedProfileDisplayName from "./FeedProfileDisplayName";
+import FeedProfileImage from "../feed/FeedProfileImage";
+import FeedProfileDisplayName from "../feed/FeedProfileDisplayName";
 
 type Props = {
   feed?: FeedType[];
   url?: string;
 };
 
-const FeedCategory = ({ url, feed }: Props) => {
+const ExploreFeedCategory = ({ url, feed }: Props) => {
   const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
   const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
   const { currentUser: userObj } = useSelector((state: RootState) => {
@@ -92,14 +92,14 @@ const FeedCategory = ({ url, feed }: Props) => {
                       <UserInfoBox>
                         <UserImageBox
                           to={`/profile/${res.displayName}/post`}
-                          state={res.displayName}
+                          state={res.email}
                           onContextMenu={(e) => e.preventDefault()}
                         >
                           <FeedProfileImage displayName={res.displayName} />
                         </UserImageBox>
                         <UserNameBox
                           to={`/profile/${res.displayName}/post`}
-                          state={res.displayName}
+                          state={res.email}
                         >
                           <FeedProfileDisplayName
                             displayName={res.displayName}
@@ -155,7 +155,7 @@ const FeedCategory = ({ url, feed }: Props) => {
 
 {
 }
-export default FeedCategory;
+export default ExploreFeedCategory;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
@@ -165,14 +165,6 @@ const CardBox = styled.ul`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-auto-rows: auto;
-  /* li:nth-of-type(odd) {
-    margin-right: 20px;
-    margin-bottom: 20px;
-  }
-
-  li:nth-of-type(even) {
-    margin-bottom: 20px;
-  } */
 `;
 
 const CardList = styled.li<{ size?: number }>`
@@ -182,7 +174,7 @@ const CardList = styled.li<{ size?: number }>`
   border-radius: 8px;
   border: 2px solid ${secondColor};
   overflow: hidden;
-  grid-row-end: span ${(props) => (props.size ? props.size : 44)};
+  grid-row-end: span ${(props) => (props.size ? props.size : 43)};
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;

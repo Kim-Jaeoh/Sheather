@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import { Spinner } from "../../assets/Spinner";
 
-const Header = () => {
+const CurrentWeatherInfo = () => {
   const { location } = useCurrentLocation();
   const { pathname } = useLocation();
 
@@ -71,75 +71,73 @@ const Header = () => {
   );
 
   return (
-    <>
-      {!isLoading ? (
-        <Container>
-          <WeatherBox>
-            <NowBox changeColor={changeColor}>
-              <p>NOW</p>
-            </NowBox>
-            <WeatherInfo>
-              <InfoText>
-                <MdPlace />
-                <span>
-                  {regionData?.data?.documents[0]?.address?.region_3depth_name}
-                </span>
-              </InfoText>
-              <WeatherIcon>
-                <img
-                  src={`http://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
-                  alt="weather icon"
-                />
-              </WeatherIcon>
-            </WeatherInfo>
-            <WeatherInfo>
-              <InfoText>날씨</InfoText>
-              <WeatherDesc>
-                {weatherData?.data?.weather[0].description}
-              </WeatherDesc>
-            </WeatherInfo>
-            <WeatherInfo>
-              <InfoText>현재</InfoText>
-              <WeatherTemp changeColor={changeColor}>
-                {Math.round(weatherData?.data?.main.temp)}
-                <sup>º</sup>
-              </WeatherTemp>
-            </WeatherInfo>
-            <WeatherInfo>
-              <InfoText>최저</InfoText>
-              <WeatherTempSub>
-                {Math.round(weatherData?.data?.main.temp_min)}
-                <sup>º</sup>
-              </WeatherTempSub>
-            </WeatherInfo>
-            <WeatherInfo>
-              <InfoText>최고</InfoText>
-              <WeatherTempSub>
-                {Math.round(weatherData?.data?.main.temp_max)}
-                <sup>º</sup>
-              </WeatherTempSub>
-            </WeatherInfo>
-            <WeatherInfo>
-              <InfoText>추천하는 옷</InfoText>
-              <WeatherIcon></WeatherIcon>
-            </WeatherInfo>
-          </WeatherBox>
-        </Container>
+    <Container>
+      {!isLoading2 ? (
+        <WeatherBox>
+          <NowBox changeColor={changeColor}>
+            <p>NOW</p>
+          </NowBox>
+          <WeatherInfo>
+            <InfoText>
+              <MdPlace />
+              <span>
+                {regionData?.data?.documents[0]?.address?.region_3depth_name}
+              </span>
+            </InfoText>
+            <WeatherIcon>
+              <img
+                src={`http://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
+                alt="weather icon"
+              />
+            </WeatherIcon>
+          </WeatherInfo>
+          <WeatherInfo>
+            <InfoText>날씨</InfoText>
+            <WeatherDesc>
+              {weatherData?.data?.weather[0].description}
+            </WeatherDesc>
+          </WeatherInfo>
+          <WeatherInfo>
+            <InfoText>현재</InfoText>
+            <WeatherTemp changeColor={changeColor}>
+              {Math.round(weatherData?.data?.main.temp)}
+              <sup>º</sup>
+            </WeatherTemp>
+          </WeatherInfo>
+          <WeatherInfo>
+            <InfoText>최저</InfoText>
+            <WeatherTempSub>
+              {Math.round(weatherData?.data?.main.temp_min)}
+              <sup>º</sup>
+            </WeatherTempSub>
+          </WeatherInfo>
+          <WeatherInfo>
+            <InfoText>최고</InfoText>
+            <WeatherTempSub>
+              {Math.round(weatherData?.data?.main.temp_max)}
+              <sup>º</sup>
+            </WeatherTempSub>
+          </WeatherInfo>
+          <WeatherInfo>
+            <InfoText>추천하는 옷</InfoText>
+            <WeatherIcon></WeatherIcon>
+          </WeatherInfo>
+        </WeatherBox>
       ) : (
-        <Container />
+        <Spinner />
       )}
-    </>
+    </Container>
   );
 };
 
-export default Header;
+export default CurrentWeatherInfo;
 
 const Container = styled.nav`
   position: sticky;
-  top: 0;
-  /* width: 800px; */
+  top: 0px;
   height: 80px;
-  border: 2px solid #222222;
+  border-top: 2px solid #222;
+  border-bottom: 2px solid #222;
   background-color: #fff;
   overflow: hidden;
   z-index: 99;

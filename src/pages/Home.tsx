@@ -7,6 +7,7 @@ import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
 import FeedCategory from "../components/feed/FeedCategory";
 import { useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
+import CurrentWeatherInfo from "../components/header/CurrentWeatherInfo";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
@@ -77,7 +78,7 @@ const Home = () => {
 
   return (
     <Container>
-      <Toaster position="bottom-left" reverseOrder={false} />
+      <CurrentWeatherInfo />
       <SelectTimeBox select={selectCategory}>
         <SelectCategory>
           <SelectCurrentTime
@@ -156,13 +157,13 @@ const Home = () => {
     </Container>
   );
 };
-export default React.memo(Home);
+export default Home;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.main`
   height: 100%;
-  padding: 20px 10px 10px;
+  /* padding: 20px; */
   position: relative;
 `;
 
@@ -173,7 +174,7 @@ const SelectTimeBox = styled.nav<{ select: number }>`
   justify-content: center;
   flex-direction: column;
   margin: 0 auto;
-  margin-top: 10px;
+  margin-top: 30px;
   margin-bottom: 20px;
 `;
 

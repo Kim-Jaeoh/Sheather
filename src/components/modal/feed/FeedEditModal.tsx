@@ -64,6 +64,7 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
+        toast.success("수정이 완료 되었습니다.");
         modalClose();
       },
     }
@@ -84,7 +85,6 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
       },
       editAt: +new Date(),
     });
-    toast.success("수정이 완료 되었습니다.");
   };
 
   const bgColor = useMemo(() => {

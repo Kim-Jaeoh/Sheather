@@ -17,13 +17,13 @@ const useToggleLike = () => {
 
   // firebase 계정에 추가
   const fbLike = async (resId: string) => {
-    if (!userObj.email) {
+    if (!userObj.displayName) {
       return alert("로그인하기~~");
     }
     if (userObj.like?.includes(resId)) {
       const copy = [...userObj.like];
       const filter = copy.filter((id) => id !== resId);
-      await updateDoc(doc(dbService, "users", userObj.email), {
+      await updateDoc(doc(dbService, "users", userObj.displayName), {
         like: filter,
       });
       dispatch(
@@ -35,7 +35,7 @@ const useToggleLike = () => {
     } else {
       const copy = [resId, ...userObj.like];
       // copy.push(resId);
-      await updateDoc(doc(dbService, "users", userObj.email), {
+      await updateDoc(doc(dbService, "users", userObj.displayName), {
         like: copy,
       });
       dispatch(
@@ -49,8 +49,10 @@ const useToggleLike = () => {
 
   // 좋아요 api mutate
   const { mutate } = useMutation(
-    (response: { id: string; like: { email: string; likedAt: number }[] }) =>
-      axios.post("http://localhost:4000/api/like", response),
+    (response: {
+      id: string;
+      like: { displayName: string; likedAt: number }[];
+    }) => axios.post("http://localhost:4000/api/like", response),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -60,15 +62,22 @@ const useToggleLike = () => {
 
   const toggleLike = (res: FeedType) => {
     const copy = [...res.like];
-    const findEmail = copy.filter((res) => res.email === userObj.email);
-    const filter = copy.filter((res) => res.email !== userObj.email);
-    if (!userObj.email) {
+    const findEmail = copy.filter(
+      (res) => res.displayName === userObj.displayName
+    );
+    const filter = copy.filter(
+      (res) => res.displayName !== userObj.displayName
+    );
+    if (!userObj.displayName) {
       return alert("로그인하기~~");
     }
     if (findEmail.length === 0) {
       mutate({
         id: res.id,
-        like: [{ email: userObj.email, likedAt: +new Date() }, ...copy],
+        like: [
+          { displayName: userObj.displayName, likedAt: +new Date() },
+          ...copy,
+        ],
       });
       fbLike(res.id);
     } else {

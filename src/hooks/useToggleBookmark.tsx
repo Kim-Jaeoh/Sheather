@@ -13,13 +13,13 @@ const useToggleBookmark = () => {
   const dispatch = useDispatch();
 
   const toggleBookmark = async (resId: string) => {
-    if (!userObj.email) {
+    if (!userObj.displayName) {
       return alert("로그인하기~~");
     }
     if (userObj.bookmark?.includes(resId)) {
       const copy = [...userObj.bookmark];
       const filter = copy.filter((id) => id !== resId);
-      await updateDoc(doc(dbService, "users", userObj.email), {
+      await updateDoc(doc(dbService, "users", userObj.displayName), {
         bookmark: filter,
       });
       dispatch(
@@ -30,7 +30,7 @@ const useToggleBookmark = () => {
       );
     } else {
       const copy = [resId, ...userObj.bookmark];
-      await updateDoc(doc(dbService, "users", userObj.email), {
+      await updateDoc(doc(dbService, "users", userObj.displayName), {
         bookmark: copy,
       });
       dispatch(

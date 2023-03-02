@@ -1,7 +1,16 @@
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import imageCompression from "browser-image-compression";
-import { onSnapshot, doc, getDoc, updateDoc } from "firebase/firestore";
+import { updateProfile } from "firebase/auth";
+import {
+  onSnapshot,
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Point } from "react-easy-crop/types";
 import toast, { Toaster } from "react-hot-toast";
@@ -18,7 +27,7 @@ import { currentUser, UserType } from "../../../app/user";
 import ColorList from "../../../assets/ColorList";
 import getCroppedImg from "../../../assets/CropImage";
 import { Spinner } from "../../../assets/Spinner";
-import { dbService } from "../../../fbase";
+import { authService, dbService } from "../../../fbase";
 import useToggleFollow from "../../../hooks/useToggleFollow";
 import { ImageType } from "../../../types/type";
 import ProfileImageCropper from "./ProfileImageCropper";
@@ -34,8 +43,6 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
       return state.user;
     }
   );
-  // const [account, setAccount] = useState([]);
-  // const [isLoading, setIsLoading] = useState(false);
   const [isImage, setIsImage] = useState(false);
   const [previewImage, setPreviewImage] = useState(userObj.profileURL); // 미리보기 크롭용
   const [profileURL, setProfileURL] = useState({
@@ -46,6 +53,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
   });
   const [name, setName] = useState(userObj.name);
   const [displayName, setDisplayName] = useState(userObj.displayName);
+  const [checkDisplayName, setCheckDisplayName] = useState(false);
   const [description, setDescription] = useState(userObj.description);
   const [focusName, setFocusName] = useState(false);
   const [focusDsName, setFocusDsName] = useState(false);
@@ -94,30 +102,56 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     []
   );
 
+  useEffect(() => {
+    const q = query(collection(dbService, "users"));
+
+    onSnapshot(q, (snapshot) => {
+      const usersArray = snapshot.docs.map((doc) => ({
+        ...doc.data(),
+      }));
+
+      //  본인 제외 노출
+      const exceptArray = usersArray.filter(
+        (obj) => obj.displayName !== userObj.displayName
+      );
+      const checkFilter = exceptArray.filter(
+        (asd) => asd.displayName === displayName
+      );
+      setCheckDisplayName(checkFilter.length === 0);
+    });
+  }, [displayName, userObj.displayName]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateDoc(doc(dbService, "users", userObj.email), {
-      name: name,
-      displayName: displayName,
-      description: description,
-      profileURL: profileURL.croppedImageUrl
-        ? profileURL.croppedImageUrl
-        : profileURL.imageUrl,
-    });
-    dispatch(
-      currentUser({
-        ...userObj,
+    if (checkDisplayName) {
+      await updateDoc(doc(dbService, "users", userObj.displayName), {
         name: name,
         displayName: displayName,
         description: description,
         profileURL: profileURL.croppedImageUrl
           ? profileURL.croppedImageUrl
           : profileURL.imageUrl,
-      })
-    );
-    toast.success("수정이 완료 되었습니다.");
-    modalClose();
-    return window.location.reload();
+      });
+      await updateProfile(authService.currentUser, {
+        displayName: displayName,
+      });
+      dispatch(
+        currentUser({
+          ...userObj,
+          name: name,
+          displayName: displayName,
+          description: description,
+          profileURL: profileURL.croppedImageUrl
+            ? profileURL.croppedImageUrl
+            : profileURL.imageUrl,
+        })
+      );
+      toast.success("수정이 완료 되었습니다.");
+      modalClose();
+      return navigate(`${displayName}/post`, { state: userObj.email });
+    } else {
+      alert("사용자 이름이 중복입니다.");
+    }
   };
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -203,7 +237,15 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                 <EditTextEng>CROP</EditTextEng>
               </EditBtn>
             ) : (
-              <EditBtn type="submit">
+              <EditBtn
+                type="submit"
+                disabled={
+                  userObj.name === name &&
+                  userObj.displayName === displayName &&
+                  userObj.description === description &&
+                  profileURL.croppedImageUrl == null
+                }
+              >
                 <EditText>수정 완료</EditText>
               </EditBtn>
             )}
@@ -308,7 +350,7 @@ const Container = styled.form`
   display: flex;
   flex-direction: column;
   width: 480px;
-  /* height: 600px; */
+  height: 600px;
   box-sizing: border-box;
   position: absolute;
   color: ${secondColor};

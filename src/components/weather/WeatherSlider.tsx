@@ -68,18 +68,6 @@ const WeatherSlider = ({ data }: PropsType) => {
     setSelected(index);
   };
 
-  const shareBtnClick = () => {
-    setShareBtn(true);
-    if (shareBtn) {
-      const ok = window.confirm(
-        "게시물을 삭제하시겠어요? 지금 나가면 수정 내용이 저장되지 않습니다."
-      );
-      if (ok) {
-        setShareBtn(false);
-      }
-    }
-  };
-
   const {
     flickingRef,
     visible,
@@ -92,11 +80,7 @@ const WeatherSlider = ({ data }: PropsType) => {
   return (
     <>
       {shareBtn && (
-        <ShareWeatherModal
-          shareBtn={shareBtn}
-          setShareBtn={setShareBtn}
-          shareBtnClick={shareBtnClick}
-        />
+        <ShareWeatherModal shareBtn={shareBtn} setShareBtn={setShareBtn} />
       )}
       {data && data[0] ? (
         <Wrapper>
@@ -155,7 +139,8 @@ const WeatherSlider = ({ data }: PropsType) => {
                           // disabled={timeStamp < res.dt - 9 * 60 * 60} // -9시간
                           disabled={Boolean(res?.dt_txt)} // -9시간
                           onClick={() => {
-                            shareBtnClick();
+                            // shareBtnClick();
+                            setShareBtn(true);
                             dispach(shareWeather(res));
                           }}
                         >

@@ -17,25 +17,27 @@ import { dbService } from "../../fbase";
 import { FeedType } from "../../types/type";
 
 type Props = {
-  email: string;
+  displayName: string;
 };
 
-const FeedProfileDisplayName = ({ email }: Props) => {
+const FeedProfileDisplayName = ({ displayName }: Props) => {
   const [account, setAccount] = useState(null);
 
   // // 계정 정보 가져오기
   // useEffect(() => {
   //   const getAccount = async () => {
-  //     const docSnap = await getDoc(doc(dbService, "users", email));
+  //     const docSnap = await getDoc(doc(dbService, "users", displayName));
   //     setAccount(docSnap.data());
   //   };
   //   getAccount();
-  // }, [email]);
+  // }, [displayName]);
 
   // 계정 정보 가져오기
   useEffect(() => {
-    onSnapshot(doc(dbService, "users", email), (doc) => setAccount(doc.data()));
-  }, [email]);
+    onSnapshot(doc(dbService, "users", displayName), (doc) =>
+      setAccount(doc.data())
+    );
+  }, [displayName]);
 
   return (
     <>

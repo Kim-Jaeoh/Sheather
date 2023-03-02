@@ -220,7 +220,6 @@ const DetailFeed = () => {
     <>
       {feedData && (
         <>
-          <Toaster position="bottom-left" reverseOrder={false} />
           {detailInfo.map((res) => {
             const reply = res.reply.sort(
               (a: { replyAt: number }, b: { replyAt: number }) =>
@@ -250,23 +249,27 @@ const DetailFeed = () => {
                         to={`/profile/${res.displayName}/post`}
                         state={res.email}
                       >
-                        <FeedProfileImage email={res.email} />
+                        <FeedProfileImage displayName={res.displayName} />
                       </UserImageBox>
                       <UserWriteInfo>
                         <UserNameBox
                           to={`/profile/${res.displayName}/post`}
                           state={res.email}
                         >
-                          <FeedProfileDisplayName email={res.email} />
+                          <FeedProfileDisplayName
+                            displayName={res.displayName}
+                          />
                         </UserNameBox>
                         <WriteDate>
                           {timeToString2(Number(res.createdAt))}
                         </WriteDate>
                       </UserWriteInfo>
                       {res.email !== userObj.email ? (
-                        <FollowBtnBox onClick={() => toggleFollow(res.email)}>
+                        <FollowBtnBox
+                          onClick={() => toggleFollow(res.displayName)}
+                        >
                           {userObj?.following.filter((obj) =>
-                            obj.id.includes(res.email)
+                            obj?.displayName?.includes(res.displayName)
                           ).length !== 0 ? (
                             <FollowingBtn>팔로잉</FollowingBtn>
                           ) : (
@@ -503,6 +506,7 @@ const Wrapper = styled.main<{ bgColor: string }>`
   padding: 34px;
   /* padding: 20px 60px 30px; */
   background: ${(props) => props.bgColor};
+  border-top: 2px solid ${secondColor};
 `;
 
 const Container = styled.main<{ shadowColor: string }>`

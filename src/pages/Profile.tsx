@@ -1,14 +1,16 @@
 import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { onSnapshot, doc, getDoc } from "firebase/firestore";
-import { useEffect, useMemo, useState } from "react";
+import { onSnapshot, doc } from "firebase/firestore";
+import React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { MdGridOn } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { RootState } from "../app/store";
+import { UserType } from "../app/user";
 import ColorList from "../assets/ColorList";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
@@ -16,10 +18,6 @@ import ProfilePost from "../components/profile/ProfilePost";
 import { dbService } from "../fbase";
 import useToggleFollow from "../hooks/useToggleFollow";
 import { FeedType } from "../types/type";
-
-interface LocationProps {
-  state: string;
-}
 
 const Profile = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -34,13 +32,21 @@ const Profile = () => {
   const [followCategory, setFollowCategory] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const { state } = useLocation() as LocationProps;
   const { toggleFollow } = useToggleFollow();
+  const { id } = useParams();
 
   // 계정 정보 가져오기
+  // 팔로우 모달 -> 상대 프로필 이동 -> 팔로우 버튼을 누를 때마다 렌더링이 되며 본인 프로필과 상대의 프로필이 겹쳐 보였음
+  // => if문을 사용하여 본인 프로필이 아닐 경우에만 Firebase에서 타 계정 정보 받아오기
   useEffect(() => {
-    onSnapshot(doc(dbService, "users", state), (doc) => setAccount(doc.data()));
-  }, [userLogin, state]);
+    if (userObj.displayName !== id) {
+      onSnapshot(doc(dbService, "users", id), (doc) => {
+        setAccount(doc.data());
+      });
+    } else {
+      setAccount(userObj);
+    }
+  }, [id, userObj]);
 
   const feedApi = async () => {
     const { data } = await axios.get("http://localhost:4000/api/feed");
@@ -69,7 +75,7 @@ const Profile = () => {
       const myPostfilter = feedData
         ?.filter((res) => res.email === account?.email)
         .sort((a, b) => b.createdAt - a.createdAt);
-      setPost(myPostfilter);
+      return setPost(myPostfilter);
     }
     if (selectCategory === 1) {
       const myLikeFilter = account.like
@@ -77,7 +83,7 @@ const Profile = () => {
           return feedData?.filter((asd) => asd.id === res);
         })
         .flat();
-      setPost(myLikeFilter);
+      return setPost(myLikeFilter);
     }
     if (selectCategory === 2) {
       const myBookmarkFilter = account.bookmark
@@ -85,7 +91,7 @@ const Profile = () => {
           return feedData?.filter((asd) => asd.id === res);
         })
         .flat();
-      setPost(myBookmarkFilter);
+      return setPost(myBookmarkFilter);
     }
   }, [
     feedData,
@@ -111,7 +117,6 @@ const Profile = () => {
     <>
       {account && (
         <Wrapper>
-          <Toaster position="bottom-left" reverseOrder={false} />
           {editModalOpen && (
             <ProfileEditModal
               modalOpen={editModalOpen}
@@ -141,8 +146,8 @@ const Profile = () => {
                 <ProfileDetail>
                   <ProfileInfoBox>
                     <ProfileDsName>{account?.displayName}</ProfileDsName>
-                    {account.name && <ProfileName>{account?.name}</ProfileName>}
-                    {account.description && (
+                    {account?.name && <ProfileName>{account.name}</ProfileName>}
+                    {account?.description && (
                       <ProfileDesc>{account.description}</ProfileDesc>
                     )}
                   </ProfileInfoBox>
@@ -153,9 +158,11 @@ const Profile = () => {
                       </ProfileEditBtn>
                     </BtnBox>
                   ) : (
-                    <FollowBtnBox onClick={() => toggleFollow(account.email)}>
+                    <FollowBtnBox
+                      onClick={() => toggleFollow(account?.displayName)}
+                    >
                       {userObj?.following.filter((obj) =>
-                        obj.id.includes(account.email)
+                        obj.displayName.includes(account.displayName)
                       ).length !== 0 ? (
                         <BtnBox>
                           <FollowingBtn>팔로잉</FollowingBtn>
@@ -198,7 +205,7 @@ const Profile = () => {
                 onClick={() => setSelectCategory(0)}
                 select={selectCategory}
                 num={0}
-                to={`${account?.displayName}/post`}
+                to={`post`}
                 state={account?.email}
               >
                 <MdGridOn />
@@ -208,7 +215,7 @@ const Profile = () => {
                 onClick={() => setSelectCategory(1)}
                 select={selectCategory}
                 num={1}
-                to={`${account?.displayName}/like`}
+                to={`like`}
                 state={account?.email}
               >
                 <FaRegHeart />
@@ -218,7 +225,7 @@ const Profile = () => {
                 onClick={() => setSelectCategory(2)}
                 select={selectCategory}
                 num={2}
-                to={`${account?.displayName}/bookmark`}
+                to={`bookmark`}
                 state={account?.email}
               >
                 <FaRegBookmark />
@@ -228,15 +235,15 @@ const Profile = () => {
             <CardList length={post?.length}>
               <Routes>
                 <Route
-                  path={`${account?.displayName}/post`}
+                  path={`post`}
                   element={<ProfilePost myPost={post} email={account?.email} />}
                 />
                 <Route
-                  path={`${account?.displayName}/like`}
+                  path={`like`}
                   element={<ProfilePost myPost={post} email={account?.email} />}
                 />
                 <Route
-                  path={`${account?.displayName}/bookmark`}
+                  path={`bookmark`}
                   element={<ProfilePost myPost={post} email={account?.email} />}
                 />
               </Routes>
@@ -257,6 +264,7 @@ const Wrapper = styled.div`
   overflow: hidden;
   height: 100%;
   padding: 34px;
+  border-top: 2px solid ${secondColor};
   background: #6f4ccf;
 `;
 

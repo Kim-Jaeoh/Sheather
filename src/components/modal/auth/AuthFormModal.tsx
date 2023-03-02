@@ -4,6 +4,7 @@ import { Modal } from "@mui/material";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { useDispatch } from "react-redux";
@@ -20,22 +21,23 @@ type Props = {
 const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [dpName, setDpName] = useState("");
   const [select, setSelect] = useState("");
-  const [newAccount, setNewAccount] = useState(true);
+  const [isExistAccount, setIsExistAccount] = useState(true);
   const [error, setError] = useState("");
   const dispatch = useDispatch();
-  const toggleAccount = () => setNewAccount(!newAccount);
+  const toggleAccount = () => setIsExistAccount(!isExistAccount);
 
   const SignUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       let user;
-      if (newAccount) {
+      if (isExistAccount) {
         await signInWithEmailAndPassword(authService, email, password).then(
           async (result) => {
             let SignUser = result.user;
-            const docRef = doc(dbService, "users", SignUser.email);
+            const docRef = doc(dbService, "users", SignUser.displayName);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
@@ -55,8 +57,11 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
         await createUserWithEmailAndPassword(authService, email, password).then(
           async (result) => {
             user = result.user;
+            updateProfile(authService.currentUser, {
+              displayName: dpName,
+            });
             const usersRef = collection(dbService, "users");
-            await setDoc(doc(usersRef, user.email), {
+            await setDoc(doc(usersRef, dpName), {
               uid: user.uid,
               createdAt: Date.now(),
               bookmark: [],
@@ -64,7 +69,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               profileURL: defaultAccount,
               email: user.email,
               name: "",
-              displayName: user.email.split("@")[0],
+              displayName: dpName,
               description: "",
               follower: [],
               following: [],
@@ -79,7 +84,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                 profileURL: defaultAccount,
                 email: user.email,
                 name: "",
-                displayName: user.email.split("@")[0],
+                displayName: dpName,
                 description: "",
                 follower: [],
                 following: [],
@@ -87,7 +92,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
             );
 
             alert("회원가입 되었습니다.");
-            setNewAccount(true);
+            setIsExistAccount(true);
             setEmail("");
             setPassword("");
             setError("");
@@ -144,6 +149,8 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
       setEmail(value);
     } else if (name === "password") {
       setPassword(value);
+    } else if (name === "dpName") {
+      setDpName(value);
     }
   };
 
@@ -156,7 +163,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
             <IoCloseOutline />
           </ListDelete>
           <FormBox>
-            <form onSubmit={SignUser}>
+            <Form onSubmit={SignUser}>
               <EmailBox>
                 <input
                   name="email"
@@ -171,6 +178,22 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                   onBlur={() => setSelect("")}
                 />
               </EmailBox>
+              {!isExistAccount && (
+                <EmailBox>
+                  <input
+                    name="dpName"
+                    type="dpName"
+                    placeholder="DisplayName"
+                    required
+                    value={dpName}
+                    onChange={onChange}
+                    // select={select}
+                    autoComplete="off"
+                    onFocus={() => setSelect("dpName")}
+                    onBlur={() => setSelect("")}
+                  />
+                </EmailBox>
+              )}
               <PasswordBox>
                 <input
                   name="password"
@@ -186,19 +209,19 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                 />
               </PasswordBox>
               <SignBtnBox>
-                <SignBtn>{newAccount ? "로그인" : "회원가입"}</SignBtn>
+                <SignBtn>{isExistAccount ? "로그인" : "회원가입"}</SignBtn>
               </SignBtnBox>
               {error && <ErrorText>{error}</ErrorText>}
               <SignInfo>
                 <SignUp onClick={toggleAccount}>
-                  {newAccount ? "회원가입" : "로그인"}
+                  {isExistAccount ? "회원가입" : "로그인"}
                 </SignUp>
                 <AccountBox>
                   <AccountFind>계정 찾기</AccountFind>
                   <AccountFind>비밀번호 찾기</AccountFind>
                 </AccountBox>
               </SignInfo>
-            </form>
+            </Form>
           </FormBox>
         </Container>
       </Wrapper>
@@ -275,6 +298,8 @@ const FormBox = styled.article`
     padding: 50px 50px;
   }
 `;
+
+const Form = styled.form``;
 
 const EmailBox = styled.div`
   position: relative;

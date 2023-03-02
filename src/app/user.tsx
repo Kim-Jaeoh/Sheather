@@ -13,11 +13,11 @@ export interface UserType {
     bookmark: string[];
     like: string[];
     follower: {
-      id: string;
+      displayName: string;
       time: number;
     }[];
     following: {
-      id: string;
+      displayName: string;
       time: number;
     }[];
   };

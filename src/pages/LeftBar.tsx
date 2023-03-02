@@ -88,7 +88,7 @@ const LeftBar = () => {
         <MenuLink
           onClick={() => !userLogin && onClick()}
           to={userLogin && `/profile/${userObj?.displayName}/post`}
-          state={userObj?.email}
+          state={userObj.displayName}
         >
           <MenuList>
             <BsPersonCircle />
@@ -180,37 +180,37 @@ const MenuBox = styled.ul<{ pathname: string }>`
   }
   a:nth-of-type(2) li {
     font-weight: ${(props) =>
-      props.pathname === "/weather" ? "bold" : "normal"};
+      props.pathname.includes("/weather") ? "bold" : "normal"};
     border: ${(props) =>
-      props.pathname === "/weather"
+      props.pathname.includes("/weather")
         ? "2px solid #222222"
         : "2px solid transparent"};
     box-shadow: ${(props) =>
-      props.pathname === "/weather"
+      props.pathname.includes("/weather")
         ? "0px 6px 0 -2px #48a3ff, 0px 6px #222"
         : "0"};
   }
   a:nth-of-type(3) li {
     font-weight: ${(props) =>
-      props.pathname === "/message" ? "bold" : "normal"};
+      props.pathname.includes("/message") ? "bold" : "normal"};
     border: ${(props) =>
-      props.pathname === "/message"
+      props.pathname.includes("/message")
         ? "2px solid #222222"
         : "2px solid transparent"};
     box-shadow: ${(props) =>
-      props.pathname === "/message"
+      props.pathname.includes("/message")
         ? "0px 6px 0 -2px #ff5c1b, 0px 6px #222"
         : "0"};
   }
   a:nth-of-type(4) li {
     font-weight: ${(props) =>
-      props.pathname === "/explore" ? "bold" : "normal"};
+      props.pathname.includes("/explore") ? "bold" : "normal"};
     border: ${(props) =>
-      props.pathname === "/explore"
+      props.pathname.includes("/explore")
         ? "2px solid #222222"
         : "2px solid transparent"};
     box-shadow: ${(props) =>
-      props.pathname === "/explore"
+      props.pathname.includes("/explore")
         ? "0px 6px 0 -2px #30c56e, 0px 6px #222"
         : "0"};
   }

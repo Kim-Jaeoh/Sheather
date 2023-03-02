@@ -25,10 +25,10 @@ import Flicking from "@egjs/react-flicking";
 type Props = {
   shareBtn: boolean;
   setShareBtn: React.Dispatch<React.SetStateAction<boolean>>;
-  shareBtnClick: () => void;
+  // shareBtnClick: () => void;
 };
 
-const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
+const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   const [checkTag, setCheckTag] = useState({
     feel: null,
     outer: null,
@@ -262,6 +262,19 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn, shareBtnClick }: Props) => {
         reply: [],
       });
       toast.success("업로드 되었습니다.");
+    }
+  };
+
+  const shareBtnClick = () => {
+    if (attachments.length !== 0) {
+      const ok = window.confirm(
+        "게시물을 삭제하시겠어요? 지금 나가면 수정 내용이 저장되지 않습니다."
+      );
+      if (ok) {
+        setShareBtn(false);
+      }
+    } else {
+      setShareBtn(false);
     }
   };
 

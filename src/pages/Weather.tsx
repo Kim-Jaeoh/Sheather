@@ -161,26 +161,18 @@ const Weather = () => {
   }, [date1, date2, date3, date4, date5, dayPlusCheck, weathers]);
 
   return (
-    <>
-      {!isLoading ? (
-        <Container>
-          <Toaster position="bottom-left" reverseOrder={false} />
-          <WeatherBox>
-            <>
-              {dayCheck && <WeatherSlider data={timeCheck} />}
-              <WeatherSlider
-                data={dayPlusCheck ? timePlusCheck : filterData2}
-              />
-              <WeatherSlider data={filterData3} />
-              <WeatherSlider data={filterData4} />
-              <WeatherSlider data={filterData5} />
-            </>
-          </WeatherBox>
-        </Container>
-      ) : (
-        <Spinner />
-      )}
-    </>
+    <Container>
+      <Toaster position="bottom-left" reverseOrder={false} />
+      <WeatherBox>
+        <>
+          {dayCheck && <WeatherSlider data={timeCheck} />}
+          <WeatherSlider data={dayPlusCheck ? timePlusCheck : filterData2} />
+          <WeatherSlider data={filterData3} />
+          <WeatherSlider data={filterData4} />
+          <WeatherSlider data={filterData5} />
+        </>
+      </WeatherBox>
+    </Container>
   );
 };
 
@@ -190,6 +182,7 @@ const Container = styled.main`
   overflow: hidden;
   /* width: 700px; */
   height: 100%;
+  border-top: 2px solid #222;
   background: #48a3ff;
 `;
 

@@ -7,7 +7,7 @@ import { Point } from "react-easy-crop";
 import { BsPersonPlusFill } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RootState } from "../../../app/store";
 import { UserType } from "../../../app/user";
 import ColorList from "../../../assets/ColorList";
@@ -20,7 +20,7 @@ type Props = {
   modalOpen: boolean;
   followCategory: string;
   followInfo: {
-    id: string;
+    displayName: string;
     time: number;
   }[];
   followLength: number;
@@ -42,17 +42,16 @@ const ProfileFollowModal = ({
   );
   const [account, setAccount] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
   const { toggleFollow } = useToggleFollow();
 
   // 계정 정보 가져오기
   useEffect(() => {
     followInfo.map(async (res) => {
-      const docSnap = await getDoc(doc(dbService, "users", res.id));
+      const docSnap = await getDoc(doc(dbService, "users", res.displayName));
       setAccount((prev: UserType[]) => [...prev, docSnap.data()]);
       setIsLoading(true);
     });
-    return () => setIsLoading(false);
+    // return () => modalClose();
   }, [followInfo]);
 
   return (
@@ -75,7 +74,7 @@ const ProfileFollowModal = ({
                     <UserList key={index}>
                       <ProfileImageBox
                         to={`/profile/${res.displayName}/post`}
-                        state={res.email}
+                        state={res.displayName}
                         onClick={modalClose}
                       >
                         <ProfileImage
@@ -85,16 +84,18 @@ const ProfileFollowModal = ({
                       </ProfileImageBox>
                       <ProfileInfoBox
                         to={`/profile/${res.displayName}/post`}
-                        state={res.email}
+                        state={res.displayName}
                         onClick={modalClose}
                       >
                         <ProfileDsName>{res.displayName}</ProfileDsName>
                         {res.name && <ProfileName>{res.name}</ProfileName>}
                       </ProfileInfoBox>
                       {res?.email !== userObj.email && (
-                        <FollowBtnBox onClick={() => toggleFollow(res.email)}>
-                          {userObj?.following.filter((obj) =>
-                            obj.id.includes(res.email)
+                        <FollowBtnBox
+                          onClick={() => toggleFollow(res.displayName)}
+                        >
+                          {userObj.following.filter((obj) =>
+                            obj?.displayName?.includes(res?.displayName)
                           ).length !== 0 ? (
                             <FollowingBtn>팔로잉</FollowingBtn>
                           ) : (
@@ -216,6 +217,7 @@ const ProfileImageBox = styled(Link)`
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
+  cursor: pointer;
 `;
 
 const ProfileImage = styled.img`
@@ -225,6 +227,7 @@ const ProfileImage = styled.img`
 `;
 
 const ProfileInfoBox = styled(Link)`
+  cursor: pointer;
   flex: 1;
   padding-right: 20px;
 `;
