@@ -129,16 +129,16 @@ const FeedCategory = ({ url, feed }: Props) => {
                       </UserInfoBox>
                       <UserText>{res.text}</UserText>
                     </UserBox>
-                    <div
-                      ref={ref}
-                      // style={{
-                      //   position: "absolute",
-                      //   bottom: "100px",
-                      // }}
-                    />
                   </CardList>
                 );
               })}
+              <div
+                ref={ref}
+                // style={{
+                //   position: "absolute",
+                //   bottom: "100px",
+                // }}
+              />
             </CardBox>
           ) : (
             <NotInfoBox>

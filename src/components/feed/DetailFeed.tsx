@@ -395,24 +395,31 @@ const DetailFeed = () => {
                       >
                         {res.url.map((res, index) => {
                           return (
-                            <Card key={index}>
-                              <CardImage src={res} alt="" />
-                            </Card>
+                            <Cardd key={index}>
+                              <Card>
+                                <CardImage src={res} alt="" />
+                              </Card>
+                            </Cardd>
                           );
                         })}
                       </Flicking>
                       <PaginationButton>
-                        {Array.from({ length: 3 }, (value, index) => (
-                          <PaginationSpan key={index} slideIndex={slideIndex}>
-                            <span />
-                          </PaginationSpan>
-                        ))}
+                        {Array.from(
+                          { length: res.url.length },
+                          (value, index) => (
+                            <PaginationSpan key={index} slideIndex={slideIndex}>
+                              <span />
+                            </PaginationSpan>
+                          )
+                        )}
                       </PaginationButton>
                     </FlickingImageBox>
                   ) : (
-                    <Card onContextMenu={(e) => e.preventDefault()}>
-                      <CardImage src={res.url[0]} alt="" />
-                    </Card>
+                    <Cardd onContextMenu={(e) => e.preventDefault()}>
+                      <Card>
+                        <CardImage src={res.url[0]} alt="" />
+                      </Card>
+                    </Cardd>
                   )}
                   <InfoBox>
                     <TextBox>
@@ -500,7 +507,7 @@ const DetailFeed = () => {
 export default DetailFeed;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Wrapper = styled.main<{ bgColor: string }>`
+const Wrapper = styled.div<{ bgColor: string }>`
   position: relative;
   overflow: hidden;
   padding: 34px;
@@ -509,7 +516,7 @@ const Wrapper = styled.main<{ bgColor: string }>`
   border-top: 2px solid ${secondColor};
 `;
 
-const Container = styled.main<{ shadowColor: string }>`
+const Container = styled.div<{ shadowColor: string }>`
   position: relative;
   border: 2px solid ${secondColor};
   border-radius: 8px;
@@ -681,18 +688,30 @@ const UserImage = styled.img`
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+`;
+
+const Cardd = styled.div`
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  padding-top: 100%;
 `;
 
 const Card = styled.div`
-  display: block;
+  /* display: block;
   position: relative;
-  /* cursor: pointer; */
+  height: auto;
   user-select: none;
   outline: none;
-  overflow: hidden;
-  /* max-height: 532px; */
-  /* border-bottom: 1px solid ${thirdColor}; */
+  overflow: hidden; */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  width: 100%;
 `;
 
 const CardImage = styled.img`

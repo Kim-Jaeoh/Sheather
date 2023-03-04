@@ -1,59 +1,87 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../assets/ColorList";
-import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Route, Routes, useLocation, useParams } from "react-router-dom";
 import moment from "moment";
 import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
 import FeedCategory from "../components/feed/FeedCategory";
 import { useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import ExploreFeedCategory from "../components/explore/ExploreFeedCategory";
+import TempClothes from "../assets/TempClothes";
+import Flicking from "@egjs/react-flicking";
+import "../styles/DetailFlicking.css";
 
 const Explore = () => {
   const [selectCategory, setSelectCategory] = useState(0);
-  const [url, setUrl] = useState(`http://localhost:4000/api/feed/recent?`);
+  const [secondSelectCategory, setSecondSelectCategory] = useState(0);
+  const [url, setUrl] = useState(
+    `http://localhost:4000/api/explore?cat=outer&detail=${encodeURIComponent(
+      "전체"
+    )}&`
+  );
+  const [detail, setDetail] = useState("전체");
   const [dateCategory, setDateCategory] = useState("recent");
   const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isDetailModal, setIsDetailModal] = useState(false);
   const [isDetailDone, setIsDetailDone] = useState(false);
+  const { ClothesCategory } = TempClothes();
 
-  const value = useMemo(() => {
-    return moment(changeValue).format("YYYYMMDD");
-  }, [changeValue]);
+  const categoryArray = [
+    { cat: "아우터", link: "outer" },
+    { cat: "상의", link: "top" },
+    { cat: "내의", link: "innerTop" },
+    { cat: "하의", link: "bottom" },
+    { cat: "기타", link: "etc" },
+  ];
 
   useEffect(() => {
-    // 최신
-    if (selectCategory === 0) {
-      return setUrl("http://localhost:4000/api/feed/recent?");
+    const api = "http://localhost:4000/api/explore";
+    if (secondSelectCategory === 0) {
+      return setUrl(
+        `${api}?cat=${
+          categoryArray[selectCategory].link
+        }&detail=${encodeURIComponent("전체")}&`
+      );
     }
+    return setUrl(
+      `${api}?cat=${
+        categoryArray[selectCategory].link
+      }&detail=${encodeURIComponent(detail)}&`
+    );
+  }, [detail, selectCategory]);
 
-    // 인기
-    if (selectCategory === 1) {
-      return setUrl("http://localhost:4000/api/feed/popular?");
-    }
+  const secondMenu = useMemo(() => {
+    const categories = [
+      ClothesCategory.outer,
+      ClothesCategory.top,
+      ClothesCategory.innerTop,
+      ClothesCategory.bottom,
+      ClothesCategory.etc,
+    ];
 
-    // 시간별
-    if (selectCategory === 2) {
-      if (isDetailDone) {
-        return setUrl(
-          `http://localhost:4000/api/feed/date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
-        );
-      }
-    }
+    const filteredCategories = categories.map((category) => {
+      return ["전체", ...category.filter((item) => item !== "없음")];
+    });
+
+    return filteredCategories[selectCategory];
   }, [
-    changeValue,
-    dateCategory,
-    isDetailDone,
-    rangeTime,
+    ClothesCategory.bottom,
+    ClothesCategory.etc,
+    ClothesCategory.innerTop,
+    ClothesCategory.outer,
+    ClothesCategory.top,
     selectCategory,
-    value,
   ]);
 
-  const onSelectCategory2 = () => {
-    setSelectCategory(2);
-    setIsDetailDone(false);
-    setIsDetailModal(true);
+  const onClickToUrl = (type: string) => {
+    setDetail(type);
+  };
+
+  const onSelectCategory = (res: number) => {
+    setSelectCategory(res);
+    setSecondSelectCategory(0);
   };
 
   const onReset = () => {
@@ -68,7 +96,7 @@ const Explore = () => {
 
   const onModalClose = () => {
     setIsDetailModal((prev) => !prev);
-    if (url.includes("recent")) {
+    if (url.includes("outer")) {
       setSelectCategory(0);
     }
     if (url.includes("popular")) {
@@ -78,32 +106,52 @@ const Explore = () => {
 
   return (
     <Container>
+      <CategoryBox>
+        <CategoryList>
+          {categoryArray.map((res, index) => {
+            return (
+              <Category
+                onClick={() => onSelectCategory(index)}
+                select={selectCategory}
+                num={index}
+                to={`${res.link}`}
+              >
+                <SelectName>{res.cat}</SelectName>
+              </Category>
+            );
+          })}
+        </CategoryList>
+      </CategoryBox>
+
       <SelectTimeBox select={selectCategory}>
         <SelectCategory>
-          <SelectCurrentTime
-            to="recent"
-            onClick={() => setSelectCategory(0)}
-            select={selectCategory}
-            num={0}
+          <Flicking
+            onChanged={(e) => console.log(e)}
+            moveType="freeScroll"
+            bound={true}
+            align="prev"
           >
-            최신
-          </SelectCurrentTime>
-          <SelectCurrentTime
-            to="popular"
-            onClick={() => setSelectCategory(1)}
-            select={selectCategory}
-            num={1}
-          >
-            인기
-          </SelectCurrentTime>
-          <SelectCurrentTime
-            to="date"
-            onClick={onSelectCategory2}
-            select={selectCategory}
-            num={2}
-          >
-            시간별
-          </SelectCurrentTime>
+            <TagBox>
+              {secondMenu.map((res, index) => {
+                return (
+                  <SelectCurrentTime
+                    key={index}
+                    to={`?cat=${
+                      categoryArray[selectCategory].link
+                    }&detail=${encodeURIComponent(index)}`}
+                    onClick={() => {
+                      setSecondSelectCategory(index);
+                      onClickToUrl(res);
+                    }}
+                    select={secondSelectCategory}
+                    num={index}
+                  >
+                    {res}
+                  </SelectCurrentTime>
+                );
+              })}
+            </TagBox>
+          </Flicking>
         </SelectCategory>
 
         {selectCategory === 2 && isDetailModal && (
@@ -125,9 +173,9 @@ const Explore = () => {
           <SelectCategoryBox>
             <SelectCategoryBtn
               select={dateCategory}
-              category={"recent"}
+              category={"outer"}
               type="button"
-              onClick={() => setDateCategory("recent")}
+              onClick={() => setDateCategory("outer")}
             >
               최신순
             </SelectCategoryBtn>
@@ -149,9 +197,15 @@ const Explore = () => {
       )}
 
       <Routes>
-        <Route path="recent" element={<ExploreFeedCategory url={url} />} />
-        <Route path="popular" element={<ExploreFeedCategory url={url} />} />
-        <Route path="date" element={<ExploreFeedCategory url={url} />} />
+        {categoryArray.map((res, index) => {
+          return (
+            <Route
+              key={index}
+              path={res.link}
+              element={<ExploreFeedCategory url={url} />}
+            />
+          );
+        })}
       </Routes>
     </Container>
   );
@@ -167,6 +221,70 @@ const Container = styled.main`
   border-top: 2px solid ${secondColor};
 `;
 
+const CategoryBox = styled.nav`
+  margin-top: 10px;
+  border-bottom: 1px solid ${thirdColor};
+  box-sizing: border-box;
+`;
+
+const CategoryList = styled.ul`
+  height: 44px;
+  padding-left: 16px;
+  padding-right: 16px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 44px;
+  gap: 40px;
+  margin-top: 20px;
+  overflow-x: auto;
+  overflow-y: hidden; */
+  /* border-bottom: 1px solid ${thirdColor}; */
+`;
+
+const Category = styled(Link)<{ select: number; num: number }>`
+  flex: 0 0 auto;
+  /* display: inline-flex;
+  height: 44px;
+  font-size: 16px;
+  position: relative;
+  padding-top: 15px;
+  padding-bottom: 6px;
+  color: #222;
+  cursor: pointer;
+  border-bottom: 2px solid #222; */
+  margin: 0;
+  padding: 16px 0 6px;
+  height: 44px;
+  font-weight: ${(props) => props.num === props.select && "bold"};
+  color: ${(props) => props.num !== props.select && thirdColor};
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  border-bottom: ${(props) =>
+    props.num === props.select
+      ? `2px solid ${secondColor}`
+      : "2px solid transparent"};
+`;
+
+const SelectName = styled.span`
+  position: relative;
+  line-height: 20px;
+  background-color: #fff;
+`;
+
 const SelectTimeBox = styled.nav<{ select: number }>`
   position: relative;
   display: flex;
@@ -174,8 +292,9 @@ const SelectTimeBox = styled.nav<{ select: number }>`
   justify-content: center;
   flex-direction: column;
   margin: 0 auto;
-  margin-top: 20px;
-  margin-bottom: 10px;
+  margin-top: 16px;
+  margin-bottom: 14px;
+  padding: 0 100px;
 `;
 
 const SelectDetailTimeBox = styled.div`
@@ -233,7 +352,25 @@ const SelectCategory = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  min-width: 500px;
+  position: relative;
+  &::after {
+    right: 0px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+    position: absolute;
+    top: 0px;
+    z-index: 10;
+    height: 100%;
+    width: 14px;
+    content: "";
+  }
+  /* gap: 10px; */
+`;
+
+const TagBox = styled.div`
+  display: flex;
+  flex: nowrap;
+  gap: 8px;
 `;
 
 const SelectCurrentTime = styled(Link)<{ select: number; num: number }>`
@@ -242,9 +379,23 @@ const SelectCurrentTime = styled(Link)<{ select: number; num: number }>`
   background: ${(props) =>
     props.num === props.select ? "#ff5673" : "transparent"};
   border: 2px solid
-    ${(props) => (props.num === props.select ? "#ff5673" : "tranparent")};
-  padding: 6px 12px;
-  font-size: 18px;
-  font-weight: bold;
+    ${(props) => (props.num === props.select ? "#ff5673" : fourthColor)};
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: ${(props) => props.num === props.select && "bold"};
   cursor: pointer;
+  /* padding: 7px 16px;
+  font-size: 14px;
+  letter-spacing: -0.21px;
+  line-height: 17px;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  background: ${(props) =>
+    props.num === props.select ? "#ff5673" : "transparent"};
+  color: ${(props) => (props.num === props.select ? "#fff" : `${thirdColor}`)};
+  border: 1px solid #f0f0f0;
+  border-radius: 30px;
+  cursor: pointer; */
 `;

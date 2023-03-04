@@ -403,7 +403,7 @@ const FlickingBox = styled.div`
 
   &::after {
     right: 0px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fafafa);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
     position: absolute;
     top: 0px;
     z-index: 10;

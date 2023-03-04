@@ -14,8 +14,6 @@ type props = {
 const useInfinityScroll = ({ url, count }: props) => {
   const queryClient = useQueryClient();
 
-  // // 라우터 이탈 시 데이터 clean up으로 직접 리셋
-
   const fetchRepositories = async (page: number) => {
     const res = await axios.get(`${url}limit=${count}&page=${page}`);
     return res.data;

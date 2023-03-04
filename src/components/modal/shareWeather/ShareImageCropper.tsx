@@ -48,7 +48,11 @@ const ShareImageCropper = ({
     // 비율 통일
     if (attachments) {
       attachments.map((res) => {
-        return (res.aspect = aspect);
+        res.aspect = aspect;
+        res.crop = crop;
+        res.zoom = zoom;
+        return res;
+        // return (res.aspect = aspect);
       });
     }
   }, [aspect, attachments, crop, zoom]);

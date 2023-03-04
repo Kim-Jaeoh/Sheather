@@ -90,11 +90,11 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
 
   // 이미지 압축
   const compressImage = async (image: File) => {
+    const options = {
+      maxSizeMb: 2,
+      maxWidthOrHeight: 1120,
+    };
     try {
-      const options = {
-        maxSizeMb: 2,
-        maxWidthOrHeight: 700,
-      };
       return await imageCompression(image, options);
     } catch (error) {
       console.log("에러", error);
@@ -280,175 +280,170 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
 
   return (
     <Modal open={shareBtn} onClose={shareBtnClick} disableScrollLock={false}>
-      <>
-        <Container onSubmit={onSubmit}>
-          <Header>
-            <IconBox onClick={onPrevClick}>
-              <BiLeftArrowAlt />
-            </IconBox>
-
-            <WeatherInfoBox>
-              <DateBox>
-                <MdPlace />
-                <WeatherCategorySub>
-                  {!isLoading2 &&
-                    regionData?.data?.documents[0]?.address?.region_1depth_name}
-                </WeatherCategorySub>
-              </DateBox>
-              <WeatherIcon>
-                <img
-                  src={`http://openweathermap.org/img/wn/${shareWeatherData?.weather[0].icon}@2x.png`}
-                  alt="weather icon"
-                />
-              </WeatherIcon>
+      <Container onSubmit={onSubmit}>
+        <Header>
+          <IconBox onClick={onPrevClick}>
+            <BiLeftArrowAlt />
+          </IconBox>
+          <WeatherInfoBox>
+            <DateBox>
+              <MdPlace />
               <WeatherCategorySub>
-                {shareWeatherData?.weather[0].description}
+                {!isLoading2 &&
+                  regionData?.data?.documents[0]?.address?.region_1depth_name}
               </WeatherCategorySub>
-              <WeatherCategorySub>
-                {/* <CiTempHigh /> */}
-                {Math.round(shareWeatherData?.main.temp)}º
-              </WeatherCategorySub>
-              <WeatherCategorySub>
-                {/* <WiStrongWind /> */}
-                {Math.round(shareWeatherData?.wind.speed)}
-                <span>m/s</span>
-              </WeatherCategorySub>
-            </WeatherInfoBox>
+            </DateBox>
+            <WeatherIcon>
+              <img
+                src={`http://openweathermap.org/img/wn/${shareWeatherData?.weather[0].icon}@2x.png`}
+                alt="weather icon"
+              />
+            </WeatherIcon>
+            <WeatherCategorySub>
+              {shareWeatherData?.weather[0].description}
+            </WeatherCategorySub>
+            <WeatherCategorySub>
+              {Math.round(shareWeatherData?.main.temp)}º
+            </WeatherCategorySub>
+            <WeatherCategorySub>
+              {Math.round(shareWeatherData?.wind.speed)}
+              <span>m/s</span>
+            </WeatherCategorySub>
+          </WeatherInfoBox>
 
-            {!isNextClick ? (
-              <NextBtn
-                isDisabled={attachments.length === 0}
-                onClick={onNextClick}
-              >
-                <EditText>다음</EditText>
-              </NextBtn>
-            ) : (
-              <EditBtn
-                type="submit"
-                value={"SHARE"}
-                disabled={
-                  text.length === 0 ||
-                  checkTag.feel == null ||
-                  checkTag.outer == null ||
-                  checkTag.top == null ||
-                  checkTag.innerTop == null ||
-                  checkTag.bottom == null ||
-                  checkTag.etc == null
-                }
-              >
-                <EditText>SHARE</EditText>
-              </EditBtn>
-            )}
-          </Header>
-          {!isNextClick && (
-            <ShareImageCropper
-              attachments={attachments}
-              imageUrl={selectedImage?.imageUrl}
-              cropInit={selectedImage?.crop}
-              zoomInit={selectedImage?.zoom}
-              aspectInit={selectedImage?.aspect}
-              setCroppedImageFor={setCroppedImageFor}
-              resetImage={resetImage}
-            />
-          )}
-
-          <ImageWrapper length={attachments.length}>
-            <InputImageLabel htmlFor="attach-file">
-              <ImageBox style={{ flexDirection: "column" }}>
-                <EmojiBox>
-                  <EmojiIcon>
-                    <BsFillImageFill
-                      style={{
-                        color: `${mainColor}`,
-                        width: "24px",
-                        height: "24px",
-                      }}
-                    />
-                  </EmojiIcon>
-                  <InputImage
-                    id="attach-file"
-                    accept="image/*"
-                    name="attach-file"
-                    multiple
-                    ref={fileInput}
-                    type="file"
-                    onChange={onFileChange}
-                  />
-                </EmojiBox>
-                <ImageLength>
-                  <ImageLengthColor>{attachments.length}</ImageLengthColor>/4
-                </ImageLength>
-              </ImageBox>
-            </InputImageLabel>
-
-            <Flicking
-              onChanged={(e) => console.log(e)}
-              moveType="freeScroll"
-              bound={true}
-              align="prev"
+          {!isNextClick ? (
+            <NextBtn
+              isDisabled={attachments.length === 0}
+              onClick={onNextClick}
             >
-              <ImageContainerBox>
-                {Array.from({ length: 4 })?.map((res, index) => {
-                  return (
-                    <ImageContainer key={index}>
-                      {attachments[index] ? (
-                        <ImageBox length={attachments?.length}>
-                          <ImageWrap
-                            onMouseLeave={() => setFocus("")}
-                            onMouseEnter={() => setFocus(index)}
-                          >
-                            {!isNextClick && focus === index && (
-                              <CropBtn>
-                                <BiCrop />
-                                자르기
-                              </CropBtn>
-                            )}
-                            <ImageRemove
-                              onClick={() => {
-                                onRemoveImage(attachments[index], index);
-                                setIsNextClick(false);
-                              }}
-                            >
-                              <IoMdClose />
-                            </ImageRemove>
-                            <Images
-                              onClick={() => {
-                                !isNextClick && setSelectImageNum(index);
-                              }}
-                              src={
-                                attachments[index]?.croppedImageUrl
-                                  ? attachments[index]?.croppedImageUrl
-                                  : attachments[index]?.imageUrl
-                              }
-                              alt=""
-                            />
-                          </ImageWrap>
-                        </ImageBox>
-                      ) : (
-                        <ImageBox style={{ background: "#dbdbdb" }} />
-                      )}
-                    </ImageContainer>
-                  );
-                })}
-              </ImageContainerBox>
-            </Flicking>
-          </ImageWrapper>
-          {isNextClick && (
-            <>
-              <ShareWeatherCategory
-                bgColor={"#48A3FF"}
-                checkTag={checkTag}
-                setCheckTag={setCheckTag}
-              />
-              <ShareWeatherForm
-                bgColor={"#48A3FF"}
-                text={text}
-                setText={setText}
-              />
-            </>
+              <EditText>다음</EditText>
+            </NextBtn>
+          ) : (
+            <EditBtn
+              type="submit"
+              value={"SHARE"}
+              disabled={
+                text.length === 0 ||
+                checkTag.feel == null ||
+                checkTag.outer == null ||
+                checkTag.top == null ||
+                checkTag.innerTop == null ||
+                checkTag.bottom == null ||
+                checkTag.etc == null
+              }
+            >
+              <EditText>SHARE</EditText>
+            </EditBtn>
           )}
-        </Container>
-      </>
+        </Header>
+        {!isNextClick && (
+          <ShareImageCropper
+            attachments={attachments}
+            imageUrl={selectedImage?.imageUrl}
+            cropInit={selectedImage?.crop}
+            zoomInit={selectedImage?.zoom}
+            aspectInit={selectedImage?.aspect}
+            setCroppedImageFor={setCroppedImageFor}
+            resetImage={resetImage}
+          />
+        )}
+
+        <ImageWrapper length={attachments.length}>
+          <InputImageLabel htmlFor="attach-file">
+            <ImageBox style={{ flexDirection: "column" }}>
+              <EmojiBox>
+                <EmojiIcon>
+                  <BsFillImageFill
+                    style={{
+                      color: `${mainColor}`,
+                      width: "24px",
+                      height: "24px",
+                    }}
+                  />
+                </EmojiIcon>
+                <InputImage
+                  id="attach-file"
+                  accept="image/*"
+                  name="attach-file"
+                  multiple
+                  ref={fileInput}
+                  type="file"
+                  onChange={onFileChange}
+                />
+              </EmojiBox>
+              <ImageLength>
+                <ImageLengthColor>{attachments.length}</ImageLengthColor>/4
+              </ImageLength>
+            </ImageBox>
+          </InputImageLabel>
+
+          <Flicking
+            onChanged={(e) => console.log(e)}
+            moveType="freeScroll"
+            bound={true}
+            align="prev"
+          >
+            <ImageContainerBox>
+              {Array.from({ length: 4 })?.map((res, index) => {
+                return (
+                  <ImageContainer key={index}>
+                    {attachments[index] ? (
+                      <ImageBox length={attachments?.length}>
+                        <ImageWrap
+                          onMouseLeave={() => setFocus("")}
+                          onMouseEnter={() => setFocus(index)}
+                        >
+                          {!isNextClick && focus === index && (
+                            <CropBtn>
+                              <BiCrop />
+                              자르기
+                            </CropBtn>
+                          )}
+                          <ImageRemove
+                            onClick={() => {
+                              onRemoveImage(attachments[index], index);
+                              setIsNextClick(false);
+                            }}
+                          >
+                            <IoMdClose />
+                          </ImageRemove>
+                          <Images
+                            onClick={() => {
+                              !isNextClick && setSelectImageNum(index);
+                            }}
+                            src={
+                              attachments[index]?.croppedImageUrl
+                                ? attachments[index]?.croppedImageUrl
+                                : attachments[index]?.imageUrl
+                            }
+                            alt=""
+                          />
+                        </ImageWrap>
+                      </ImageBox>
+                    ) : (
+                      <ImageBox style={{ background: "#dbdbdb" }} />
+                    )}
+                  </ImageContainer>
+                );
+              })}
+            </ImageContainerBox>
+          </Flicking>
+        </ImageWrapper>
+        {isNextClick && (
+          <>
+            <ShareWeatherCategory
+              bgColor={"#48A3FF"}
+              checkTag={checkTag}
+              setCheckTag={setCheckTag}
+            />
+            <ShareWeatherForm
+              bgColor={"#48A3FF"}
+              text={text}
+              setText={setText}
+            />
+          </>
+        )}
+      </Container>
     </Modal>
   );
 };
@@ -518,7 +513,7 @@ const ImageWrapper = styled.div<{ length?: number }>`
   position: relative;
   &::after {
     right: 0px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fafafa);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
     position: absolute;
     top: 0px;
     z-index: 10;

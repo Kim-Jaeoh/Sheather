@@ -97,102 +97,104 @@ const WeatherSlider = ({ data }: PropsType) => {
               <IoIosArrowForward />
             </ArrowIcon>
           </NextArrow>
-          <Flicking
-            align="prev"
-            panelsPerView={4}
-            circular={false}
-            ref={flickingRef}
-            bound={true}
-            onChanged={(e) => {
-              setSlideIndex(e.index);
-            }}
-          >
-            {data?.map((res: ResDataType, index: number) => {
-              return (
-                <Container key={res?.dt}>
-                  {index === selected && clothesBtn && (
-                    <WeatherClothes
-                      index={index}
-                      clothBtnClick={() => clothBtnClick(index)}
-                      temp={res?.main?.temp}
-                    />
-                  )}
-                  <WeatherList
-                    clothes={clothesBtn}
-                    index={index}
-                    selected={selected}
-                  >
-                    <WeatherInfoBox>
-                      <WeatherInfoBtn onClick={() => clothBtnClick(index)}>
-                        <TbShirt />
-                      </WeatherInfoBtn>
-
-                      <WeatherDateListBox now={res?.dt_txt}>
-                        <WeatherDateList now={res?.dt_txt}>
-                          {!res?.dt_txt
-                            ? "지금"
-                            : `${res?.dt_txt?.split(":")[0].split(" ")[1]}시`}
-                        </WeatherDateList>
-                      </WeatherDateListBox>
-                      {!res?.dt_txt && userObj.displayName && (
-                        <WeatherInfoBtn
-                          // disabled={timeStamp < res.dt - 9 * 60 * 60} // -9시간
-                          disabled={Boolean(res?.dt_txt)} // -9시간
-                          onClick={() => {
-                            // shareBtnClick();
-                            setShareBtn(true);
-                            dispach(shareWeather(res));
-                          }}
-                        >
-                          <FiShare />
-                        </WeatherInfoBtn>
-                      )}
-                    </WeatherInfoBox>
-
-                    <WeatherCategoryIconBox>
-                      <WeatherCategoryIconText>
-                        {res?.weather[0]?.description}
-                      </WeatherCategoryIconText>
-                      <WeatherCategoryIcon
-                        src={`http://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
-                        alt="weather icon"
+          <FlickingBox>
+            <Flicking
+              align="prev"
+              panelsPerView={4}
+              circular={false}
+              ref={flickingRef}
+              bound={true}
+              onChanged={(e) => {
+                setSlideIndex(e.index);
+              }}
+            >
+              {data?.map((res: ResDataType, index: number) => {
+                return (
+                  <Container key={res?.dt}>
+                    {index === selected && clothesBtn && (
+                      <WeatherClothes
+                        index={index}
+                        clothBtnClick={() => clothBtnClick(index)}
+                        temp={res?.main?.temp}
                       />
-                      <WeatherCategoryIconText>
-                        {Math.round(res?.main.temp)}º
-                      </WeatherCategoryIconText>
-                    </WeatherCategoryIconBox>
-                    <WeatherCategoryBox>
-                      <WeatherCategoryText>
-                        <WeatherCategoryMain>최고</WeatherCategoryMain>
-                        <WeatherCategorySub>
-                          {Math.round(res?.main.temp_max)}º
-                        </WeatherCategorySub>
-                      </WeatherCategoryText>
-                      <WeatherCategoryText>
-                        <WeatherCategoryMain>최저</WeatherCategoryMain>
-                        <WeatherCategorySub>
-                          {Math.round(res?.main.temp_min)}º
-                        </WeatherCategorySub>
-                      </WeatherCategoryText>
-                      <WeatherCategoryText>
-                        <WeatherCategoryMain>체감</WeatherCategoryMain>
-                        <WeatherCategorySub>
-                          {Math.round(res?.main?.feels_like)}º
-                        </WeatherCategorySub>
-                      </WeatherCategoryText>
-                      <WeatherCategoryText>
-                        <WeatherCategoryMain>바람</WeatherCategoryMain>
-                        <WeatherCategorySub>
-                          {Math.round(res?.wind.speed)}
-                          <span>m/s</span>
-                        </WeatherCategorySub>
-                      </WeatherCategoryText>
-                    </WeatherCategoryBox>
-                  </WeatherList>
-                </Container>
-              );
-            })}
-          </Flicking>
+                    )}
+                    <WeatherList
+                      clothes={clothesBtn}
+                      index={index}
+                      selected={selected}
+                    >
+                      <WeatherInfoBox>
+                        <WeatherInfoBtn onClick={() => clothBtnClick(index)}>
+                          <TbShirt />
+                        </WeatherInfoBtn>
+
+                        <WeatherDateListBox now={res?.dt_txt}>
+                          <WeatherDateList now={res?.dt_txt}>
+                            {!res?.dt_txt
+                              ? "지금"
+                              : `${res?.dt_txt?.split(":")[0].split(" ")[1]}시`}
+                          </WeatherDateList>
+                        </WeatherDateListBox>
+                        {!res?.dt_txt && userObj.displayName && (
+                          <WeatherInfoBtn
+                            // disabled={timeStamp < res.dt - 9 * 60 * 60} // -9시간
+                            disabled={Boolean(res?.dt_txt)} // -9시간
+                            onClick={() => {
+                              // shareBtnClick();
+                              setShareBtn(true);
+                              dispach(shareWeather(res));
+                            }}
+                          >
+                            <FiShare />
+                          </WeatherInfoBtn>
+                        )}
+                      </WeatherInfoBox>
+
+                      <WeatherCategoryIconBox>
+                        <WeatherCategoryIconText>
+                          {res?.weather[0]?.description}
+                        </WeatherCategoryIconText>
+                        <WeatherCategoryIcon
+                          src={`http://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
+                          alt="weather icon"
+                        />
+                        <WeatherCategoryIconText>
+                          {Math.round(res?.main.temp)}º
+                        </WeatherCategoryIconText>
+                      </WeatherCategoryIconBox>
+                      <WeatherCategoryBox>
+                        <WeatherCategoryText>
+                          <WeatherCategoryMain>최고</WeatherCategoryMain>
+                          <WeatherCategorySub>
+                            {Math.round(res?.main.temp_max)}º
+                          </WeatherCategorySub>
+                        </WeatherCategoryText>
+                        <WeatherCategoryText>
+                          <WeatherCategoryMain>최저</WeatherCategoryMain>
+                          <WeatherCategorySub>
+                            {Math.round(res?.main.temp_min)}º
+                          </WeatherCategorySub>
+                        </WeatherCategoryText>
+                        <WeatherCategoryText>
+                          <WeatherCategoryMain>체감</WeatherCategoryMain>
+                          <WeatherCategorySub>
+                            {Math.round(res?.main?.feels_like)}º
+                          </WeatherCategorySub>
+                        </WeatherCategoryText>
+                        <WeatherCategoryText>
+                          <WeatherCategoryMain>바람</WeatherCategoryMain>
+                          <WeatherCategorySub>
+                            {Math.round(res?.wind.speed)}
+                            <span>m/s</span>
+                          </WeatherCategorySub>
+                        </WeatherCategoryText>
+                      </WeatherCategoryBox>
+                    </WeatherList>
+                  </Container>
+                );
+              })}
+            </Flicking>
+          </FlickingBox>
         </Wrapper>
       ) : (
         <SliderSkeleton />
@@ -218,14 +220,19 @@ const Wrapper = styled.div`
   }
 `;
 
-const Container = styled.div`
+const FlickingBox = styled.ul`
+  li:not(:last-of-type) {
+    border-right: 1px solid ${fourthColor};
+  }
+`;
+
+const Container = styled.li`
   width: 100%;
   height: 100%;
   /* height: 330px; */
   padding: 14px;
   word-wrap: break-word;
   position: relative;
-  border-right: 1px solid ${fourthColor};
 `;
 
 const WeatherInfoBox = styled.div`

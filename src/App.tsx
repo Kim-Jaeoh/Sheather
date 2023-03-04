@@ -60,7 +60,7 @@ const App = () => {
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/message" element={<Message />} />
                 <Route path="/explore/*" element={<Explore />} />
-                <Route path="/profile/:id/*" element={<Profile />} />
+                <Route path="/profile/:id//*" element={<Profile />} />
                 <Route path="/profile/detail" element={<DetailFeed />} />
                 <Route
                   path="/"
@@ -102,7 +102,7 @@ const Main = styled.main`
   padding: 0 20px;
 `;
 
-const Container = styled.div`
+const Container = styled.section`
   flex: 1;
   width: 100%;
   /* border-top: 2px solid #222; */

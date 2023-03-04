@@ -45,13 +45,13 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
   };
   const sizeAspect = (aspect: string) => {
     if (aspect === "4/3") {
-      return (checkAspect = 74.8);
+      return (checkAspect = 74.6);
     }
     if (aspect === "1/1") {
       return (checkAspect = 100);
     }
     if (aspect === "3/4") {
-      return (checkAspect = 132.8);
+      return (checkAspect = 132.6);
     }
   };
 
@@ -88,7 +88,7 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
                         />
                       </CardImageBox>
                     </Card>
-                    <UserBox>
+                    {/* <UserBox>
                       <UserInfoBox>
                         <UserImageBox
                           to={`/profile/${res.displayName}/post`}
@@ -128,21 +128,21 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
                         </UserReactBox>
                       </UserInfoBox>
                       <UserText>{res.text}</UserText>
-                    </UserBox>
-                    <div
-                      ref={ref}
-                      // style={{
-                      //   position: "absolute",
-                      //   bottom: "100px",
-                      // }}
-                    />
+                    </UserBox> */}
                   </CardList>
                 );
               })}
+              <div
+                ref={ref}
+                // style={{
+                //   position: "absolute",
+                //   bottom: "100px",
+                // }}
+              />
             </CardBox>
           ) : (
             <NotInfoBox>
-              <NotInfo>해당 날짜의 글이 존재하지 않습니다.</NotInfo>
+              <NotInfo>해당 의류에 관한 글이 존재하지 않습니다.</NotInfo>
             </NotInfoBox>
           )}
         </>
@@ -161,16 +161,16 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardBox = styled.ul`
   width: 100%;
-  padding: 0 10px 10px;
+  padding: 0 12px 12px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-auto-rows: auto;
 `;
 
 const CardList = styled.li<{ size?: number }>`
   display: flex;
   flex-direction: column;
-  margin: 10px;
+  margin: 4px;
   border-radius: 8px;
   border: 2px solid ${secondColor};
   overflow: hidden;
@@ -196,12 +196,13 @@ const CardList = styled.li<{ size?: number }>`
 
 const Card = styled(Link)<{ aspect?: number }>`
   display: block;
-
+  width: 100%;
+  height: 100%;
   position: relative;
   cursor: pointer;
   outline: none;
   overflow: hidden;
-  border-bottom: 2px solid ${secondColor};
+  /* border-bottom: 2px solid ${secondColor}; */
   padding-top: ${(props) => `${props.aspect}%`};
 `;
 
@@ -248,8 +249,10 @@ const CardImageBox = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  object-fit: cover;
   width: 100%;
+  height: 100%;
+  font-size: 0;
+  line-height: 0; ;
 `;
 
 const CardImage = styled.img`

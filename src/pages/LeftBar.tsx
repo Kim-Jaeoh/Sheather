@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { AiOutlineHome, AiFillHome } from "react-icons/ai";
 import {
   BsChatDots,
@@ -21,6 +21,8 @@ import { useSelector } from "react-redux";
 import { doc, onSnapshot } from "firebase/firestore";
 
 const LeftBar = () => {
+  const [select, setSelect] = useState(false);
+  const [selectMenu, setSelectMenu] = useState(0);
   const { pathname } = useLocation();
   const dispatch = useDispatch();
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -29,7 +31,40 @@ const LeftBar = () => {
     }
   );
 
-  const [select, setSelect] = useState(false);
+  useEffect(() => {
+    if (pathname.includes("feed")) {
+      return setSelectMenu(0);
+    }
+    if (pathname.includes("weather")) {
+      return setSelectMenu(1);
+    }
+    if (pathname.includes("message")) {
+      return setSelectMenu(2);
+    }
+    if (pathname.includes("explore")) {
+      return setSelectMenu(3);
+    }
+    if (pathname.includes("profile")) {
+      return setSelectMenu(4);
+    }
+  }, [pathname]);
+
+  const menu = useMemo(() => {
+    switch (selectMenu) {
+      case 0:
+        return "feed";
+      case 1:
+        return "weather";
+      case 2:
+        return "message";
+      case 3:
+        return "explore";
+      case 4:
+        return "profile";
+      default:
+        return "feed";
+    }
+  }, [selectMenu]);
 
   const onClick = () => {
     setSelect((prev) => !prev);
@@ -61,32 +96,62 @@ const LeftBar = () => {
     <Container>
       <MenuBox pathname={pathname}>
         <LogoBox>SHEATHER</LogoBox>
-        <MenuLink to="/feed/recent">
+        <MenuLink
+          menu={menu}
+          cat="feed"
+          onClick={() => setSelectMenu(0)}
+          color="#ff5673"
+          to="/feed/recent"
+        >
           <MenuList>
             <AiOutlineHome />
             <MenuText>피드</MenuText>
           </MenuList>
         </MenuLink>
-        <MenuLink to="/weather">
+        <MenuLink
+          menu={menu}
+          cat="weather"
+          onClick={() => setSelectMenu(1)}
+          color="#48a3ff"
+          to="/weather"
+        >
           <MenuList>
             <BsSun />
             <MenuText>날씨</MenuText>
           </MenuList>
         </MenuLink>
-        <MenuLink to="/message">
+        <MenuLink
+          menu={menu}
+          cat="message"
+          onClick={() => setSelectMenu(2)}
+          color="#ff5c1b"
+          to="/message"
+        >
           <MenuList>
             <BsChatDots />
             <MenuText>메세지</MenuText>
           </MenuList>
         </MenuLink>
-        <MenuLink to="/explore">
+        <MenuLink
+          menu={menu}
+          cat="explore"
+          onClick={() => setSelectMenu(3)}
+          color="#30c56e"
+          to="/explore/outer"
+        >
           <MenuList>
             <FiSearch />
             <MenuText>탐색</MenuText>
           </MenuList>
         </MenuLink>
         <MenuLink
-          onClick={() => !userLogin && onClick()}
+          menu={menu}
+          cat="profile"
+          onClick={() => {
+            !userLogin && onClick();
+            setSelectMenu(4);
+          }}
+          color="#6f4ccf"
           to={userLogin && `/profile/${userObj?.displayName}/post`}
           state={userObj.displayName}
         >
@@ -132,100 +197,6 @@ const MenuBox = styled.ul<{ pathname: string }>`
   position: sticky;
   top: 0;
   border: 2px solid #222222;
-
-  /* 호버할 때 */
-  a:nth-of-type(1):hover li:hover,
-  a:nth-of-type(1):focus li:focus {
-    border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px #ff5673, 0px 6px #222222;
-  }
-
-  a:nth-of-type(2):hover li:hover,
-  a:nth-of-type(2):focus li:focus {
-    border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px #48a3ff, 0px 6px #222222;
-  }
-
-  a:nth-of-type(3):hover li:hover,
-  a:nth-of-type(3):focus li:focus {
-    border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px #ff5c1b, 0px 6px #222222;
-  }
-
-  a:nth-of-type(4):hover li:hover,
-  a:nth-of-type(4):focus li:focus {
-    border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px #30c56e, 0px 6px #222222;
-  }
-
-  a:nth-of-type(5):hover li:hover,
-  a:nth-of-type(5):focus li:focus {
-    border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px #6f4ccf, 0px 6px #222222;
-  }
-
-  /* 메뉴 클릭 했을 때 */
-
-  a:nth-of-type(1) li {
-    font-weight: ${(props) =>
-      props.pathname.includes("/feed" || "/detail") ? "bold" : "normal"};
-    border: ${(props) =>
-      props.pathname.includes("/feed" || "/detail")
-        ? "2px solid #222222"
-        : "2px solid transparent"};
-    box-shadow: ${(props) =>
-      props.pathname.includes("/feed" || "/detail")
-        ? "0px 6px 0 -2px #ff5673, 0px 6px #222"
-        : "0"};
-  }
-  a:nth-of-type(2) li {
-    font-weight: ${(props) =>
-      props.pathname.includes("/weather") ? "bold" : "normal"};
-    border: ${(props) =>
-      props.pathname.includes("/weather")
-        ? "2px solid #222222"
-        : "2px solid transparent"};
-    box-shadow: ${(props) =>
-      props.pathname.includes("/weather")
-        ? "0px 6px 0 -2px #48a3ff, 0px 6px #222"
-        : "0"};
-  }
-  a:nth-of-type(3) li {
-    font-weight: ${(props) =>
-      props.pathname.includes("/message") ? "bold" : "normal"};
-    border: ${(props) =>
-      props.pathname.includes("/message")
-        ? "2px solid #222222"
-        : "2px solid transparent"};
-    box-shadow: ${(props) =>
-      props.pathname.includes("/message")
-        ? "0px 6px 0 -2px #ff5c1b, 0px 6px #222"
-        : "0"};
-  }
-  a:nth-of-type(4) li {
-    font-weight: ${(props) =>
-      props.pathname.includes("/explore") ? "bold" : "normal"};
-    border: ${(props) =>
-      props.pathname.includes("/explore")
-        ? "2px solid #222222"
-        : "2px solid transparent"};
-    box-shadow: ${(props) =>
-      props.pathname.includes("/explore")
-        ? "0px 6px 0 -2px #30c56e, 0px 6px #222"
-        : "0"};
-  }
-  a:nth-of-type(5) li {
-    font-weight: ${(props) =>
-      props.pathname.includes("/profile") ? "bold" : "normal"};
-    border: ${(props) =>
-      props.pathname.includes("/profile")
-        ? "2px solid #222222"
-        : "2px solid transparent"};
-    box-shadow: ${(props) =>
-      props.pathname.includes("/profile")
-        ? "0px 6px 0 -2px #6f4ccf, 0px 6px #222"
-        : "0"};
-  }
 `;
 
 const LogoBox = styled.div`
@@ -239,12 +210,27 @@ const LogoBox = styled.div`
   padding: 20px;
 `;
 
-const MenuLink = styled(Link)`
+const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
   display: flex;
   align-items: center;
 
   svg {
     font-size: 24px;
+  }
+
+  li {
+    font-weight: ${(props) => (props.cat === props.menu ? "bold" : "normal")};
+    border: ${(props) =>
+      props.cat === props.menu ? "2px solid #222222" : "2px solid transparent"};
+    box-shadow: ${(props) =>
+      props.cat === props.menu
+        ? `0px 6px 0 -2px ${props.color}, 0px 6px #222`
+        : "0"};
+  }
+  &:hover li:hover,
+  &:active li:active {
+    border: 2px solid #222222;
+    box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px #222222;
   }
 `;
 

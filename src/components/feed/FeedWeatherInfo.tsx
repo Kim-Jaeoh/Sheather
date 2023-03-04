@@ -7,8 +7,11 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import { Spinner } from "../../assets/Spinner";
+import Flicking from "@egjs/react-flicking";
+import TempClothes from "../../assets/TempClothes";
+import ColorList from "../../assets/ColorList";
 
-const CurrentWeatherInfo = () => {
+const FeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
   const { pathname } = useLocation();
 
@@ -70,6 +73,16 @@ const CurrentWeatherInfo = () => {
     }
   );
 
+  const { tempClothes } = TempClothes(); // 옷 정보
+
+  const filterTempClothes = useMemo(() => {
+    const temp = weatherData?.data?.main.temp;
+    return tempClothes.filter(
+      (info) =>
+        info.tempMax >= Math.round(temp) && info.tempMin <= Math.round(temp)
+    );
+  }, [weatherData?.data?.main.temp]);
+
   return (
     <Container>
       {!isLoading2 ? (
@@ -104,7 +117,7 @@ const CurrentWeatherInfo = () => {
               <sup>º</sup>
             </WeatherTemp>
           </WeatherInfo>
-          <WeatherInfo>
+          {/* <WeatherInfo>
             <InfoText>최저</InfoText>
             <WeatherTempSub>
               {Math.round(weatherData?.data?.main.temp_min)}
@@ -117,11 +130,26 @@ const CurrentWeatherInfo = () => {
               {Math.round(weatherData?.data?.main.temp_max)}
               <sup>º</sup>
             </WeatherTempSub>
-          </WeatherInfo>
-          <WeatherInfo>
+          </WeatherInfo> */}
+          <WeatherClothesInfo>
             <InfoText>추천하는 옷</InfoText>
-            <WeatherIcon></WeatherIcon>
-          </WeatherInfo>
+            <FlickingCategoryBox>
+              <Flicking
+                onChanged={(e) => console.log(e)}
+                moveType="freeScroll"
+                bound={true}
+                align="prev"
+              >
+                {/* <WearInfo> */}
+                <TagBox>
+                  {filterTempClothes[0].clothes.map((res, index) => {
+                    return <Tag key={index}>{res}</Tag>;
+                  })}
+                </TagBox>
+                {/* </WearInfo> */}
+              </Flicking>
+            </FlickingCategoryBox>
+          </WeatherClothesInfo>
         </WeatherBox>
       ) : (
         <Spinner />
@@ -130,7 +158,9 @@ const CurrentWeatherInfo = () => {
   );
 };
 
-export default CurrentWeatherInfo;
+export default FeedWeatherInfo;
+
+const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.nav`
   position: sticky;
@@ -148,11 +178,19 @@ const WeatherBox = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
+
+  div:not(:nth-of-type(1), :nth-of-type(4)) {
+    flex: 1;
+  }
+  div:nth-of-type(3) {
+    flex: 1 0 auto;
+  }
 `;
 
 const NowBox = styled.div<{ changeColor: string }>`
   width: 22px;
   height: 100%;
+  padding: 6px 14px;
   background-color: ${(props) => props.changeColor};
   display: flex;
   align-items: center;
@@ -174,6 +212,7 @@ const WeatherInfo = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
+
   max-width: 120px;
   min-width: 80px;
   text-align: center;
@@ -193,14 +232,88 @@ const WeatherInfo = styled.div`
   }
 `;
 
+const WeatherClothesInfo = styled.div`
+  /* flex: 1; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  text-overflow: ellipsis;
+  width: 100%;
+  height: 100%;
+  padding: 6px 14px;
+  position: relative;
+`;
+
+const FlickingCategoryBox = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-right: 1px;
+  height: 50px;
+  cursor: pointer;
+  &::after {
+    right: 0px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+    position: absolute;
+    top: 0px;
+    z-index: 10;
+    height: 100%;
+    width: 14px;
+    content: "";
+  }
+`;
+
+const FlickingImageBox = styled(FlickingCategoryBox)`
+  position: relative;
+  &::after {
+    display: none;
+  }
+`;
+
+const WearInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const TagBox = styled.div`
+  display: flex;
+  flex: nowrap;
+  gap: 8px;
+`;
+
+const Tag = styled.div`
+  font-size: 14px;
+  white-space: nowrap;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  border: 1px solid ${thirdColor};
+  border-radius: 4px;
+
+  svg {
+    margin-right: 2px;
+    font-size: 12px;
+    color: ${secondColor};
+  }
+`;
+
 const WeatherIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 70px;
   height: 50px;
+  overflow: hidden;
   img {
     display: block;
-    width: 80%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 `;
 

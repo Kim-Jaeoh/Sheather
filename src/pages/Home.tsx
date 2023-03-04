@@ -7,7 +7,7 @@ import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
 import FeedCategory from "../components/feed/FeedCategory";
 import { useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
-import CurrentWeatherInfo from "../components/header/CurrentWeatherInfo";
+import FeedWeatherInfo from "../components/feed/FeedWeatherInfo";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
@@ -17,7 +17,7 @@ const Home = () => {
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isDetailModal, setIsDetailModal] = useState(false);
   const [isDetailDone, setIsDetailDone] = useState(false);
-
+  const { pathname } = useLocation();
   const value = useMemo(() => {
     return moment(changeValue).format("YYYYMMDD");
   }, [changeValue]);
@@ -27,12 +27,10 @@ const Home = () => {
     if (selectCategory === 0) {
       return setUrl("http://localhost:4000/api/feed/recent?");
     }
-
     // 인기
     if (selectCategory === 1) {
       return setUrl("http://localhost:4000/api/feed/popular?");
     }
-
     // 시간별
     if (selectCategory === 2) {
       if (isDetailDone) {
@@ -49,6 +47,18 @@ const Home = () => {
     selectCategory,
     value,
   ]);
+
+  useEffect(() => {
+    if (pathname.includes("recent")) {
+      return setSelectCategory(0);
+    }
+    if (pathname.includes("popular")) {
+      return setSelectCategory(1);
+    }
+    if (pathname.includes("date")) {
+      return setSelectCategory(2);
+    }
+  }, [pathname]);
 
   const onSelectCategory2 = () => {
     setSelectCategory(2);
@@ -78,7 +88,7 @@ const Home = () => {
 
   return (
     <Container>
-      <CurrentWeatherInfo />
+      <FeedWeatherInfo />
       <SelectTimeBox select={selectCategory}>
         <SelectCategory>
           <SelectCurrentTime

@@ -26,14 +26,16 @@ const Profile = () => {
     }
   );
   const [selectCategory, setSelectCategory] = useState(0);
-  const [post, setPost] = useState(null);
+  // const [post, setPost] = useState(null);
   const [account, setAccount] = useState(null);
   const [followInfo, setFollowInfo] = useState(null);
   const [followCategory, setFollowCategory] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const { toggleFollow } = useToggleFollow();
-  const { id } = useParams();
+  const { pathname } = useLocation();
+  const { id, "*": type } = useParams();
+  const asd = useParams();
 
   // 계정 정보 가져오기
   // 팔로우 모달 -> 상대 프로필 이동 -> 팔로우 버튼을 누를 때마다 렌더링이 되며 본인 프로필과 상대의 프로필이 겹쳐 보였음
@@ -70,28 +72,69 @@ const Profile = () => {
   }, [feedData, account?.email]);
 
   // 피드 필터링 해서 가져오기
+  // useEffect(() => {
+  //   if (selectCategory === 0) {
+  //     const myPostfilter = feedData
+  //       ?.filter((res) => res.email === account?.email)
+  //       .sort((a, b) => b.createdAt - a.createdAt);
+  //     return setPost(myPostfilter);
+  //   }
+  //   if (selectCategory === 1) {
+  //     const myLikeFilter = account.like
+  //       ?.map((res: string) => {
+  //         return feedData?.filter((asd) => asd.id === res);
+  //       })
+  //       .flat();
+  //     return setPost(myLikeFilter);
+  //   }
+  //   if (selectCategory === 2) {
+  //     const myBookmarkFilter = account.bookmark
+  //       ?.map((res: string) => {
+  //         return feedData?.filter((asd) => asd.id === res);
+  //       })
+  //       .flat();
+  //     return setPost(myBookmarkFilter);
+  //   }
+  // }, [
+  //   feedData,
+  //   selectCategory,
+  //   account?.bookmark,
+  //   account?.email,
+  //   account?.like,
+  // ]);
+
   useEffect(() => {
-    if (selectCategory === 0) {
-      const myPostfilter = feedData
-        ?.filter((res) => res.email === account?.email)
-        .sort((a, b) => b.createdAt - a.createdAt);
-      return setPost(myPostfilter);
+    if (type === "post") {
+      return setSelectCategory(0);
     }
-    if (selectCategory === 1) {
-      const myLikeFilter = account.like
-        ?.map((res: string) => {
-          return feedData?.filter((asd) => asd.id === res);
-        })
-        .flat();
-      return setPost(myLikeFilter);
+    if (type === "like") {
+      return setSelectCategory(1);
     }
-    if (selectCategory === 2) {
-      const myBookmarkFilter = account.bookmark
-        ?.map((res: string) => {
-          return feedData?.filter((asd) => asd.id === res);
-        })
-        .flat();
-      return setPost(myBookmarkFilter);
+    if (type === "bookmark") {
+      return setSelectCategory(2);
+    }
+  }, [type]);
+
+  const post = useMemo(() => {
+    switch (selectCategory) {
+      case 0:
+        return feedData
+          ?.filter((res) => res.email === account?.email)
+          .sort((a, b) => b.createdAt - a.createdAt);
+      case 1:
+        return account.like
+          ?.map((res: string) => {
+            return feedData?.filter((asd) => asd.id === res);
+          })
+          .flat();
+      case 2:
+        return account.bookmark
+          ?.map((res: string) => {
+            return feedData?.filter((asd) => asd.id === res);
+          })
+          .flat();
+      default:
+        return [];
     }
   }, [
     feedData,
