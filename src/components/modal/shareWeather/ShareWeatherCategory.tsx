@@ -29,12 +29,12 @@ type props = {
 };
 
 const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
-  const [select, setIsCurrentCheck] = useState(checkTag.feel);
-  const [outerCheck, setOuterCheck] = useState(checkTag.outer);
-  const [topCheck, setTopCheck] = useState(checkTag.top);
-  const [innerTopCheck, setInnerTopCheck] = useState(checkTag.innerTop);
-  const [bottomCheck, setBottomCheck] = useState(checkTag.bottom);
-  const [etcCheck, setEtcCheck] = useState(checkTag.etc);
+  const [select, setIsCurrentCheck] = useState(checkTag?.feel);
+  const [outerCheck, setOuterCheck] = useState(checkTag?.outer);
+  const [topCheck, setTopCheck] = useState(checkTag?.top);
+  const [innerTopCheck, setInnerTopCheck] = useState(checkTag?.innerTop);
+  const [bottomCheck, setBottomCheck] = useState(checkTag?.bottom);
+  const [etcCheck, setEtcCheck] = useState(checkTag?.etc);
   const { ClothesCategory } = TempClothes();
 
   const currentEmoji = [

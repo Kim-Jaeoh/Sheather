@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import { Spinner } from "../../assets/Spinner";
 import Flicking from "@egjs/react-flicking";
+import "../../styles/DetailFlicking.css";
 import TempClothes from "../../assets/TempClothes";
 import ColorList from "../../assets/ColorList";
 

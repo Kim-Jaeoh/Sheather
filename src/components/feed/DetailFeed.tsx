@@ -395,11 +395,9 @@ const DetailFeed = () => {
                       >
                         {res.url.map((res, index) => {
                           return (
-                            <Cardd key={index}>
-                              <Card>
-                                <CardImage src={res} alt="" />
-                              </Card>
-                            </Cardd>
+                            <Card key={index}>
+                              <CardImage src={res} alt="" />
+                            </Card>
                           );
                         })}
                       </Flicking>
@@ -415,11 +413,9 @@ const DetailFeed = () => {
                       </PaginationButton>
                     </FlickingImageBox>
                   ) : (
-                    <Cardd onContextMenu={(e) => e.preventDefault()}>
-                      <Card>
-                        <CardImage src={res.url[0]} alt="" />
-                      </Card>
-                    </Cardd>
+                    <Card onContextMenu={(e) => e.preventDefault()}>
+                      <CardImage src={res.url[0]} alt="" />
+                    </Card>
                   )}
                   <InfoBox>
                     <TextBox>
@@ -690,32 +686,23 @@ const UserImage = styled.img`
   height: 100%;
 `;
 
-const Cardd = styled.div`
-  display: block;
-  position: relative;
-  cursor: pointer;
-  outline: none;
-  overflow: hidden;
-  padding-top: 100%;
-`;
-
 const Card = styled.div`
-  /* display: block;
+  display: block;
   position: relative;
   height: auto;
   user-select: none;
   outline: none;
-  overflow: hidden; */
-  position: absolute;
+  overflow: hidden;
+  /* position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   object-fit: cover;
-  width: 100%;
+  width: 100%; */
 `;
 
 const CardImage = styled.img`
-  /* object-fit: cover; */
+  object-fit: cover;
   display: block;
   width: 100%;
   height: 100%;

@@ -38,11 +38,9 @@ type Props = {
 };
 
 const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [isImage, setIsImage] = useState(false);
   const [previewImage, setPreviewImage] = useState(userObj.profileURL); // 미리보기 크롭용
   const [profileURL, setProfileURL] = useState({

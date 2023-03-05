@@ -19,28 +19,56 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import uuid from "react-uuid";
 import ShareWeatherForm from "./ShareWeatherForm";
-import { FeedType } from "../../../types/type";
+import { AspectRatio, FeedType } from "../../../types/type";
 import Flicking from "@egjs/react-flicking";
+import getCroppedImg from "../../../assets/CropImage";
+import { getInitialCropFromCroppedAreaPercentages } from "react-easy-crop";
+import { cloneDeep } from "lodash";
 
 type Props = {
   shareBtn: boolean;
   setShareBtn: React.Dispatch<React.SetStateAction<boolean>>;
-  // shareBtnClick: () => void;
 };
 
+interface TagType {
+  feel: string;
+  outer: string;
+  top: string;
+  innerTop: string;
+  bottom: string;
+  etc: string;
+}
+
+const aspectRatios = [
+  // padding-top 계산 = (세로/가로 * 100)
+  { value: 1 / 1, text: "1/1", paddingTop: 100 },
+  { value: 3 / 4, text: "3/4", paddingTop: 132.8 },
+  { value: 4 / 3, text: "4/3", paddingTop: 74.8 },
+];
+
 const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
-  const [checkTag, setCheckTag] = useState({
-    feel: null,
-    outer: null,
-    top: null,
-    innerTop: null,
-    bottom: null,
-    etc: null,
+  const [zoom, setZoom] = useState(1);
+  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+  const [aspect, setAspect] = useState<AspectRatio>({
+    value: 1 / 1,
+    text: "1/1",
+    paddingTop: 100,
   });
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [checkTag, setCheckTag] = useState<TagType>();
   const [focus, setFocus] = useState(null);
   const [attachments, setAttachments] = useState([]);
-  const [selectedImage, setSelectImage] = useState(null);
-  const [selectedImageNum, setSelectImageNum] = useState(0);
+  const [cropImage, setCropImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [previousImage, setPreviousImage] = useState(null);
+  const [croppedImage, setCroppedImage] = useState({
+    imageUrl: null,
+    croppedImageUrl: null,
+    crop: null,
+    zoom: null,
+    aspect: null,
+  });
+  const [selectedImageNum, setSelectedImageNum] = useState(0);
   const fileInput = useRef<HTMLInputElement>();
   const [fileName, setFileName] = useState([]);
   const [text, setText] = useState("");
@@ -52,6 +80,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     return state.weather;
   });
   const { location } = useCurrentLocation();
+  const queryClient = useQueryClient();
 
   // 현재 주소 받아오기
   const regionApi = async () => {
@@ -76,39 +105,52 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     }
   );
 
+  // zoom, crop 초기화
+  useEffect(() => {
+    if (selectedImage?.zoom == null) {
+      setZoom(1);
+    } else {
+      setZoom(selectedImage?.zoom);
+    }
+    if (selectedImage?.crop == null) {
+      setCrop({ x: 0, y: 0 });
+    } else {
+      setCrop(selectedImage?.crop);
+    }
+    if (selectedImage?.aspect == null) {
+      setAspect(aspectRatios[0]);
+    } else {
+      setAspect(selectedImage?.aspect);
+    }
+  }, [
+    selectedImage?.aspect,
+    selectedImage?.crop,
+    selectedImage?.name,
+    selectedImage?.zoom,
+  ]);
+
   // 이미지 추가 시 view 렌더 시 이미지 노출
   useEffect(() => {
     if (selectedImage == null && attachments.length !== 0) {
-      setSelectImage(attachments[0]);
+      setSelectedImage(attachments[0]);
+      // setSelectedImageNum(0);
     }
     if (attachments.length === 0) {
-      setSelectImage(null);
+      setSelectedImage(null);
+      // setSelectedImageNum(null);
     }
     // 클릭한 이미지
-    setSelectImage(attachments[selectedImageNum]);
-  }, [attachments, selectedImage, selectedImageNum]);
+    setSelectedImage(attachments[selectedImageNum]);
+  }, [attachments, selectedImageNum]);
 
-  // 이미지 압축
-  const compressImage = async (image: File) => {
-    const options = {
-      maxSizeMb: 2,
-      maxWidthOrHeight: 1120,
-    };
-    try {
-      return await imageCompression(image, options);
-    } catch (error) {
-      console.log("에러", error);
-    }
-  };
-
-  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 이미지 파일 추가
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsNextClick(false);
     const {
       currentTarget: { files },
     } = e;
 
     if (!files) return;
-
     if (attachments.length + files.length > 4) {
       fileInput.current.value = ""; // 파일 문구 없애기
       return toast.error("최대 4장의 사진만 첨부할 수 있습니다.");
@@ -119,13 +161,12 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
         return toast.error("중복된 사진은 첨부할 수 없습니다.");
       }
 
-      const compressedImage = await compressImage(files[i]); // 이미지 압축
       const reader = new FileReader(); // 파일 이름 읽기
 
       /* 파일 선택 누르고 이미지 한 개 선택 뒤 다시 파일선택 누르고 취소 누르면
         Failed to execute 'readAsDataURL' on 'FileReader': parameter 1 is not of type 'Blob'. 이런 오류가 나옴. -> if문으로 예외 처리 */
       if (files[i]) {
-        reader.readAsDataURL(compressedImage);
+        reader.readAsDataURL(files[i]);
       }
 
       reader.onloadend = (finishedEvent) => {
@@ -151,43 +192,97 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     }
   };
 
-  const setCroppedImageFor = (
+  // 추가된 이미지 클릭 (이전에 클릭했던 이미지에 대해 crop 등 정보 저장하기 위함)
+  const handleImageClick = (index?: number) => {
+    if (selectedImage) {
+      const copy = [...attachments];
+      const copy2 = copy.filter(
+        (res: { name: string }) => res.name === selectedImage?.name
+      );
+      copy2[0].crop = crop;
+      copy2[0].zoom = zoom;
+      copy2[0].aspect = aspect;
+    }
+    setSelectedImage(attachments[index]);
+    setSelectedImageNum(index);
+  };
+
+  const onCrop = () => {
+    const copy = cloneDeep(attachments);
+    copy?.map(async (res: { imageUrl: string }) => {
+      const croppedImageUrl = await getCroppedImg(
+        res?.imageUrl,
+        croppedAreaPixels
+      );
+      await setCroppedImageFor(
+        res?.imageUrl,
+        crop,
+        zoom,
+        aspect,
+        croppedImageUrl
+      );
+    });
+    console.log("크롭");
+  };
+
+  const setCroppedImageFor = async (
     imageUrl: string,
     crop?: Point,
     zoom?: number,
     aspect?: { value: number; text: string },
     croppedImageUrl?: string
   ) => {
-    const newAttachmentList = [...attachments];
+    const options = {
+      maxSizeMB: 2,
+      maxWidthOrHeight: 1120,
+    };
+
+    // 1) 크롭된 이미지 주소(BlobUrl: string)를 File 형태로 변환
+    const CroppedImageUrlToFile = await imageCompression.getFilefromDataUrl(
+      croppedImageUrl,
+      "feed image"
+    );
+
+    // 2) 1)에서 변환된 File을 압축
+    const compressedFile = await imageCompression(
+      CroppedImageUrlToFile,
+      options
+    );
+
+    // 3) 압축된 File을 다시 이미지 주소로 변환
+    const compressedCroppedImage = await imageCompression.getDataUrlFromFile(
+      compressedFile
+    );
+
+    // 배열에 있는 이미지 중 크롭할 이미지가 맞는지 체크
     const attachmentIndex = attachments.findIndex(
       (x) => x?.imageUrl === imageUrl
     );
+
+    // 찾은 index의 이미지 변수에 담기
     const attachment = attachments[attachmentIndex];
+
+    // 전개 연산자로 새로운 객체 생성
     const newAttachment = {
       ...attachment,
-      croppedImageUrl,
+      // imageUrl: imageUrl,
       crop,
       zoom,
       aspect,
+      croppedImageUrl: compressedCroppedImage,
     };
+    const newAttachmentList = [...attachments];
     newAttachmentList[attachmentIndex] = newAttachment;
     setAttachments(newAttachmentList);
-    setSelectImage(null);
+    // setSelectedImage(null);
   };
 
-  const onCancel = () => {
-    setSelectImage(null);
-  };
-
-  const resetImage = (imageUrl: string) => {
-    setCroppedImageFor(imageUrl);
-  };
-
+  // 이미지 삭제
   const onRemoveImage = (res: { imageUrl: string }, index?: number) => {
     setAttachments(
       attachments.filter((image) => image.imageUrl !== res.imageUrl)
     );
-    setSelectImage(null);
+    setSelectedImage(null);
     const filterName = [...fileName];
     if (index === 0) {
       filterName.splice(index, 1);
@@ -198,15 +293,19 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     fileInput.current.value = "";
   };
 
+  // 다음 버튼
   const onNextClick = () => {
     if (attachments.length !== 0) {
-      setSelectImage(null);
+      handleImageClick();
+      onCrop();
+      setSelectedImage(null);
       setIsNextClick((prev) => !prev);
     }
   };
 
+  // 이전 버튼
   const onPrevClick = () => {
-    setSelectImage(null);
+    setSelectedImage(null);
     if (isNextClick) {
       return setIsNextClick(false);
     }
@@ -215,8 +314,6 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     }
     return shareBtnClick();
   };
-
-  const queryClient = useQueryClient();
 
   // 피드 업로드
   const { mutate } = useMutation(
@@ -265,6 +362,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     }
   };
 
+  // 모달 닫기
   const shareBtnClick = () => {
     if (attachments.length !== 0) {
       const ok = window.confirm(
@@ -338,13 +436,23 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
         </Header>
         {!isNextClick && (
           <ShareImageCropper
+            // attachments={attachments}
+            // imageUrl={selectedImage?.imageUrl}
+            // cropInit={selectedImage?.crop}
+            // zoomInit={selectedImage?.zoom}
+            // aspectInit={selectedImage?.aspect}
+            // resetImage={resetImage}
+            // setCroppedImageFor={setCroppedImageFor}
             attachments={attachments}
             imageUrl={selectedImage?.imageUrl}
-            cropInit={selectedImage?.crop}
-            zoomInit={selectedImage?.zoom}
-            aspectInit={selectedImage?.aspect}
+            zoom={zoom}
+            crop={crop}
+            aspect={aspect}
+            setZoom={setZoom}
+            setCrop={setCrop}
+            setAspect={setAspect}
+            setCroppedAreaPixels={setCroppedAreaPixels}
             setCroppedImageFor={setCroppedImageFor}
-            resetImage={resetImage}
           />
         )}
 
@@ -409,7 +517,8 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
                           </ImageRemove>
                           <Images
                             onClick={() => {
-                              !isNextClick && setSelectImageNum(index);
+                              !isNextClick && handleImageClick(index);
+                              // !isNextClick && setSelectedImageNum(index);
                             }}
                             src={
                               attachments[index]?.croppedImageUrl
@@ -517,6 +626,7 @@ const ImageWrapper = styled.div<{ length?: number }>`
     position: absolute;
     top: 0px;
     z-index: 10;
+    border-radius: 0 0 8px 0;
     height: 100%;
     width: 20px;
     content: "";

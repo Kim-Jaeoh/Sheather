@@ -8,10 +8,10 @@ import { AspectRatio, ImageType } from "../../../types/type";
 
 type Props = {
   attachments?: ImageType[];
-  imageUrl: string;
-  cropInit: Point;
-  zoomInit: number;
-  aspectInit: AspectRatio;
+  // // imageUrl: string;
+  // cropInit: Point;
+  // zoomInit: number;
+  // aspectInit: AspectRatio;
   setCroppedImageFor?: (
     imageUrl: string,
     crop?: Point,
@@ -19,7 +19,16 @@ type Props = {
     aspect?: AspectRatio,
     croppedImageUrl?: string
   ) => void;
-  resetImage?: (imageUrl: string) => void;
+
+  imageUrl: string;
+  zoom: number;
+  crop: Point;
+  aspect: AspectRatio;
+  setCrop: React.Dispatch<React.SetStateAction<Point>>;
+  setZoom: React.Dispatch<React.SetStateAction<number>>;
+  setAspect: React.Dispatch<React.SetStateAction<AspectRatio>>;
+  setCroppedAreaPixels: React.Dispatch<any>;
+  // resetImage?: (imageUrl: string) => void;
 };
 
 const aspectRatios = [
@@ -32,16 +41,23 @@ const aspectRatios = [
 const ShareImageCropper = ({
   attachments,
   imageUrl,
-  cropInit,
-  zoomInit,
-  aspectInit,
+  zoom,
+  crop,
+  aspect,
+  setZoom,
+  setCrop,
+  setAspect,
+  setCroppedAreaPixels,
   setCroppedImageFor,
-  resetImage,
-}: Props) => {
-  const [zoom, setZoom] = useState(zoomInit);
-  const [crop, setCrop] = useState<Point>(cropInit);
-  const [aspect, setAspect] = useState<AspectRatio>(aspectInit);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+}: // cropInit,
+// zoomInit,
+// aspectInit,
+// resetImage,
+Props) => {
+  // const [zoom, setZoom] = useState(zoomInit);
+  // const [crop, setCrop] = useState<Point>(cropInit);
+  // const [aspect, setAspect] = useState<AspectRatio>(aspectInit);
+  // const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [num, setNum] = useState(0);
 
   useEffect(() => {
@@ -49,43 +65,51 @@ const ShareImageCropper = ({
     if (attachments) {
       attachments.map((res) => {
         res.aspect = aspect;
-        res.crop = crop;
-        res.zoom = zoom;
+        // res.crop = crop;
+        // res.zoom = zoom;
         return res;
         // return (res.aspect = aspect);
       });
     }
   }, [aspect, attachments, crop, zoom]);
 
-  useEffect(() => {
-    if (!zoomInit) {
-      setZoom(1);
-    } else {
-      setZoom(zoomInit);
-    }
-    if (!cropInit) {
-      setCrop({ x: 0, y: 0 });
-    } else {
-      setCrop(cropInit);
-    }
-    if (!aspectInit) {
-      setAspect(aspectRatios[0]);
-    } else {
-      setAspect(aspectInit);
-    }
-  }, [aspectInit, cropInit, zoomInit]);
+  // useEffect(() => {
+  //   if (zoomInit == null) {
+  //     setZoom(1);
+  //   } else {
+  //     setZoom(zoomInit);
+  //   }
+  //   if (cropInit == null) {
+  //     setCrop({ x: 0, y: 0 });
+  //   } else {
+  //     setCrop(cropInit);
+  //   }
+  //   if (aspectInit == null) {
+  //     setAspect(aspectRatios[0]);
+  //   } else {
+  //     setAspect(aspectInit);
+  //   }
+  // }, [aspectInit, cropInit, zoomInit]);
+
+  // useEffect(() => {
+  //   if (zoomInit !== null && cropInit !== null) {
+  //     setZoom(1);
+  //     setCrop({ x: 0, y: 0 });
+  //   }
+  // }, [cropInit, imageUrl, zoomInit]);
 
   const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
 
-  const onCrop = async () => {
-    const croppedImageUrl = await getCroppedImg(imageUrl, croppedAreaPixels);
-    setCroppedImageFor(imageUrl, crop, zoom, aspect, croppedImageUrl);
-  };
+  // const onCrop = async () => {
+  //   const croppedImageUrl = await getCroppedImg(imageUrl, croppedAreaPixels);
+  //   setCroppedImageFor(imageUrl, crop, zoom, aspect, croppedImageUrl);
+  // };
 
   const onResetImage = () => {
-    resetImage(imageUrl);
+    setCroppedImageFor(imageUrl);
+    // resetImage(imageUrl);
   };
 
   useEffect(() => {
@@ -98,13 +122,20 @@ const ShareImageCropper = ({
     }
   }, [aspect]);
 
+  const asd = new Image();
+  asd.src = imageUrl;
+
   return (
     <Container>
       <CropBox attachments={imageUrl}>
         {imageUrl ? (
           <Cropper
             image={imageUrl}
-            objectFit="vertical-cover"
+            objectFit={
+              // "auto-cover"
+              asd.width > asd.height ? "vertical-cover" : "horizontal-cover"
+            }
+            // objectFit="auto-cover"
             crop={crop}
             zoom={zoom}
             aspect={aspect?.value}
@@ -118,9 +149,9 @@ const ShareImageCropper = ({
       </CropBox>
       {imageUrl && (
         <Controls>
-          <ResetBtn onClick={onCrop}>
+          {/* <ResetBtn onClick={onCrop}>
             <ResetText>CROP</ResetText>
-          </ResetBtn>
+          </ResetBtn> */}
 
           <AspectBox>
             <ResetBtn onClick={onResetImage}>

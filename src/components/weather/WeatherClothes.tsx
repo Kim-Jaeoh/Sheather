@@ -42,7 +42,7 @@ export default WeahterClothes;
 
 const Container = styled.div`
   position: absolute;
-  z-index: 20;
+  z-index: 30;
   width: 100%;
   height: 100%;
   margin: -14px;
@@ -154,14 +154,14 @@ const WeatherDateListMain = styled.p`
   }
 `;
 
-const WeatherDateListSub = styled.ul`
+const WeatherDateListSub = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   height: 100%;
 `;
 
-const WeatherDateSubList = styled.li`
+const WeatherDateSubList = styled.span`
   color: #fff;
   font-size: 14px;
   align-items: center;

@@ -161,7 +161,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardBox = styled.ul`
   width: 100%;
-  padding: 0 12px 12px;
+  padding: 0 16px 16px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-auto-rows: auto;
@@ -246,9 +246,9 @@ const CardLength = styled.span`
 
 const CardImageBox = styled.div`
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0%;
+  left: 0%;
+  /* transform: translate(-50%, -50%); */
   width: 100%;
   height: 100%;
   font-size: 0;

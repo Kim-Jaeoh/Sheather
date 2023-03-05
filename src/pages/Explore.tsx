@@ -52,6 +52,7 @@ const Explore = () => {
     );
   }, [detail, selectCategory]);
 
+  // 세부 카테고리에 '전체' 태그 추가
   const secondMenu = useMemo(() => {
     const categories = [
       ClothesCategory.outer,
@@ -369,6 +370,7 @@ const SelectCategory = styled.div`
 
 const TagBox = styled.div`
   display: flex;
+  align-items: center;
   flex: nowrap;
   gap: 8px;
 `;
@@ -378,9 +380,12 @@ const SelectCurrentTime = styled(Link)<{ select: number; num: number }>`
   color: ${(props) => (props.num === props.select ? "#fff" : `${thirdColor}`)};
   background: ${(props) =>
     props.num === props.select ? "#ff5673" : "transparent"};
-  border: 2px solid
-    ${(props) => (props.num === props.select ? "#ff5673" : fourthColor)};
-  padding: 4px 8px;
+  border: ${(props) =>
+    props.num === props.select
+      ? "2px solid #ff5673"
+      : `1px solid ${fourthColor}`};
+  padding: 6px 10px;
+  /* line-height: 18px; */
   font-size: 14px;
   font-weight: ${(props) => props.num === props.select && "bold"};
   cursor: pointer;

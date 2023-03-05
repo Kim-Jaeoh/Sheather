@@ -23,10 +23,6 @@ const ProfileImageCropper = ({
   setCrop,
   setCroppedAreaPixels,
 }: Props) => {
-  // const [zoom, setZoom] = useState(1);
-  // const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-  // const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-
   const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
