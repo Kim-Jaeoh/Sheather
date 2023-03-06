@@ -64,7 +64,6 @@ const FeedCategory = ({ url, feed }: Props) => {
               {dataList?.pages?.flat().map((res: FeedType, index: number) => {
                 sizes(res.imgAspect);
                 sizeAspect(res.imgAspect);
-
                 return (
                   <CardList size={checkSize} key={res.id}>
                     <Card

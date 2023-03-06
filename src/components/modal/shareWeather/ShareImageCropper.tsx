@@ -1,34 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import Cropper from "react-easy-crop";
 import { Area, Point } from "react-easy-crop/types";
 import getCroppedImg from "../../../assets/CropImage";
 import ColorList from "../../../assets/ColorList";
 import { AspectRatio, ImageType } from "../../../types/type";
+import { FiCrop } from "react-icons/fi";
 
 type Props = {
   attachments?: ImageType[];
-  // // imageUrl: string;
-  // cropInit: Point;
-  // zoomInit: number;
-  // aspectInit: AspectRatio;
+  selectedImage?: ImageType;
+
   setCroppedImageFor?: (
-    imageUrl: string,
+    name: string,
     crop?: Point,
     zoom?: number,
     aspect?: AspectRatio,
     croppedImageUrl?: string
   ) => void;
-
-  imageUrl: string;
-  zoom: number;
-  crop: Point;
-  aspect: AspectRatio;
-  setCrop: React.Dispatch<React.SetStateAction<Point>>;
-  setZoom: React.Dispatch<React.SetStateAction<number>>;
-  setAspect: React.Dispatch<React.SetStateAction<AspectRatio>>;
-  setCroppedAreaPixels: React.Dispatch<any>;
-  // resetImage?: (imageUrl: string) => void;
 };
 
 const aspectRatios = [
@@ -40,77 +29,53 @@ const aspectRatios = [
 
 const ShareImageCropper = ({
   attachments,
-  imageUrl,
-  zoom,
-  crop,
-  aspect,
-  setZoom,
-  setCrop,
-  setAspect,
-  setCroppedAreaPixels,
+  selectedImage,
   setCroppedImageFor,
-}: // cropInit,
-// zoomInit,
-// aspectInit,
-// resetImage,
-Props) => {
-  // const [zoom, setZoom] = useState(zoomInit);
-  // const [crop, setCrop] = useState<Point>(cropInit);
-  // const [aspect, setAspect] = useState<AspectRatio>(aspectInit);
-  // const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+}: Props) => {
+  const imageUrl = selectedImage?.imageUrl;
+  const zoomInit = selectedImage?.zoom;
+  const cropInit = selectedImage?.crop;
+  const aspectInit = selectedImage?.aspect;
+  const [zoom, setZoom] = useState(zoomInit);
+  const [crop, setCrop] = useState<Point>(cropInit);
+  const [aspect, setAspect] = useState<AspectRatio>(aspectInit);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
   const [num, setNum] = useState(0);
 
   useEffect(() => {
     // 비율 통일
     if (attachments) {
-      attachments.map((res) => {
-        res.aspect = aspect;
+      attachments?.map((res) => {
+        return (res.aspect = aspect);
         // res.crop = crop;
         // res.zoom = zoom;
-        return res;
         // return (res.aspect = aspect);
       });
     }
-  }, [aspect, attachments, crop, zoom]);
+  }, [aspect, attachments]);
 
-  // useEffect(() => {
-  //   if (zoomInit == null) {
-  //     setZoom(1);
-  //   } else {
-  //     setZoom(zoomInit);
-  //   }
-  //   if (cropInit == null) {
-  //     setCrop({ x: 0, y: 0 });
-  //   } else {
-  //     setCrop(cropInit);
-  //   }
-  //   if (aspectInit == null) {
-  //     setAspect(aspectRatios[0]);
-  //   } else {
-  //     setAspect(aspectInit);
-  //   }
-  // }, [aspectInit, cropInit, zoomInit]);
-
-  // useEffect(() => {
-  //   if (zoomInit !== null && cropInit !== null) {
-  //     setZoom(1);
-  //     setCrop({ x: 0, y: 0 });
-  //   }
-  // }, [cropInit, imageUrl, zoomInit]);
-
-  const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  };
-
-  // const onCrop = async () => {
-  //   const croppedImageUrl = await getCroppedImg(imageUrl, croppedAreaPixels);
-  //   setCroppedImageFor(imageUrl, crop, zoom, aspect, croppedImageUrl);
-  // };
-
-  const onResetImage = () => {
-    setCroppedImageFor(imageUrl);
-    // resetImage(imageUrl);
-  };
+  useEffect(() => {
+    if (!zoomInit) {
+      setZoom(1);
+    } else {
+      setZoom(zoomInit);
+    }
+    if (!cropInit) {
+      setCrop({ x: 0, y: 0 });
+    } else {
+      setCrop(cropInit);
+    }
+    if (!aspectInit) {
+      setAspect(aspectRatios[0]);
+    } else {
+      setAspect(aspectInit);
+    }
+  }, [aspectInit, cropInit, zoomInit]);
 
   useEffect(() => {
     if (aspect?.value === aspectRatios[0].value) {
@@ -120,11 +85,31 @@ Props) => {
     } else if (aspect?.value === aspectRatios[2].value) {
       setNum(2);
     }
-  }, [aspect]);
+  }, [aspect?.value, aspectInit?.value]);
+
+  const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const onCrop = async () => {
+    const croppedImageUrl = await getCroppedImg(imageUrl, croppedAreaPixels);
+    setCroppedImageFor(selectedImage.name, crop, zoom, aspect, croppedImageUrl);
+  };
+
+  // 선택된 이미지 정보 저장
+  const SetImageInfo = () => {
+    if (selectedImage) {
+      const attachmentIndex = attachments.findIndex(
+        (x) => x?.name === selectedImage.name
+      );
+      attachments[attachmentIndex].crop = crop;
+      attachments[attachmentIndex].zoom = zoom;
+      attachments[attachmentIndex].aspect = aspect;
+    }
+  };
 
   const asd = new Image();
   asd.src = imageUrl;
-
   return (
     <Container>
       <CropBox attachments={imageUrl}>
@@ -133,15 +118,15 @@ Props) => {
             image={imageUrl}
             objectFit={
               // "auto-cover"
-              asd.width > asd.height ? "vertical-cover" : "horizontal-cover"
+              asd?.width >= asd?.height ? "vertical-cover" : "horizontal-cover"
             }
-            // objectFit="auto-cover"
             crop={crop}
             zoom={zoom}
             aspect={aspect?.value}
             onCropChange={setCrop}
-            onCropComplete={onCropComplete}
             onZoomChange={setZoom}
+            onCropComplete={onCropComplete}
+            onInteractionEnd={SetImageInfo}
           />
         ) : (
           <PutImageBox>하단의 이미지 버튼을 눌러 추가해주세요</PutImageBox>
@@ -149,14 +134,10 @@ Props) => {
       </CropBox>
       {imageUrl && (
         <Controls>
-          {/* <ResetBtn onClick={onCrop}>
-            <ResetText>CROP</ResetText>
-          </ResetBtn> */}
-
           <AspectBox>
-            <ResetBtn onClick={onResetImage}>
+            {/* <ResetBtn onClick={onResetImage}>
               <ResetText>RESET</ResetText>
-            </ResetBtn>
+            </ResetBtn> */}
             <AspectValue
               onClick={() => setAspect(aspectRatios[0])}
               num={num}
@@ -194,6 +175,12 @@ Props) => {
               4:3
             </AspectValue>
           </AspectBox>
+          <CropBtn
+            isCrop={Boolean(selectedImage.croppedImageUrl)}
+            onClick={onCrop}
+          >
+            <FiCrop />
+          </CropBtn>
         </Controls>
       )}
     </Container>
@@ -235,6 +222,7 @@ const Controls = styled.div`
   justify-content: space-between;
   background: #fff;
   border-bottom: 1px solid ${thirdColor};
+  position: relative;
 `;
 
 const AspectBox = styled.div`
@@ -275,6 +263,26 @@ const ResetBtn = styled.div`
     background: ${thirdColor};
     color: #fff;
     border: 1px solid ${thirdColor};
+  }
+`;
+
+const CropBtn = styled.div<{ isCrop?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
+  padding: 6px;
+  font-size: 16px;
+  color: #fff;
+  border: 2px solid ${(props) => (props.isCrop ? mainColor : secondColor)};
+  background: ${(props) => (props.isCrop ? mainColor : secondColor)};
+  border-radius: 9999px;
+  transition: all 0.2s;
+  z-index: 99;
+
+  &:hover,
+  &:active {
   }
 `;
 

@@ -7,10 +7,10 @@ import toast, { Toaster } from "react-hot-toast";
 import ColorList from "../../../assets/ColorList";
 import { useEffect, useRef, useState } from "react";
 import TempClothes from "../../../assets/TempClothes";
-import { BsFillImageFill } from "react-icons/bs";
+import { BsCheck, BsFillImageFill } from "react-icons/bs";
 import { BiCrop, BiLeftArrowAlt } from "react-icons/bi";
 import ShareImageCropper from "./ShareImageCropper";
-import { Point } from "react-easy-crop/types";
+import { Area, Point } from "react-easy-crop/types";
 import imageCompression from "browser-image-compression";
 import ShareWeatherCategory from "./ShareWeatherCategory";
 import axios from "axios";
@@ -19,11 +19,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import uuid from "react-uuid";
 import ShareWeatherForm from "./ShareWeatherForm";
-import { AspectRatio, FeedType } from "../../../types/type";
+import { AspectRatio, FeedType, ImageType } from "../../../types/type";
 import Flicking from "@egjs/react-flicking";
 import getCroppedImg from "../../../assets/CropImage";
 import { getInitialCropFromCroppedAreaPercentages } from "react-easy-crop";
 import { cloneDeep } from "lodash";
+import { Spinner } from "../../../assets/Spinner";
 
 type Props = {
   shareBtn: boolean;
@@ -39,35 +40,11 @@ interface TagType {
   etc: string;
 }
 
-const aspectRatios = [
-  // padding-top 계산 = (세로/가로 * 100)
-  { value: 1 / 1, text: "1/1", paddingTop: 100 },
-  { value: 3 / 4, text: "3/4", paddingTop: 132.8 },
-  { value: 4 / 3, text: "4/3", paddingTop: 74.8 },
-];
-
 const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
-  const [zoom, setZoom] = useState(1);
-  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-  const [aspect, setAspect] = useState<AspectRatio>({
-    value: 1 / 1,
-    text: "1/1",
-    paddingTop: 100,
-  });
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [checkTag, setCheckTag] = useState<TagType>();
   const [focus, setFocus] = useState(null);
   const [attachments, setAttachments] = useState([]);
-  const [cropImage, setCropImage] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [previousImage, setPreviousImage] = useState(null);
-  const [croppedImage, setCroppedImage] = useState({
-    imageUrl: null,
-    croppedImageUrl: null,
-    crop: null,
-    zoom: null,
-    aspect: null,
-  });
   const [selectedImageNum, setSelectedImageNum] = useState(0);
   const fileInput = useRef<HTMLInputElement>();
   const [fileName, setFileName] = useState([]);
@@ -105,43 +82,19 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     }
   );
 
-  // zoom, crop 초기화
-  useEffect(() => {
-    if (selectedImage?.zoom == null) {
-      setZoom(1);
-    } else {
-      setZoom(selectedImage?.zoom);
-    }
-    if (selectedImage?.crop == null) {
-      setCrop({ x: 0, y: 0 });
-    } else {
-      setCrop(selectedImage?.crop);
-    }
-    if (selectedImage?.aspect == null) {
-      setAspect(aspectRatios[0]);
-    } else {
-      setAspect(selectedImage?.aspect);
-    }
-  }, [
-    selectedImage?.aspect,
-    selectedImage?.crop,
-    selectedImage?.name,
-    selectedImage?.zoom,
-  ]);
-
   // 이미지 추가 시 view 렌더 시 이미지 노출
   useEffect(() => {
-    if (selectedImage == null && attachments.length !== 0) {
-      setSelectedImage(attachments[0]);
-      // setSelectedImageNum(0);
-    }
-    if (attachments.length === 0) {
-      setSelectedImage(null);
-      // setSelectedImageNum(null);
-    }
+    // if (selectedImage == null && attachments.length !== 0) {
+    //   setSelectedImage(attachments[0]);
+    //   // setSelectedImageNum(0);
+    // }
+    // if (attachments.length === 0) {
+    //   setSelectedImage(null);
+    //   // setSelectedImageNum(null);
+    // }
     // 클릭한 이미지
     setSelectedImage(attachments[selectedImageNum]);
-  }, [attachments, selectedImageNum]);
+  }, [attachments, selectedImage, selectedImageNum]);
 
   // 이미지 파일 추가
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,41 +145,8 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     }
   };
 
-  // 추가된 이미지 클릭 (이전에 클릭했던 이미지에 대해 crop 등 정보 저장하기 위함)
-  const handleImageClick = (index?: number) => {
-    if (selectedImage) {
-      const copy = [...attachments];
-      const copy2 = copy.filter(
-        (res: { name: string }) => res.name === selectedImage?.name
-      );
-      copy2[0].crop = crop;
-      copy2[0].zoom = zoom;
-      copy2[0].aspect = aspect;
-    }
-    setSelectedImage(attachments[index]);
-    setSelectedImageNum(index);
-  };
-
-  const onCrop = () => {
-    const copy = cloneDeep(attachments);
-    copy?.map(async (res: { imageUrl: string }) => {
-      const croppedImageUrl = await getCroppedImg(
-        res?.imageUrl,
-        croppedAreaPixels
-      );
-      await setCroppedImageFor(
-        res?.imageUrl,
-        crop,
-        zoom,
-        aspect,
-        croppedImageUrl
-      );
-    });
-    console.log("크롭");
-  };
-
   const setCroppedImageFor = async (
-    imageUrl: string,
+    name: string,
     crop?: Point,
     zoom?: number,
     aspect?: { value: number; text: string },
@@ -254,59 +174,47 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
       compressedFile
     );
 
-    // 배열에 있는 이미지 중 크롭할 이미지가 맞는지 체크
-    const attachmentIndex = attachments.findIndex(
-      (x) => x?.imageUrl === imageUrl
-    );
-
-    // 찾은 index의 이미지 변수에 담기
+    const newAttachmentList = [...attachments];
+    const attachmentIndex = attachments.findIndex((x) => x?.name === name);
     const attachment = attachments[attachmentIndex];
-
-    // 전개 연산자로 새로운 객체 생성
     const newAttachment = {
       ...attachment,
-      // imageUrl: imageUrl,
+      name,
       crop,
       zoom,
       aspect,
       croppedImageUrl: compressedCroppedImage,
     };
-    const newAttachmentList = [...attachments];
     newAttachmentList[attachmentIndex] = newAttachment;
     setAttachments(newAttachmentList);
     // setSelectedImage(null);
   };
 
   // 이미지 삭제
-  const onRemoveImage = (res: { imageUrl: string }, index?: number) => {
+  const onRemoveImage = (res: { imageUrl: string; name: string }) => {
     setAttachments(
       attachments.filter((image) => image.imageUrl !== res.imageUrl)
     );
     setSelectedImage(null);
-    const filterName = [...fileName];
-    if (index === 0) {
-      filterName.splice(index, 1);
-    } else {
-      filterName.splice(index, index);
-    }
-    setFileName(filterName);
-    fileInput.current.value = "";
+    const filter = fileName.filter((name) => res.name !== name);
+    setFileName(filter);
+    // fileInput.current.value = "";
   };
 
   // 다음 버튼
   const onNextClick = () => {
     if (attachments.length !== 0) {
-      handleImageClick();
-      onCrop();
-      setSelectedImage(null);
+      // setSelectedImage(attachments[0]);
+      // setSelectedImage(null);
       setIsNextClick((prev) => !prev);
     }
   };
 
   // 이전 버튼
   const onPrevClick = () => {
-    setSelectedImage(null);
     if (isNextClick) {
+      // setSelectedImage(attachments[0]);
+      // setSelectedImage(null);
       return setIsNextClick(false);
     }
     if (attachments.length === 0) {
@@ -411,7 +319,12 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
 
           {!isNextClick ? (
             <NextBtn
-              isDisabled={attachments.length === 0}
+              type="button"
+              disabled={
+                attachments.length === 0 ||
+                attachments.filter((asd) => asd?.croppedImageUrl == null)
+                  .length !== 0
+              }
               onClick={onNextClick}
             >
               <EditText>다음</EditText>
@@ -436,26 +349,11 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
         </Header>
         {!isNextClick && (
           <ShareImageCropper
-            // attachments={attachments}
-            // imageUrl={selectedImage?.imageUrl}
-            // cropInit={selectedImage?.crop}
-            // zoomInit={selectedImage?.zoom}
-            // aspectInit={selectedImage?.aspect}
-            // resetImage={resetImage}
-            // setCroppedImageFor={setCroppedImageFor}
             attachments={attachments}
-            imageUrl={selectedImage?.imageUrl}
-            zoom={zoom}
-            crop={crop}
-            aspect={aspect}
-            setZoom={setZoom}
-            setCrop={setCrop}
-            setAspect={setAspect}
-            setCroppedAreaPixels={setCroppedAreaPixels}
+            selectedImage={selectedImage}
             setCroppedImageFor={setCroppedImageFor}
           />
         )}
-
         <ImageWrapper length={attachments.length}>
           <InputImageLabel htmlFor="attach-file">
             <ImageBox style={{ flexDirection: "column" }}>
@@ -501,15 +399,14 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
                           onMouseLeave={() => setFocus("")}
                           onMouseEnter={() => setFocus(index)}
                         >
-                          {!isNextClick && focus === index && (
+                          {Boolean(attachments[index].croppedImageUrl) && (
                             <CropBtn>
-                              <BiCrop />
-                              자르기
+                              <BsCheck />
                             </CropBtn>
                           )}
                           <ImageRemove
                             onClick={() => {
-                              onRemoveImage(attachments[index], index);
+                              onRemoveImage(attachments[index]);
                               setIsNextClick(false);
                             }}
                           >
@@ -517,8 +414,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
                           </ImageRemove>
                           <Images
                             onClick={() => {
-                              !isNextClick && handleImageClick(index);
-                              // !isNextClick && setSelectedImageNum(index);
+                              !isNextClick && setSelectedImageNum(index);
                             }}
                             src={
                               attachments[index]?.croppedImageUrl
@@ -563,6 +459,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.form`
   display: flex;
+  outline: none;
   flex-direction: column;
   width: 480px;
   /* height: 736px; */
@@ -718,19 +615,16 @@ const CropBtn = styled.div`
   align-items: center;
   justify-content: center;
   position: absolute;
-  bottom: 6px;
   user-select: none;
-  cursor: pointer;
-  padding: 6px 8px;
-  font-size: 12px;
-  background: rgb(34, 34, 34, 0.9);
+  /* cursor: pointer; */
+  bottom: 0px;
+  /* border-radius: 9999px; */
+  width: 100%;
+  font-size: 16px;
+  background: rgba(72, 163, 255, 0.7);
   color: #fff;
-  border-radius: 9999px;
   transition: all 0.2s;
   z-index: 99;
-  svg {
-    margin-right: 4px;
-  }
 `;
 
 const ImageRemove = styled.div`
@@ -772,21 +666,29 @@ const DateBox = styled.div`
   }
 `;
 
-const NextBtn = styled.div<{ isDisabled: boolean }>`
+const NextBtn = styled.button`
   user-select: none;
   padding: 8px 10px;
   margin-left: auto;
-  border: 1px solid ${(props) => (props.isDisabled ? thirdColor : mainColor)};
-  color: ${(props) => (props.isDisabled ? thirdColor : mainColor)};
   border-radius: 9999px;
-  cursor: ${(props) => (props.isDisabled ? "default" : "pointer")};
+  border: 1px solid ${mainColor};
+  color: ${mainColor};
+  cursor: pointer;
   transition: all 0.2s;
   font-size: 14px;
 
-  &:hover {
-    background: ${(props) => !props.isDisabled && mainColor};
-    color: ${(props) => !props.isDisabled && "#fff"};
-    border: ${(props) => !props.isDisabled && `1px solid ${mainColor}`};
+  &:not(:disabled) {
+    &:hover {
+      background: ${mainColor};
+      color: #fff;
+      border: 1px solid ${mainColor};
+    }
+  }
+
+  &:disabled {
+    color: ${thirdColor};
+    cursor: default;
+    border: 1px solid ${thirdColor};
   }
 `;
 

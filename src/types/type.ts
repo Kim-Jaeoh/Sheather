@@ -126,14 +126,14 @@ export interface FeedType {
 export interface AspectRatio {
   value: number;
   text: string;
-  paddingTop: number;
+  paddingTop?: number;
 }
 
 export interface ImageType {
+  name?: string;
   imageUrl: string;
   crop?: Point;
   zoom?: number;
   aspect?: AspectRatio;
   croppedImageUrl?: string;
-  name?: string;
 }
