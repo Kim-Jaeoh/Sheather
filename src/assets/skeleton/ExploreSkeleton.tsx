@@ -2,44 +2,58 @@ import React from "react";
 import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
 import ColorList from "../ColorList";
-import { MasonryGrid } from "@egjs/react-grid";
+import { FrameGrid } from "@egjs/react-grid";
 
-const HomeSkeleton = () => {
+const ExploreSkeleton = () => {
   return (
-    <MasonryGrid
+    <FrameGrid
       className="container"
-      gap={20}
+      gap={10}
       defaultDirection={"end"}
-      align={"stretch"}
-      column={2}
-      columnSize={0}
-      columnSizeRatio={0}
-      renderOnPropertyChange={true}
-      // onRenderComplete={(e) => {
-      //   console.log(e);
-      // }}
+      isConstantSize={true}
+      preserveUIOnDestroy={true}
+      observeChildren={true}
+      frame={[
+        [1, 1, 2, 2, 3, 3],
+        [1, 1, 2, 2, 3, 3],
+        [4, 4, 5, 5, 3, 3],
+        [4, 4, 5, 5, 3, 3],
+        [6, 6, 7, 7, 8, 8],
+        [6, 6, 7, 7, 8, 8],
+        [6, 6, 9, 9, 10, 10],
+        [6, 6, 9, 9, 10, 10],
+      ]}
+      rectSize={0}
+      useFrameFill={true}
     >
-      {Array.from({ length: 8 }).map((res, index) => {
+      {Array.from({ length: 10 }).map((res, index) => {
         return (
           <CardList key={index}>
             <Card>
-              <Skeleton width={"100%"} height={"100%"} variant="rectangular" />
-            </Card>
-            <UserBox>
               <Skeleton width={"100%"} height={"100%"} variant="rounded" />
-            </UserBox>
+            </Card>
+            {/* <UserBox>
+              <Skeleton width={"100%"} height={"100%"} variant="rounded" />
+            </UserBox> */}
           </CardList>
         );
       })}
-    </MasonryGrid>
+    </FrameGrid>
   );
 };
 
-export default HomeSkeleton;
+export default ExploreSkeleton;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const CardList = styled.li`
+const Wrapper = styled.ul`
+  width: 100%;
+  /* display: grid; */
+  /* grid-template-columns: 1fr 1fr; */
+  /* grid-auto-rows: auto; */
+`;
+
+const CardList = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -49,8 +63,8 @@ const CardList = styled.li`
   overflow: hidden;
   grid-row-end: span 43;
   border: 2px solid #dbdbdb;
-  width: 100%;
   /* width: 318px; */
+  width: 100%;
   height: 404px;
 
   animation-name: slideUp;
@@ -78,11 +92,12 @@ const Card = styled.div`
   cursor: pointer;
   outline: none;
   overflow: hidden;
-  border-bottom: 2px solid ${secondColor};
+  width: 100%;
+  height: 100%;
   /* width: 314px; */
-  height: 314px;
+  /* height: 314px; */
   /* padding: 12px; */
-  border-bottom: 2px solid #dbdbdb;
+  /* border-bottom: 2px solid #dbdbdb; */
 `;
 
 const UserBox = styled.div`

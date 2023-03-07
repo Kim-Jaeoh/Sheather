@@ -16,6 +16,7 @@ import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
 import ProfilePost from "../components/profile/ProfilePost";
 import { dbService } from "../fbase";
+import useInfinityScroll from "../hooks/useInfinityScroll";
 import useToggleFollow from "../hooks/useToggleFollow";
 import { FeedType } from "../types/type";
 
@@ -26,7 +27,7 @@ const Profile = () => {
     }
   );
   const [selectCategory, setSelectCategory] = useState(0);
-  // const [post, setPost] = useState(null);
+  const [post, setPost] = useState(null);
   const [account, setAccount] = useState(null);
   const [followInfo, setFollowInfo] = useState(null);
   const [followCategory, setFollowCategory] = useState("");
@@ -35,7 +36,14 @@ const Profile = () => {
   const { toggleFollow } = useToggleFollow();
   const { pathname } = useLocation();
   const { id, "*": type } = useParams();
-  const asd = useParams();
+  const {
+    dataList: feedArray,
+    isLoading: isLoading2,
+    ref,
+  } = useInfinityScroll({
+    url: "http://localhost:4000/api/feed/recent?",
+    count: 9,
+  });
 
   // 계정 정보 가져오기
   // 팔로우 모달 -> 상대 프로필 이동 -> 팔로우 버튼을 누를 때마다 렌더링이 되며 본인 프로필과 상대의 프로필이 겹쳐 보였음
@@ -49,6 +57,18 @@ const Profile = () => {
       setAccount(userObj);
     }
   }, [id, userObj]);
+
+  useEffect(() => {
+    if (type === "post") {
+      return setSelectCategory(0);
+    }
+    if (type === "like") {
+      return setSelectCategory(1);
+    }
+    if (type === "bookmark") {
+      return setSelectCategory(2);
+    }
+  }, [type]);
 
   const feedApi = async () => {
     const { data } = await axios.get("http://localhost:4000/api/feed");
@@ -71,77 +91,38 @@ const Profile = () => {
     return filter;
   }, [feedData, account?.email]);
 
-  // 피드 필터링 해서 가져오기
-  // useEffect(() => {
-  //   if (selectCategory === 0) {
-  //     const myPostfilter = feedData
-  //       ?.filter((res) => res.email === account?.email)
-  //       .sort((a, b) => b.createdAt - a.createdAt);
-  //     return setPost(myPostfilter);
-  //   }
-  //   if (selectCategory === 1) {
-  //     const myLikeFilter = account.like
-  //       ?.map((res: string) => {
-  //         return feedData?.filter((asd) => asd.id === res);
-  //       })
-  //       .flat();
-  //     return setPost(myLikeFilter);
-  //   }
-  //   if (selectCategory === 2) {
-  //     const myBookmarkFilter = account.bookmark
-  //       ?.map((res: string) => {
-  //         return feedData?.filter((asd) => asd.id === res);
-  //       })
-  //       .flat();
-  //     return setPost(myBookmarkFilter);
-  //   }
-  // }, [
-  //   feedData,
-  //   selectCategory,
-  //   account?.bookmark,
-  //   account?.email,
-  //   account?.like,
-  // ]);
-
   useEffect(() => {
-    if (type === "post") {
-      return setSelectCategory(0);
+    if (selectCategory === 0) {
+      const recentFilter = feedArray?.pages
+        ?.flat()
+        ?.filter((res) => res.email === account?.email)
+        .sort((a, b) => b.createdAt - a.createdAt);
+      return setPost(recentFilter);
     }
-    if (type === "like") {
-      return setSelectCategory(1);
-    }
-    if (type === "bookmark") {
-      return setSelectCategory(2);
-    }
-  }, [type]);
 
-  const post = useMemo(() => {
-    switch (selectCategory) {
-      case 0:
-        return feedData
-          ?.filter((res) => res.email === account?.email)
-          .sort((a, b) => b.createdAt - a.createdAt);
-      case 1:
-        return account.like
-          ?.map((res: string) => {
-            return feedData?.filter((asd) => asd.id === res);
-          })
-          .flat();
-      case 2:
-        return account.bookmark
-          ?.map((res: string) => {
-            return feedData?.filter((asd) => asd.id === res);
-          })
-          .flat();
-      default:
-        return [];
+    if (selectCategory === 1) {
+      const likeFilter = account?.like
+        ?.map((res: string) => {
+          return feedArray?.pages?.flat()?.filter((asd) => asd.id === res);
+        })
+        .flat();
+      return setPost(likeFilter);
+    }
+
+    if (selectCategory === 2) {
+      const bookmarkFilter = account?.bookmark
+        ?.map((res: string) => {
+          return feedArray?.pages?.flat()?.filter((asd) => asd.id === res);
+        })
+        .flat();
+      return setPost(bookmarkFilter);
     }
   }, [
-    feedData,
-    selectCategory,
     account?.bookmark,
     account?.email,
     account?.like,
+    feedArray?.pages,
+    selectCategory,
   ]);
 
   const onModalClick = () => {
@@ -252,7 +233,7 @@ const Profile = () => {
                 state={account?.email}
               >
                 <MdGridOn />
-                게시글
+                게시물
               </Category>
               <Category
                 onClick={() => setSelectCategory(1)}
@@ -277,19 +258,29 @@ const Profile = () => {
             </CategoryBox>
             <CardList length={post?.length}>
               <Routes>
-                <Route
-                  path={`post`}
-                  element={<ProfilePost myPost={post} email={account?.email} />}
-                />
-                <Route
-                  path={`like`}
-                  element={<ProfilePost myPost={post} email={account?.email} />}
-                />
-                <Route
-                  path={`bookmark`}
-                  element={<ProfilePost myPost={post} email={account?.email} />}
-                />
+                {Array.from(["post", "like", "bookmark"]).map((res, index) => (
+                  <Route
+                    path={res}
+                    key={res}
+                    element={
+                      <ProfilePost
+                        ref={ref}
+                        myPost={post}
+                        postLength={myPost?.length}
+                        email={account?.email}
+                        cat={res}
+                      />
+                    }
+                  />
+                ))}
               </Routes>
+              {/* <div
+                ref={ref}
+                // style={{
+                //   position: "absolute",
+                //   bottom: "-100px",
+                // }}
+              /> */}
             </CardList>
           </Container>
         </Wrapper>
@@ -513,7 +504,7 @@ const CardList = styled.ul<{ length: number }>`
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  gap: 22px;
+  gap: 16px;
   /* justify-content: ${(props) =>
     props.length > 3 ? "space-between" : "flex-start"}; */
   /* gap: 20px; */

@@ -10,12 +10,13 @@ import useToggleBookmark from "../../hooks/useToggleBookmark";
 import useToggleLike from "../../hooks/useToggleLike";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import HomeSkeleton from "../../assets/skeleton/HomeSkeleton";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getDoc, doc } from "firebase/firestore";
 import { UserType } from "../../app/user";
 import { dbService } from "../../fbase";
 import FeedProfileImage from "./FeedProfileImage";
 import FeedProfileDisplayName from "./FeedProfileDisplayName";
+import { MasonryGrid } from "@egjs/react-grid";
 
 type Props = {
   feed?: FeedType[];
@@ -23,6 +24,7 @@ type Props = {
 };
 
 const FeedCategory = ({ url, feed }: Props) => {
+  const [gridIsLoading, setGridIsLoading] = useState(false);
   const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
   const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
   const { currentUser: userObj } = useSelector((state: RootState) => {
@@ -61,76 +63,90 @@ const FeedCategory = ({ url, feed }: Props) => {
         <>
           {dataList?.pages?.flat().length !== 0 ? (
             <CardBox>
-              {dataList?.pages?.flat().map((res: FeedType, index: number) => {
-                sizes(res.imgAspect);
-                sizeAspect(res.imgAspect);
-                return (
-                  <CardList size={checkSize} key={res.id}>
-                    <Card
-                      aspect={checkAspect}
-                      to={"/feed/detail"}
-                      state={{ id: res.id, email: res.email }}
-                    >
-                      <WeatherEmojiBox>
-                        <WeatherEmoji>{res.feel}</WeatherEmoji>
-                      </WeatherEmojiBox>
-                      <CardLengthBox>
-                        {res.url.length > 1 && (
-                          <CardLength>+{res.url.length}</CardLength>
-                        )}
-                      </CardLengthBox>
-                      <CardImageBox>
-                        <CardImage
-                          onContextMenu={(e) => e.preventDefault()}
-                          src={res.url[0]}
-                          alt=""
-                        />
-                      </CardImageBox>
-                    </Card>
-                    <UserBox>
-                      <UserInfoBox>
-                        <UserImageBox
-                          to={`/profile/${res.displayName}/post`}
-                          state={res.displayName}
-                          onContextMenu={(e) => e.preventDefault()}
-                        >
-                          <FeedProfileImage displayName={res.displayName} />
-                        </UserImageBox>
-                        <UserNameBox
-                          to={`/profile/${res.displayName}/post`}
-                          state={res.displayName}
-                        >
-                          <FeedProfileDisplayName
-                            displayName={res.displayName}
+              <MasonryGrid
+                className="container"
+                gap={20}
+                defaultDirection={"end"}
+                align={"stretch"}
+                column={2}
+                columnSize={0}
+                columnSizeRatio={0}
+                autoResize={true}
+                useFit={true}
+                preserveUIOnDestroy={true}
+                observeChildren={true}
+              >
+                {dataList?.pages?.flat().map((res: FeedType, index: number) => {
+                  sizes(res.imgAspect);
+                  sizeAspect(res.imgAspect);
+                  return (
+                    <CardList size={checkSize} key={res.id}>
+                      <Card
+                        aspect={checkAspect}
+                        to={"/feed/detail"}
+                        state={{ id: res.id, email: res.email }}
+                      >
+                        <WeatherEmojiBox>
+                          <WeatherEmoji>{res.feel}</WeatherEmoji>
+                        </WeatherEmojiBox>
+                        <CardLengthBox>
+                          {res.url.length > 1 && (
+                            <CardLength>+{res.url.length}</CardLength>
+                          )}
+                        </CardLengthBox>
+                        <CardImageBox>
+                          <CardImage
+                            onContextMenu={(e) => e.preventDefault()}
+                            src={res.url[0]}
+                            alt=""
                           />
-                        </UserNameBox>
-                        <UserReactBox>
-                          <UserIconBox>
-                            <UserIcon onClick={() => toggleLike(res)}>
-                              {userObj?.like?.filter((id) => id === res.id)
+                        </CardImageBox>
+                      </Card>
+                      <UserBox>
+                        <UserInfoBox>
+                          <UserImageBox
+                            to={`/profile/${res.displayName}/post`}
+                            state={res.displayName}
+                            onContextMenu={(e) => e.preventDefault()}
+                          >
+                            <FeedProfileImage displayName={res.displayName} />
+                          </UserImageBox>
+                          <UserNameBox
+                            to={`/profile/${res.displayName}/post`}
+                            state={res.displayName}
+                          >
+                            <FeedProfileDisplayName
+                              displayName={res.displayName}
+                            />
+                          </UserNameBox>
+                          <UserReactBox>
+                            <UserIconBox>
+                              <UserIcon onClick={() => toggleLike(res)}>
+                                {userObj?.like?.filter((id) => id === res.id)
+                                  .length > 0 ? (
+                                  <FaHeart style={{ color: "#FF5673" }} />
+                                ) : (
+                                  <FaRegHeart />
+                                )}
+                              </UserIcon>
+                              <UserReactNum>{res.like.length}</UserReactNum>
+                            </UserIconBox>
+                            <UserIcon onClick={() => toggleBookmark(res.id)}>
+                              {userObj?.bookmark?.filter((id) => id === res.id)
                                 .length > 0 ? (
-                                <FaHeart style={{ color: "#FF5673" }} />
+                                <FaBookmark style={{ color: "#FF5673" }} />
                               ) : (
-                                <FaRegHeart />
+                                <FaRegBookmark />
                               )}
                             </UserIcon>
-                            <UserReactNum>{res.like.length}</UserReactNum>
-                          </UserIconBox>
-                          <UserIcon onClick={() => toggleBookmark(res.id)}>
-                            {userObj?.bookmark?.filter((id) => id === res.id)
-                              .length > 0 ? (
-                              <FaBookmark style={{ color: "#FF5673" }} />
-                            ) : (
-                              <FaRegBookmark />
-                            )}
-                          </UserIcon>
-                        </UserReactBox>
-                      </UserInfoBox>
-                      <UserText>{res.text}</UserText>
-                    </UserBox>
-                  </CardList>
-                );
-              })}
+                          </UserReactBox>
+                        </UserInfoBox>
+                        <UserText>{res.text}</UserText>
+                      </UserBox>
+                    </CardList>
+                  );
+                })}
+              </MasonryGrid>
               <div
                 ref={ref}
                 // style={{
@@ -146,7 +162,9 @@ const FeedCategory = ({ url, feed }: Props) => {
           )}
         </>
       ) : (
-        <HomeSkeleton />
+        <CardBox>
+          <HomeSkeleton />
+        </CardBox>
       )}
     </>
   );
@@ -160,28 +178,23 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardBox = styled.ul`
   width: 100%;
-  padding: 0 10px 10px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-auto-rows: auto;
-  /* li:nth-of-type(odd) {
-    margin-right: 20px;
-    margin-bottom: 20px;
-  }
-
-  li:nth-of-type(even) {
-    margin-bottom: 20px;
-  } */
+  padding: 10px 20px 20px;
+  /* padding: 10px 10px 10px; */
+  /* display: grid; */
+  /* grid-template-columns: repeat(2, 1fr); */
+  /* grid-auto-rows: auto; */
 `;
 
 const CardList = styled.li<{ size?: number }>`
-  display: flex;
-  flex-direction: column;
-  margin: 10px;
+  /* display: flex; */
+  /* flex-direction: column; */
   border-radius: 8px;
   border: 2px solid ${secondColor};
   overflow: hidden;
-  grid-row-end: span ${(props) => (props.size ? props.size : 44)};
+  position: absolute;
+  /* margin: 10px; */
+  /* grid-row-end: span ${(props) => (props.size ? props.size : 44)}; */
+
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;

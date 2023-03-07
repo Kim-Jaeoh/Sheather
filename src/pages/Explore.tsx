@@ -115,6 +115,7 @@ const Explore = () => {
                 onClick={() => onSelectCategory(index)}
                 select={selectCategory}
                 num={index}
+                key={res.cat}
                 to={`${res.link}`}
               >
                 <SelectName>{res.cat}</SelectName>
@@ -155,7 +156,7 @@ const Explore = () => {
           </Flicking>
         </SelectCategory>
 
-        {selectCategory === 2 && isDetailModal && (
+        {/* {selectCategory === 2 && isDetailModal && (
           <RangeTimeModal
             modalOpen={isDetailModal}
             modalClose={onModalClose}
@@ -166,10 +167,10 @@ const Explore = () => {
             onReset={onReset}
             onDone={onDone}
           />
-        )}
+        )} */}
       </SelectTimeBox>
 
-      {isDetailDone && selectCategory === 2 && (
+      {/* {isDetailDone && selectCategory === 2 && (
         <SelectDetailTimeBox>
           <SelectCategoryBox>
             <SelectCategoryBtn
@@ -195,7 +196,7 @@ const Explore = () => {
             {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
           </SelectDetailTime>
         </SelectDetailTimeBox>
-      )}
+      )} */}
 
       <Routes>
         {categoryArray.map((res, index) => {
@@ -223,7 +224,7 @@ const Container = styled.main`
 `;
 
 const CategoryBox = styled.nav`
-  margin-top: 10px;
+  margin-top: 20px;
   border-bottom: 1px solid ${thirdColor};
   box-sizing: border-box;
 `;

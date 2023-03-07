@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { WeathersFiveDataType } from "../../types/type";
-import SliderSkeleton from "../../assets/skeleton/SliderSkeleton";
+import WeatherSliderSkeleton from "../../assets/skeleton/WeatherSliderSkeleton";
 import ColorList from "../../assets/ColorList";
 import ShareWeatherModal from "../modal/shareWeather/ShareWeatherModal";
 import Flicking from "@egjs/react-flicking";
@@ -197,7 +197,7 @@ const WeatherSlider = ({ data }: PropsType) => {
           </FlickingBox>
         </Wrapper>
       ) : (
-        <SliderSkeleton />
+        <WeatherSliderSkeleton />
       )}
     </>
   );

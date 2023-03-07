@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 
 type Props = {};
 
-const SliderSkeleton = (props: Props) => {
+const WeatherSliderSkeleton = (props: Props) => {
   return (
     <Wrapper>
       <Stack
@@ -23,7 +23,7 @@ const SliderSkeleton = (props: Props) => {
               alignItems: "center",
               justifyContent: "center",
             }}
-            height={50}
+            height={"50px"}
           />
         </Header>
         <SliderBox>
@@ -32,7 +32,7 @@ const SliderSkeleton = (props: Props) => {
               <Slider key={index}>
                 <Skeleton
                   key={index}
-                  variant="rectangular"
+                  variant="rounded"
                   width={"100%"}
                   height={"100%"}
                 />
@@ -45,7 +45,7 @@ const SliderSkeleton = (props: Props) => {
   );
 };
 
-export default SliderSkeleton;
+export default WeatherSliderSkeleton;
 
 const secondColor = "#dbdbdb";
 
@@ -60,25 +60,23 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.header`
-  border-top: 2px solid ${secondColor};
   border-bottom: 2px solid ${secondColor};
   height: 54px;
-  padding: 0 14px;
-  margin-top: -2px;
+  padding: 0 12px;
   box-sizing: border-box;
   background: #fff;
 `;
 
 const SliderBox = styled.ul`
   display: flex;
-  height: 296px;
-  gap: 12px;
+  height: 356px;
+  gap: 6px;
   padding: 12px;
   background: #fff;
 `;
 
 const Slider = styled.li`
-  padding: 12px;
+  /* padding: 12px; */
   /* width: 100%; */
   flex: 1 1 auto;
   background: #fff;

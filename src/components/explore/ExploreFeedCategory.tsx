@@ -16,6 +16,8 @@ import { UserType } from "../../app/user";
 import { dbService } from "../../fbase";
 import FeedProfileImage from "../feed/FeedProfileImage";
 import FeedProfileDisplayName from "../feed/FeedProfileDisplayName";
+import { FrameGrid } from "@egjs/react-grid";
+import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
 
 type Props = {
   feed?: FeedType[];
@@ -61,34 +63,54 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
         <>
           {dataList?.pages?.flat().length !== 0 ? (
             <CardBox>
-              {dataList?.pages?.flat().map((res: FeedType, index: number) => {
-                sizes(res.imgAspect);
-                sizeAspect(res.imgAspect);
+              <FrameGrid
+                className="container"
+                gap={10}
+                defaultDirection={"end"}
+                isConstantSize={true}
+                preserveUIOnDestroy={true}
+                observeChildren={true}
+                frame={[
+                  [1, 1, 2, 2, 3, 3],
+                  [1, 1, 2, 2, 3, 3],
+                  [4, 4, 5, 5, 3, 3],
+                  [4, 4, 5, 5, 3, 3],
+                  [6, 6, 7, 7, 8, 8],
+                  [6, 6, 7, 7, 8, 8],
+                  [6, 6, 9, 9, 10, 10],
+                  [6, 6, 9, 9, 10, 10],
+                ]}
+                rectSize={0}
+                useFrameFill={true}
+              >
+                {dataList?.pages?.flat().map((res: FeedType, index: number) => {
+                  sizes(res.imgAspect);
+                  sizeAspect(res.imgAspect);
 
-                return (
-                  <CardList size={checkSize} key={res.id}>
-                    <Card
-                      aspect={checkAspect}
-                      to={"/feed/detail"}
-                      state={{ id: res.id, email: res.email }}
-                    >
-                      <WeatherEmojiBox>
-                        <WeatherEmoji>{res.feel}</WeatherEmoji>
-                      </WeatherEmojiBox>
-                      <CardLengthBox>
-                        {res.url.length > 1 && (
-                          <CardLength>+{res.url.length}</CardLength>
-                        )}
-                      </CardLengthBox>
-                      <CardImageBox>
-                        <CardImage
-                          onContextMenu={(e) => e.preventDefault()}
-                          src={res.url[0]}
-                          alt=""
-                        />
-                      </CardImageBox>
-                    </Card>
-                    {/* <UserBox>
+                  return (
+                    <CardList size={checkSize} key={res.id}>
+                      <Card
+                        aspect={checkAspect}
+                        to={"/feed/detail"}
+                        state={{ id: res.id, email: res.email }}
+                      >
+                        <WeatherEmojiBox>
+                          <WeatherEmoji>{res.feel}</WeatherEmoji>
+                        </WeatherEmojiBox>
+                        <CardLengthBox>
+                          {res.url.length > 1 && (
+                            <CardLength>+{res.url.length}</CardLength>
+                          )}
+                        </CardLengthBox>
+                        <CardImageBox>
+                          <CardImage
+                            onContextMenu={(e) => e.preventDefault()}
+                            src={res.url[0]}
+                            alt=""
+                          />
+                        </CardImageBox>
+                      </Card>
+                      {/* <UserBox>
                       <UserInfoBox>
                         <UserImageBox
                           to={`/profile/${res.displayName}/post`}
@@ -129,14 +151,15 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
                       </UserInfoBox>
                       <UserText>{res.text}</UserText>
                     </UserBox> */}
-                  </CardList>
-                );
-              })}
+                    </CardList>
+                  );
+                })}
+              </FrameGrid>
               <div
                 ref={ref}
                 // style={{
                 //   position: "absolute",
-                //   bottom: "100px",
+                //   bottom: "-100px",
                 // }}
               />
             </CardBox>
@@ -147,7 +170,9 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
           )}
         </>
       ) : (
-        <HomeSkeleton />
+        <CardBox>
+          <ExploreSkeleton />
+        </CardBox>
       )}
     </>
   );
@@ -161,20 +186,22 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardBox = styled.ul`
   width: 100%;
-  padding: 0 16px 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-auto-rows: auto;
+  padding: 20px;
+  /* padding: 0 16px 16px; */
+  /* display: grid; */
+  /* grid-template-columns: 1fr 1fr 1fr; */
+  /* grid-auto-rows: auto; */
 `;
 
 const CardList = styled.li<{ size?: number }>`
   display: flex;
   flex-direction: column;
-  margin: 4px;
+  /* margin: 4px; */
   border-radius: 8px;
   border: 2px solid ${secondColor};
   overflow: hidden;
-  grid-row-end: span ${(props) => (props.size ? props.size : 43)};
+  position: absolute;
+  /* grid-row-end: span ${(props) => (props.size ? props.size : 43)}; */
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
@@ -256,6 +283,7 @@ const CardImageBox = styled.div`
 `;
 
 const CardImage = styled.img`
+  object-fit: cover;
   image-rendering: auto;
   display: block;
   width: 100%;

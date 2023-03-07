@@ -106,8 +106,8 @@ const RangeTimeModal = (props: Props) => {
           />
         </RangeSlideBox>
         <RangeNumberBox>
-          <RangeNumber>1시</RangeNumber>
-          <RangeNumber>24시</RangeNumber>
+          <RangeNumber>0시</RangeNumber>
+          <RangeNumber>23시</RangeNumber>
         </RangeNumberBox>
         <ButtonBox>
           <ResetBtn onClick={onReset}>초기화</ResetBtn>

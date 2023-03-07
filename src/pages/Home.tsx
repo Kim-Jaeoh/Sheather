@@ -113,7 +113,7 @@ const Home = () => {
             select={selectCategory}
             num={2}
           >
-            시간별
+            날짜별
           </SelectCurrentTime>
         </SelectCategory>
 
@@ -191,7 +191,7 @@ const SelectTimeBox = styled.nav<{ select: number }>`
 const SelectDetailTimeBox = styled.div`
   width: 100%;
   padding: 0 10px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   animation-name: slideDown;
   animation-duration: 0.5s;
   animation-timing-function: ease-in-out;

@@ -253,7 +253,6 @@ const FlickingCategoryBox = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding-right: 1px;
   height: 50px;
   cursor: pointer;
   &::after {
@@ -308,7 +307,8 @@ const WeatherIcon = styled.div`
   align-items: center;
   justify-content: center;
   width: 70px;
-  height: 50px;
+  /* height: 50px; */
+  flex: 1;
   overflow: hidden;
   img {
     display: block;
@@ -319,17 +319,23 @@ const WeatherIcon = styled.div`
 `;
 
 const InfoText = styled.span`
-  font-size: 10px;
+  font-size: 12px;
   height: 20px;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
+  svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const WeatherTemp = styled.p<{ changeColor?: string }>`
   font-size: 20px;
-  height: 50px;
+  /* height: 50px; */
+  flex: 1;
   font-weight: bold;
   color: ${(props) => props.changeColor};
   display: flex;
@@ -352,6 +358,7 @@ const WeatherDesc = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 50px;
+  /* height: 50px; */
+  flex: 1;
   font-weight: bold;
 `;

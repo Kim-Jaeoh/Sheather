@@ -1,7 +1,7 @@
 .flicking-viewport {
   position: relative;
   overflow: hidden;
-  padding: 0 2px;
+  padding: 2px;
 }
 
 .flicking-viewport.vertical {
