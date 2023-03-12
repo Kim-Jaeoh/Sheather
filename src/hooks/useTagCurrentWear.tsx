@@ -2,31 +2,24 @@ import { debounce } from "@mui/material";
 import React, { useState, useCallback } from "react";
 import toast from "react-hot-toast";
 
-const useTagCurrentWear = () => {
+const useTagCurrentWear = (tags?: string[]) => {
   const [inputs, setInputs] = useState({
     currentNewTag: "",
-    currentTags: [],
+    currentTags: tags ? tags : [],
   });
   const { currentNewTag, currentTags } = inputs;
 
   const onChangeCurrent = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // setInputs({
-    //   ...inputs,
-    //   [e.target.name]: e.target.value,
-    // });
-    // if (e.target.name === "currentNewTag") {
     setInputs((prev) => {
       return {
         ...prev,
         currentNewTag: e.target.value,
-        // currentNewTag: prev.currentNewTag,
       };
     });
-    // }
   };
 
   const onKeyPressCurrent = (e: React.KeyboardEvent<HTMLElement>) => {
-    const pattern = /([^가-힣\x20])/i; // 자음, 모음 검사
+    const pattern = /([^가-힣a-zA-Z\x20])/i; // 자음, 모음 검사
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault(); // 텍스트 전체 선택 안 돼서 주석 처리
       if (pattern.test(currentNewTag)) {

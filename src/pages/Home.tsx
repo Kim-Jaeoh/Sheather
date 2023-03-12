@@ -1,41 +1,45 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../assets/ColorList";
-import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
 import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
 import FeedCategory from "../components/feed/FeedCategory";
-import { useQueryClient } from "@tanstack/react-query";
-import { Toaster } from "react-hot-toast";
 import FeedWeatherInfo from "../components/feed/FeedWeatherInfo";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
-  const [url, setUrl] = useState(`http://localhost:4000/api/feed/recent?`);
+  const [url, setUrl] = useState(
+    `${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`
+  );
   const [dateCategory, setDateCategory] = useState("recent");
   const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isDetailModal, setIsDetailModal] = useState(false);
   const [isDetailDone, setIsDetailDone] = useState(false);
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const navigate = useNavigate();
   const value = useMemo(() => {
     return moment(changeValue).format("YYYYMMDD");
   }, [changeValue]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // 최신
     if (selectCategory === 0) {
-      return setUrl("http://localhost:4000/api/feed/recent?");
+      return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`);
     }
     // 인기
     if (selectCategory === 1) {
-      return setUrl("http://localhost:4000/api/feed/popular?");
+      return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/popular?`);
     }
     // 시간별
     if (selectCategory === 2) {
       if (isDetailDone) {
+        navigate(
+          `date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}`
+        );
         return setUrl(
-          `http://localhost:4000/api/feed/date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
+          `${process.env.REACT_APP_SERVER_PORT}/api/feed/date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
         );
       }
     }
@@ -43,11 +47,13 @@ const Home = () => {
     changeValue,
     dateCategory,
     isDetailDone,
+    navigate,
     rangeTime,
     selectCategory,
     value,
   ]);
 
+  // 메인 카테고리
   useEffect(() => {
     if (pathname.includes("recent")) {
       return setSelectCategory(0);
@@ -58,7 +64,17 @@ const Home = () => {
     if (pathname.includes("date")) {
       return setSelectCategory(2);
     }
-  }, [pathname]);
+  }, [pathname, search]);
+
+  // 세부 카테고리
+  useEffect(() => {
+    if (search.includes("cat=recent")) {
+      return setDateCategory("recent");
+    }
+    if (search.includes("cat=popular")) {
+      return setDateCategory("popular");
+    }
+  }, [search]);
 
   const onSelectCategory2 = () => {
     setSelectCategory(2);
@@ -159,11 +175,7 @@ const Home = () => {
         </SelectDetailTimeBox>
       )}
 
-      <Routes>
-        <Route path="recent" element={<FeedCategory url={url} />} />
-        <Route path="popular" element={<FeedCategory url={url} />} />
-        <Route path="date" element={<FeedCategory url={url} />} />
-      </Routes>
+      <FeedCategory url={url} />
     </Container>
   );
 };
@@ -174,7 +186,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Container = styled.main`
   height: 100%;
   /* padding: 20px; */
-  position: relative;
+  /* position: relative; */
 `;
 
 const SelectTimeBox = styled.nav<{ select: number }>`
@@ -255,6 +267,6 @@ const SelectCurrentTime = styled(Link)<{ select: number; num: number }>`
     ${(props) => (props.num === props.select ? "#ff5673" : "tranparent")};
   padding: 6px 12px;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: ${(props) => (props.num === props.select ? "700" : "500")};
   cursor: pointer;
 `;

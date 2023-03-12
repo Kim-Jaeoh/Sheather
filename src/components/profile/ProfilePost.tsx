@@ -4,65 +4,70 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { FeedType } from "../../types/type";
 import { FrameGrid } from "@egjs/react-grid";
 import { Spinner } from "../../assets/Spinner";
+import useInfinityScroll from "../../hooks/useInfinityScroll";
+import { UserType } from "../../app/user";
+import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
+import ProfileSkeleton from "../../assets/skeleton/ProfileSkeleton";
 
 type props = {
   myPost: FeedType[];
   email: string;
-  cat: string;
-  postLength: number;
+  loading: boolean;
+  notInfoText: string;
+  ref: (node?: Element) => void;
 };
 
-const ProfilePost = React.forwardRef<HTMLDivElement, props>(
-  ({ myPost, email, cat, postLength }, ref) => {
-    const [notInfoText, setNotInfoText] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-      if (postLength !== 0) {
-        setNotInfoText("게시물을 공유하면 회원님의 프로필에 표시됩니다.");
-      }
-      if (cat.includes("like")) {
-        setNotInfoText("사람들의 게시물에 좋아요를 누르면 여기에 표시됩니다.");
-      }
-      if (cat.includes("bookmark")) {
-        setNotInfoText("사람들의 게시물에 북마크를 누르면 여기에 표시됩니다.");
-      }
-    }, [cat, postLength]);
-
+const ProfilePost = React.forwardRef<HTMLInputElement, props>(
+  ({ myPost, email, loading, notInfoText }, ref) => {
     return (
       <>
-        {myPost?.length !== 0 ? (
-          myPost?.map((res, index) => {
-            return (
-              <Card key={res?.id}>
-                <Link
-                  to={"/profile/detail"}
-                  state={{ id: res.id, email: email }}
-                >
-                  <WeatherEmojiBox>
-                    <WeatherEmoji>{res.feel.split(" ")[0]}</WeatherEmoji>
-                  </WeatherEmojiBox>
-                  {res.url.length > 1 && (
-                    <CardLengthBox>
-                      <CardLength>+{res.url.length}</CardLength>
-                    </CardLengthBox>
-                  )}
-                  <CardImage src={res.url[0]} alt="upload Image" />
-                </Link>
-                <div
-                  ref={ref}
-                  // style={{
-                  //   position: "absolute",
-                  //   bottom: "-100px",
-                  // }}
-                />
-              </Card>
-            );
-          })
+        {!loading ? (
+          <>
+            {myPost?.length !== 0 ? (
+              <CardBox>
+                <>
+                  {myPost?.map((res, index) => {
+                    return (
+                      <Card key={res?.id}>
+                        <Link
+                          to={"/profile/detail"}
+                          state={{ id: res.id, email: res.email }}
+                        >
+                          <WeatherEmojiBox>
+                            <WeatherEmoji>
+                              {res.feel.split(" ")[0]}
+                            </WeatherEmoji>
+                          </WeatherEmojiBox>
+                          {res.url.length > 1 && (
+                            <CardLengthBox>
+                              <CardLength>+{res.url.length}</CardLength>
+                            </CardLengthBox>
+                          )}
+                          <CardImage src={res.url[0]} alt="upload Image" />
+                        </Link>
+                      </Card>
+                    );
+                  })}
+
+                  <div
+                    ref={ref}
+                    // style={{
+                    //   position: "absolute",
+                    //   bottom: "-100px",
+                    // }}
+                  />
+                </>
+              </CardBox>
+            ) : (
+              <NotInfoBox>
+                <NotInfo>{notInfoText}</NotInfo>
+              </NotInfoBox>
+            )}
+          </>
         ) : (
-          <NotInfoBox>
-            <NotInfo>{notInfoText}</NotInfo>
-          </NotInfoBox>
+          <CardBox>
+            <ProfileSkeleton />
+          </CardBox>
         )}
       </>
     );
@@ -71,18 +76,41 @@ const ProfilePost = React.forwardRef<HTMLDivElement, props>(
 
 export default ProfilePost;
 
+const CardBox = styled.ul`
+  width: 100%;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-auto-rows: auto;
+`;
+
 const Card = styled.li`
   cursor: pointer;
   border-radius: 8px;
   display: block;
   width: 184px;
   height: 184px;
-  max-height: 100%;
   position: relative;
-  /* position: absolute; */
-  border: 1px solid #eee;
   overflow: hidden;
   border: 2px solid #222;
+
+  animation-name: slideUp;
+  animation-duration: 0.3s;
+  animation-timing-function: linear;
+
+  @keyframes slideUp {
+    0% {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+  }
 `;
 
 const WeatherEmojiBox = styled.div`
@@ -138,14 +166,14 @@ const NotInfoBox = styled.div`
   align-items: center;
   justify-content: center;
 
-  animation-name: slideDown;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-in-out;
+  animation-name: slideUp;
+  animation-duration: 0.3s;
+  animation-timing-function: linear;
 
-  @keyframes slideDown {
+  @keyframes slideUp {
     0% {
       opacity: 0;
-      transform: translateY(-10px);
+      transform: translateY(20px);
     }
     50% {
       opacity: 0.5;

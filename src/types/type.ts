@@ -121,6 +121,7 @@ export interface FeedType {
   region: string;
   reply: replyType[];
   editAt?: number;
+  tag?: string[];
 }
 
 export interface AspectRatio {

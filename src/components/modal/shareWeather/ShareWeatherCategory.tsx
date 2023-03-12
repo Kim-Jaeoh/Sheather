@@ -72,7 +72,7 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
       outer: outerCheck,
       top: topCheck,
       innerTop: innerTopCheck,
-      bottom: bottomCheck,
+      bottom: topCheck === "원피스" ? "없음" : bottomCheck,
       etc: etcCheck,
     });
   }, [bottomCheck, etcCheck, innerTopCheck, outerCheck, select, topCheck]);
@@ -382,12 +382,13 @@ const WearCondition = styled.div`
   display: flex;
   align-items: center;
   overflow: hidden;
-  padding: 12px;
+  padding: 14px;
   &:not(:last-of-type) {
     border-bottom: 1px solid ${thirdColor};
   }
 `;
 const FlickingBox = styled.div`
+  width: 100%;
   position: relative;
   cursor: pointer;
   /* &::before {
@@ -461,7 +462,7 @@ const AddTag = styled.div`
 `;
 const WearDetailBox = styled.div`
   overflow: hidden;
-  padding: 12px;
+  padding: 14px;
   &:not(:last-of-type) {
     /* border-bottom: 2px solid ${thirdColor}; */
   }
@@ -488,10 +489,10 @@ const WearInfoMain = styled.div<{
     props.select !== null || props?.select2 === "원피스"
       ? props.bgColor
       : thirdColor};
-  min-width: 55px;
   text-align: center;
-  padding-right: 6px;
-  border-right: 1px solid ${thirdColor};
+  min-width: 54px;
+  /* padding-right: 6px; */
+  /* border-right: 1px solid ${thirdColor}; */
   font-size: 12px;
   margin-right: 12px;
 `;

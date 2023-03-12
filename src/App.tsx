@@ -14,6 +14,7 @@ import SrollToTop from "./hooks/useScrollToTop";
 import { authService } from "./fbase";
 import Profile from "./pages/Profile";
 import { Toaster } from "react-hot-toast";
+import { SuspenseSpinner } from "./assets/SuspenseSpinner";
 // const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
@@ -46,7 +47,7 @@ const App = () => {
   }, []);
 
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
       <Toaster position="bottom-left" reverseOrder={false} />
       <Background>

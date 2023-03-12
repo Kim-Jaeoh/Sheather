@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../assets/ColorList";
-import { Link, Route, Routes, useLocation, useParams } from "react-router-dom";
-import moment from "moment";
-import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
-import FeedCategory from "../components/feed/FeedCategory";
-import { useQueryClient } from "@tanstack/react-query";
-import { Toaster } from "react-hot-toast";
+import {
+  Link,
+  Route,
+  Routes,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 import ExploreFeedCategory from "../components/explore/ExploreFeedCategory";
 import TempClothes from "../assets/TempClothes";
 import Flicking from "@egjs/react-flicking";
@@ -16,17 +17,14 @@ const Explore = () => {
   const [selectCategory, setSelectCategory] = useState(0);
   const [secondSelectCategory, setSecondSelectCategory] = useState(0);
   const [url, setUrl] = useState(
-    `http://localhost:4000/api/explore?cat=outer&detail=${encodeURIComponent(
-      "전체"
-    )}&`
+    `${
+      process.env.REACT_APP_SERVER_PORT
+    }/api/explore?cat=outer&detail=${encodeURIComponent("전체")}&`
   );
   const [detail, setDetail] = useState("전체");
-  const [dateCategory, setDateCategory] = useState("recent");
-  const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
-  const [changeValue, setChangeValue] = useState<Date | null>(new Date());
-  const [isDetailModal, setIsDetailModal] = useState(false);
-  const [isDetailDone, setIsDetailDone] = useState(false);
   const { ClothesCategory } = TempClothes();
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
 
   const categoryArray = [
     { cat: "아우터", link: "outer" },
@@ -37,8 +35,8 @@ const Explore = () => {
   ];
 
   useEffect(() => {
-    const api = "http://localhost:4000/api/explore";
-    if (secondSelectCategory === 0) {
+    const api = `${process.env.REACT_APP_SERVER_PORT}/api/explore`;
+    if (+searchParams.get("detail") === 0) {
       return setUrl(
         `${api}?cat=${
           categoryArray[selectCategory].link
@@ -50,7 +48,31 @@ const Explore = () => {
         categoryArray[selectCategory].link
       }&detail=${encodeURIComponent(detail)}&`
     );
-  }, [detail, selectCategory]);
+  }, [detail, searchParams, selectCategory]);
+
+  useEffect(() => {
+    const findIndex = categoryArray.findIndex(
+      (res) => res.link === pathname?.split("/")[2]
+    );
+    setSelectCategory(findIndex);
+    setSecondSelectCategory(+searchParams.get("detail"));
+    // 리팩토링!
+    // if (pathname.includes("outer")) {
+    //   return setSelectCategory(0);
+    // }
+    // if (pathname.includes("top")) {
+    //   return setSelectCategory(1);
+    // }
+    // if (pathname.includes("innerTop")) {
+    //   return setSelectCategory(2);
+    // }
+    // if (pathname.includes("bottom")) {
+    //   return setSelectCategory(3);
+    // }
+    // if (pathname.includes("etc")) {
+    //   return setSelectCategory(4);
+    // }
+  }, [pathname, searchParams]);
 
   // 세부 카테고리에 '전체' 태그 추가
   const secondMenu = useMemo(() => {
@@ -83,26 +105,6 @@ const Explore = () => {
   const onSelectCategory = (res: number) => {
     setSelectCategory(res);
     setSecondSelectCategory(0);
-  };
-
-  const onReset = () => {
-    setRangeTime([1, 24]);
-    setChangeValue(new Date());
-  };
-
-  const onDone = () => {
-    setIsDetailDone(true);
-    setIsDetailModal(false);
-  };
-
-  const onModalClose = () => {
-    setIsDetailModal((prev) => !prev);
-    if (url.includes("outer")) {
-      setSelectCategory(0);
-    }
-    if (url.includes("popular")) {
-      setSelectCategory(1);
-    }
   };
 
   return (

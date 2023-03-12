@@ -216,7 +216,7 @@ const PutImageBox = styled.div`
 
 const Controls = styled.div`
   width: 100%;
-  padding: 14px 20px;
+  padding: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;

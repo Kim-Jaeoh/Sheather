@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { AiOutlineHome, AiFillHome } from "react-icons/ai";
 import {
   BsChatDots,
@@ -10,7 +10,7 @@ import {
   BsSunFill,
 } from "react-icons/bs";
 import { CiSearch } from "react-icons/ci";
-import { FiSearch } from "react-icons/fi";
+import { FiPlusCircle, FiSearch } from "react-icons/fi";
 import { BiSearch } from "react-icons/bi";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import { useDispatch } from "react-redux";
@@ -19,17 +19,43 @@ import { authService, dbService } from "../fbase";
 import { RootState } from "../app/store";
 import { useSelector } from "react-redux";
 import { doc, onSnapshot } from "firebase/firestore";
+import useLogout from "../hooks/useLogout";
+import { useQuery } from "@tanstack/react-query";
+import axios, { AxiosResponse, AxiosError } from "axios";
+import useCurrentLocation from "../hooks/useCurrentLocation";
+import { WeatherDataType } from "../types/type";
+import ShareWeatherModal from "../components/modal/shareWeather/ShareWeatherModal";
+import { shareWeather } from "../app/getWeather";
 
 const LeftBar = () => {
-  const [select, setSelect] = useState(false);
+  const [isAuthModal, setIsAuthModal] = useState(false);
   const [selectMenu, setSelectMenu] = useState(0);
+  const [shareBtn, setShareBtn] = useState(false);
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
   );
+  const { onLogOutClick } = useLogout();
+  const { location } = useCurrentLocation();
+
+  const nowWeatherApi = async () =>
+    await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${location?.coordinates?.lat}&lon=${location?.coordinates?.lon}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric&lang=kr`
+    );
+
+  // 현재 날씨 정보 가져오기
+  const { data: weatherData } = useQuery<
+    AxiosResponse<WeatherDataType>,
+    AxiosError
+  >(["Weather", location], nowWeatherApi, {
+    refetchOnWindowFocus: false,
+    onError: (e) => console.log(e),
+    enabled: Boolean(location),
+  });
 
   useEffect(() => {
     if (pathname.includes("feed")) {
@@ -45,7 +71,7 @@ const LeftBar = () => {
       return setSelectMenu(3);
     }
     if (pathname.includes("profile")) {
-      return setSelectMenu(4);
+      return setSelectMenu(5);
     }
   }, [pathname]);
 
@@ -60,122 +86,128 @@ const LeftBar = () => {
       case 3:
         return "explore";
       case 4:
+        return "write";
+      case 5:
         return "profile";
       default:
         return "feed";
     }
   }, [selectMenu]);
 
-  const onClick = () => {
-    setSelect((prev) => !prev);
+  const onWriteClick = () => {
+    if (userLogin) {
+      setShareBtn((prev) => !prev);
+      setSelectMenu(4);
+      dispatch(shareWeather(weatherData?.data));
+    } else {
+      setIsAuthModal((prev) => !prev);
+    }
   };
 
-  const onLogOutClick = () => {
-    const ok = window.confirm("로그아웃 하시겠어요?");
-    if (ok) {
-      authService.signOut();
-      dispatch(loginToken(false));
-      dispatch(
-        currentUser({
-          uid: "",
-          createdAt: "",
-          profileURL: "",
-          email: "",
-          name: "",
-          displayName: "",
-          description: "",
-          follower: [],
-          following: [],
-        })
-      );
-      window.location.reload();
+  const onProfileClick = () => {
+    if (!userLogin) {
+      setIsAuthModal((prev) => !prev);
+    } else {
+      navigate(`/profile/${userObj?.displayName}/post`, {
+        state: userObj?.displayName,
+      });
+      setSelectMenu(5);
     }
   };
 
   return (
-    <Container>
-      <MenuBox pathname={pathname}>
-        <LogoBox>SHEATHER</LogoBox>
-        <MenuLink
-          menu={menu}
-          cat="feed"
-          onClick={() => setSelectMenu(0)}
-          color="#ff5673"
-          to="/feed/recent"
-        >
-          <MenuList>
-            <AiOutlineHome />
-            <MenuText>피드</MenuText>
-          </MenuList>
-        </MenuLink>
-        <MenuLink
-          menu={menu}
-          cat="weather"
-          onClick={() => setSelectMenu(1)}
-          color="#48a3ff"
-          to="/weather"
-        >
-          <MenuList>
-            <BsSun />
-            <MenuText>날씨</MenuText>
-          </MenuList>
-        </MenuLink>
-        <MenuLink
-          menu={menu}
-          cat="message"
-          onClick={() => setSelectMenu(2)}
-          color="#ff5c1b"
-          to="/message"
-        >
-          <MenuList>
-            <BsChatDots />
-            <MenuText>메세지</MenuText>
-          </MenuList>
-        </MenuLink>
-        <MenuLink
-          menu={menu}
-          cat="explore"
-          onClick={() => setSelectMenu(3)}
-          color="#30c56e"
-          to="/explore/outer"
-        >
-          <MenuList>
-            <FiSearch />
-            <MenuText>탐색</MenuText>
-          </MenuList>
-        </MenuLink>
-        <MenuLink
-          menu={menu}
-          cat="profile"
-          onClick={() => {
-            !userLogin && onClick();
-            setSelectMenu(4);
-          }}
-          color="#6f4ccf"
-          to={userLogin && `/profile/${userObj?.displayName}/post`}
-          state={userObj.displayName}
-        >
-          <MenuList>
-            <BsPersonCircle />
-            <MenuText>프로필</MenuText>
-          </MenuList>
-        </MenuLink>
-        <div onClick={onClick}>
-          <MenuList>
-            <FiSearch />
-            <MenuText>로그인</MenuText>
-          </MenuList>
-        </div>
-        <div onClick={onLogOutClick}>
-          <MenuList>
-            <FiSearch />
-            <MenuText>로그아웃</MenuText>
-          </MenuList>
-        </div>
-        <div>{userObj && userObj.displayName}</div>
-        {select && <AuthFormModal modalOpen={select} modalClose={onClick} />}
-      </MenuBox>
-    </Container>
+    <>
+      {shareBtn && (
+        <ShareWeatherModal shareBtn={shareBtn} setShareBtn={setShareBtn} />
+      )}
+      <Container>
+        <MenuBox pathname={pathname}>
+          <LogoBox>SHEATHER</LogoBox>
+          <MenuLink
+            menu={menu}
+            cat="feed"
+            onClick={() => setSelectMenu(0)}
+            color="#ff5673"
+            to="/feed/recent"
+          >
+            <MenuList>
+              <AiOutlineHome />
+              <MenuText>피드</MenuText>
+            </MenuList>
+          </MenuLink>
+          <MenuLink
+            menu={menu}
+            cat="weather"
+            onClick={() => setSelectMenu(1)}
+            color="#48a3ff"
+            to="/weather"
+          >
+            <MenuList>
+              <BsSun />
+              <MenuText>날씨</MenuText>
+            </MenuList>
+          </MenuLink>
+          <MenuLink
+            menu={menu}
+            cat="message"
+            onClick={() => setSelectMenu(2)}
+            color="#ff5c1b"
+            to="/message"
+          >
+            <MenuList>
+              <BsChatDots />
+              <MenuText>메세지</MenuText>
+            </MenuList>
+          </MenuLink>
+          <MenuLink
+            menu={menu}
+            cat="explore"
+            onClick={() => setSelectMenu(3)}
+            color="#30c56e"
+            to="/explore/outer"
+          >
+            <MenuList>
+              <FiSearch />
+              <MenuText>탐색</MenuText>
+            </MenuList>
+          </MenuLink>
+          <MenuBtn
+            menu={menu}
+            cat="write"
+            color="#ffe448"
+            onClick={onWriteClick}
+          >
+            <MenuList>
+              <FiPlusCircle />
+              <MenuText>글쓰기</MenuText>
+            </MenuList>
+          </MenuBtn>
+          <MenuBtn
+            menu={menu}
+            cat="profile"
+            onClick={onProfileClick}
+            color="#6f4ccf"
+          >
+            <MenuList>
+              {userLogin ? (
+                <UserProfileBox>
+                  <UserProfile src={userObj?.profileURL} alt="profile" />
+                </UserProfileBox>
+              ) : (
+                <BsPersonCircle />
+              )}
+              <MenuText>프로필</MenuText>
+            </MenuList>
+          </MenuBtn>
+          {isAuthModal && (
+            <AuthFormModal
+              modalOpen={isAuthModal}
+              modalClose={onProfileClick}
+            />
+          )}
+        </MenuBox>
+      </Container>
+    </>
   );
 };
 
@@ -190,7 +222,7 @@ const Container = styled.nav`
   user-select: none;
 `;
 
-const MenuBox = styled.ul<{ pathname: string }>`
+const MenuBox = styled.div<{ pathname: string }>`
   padding: 0 16px;
   width: 100%;
   height: 100vh;
@@ -213,6 +245,32 @@ const LogoBox = styled.div`
 const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
   display: flex;
   align-items: center;
+  outline: none;
+
+  svg {
+    font-size: 24px;
+  }
+
+  li {
+    font-weight: ${(props) => (props.cat === props.menu ? "bold" : "normal")};
+    border: ${(props) =>
+      props.cat === props.menu ? "2px solid #222222" : "2px solid transparent"};
+    box-shadow: ${(props) =>
+      props.cat === props.menu
+        ? `0px 6px 0 -2px ${props.color}, 0px 6px #222`
+        : "0"};
+  }
+  &:hover li:hover,
+  &:active li:active {
+    border: 2px solid #222222;
+    box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px #222222;
+  }
+`;
+
+const MenuBtn = styled.div<{ cat: string; menu: string; color: string }>`
+  display: flex;
+  align-items: center;
+  outline: none;
 
   svg {
     font-size: 24px;
@@ -253,4 +311,18 @@ const MenuText = styled.h2`
   margin-bottom: -4px; // 폰트 교체로 인해 여백 제거
   margin-left: 20px;
   font-size: 18px;
+`;
+
+const UserProfileBox = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #dbdbdb;
+`;
+
+const UserProfile = styled.img`
+  display: block;
+  width: 100%;
+  height: 100%;
 `;

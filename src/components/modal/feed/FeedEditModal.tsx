@@ -49,6 +49,7 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
     etc: info.wearInfo.etc,
   });
   const [text, setText] = useState(info.text);
+  const [tags, setTags] = useState(info.tag);
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const queryClient = useQueryClient();
@@ -60,7 +61,10 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
   // 피드 업로드
   const { mutate } = useMutation(
     (response: FeedType) =>
-      axios.patch(`http://localhost:4000/api/feed/${info.id}`, response),
+      axios.patch(
+        `${process.env.REACT_APP_SERVER_PORT}/api/feed/${info.id}`,
+        response
+      ),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -84,8 +88,11 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
         etc: checkTag.etc,
       },
       editAt: +new Date(),
+      tag: tags,
     });
   };
+
+  console.log(tags);
 
   const bgColor = useMemo(() => {
     if (pathname.includes("feed")) {
@@ -142,7 +149,13 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
             checkTag={checkTag}
             setCheckTag={setCheckTag}
           />
-          <ShareWeatherForm bgColor={bgColor} text={text} setText={setText} />
+          <ShareWeatherForm
+            bgColor={bgColor}
+            text={text}
+            tags={tags}
+            setText={setText}
+            setTags={setTags}
+          />
         </Container>
       </>
     </Modal>

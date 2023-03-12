@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiShare } from "react-icons/fi";
@@ -15,6 +15,7 @@ import ShareWeatherModal from "../modal/shareWeather/ShareWeatherModal";
 import Flicking from "@egjs/react-flicking";
 import "../../styles/SlickSliderFlicking.css";
 import useFlickingArrow from "../../hooks/useFlickingArrow";
+import moment from "moment";
 
 type PropsType = {
   data: WeathersFiveDataType[];
@@ -37,37 +38,7 @@ const WeatherSlider = ({ data }: PropsType) => {
   const [clothesBtn, setClothesBtn] = useState(false);
   const [shareBtn, setShareBtn] = useState(false);
   const [selected, setSelected] = useState(null);
-  const dispach = useDispatch();
-
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
-
-  // 오늘 날짜인지 boolean 체크
-  const dayCheck = useMemo(() => {
-    if (data) {
-      const time = new Date();
-      const today =
-        data[0]?.dt_txt?.split("-")[2].split(" ")[0] ||
-        data[1]?.dt_txt?.split("-")[2].split(" ")[0];
-      return time.getDate() === Number(today);
-    }
-  }, [data]);
-
-  // 날짜 입력값
-  const day = useMemo(() => {
-    if (data) {
-      return dayCheck
-        ? "오늘"
-        : `${data[1]?.dt_txt?.split("-")[2].split(" ")[0]}일`;
-    }
-  }, [data, dayCheck]);
-
-  const clothBtnClick = (index: number) => {
-    setClothesBtn((prev) => !prev);
-    setSelected(index);
-  };
-
+  const dispatch = useDispatch();
   const {
     flickingRef,
     visible,
@@ -75,14 +46,41 @@ const WeatherSlider = ({ data }: PropsType) => {
     setSlideIndex,
     onClickArrowPrev,
     onClickArrowNext,
-  } = useFlickingArrow({ dataLength: data.length, lastLength: 4 });
+  } = useFlickingArrow({
+    dataLength: data.length,
+    lastLength: data.length < 4 ? data.length : 4,
+  });
+
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
+
+  // 오늘 날짜인지 boolean 체크, 날짜 입력값
+  const day = useMemo(() => {
+    if (data) {
+      const time = new Date();
+      const today = moment(data[1]?.dt).format("DD");
+      const dayCheck = time.getDate() === Number(today);
+      return dayCheck ? "오늘" : `${moment(data[1]?.dt).format("DD")}일`;
+    }
+  }, [data]);
+
+  const onShareBtnClick = (res: ResDataType) => {
+    setShareBtn(true);
+    dispatch(shareWeather(res));
+  };
+
+  const clothBtnClick = (index: number) => {
+    setClothesBtn((prev) => !prev);
+    setSelected(index);
+  };
 
   return (
     <>
       {shareBtn && (
         <ShareWeatherModal shareBtn={shareBtn} setShareBtn={setShareBtn} />
       )}
-      {data && data[0] ? (
+      {data[0] ? (
         <Wrapper>
           <WeatherDateBox>
             <WeatherDate>{day}</WeatherDate>
@@ -99,11 +97,12 @@ const WeatherSlider = ({ data }: PropsType) => {
           </NextArrow>
           <FlickingBox>
             <Flicking
-              align="prev"
-              panelsPerView={4}
+              align={data.length < 4 ? "center" : "prev"}
+              panelsPerView={data.length < 4 ? data.length : 4}
               circular={false}
               ref={flickingRef}
               bound={true}
+              bounce={0}
               onChanged={(e) => {
                 setSlideIndex(e.index);
               }}
@@ -132,17 +131,14 @@ const WeatherSlider = ({ data }: PropsType) => {
                           <WeatherDateList now={res?.dt_txt}>
                             {!res?.dt_txt
                               ? "지금"
-                              : `${res?.dt_txt?.split(":")[0].split(" ")[1]}시`}
+                              : `${moment(res?.dt).format("HH")}시`}
                           </WeatherDateList>
                         </WeatherDateListBox>
                         {!res?.dt_txt && userObj.displayName && (
                           <WeatherInfoBtn
-                            // disabled={timeStamp < res.dt - 9 * 60 * 60} // -9시간
-                            disabled={Boolean(res?.dt_txt)} // -9시간
+                            disabled={Boolean(res?.dt_txt)}
                             onClick={() => {
-                              // shareBtnClick();
-                              setShareBtn(true);
-                              dispach(shareWeather(res));
+                              onShareBtnClick(res);
                             }}
                           >
                             <FiShare />
@@ -163,31 +159,35 @@ const WeatherSlider = ({ data }: PropsType) => {
                         </WeatherCategoryIconText>
                       </WeatherCategoryIconBox>
                       <WeatherCategoryBox>
-                        <WeatherCategoryText>
-                          <WeatherCategoryMain>최고</WeatherCategoryMain>
-                          <WeatherCategorySub>
-                            {Math.round(res?.main.temp_max)}º
-                          </WeatherCategorySub>
-                        </WeatherCategoryText>
-                        <WeatherCategoryText>
-                          <WeatherCategoryMain>최저</WeatherCategoryMain>
-                          <WeatherCategorySub>
-                            {Math.round(res?.main.temp_min)}º
-                          </WeatherCategorySub>
-                        </WeatherCategoryText>
-                        <WeatherCategoryText>
-                          <WeatherCategoryMain>체감</WeatherCategoryMain>
-                          <WeatherCategorySub>
-                            {Math.round(res?.main?.feels_like)}º
-                          </WeatherCategorySub>
-                        </WeatherCategoryText>
-                        <WeatherCategoryText>
-                          <WeatherCategoryMain>바람</WeatherCategoryMain>
-                          <WeatherCategorySub>
-                            {Math.round(res?.wind.speed)}
-                            <span>m/s</span>
-                          </WeatherCategorySub>
-                        </WeatherCategoryText>
+                        <WeatherCategory>
+                          <WeatherCategoryText>
+                            <WeatherCategoryMain>최고</WeatherCategoryMain>
+                            <WeatherCategorySub>
+                              {Math.round(res?.main.temp_max)}º
+                            </WeatherCategorySub>
+                          </WeatherCategoryText>
+                          <WeatherCategoryText>
+                            <WeatherCategoryMain>최저</WeatherCategoryMain>
+                            <WeatherCategorySub>
+                              {Math.round(res?.main.temp_min)}º
+                            </WeatherCategorySub>
+                          </WeatherCategoryText>
+                        </WeatherCategory>
+                        <WeatherCategory>
+                          <WeatherCategoryText>
+                            <WeatherCategoryMain>체감</WeatherCategoryMain>
+                            <WeatherCategorySub>
+                              {Math.round(res?.main?.feels_like)}º
+                            </WeatherCategorySub>
+                          </WeatherCategoryText>
+                          <WeatherCategoryText>
+                            <WeatherCategoryMain>바람</WeatherCategoryMain>
+                            <WeatherCategorySub>
+                              {Math.round(res?.wind.speed)}
+                              <span>m/s</span>
+                            </WeatherCategorySub>
+                          </WeatherCategoryText>
+                        </WeatherCategory>
                       </WeatherCategoryBox>
                     </WeatherList>
                   </Container>
@@ -229,17 +229,16 @@ const FlickingBox = styled.ul`
 const Container = styled.li`
   width: 100%;
   height: 100%;
-  /* height: 330px; */
   padding: 14px;
   word-wrap: break-word;
   position: relative;
+  background: #fff;
 `;
 
 const WeatherInfoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* margin: -7px; */
 `;
 
 const WeatherInfoBtn = styled.button`
@@ -326,9 +325,13 @@ const WeatherDateList = styled.span<{ now?: string }>`
 const WeatherCategoryBox = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: center;
+  /* justify-content: space-between; */
+  gap: 26px;
   padding: 4px;
 `;
+
+const WeatherCategory = styled.div``;
 
 const WeatherCategoryText = styled.div`
   width: 50px;
@@ -336,7 +339,7 @@ const WeatherCategoryText = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  &:not(:nth-of-type(3), :nth-of-type(4)) {
+  &:not(:nth-of-type(2)) {
     margin-bottom: 14px;
   }
 `;

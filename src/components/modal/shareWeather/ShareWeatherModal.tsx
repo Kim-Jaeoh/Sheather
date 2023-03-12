@@ -25,6 +25,7 @@ import getCroppedImg from "../../../assets/CropImage";
 import { getInitialCropFromCroppedAreaPercentages } from "react-easy-crop";
 import { cloneDeep } from "lodash";
 import { Spinner } from "../../../assets/Spinner";
+import useTagCurrentWear from "../../../hooks/useTagCurrentWear";
 
 type Props = {
   shareBtn: boolean;
@@ -41,6 +42,7 @@ interface TagType {
 }
 
 const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
+  const [tags, setTags] = useState<string[]>([]);
   const [checkTag, setCheckTag] = useState<TagType>();
   const [focus, setFocus] = useState(null);
   const [attachments, setAttachments] = useState([]);
@@ -56,6 +58,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   const shareWeatherData = useSelector((state: RootState) => {
     return state.weather;
   });
+  const { currentTags } = useTagCurrentWear();
   const { location } = useCurrentLocation();
   const queryClient = useQueryClient();
 
@@ -226,7 +229,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   // 피드 업로드
   const { mutate } = useMutation(
     (response: FeedType) =>
-      axios.post("http://localhost:4000/api/feed", response),
+      axios.post(`${process.env.REACT_APP_SERVER_PORT}/api/feed`, response),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -265,6 +268,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
         },
         region: regionData?.data?.documents[0]?.address?.region_1depth_name,
         reply: [],
+        tag: tags,
       });
       toast.success("업로드 되었습니다.");
     }
@@ -445,6 +449,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
               bgColor={"#48A3FF"}
               text={text}
               setText={setText}
+              setTags={setTags}
             />
           </>
         )}
@@ -483,7 +488,7 @@ const Header = styled.header`
   min-height: 52px;
   display: flex;
   align-items: center;
-  padding-right: 12px;
+  padding-right: 14px;
   border-radius: 12px 12px 0 0;
   border-bottom: 1px solid ${thirdColor};
   position: sticky;
@@ -512,7 +517,7 @@ const ImageWrapper = styled.div<{ length?: number }>`
   display: flex;
   width: 100%;
   gap: 12px;
-  padding: 12px;
+  padding: 14px;
   align-items: center;
   /* justify-content: space-evenly; */
   overflow: hidden;

@@ -1,21 +1,13 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
-import Flicking, { ViewportSlot } from "@egjs/react-flicking";
+import Flicking from "@egjs/react-flicking";
 import "../../styles/DetailFlicking.css";
-import { Pagination } from "@egjs/flicking-plugins";
-import "@egjs/flicking-plugins/dist/pagination.css";
-import { BsBookmark, BsSun } from "react-icons/bs";
-import { FiMoreHorizontal, FiShare } from "react-icons/fi";
+import { BsSun } from "react-icons/bs";
+import { FiMoreHorizontal } from "react-icons/fi";
 import { IoShirtOutline } from "react-icons/io5";
 import useTimeFormat from "../../hooks/useTimeFormat";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -33,14 +25,12 @@ import useFlickingArrow from "../../hooks/useFlickingArrow";
 import { Link } from "react-router-dom";
 import uuid from "react-uuid";
 import useToggleFollow from "../../hooks/useToggleFollow";
-import { getDoc, doc } from "firebase/firestore";
-import { dbService } from "../../fbase";
 import FeedProfileImage from "./FeedProfileImage";
 import FeedProfileDisplayName from "./FeedProfileDisplayName";
-import { Skeleton } from "@mui/material";
 import FeedEditModal from "../modal/feed/FeedEditModal";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import FeedMoreSelectModal from "../modal/feed/FeedMoreSelectModal";
+import { BiCopy } from "react-icons/bi";
 
 type ReplyPayload = {
   id?: string;
@@ -77,11 +67,12 @@ const DetailFeed = () => {
   const { timeToString, timeToString2 } = useTimeFormat();
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const navigate = useNavigate();
-
   const queryClient = useQueryClient();
 
   const feedApi = async () => {
-    const { data } = await axios.get("http://localhost:4000/api/feed");
+    const { data } = await axios.get(
+      `${process.env.REACT_APP_SERVER_PORT}/api/feed`
+    );
     return data;
   };
 
@@ -92,7 +83,7 @@ const DetailFeed = () => {
   });
 
   const detailInfo = useMemo(() => {
-    return feedData?.filter((res) => state.id === res.id);
+    return feedData?.filter((res) => state?.id === res.id);
   }, [feedData, state]);
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -102,7 +93,7 @@ const DetailFeed = () => {
   // 댓글 업로드
   const { mutate } = useMutation(
     (response: ReplyPayload) =>
-      axios.post("http://localhost:4000/api/reply", response),
+      axios.post(`${process.env.REACT_APP_SERVER_PORT}/api/reply`, response),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -113,9 +104,12 @@ const DetailFeed = () => {
   // 댓글 삭제
   const { mutate: mutateReplyDelete } = useMutation(
     (response: ReplyPayload) =>
-      axios.delete(`http://localhost:4000/api/reply/${response.id}`, {
-        data: response,
-      }),
+      axios.delete(
+        `${process.env.REACT_APP_SERVER_PORT}/api/reply/${response.id}`,
+        {
+          data: response,
+        }
+      ),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -154,7 +148,8 @@ const DetailFeed = () => {
 
   // 피드 삭제
   const { mutate: mutateFeedDelete } = useMutation(
-    () => axios.delete(`http://localhost:4000/api/feed/${state.id}`),
+    () =>
+      axios.delete(`${process.env.REACT_APP_SERVER_PORT}/api/feed/${state.id}`),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -214,6 +209,16 @@ const DetailFeed = () => {
   const onFeedEditClick = () => {
     setIsFeedEdit((prev) => !prev);
     setIsMore(false);
+  };
+
+  const handleCopyClipBoard = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+
+      toast.success("클립보드로 복사했습니다.");
+    } catch (error) {
+      alert("클립보드에 복사되지 않았습니다.");
+    }
   };
 
   return (
@@ -297,12 +302,12 @@ const DetailFeed = () => {
                             align="prev"
                           >
                             <WearInfo>
-                              <TagBox>
-                                <Tag>
+                              <CategoryTagBox>
+                                <CategoryTag>
                                   <MdPlace />
                                   {res.region}
-                                </Tag>
-                                <Tag>
+                                </CategoryTag>
+                                <CategoryTag>
                                   <WeatherIcon>
                                     <img
                                       src={`http://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
@@ -310,13 +315,15 @@ const DetailFeed = () => {
                                     />
                                   </WeatherIcon>
                                   {res.weatherInfo.weather}
-                                </Tag>
-                                <Tag>{res.weatherInfo.temp}º</Tag>
-                                <Tag>
+                                </CategoryTag>
+                                <CategoryTag>
+                                  {res.weatherInfo.temp}º
+                                </CategoryTag>
+                                <CategoryTag>
                                   {res.weatherInfo.wind}
                                   <span>m/s</span>
-                                </Tag>
-                              </TagBox>
+                                </CategoryTag>
+                              </CategoryTagBox>
                             </WearInfo>
                           </Flicking>
                         </FlickingCategoryBox>
@@ -335,21 +342,25 @@ const DetailFeed = () => {
                             align="prev"
                           >
                             <WearInfo>
-                              <TagBox>
-                                <Tag>{res.feel}</Tag>
+                              <CategoryTagBox>
+                                <CategoryTag>{res.feel}</CategoryTag>
                                 {res.wearInfo.outer && (
-                                  <Tag>{res.wearInfo.outer}</Tag>
+                                  <CategoryTag>
+                                    {res.wearInfo.outer}
+                                  </CategoryTag>
                                 )}
                                 {res.wearInfo.top && (
-                                  <Tag>{res.wearInfo.top}</Tag>
+                                  <CategoryTag>{res.wearInfo.top}</CategoryTag>
                                 )}
                                 {res.wearInfo.bottom && (
-                                  <Tag>{res.wearInfo.bottom}</Tag>
+                                  <CategoryTag>
+                                    {res.wearInfo.bottom}
+                                  </CategoryTag>
                                 )}
                                 {res.wearInfo.etc && (
-                                  <Tag>{res.wearInfo.etc}</Tag>
+                                  <CategoryTag>{res.wearInfo.etc}</CategoryTag>
                                 )}
-                              </TagBox>
+                              </CategoryTagBox>
                             </WearInfo>
                           </Flicking>
                         </FlickingCategoryBox>
@@ -438,14 +449,26 @@ const DetailFeed = () => {
                             )}
                           </Icon>
                         </IconBox>
-                        <Icon>
-                          <FiShare />
+                        <Icon onClick={() => handleCopyClipBoard()}>
+                          <BiCopy />
                         </Icon>
                       </UserReactBox>
                       <UserReactNum>공감 {res.like.length}개</UserReactNum>
                       <UserTextBox>
                         <UserText>{res.text}</UserText>
                       </UserTextBox>
+                      {res?.tag && (
+                        <TagList>
+                          {res?.tag?.map((tag, index) => {
+                            return (
+                              <Tag key={index}>
+                                <span>#</span>
+                                <TagName>{tag}</TagName>
+                              </Tag>
+                            );
+                          })}
+                        </TagList>
+                      )}
                     </TextBox>
                     <ReplyBox>
                       {res.reply.length > 0 && (
@@ -717,7 +740,7 @@ const WearDetailBox = styled.div`
 `;
 
 const WearDetail = styled.div`
-  padding: 14px;
+  padding: 10px 14px;
   display: flex;
   flex: 1;
   align-items: center;
@@ -832,14 +855,14 @@ const WeatherIcon = styled.div`
   }
 `;
 
-const TagBox = styled.div`
+const CategoryTagBox = styled.div`
   display: flex;
   flex: nowrap;
   gap: 8px;
 `;
 
-const Tag = styled.div`
-  font-size: 14px;
+const CategoryTag = styled.div`
+  font-size: 12px;
   padding: 6px 8px;
   display: flex;
   align-items: center;
@@ -856,6 +879,38 @@ const Tag = styled.div`
 const InfoBox = styled.div`
   padding: 20px;
   border-top: 1px solid ${thirdColor};
+`;
+
+const TagList = styled.ul`
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  gap: 10px;
+`;
+
+const Tag = styled.li`
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* line-height: 16px; */
+  border-radius: 64px;
+  background-color: #f7f7f7;
+  padding: 8px 10px;
+  color: rgb(255, 86, 115);
+
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+  span {
+    margin-right: 4px;
+  }
+`;
+
+const TagName = styled.div`
+  font-weight: 500;
 `;
 
 const TextBox = styled.div`

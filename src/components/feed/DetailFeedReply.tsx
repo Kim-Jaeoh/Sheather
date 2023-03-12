@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
-import defaultAccount from "../../assets/account_img_default.png";
 import useTimeFormat from "../../hooks/useTimeFormat";
 import ColorList from "../../assets/ColorList";
 import { IoMdClose } from "react-icons/io";
 import { replyType } from "../../types/type";
-import { UserType } from "../../app/user";
+import { Link } from "react-router-dom";
 
 type Props = {
   userObj: string;
@@ -21,20 +20,22 @@ const DetailFeedReply = ({ userObj, reply, onDelete }: Props) => {
 
   //  map 처리 된 유저 정보들
   useEffect(() => {
-    onSnapshot(doc(dbService, "users", reply.email), (doc) => {
+    onSnapshot(doc(dbService, "users", reply.displayName), (doc) => {
       setReplyCreatorInfo(doc.data());
     });
-  }, [reply.email]);
+  }, [reply.displayName]);
 
   return (
     <ReplyBox>
       <UserInfoBox>
-        <UserImageBox>
+        <UserImageBox to={`/profile/${replyCreatorInfo?.displayName}/post`}>
           <UserImage src={replyCreatorInfo?.profileURL} alt="" />
         </UserImageBox>
         <UserWriteInfo>
           <ReplyInfoBox>
-            <ReplyId>{reply.displayName}</ReplyId>
+            <ReplyId to={`/profile/${replyCreatorInfo?.displayName}/post`}>
+              {reply.displayName}
+            </ReplyId>
             <ReplyText>{reply.text}</ReplyText>
           </ReplyInfoBox>
           <WriteDate>{timeToString(Number(reply.replyAt))}</WriteDate>
@@ -67,7 +68,11 @@ const UserInfoBox = styled.div`
   /* align-items: center; */
 `;
 
-const UserImageBox = styled.div`
+const UserImageBox = styled(Link)`
+  display: block;
+  padding: 0;
+  margin: 0;
+  outline: none;
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -103,7 +108,7 @@ const ReplyInfoBox = styled.div`
   color: ${secondColor};
 `;
 
-const ReplyId = styled.p`
+const ReplyId = styled(Link)`
   display: inline;
   margin-right: 8px;
   font-size: 14px;

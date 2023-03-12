@@ -16,7 +16,8 @@ import { UserType } from "../../app/user";
 import { dbService } from "../../fbase";
 import FeedProfileImage from "./FeedProfileImage";
 import FeedProfileDisplayName from "./FeedProfileDisplayName";
-import { MasonryGrid } from "@egjs/react-grid";
+import { FrameGrid, MasonryGrid } from "@egjs/react-grid";
+import { Spinner } from "../../assets/Spinner";
 
 type Props = {
   feed?: FeedType[];
@@ -24,7 +25,7 @@ type Props = {
 };
 
 const FeedCategory = ({ url, feed }: Props) => {
-  const [gridIsLoading, setGridIsLoading] = useState(false);
+  const [isGridRender, setIsGridRender] = useState(false);
   const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
   const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
   const { currentUser: userObj } = useSelector((state: RootState) => {
@@ -36,13 +37,13 @@ const FeedCategory = ({ url, feed }: Props) => {
   let checkAspect: number;
   const sizes = (aspect: string) => {
     if (aspect === "4/3") {
-      return (checkSize = 36);
+      return (checkSize = 34);
     }
     if (aspect === "1/1") {
-      return (checkSize = 44);
+      return (checkSize = 42);
     }
     if (aspect === "3/4") {
-      return (checkSize = 54);
+      return (checkSize = 52);
     }
   };
   const sizeAspect = (aspect: string) => {
@@ -62,7 +63,7 @@ const FeedCategory = ({ url, feed }: Props) => {
       {!isLoading ? (
         <>
           {dataList?.pages?.flat().length !== 0 ? (
-            <CardBox>
+            <CardBox render={isGridRender}>
               <MasonryGrid
                 className="container"
                 gap={20}
@@ -71,16 +72,20 @@ const FeedCategory = ({ url, feed }: Props) => {
                 column={2}
                 columnSize={0}
                 columnSizeRatio={0}
-                autoResize={true}
-                useFit={true}
-                preserveUIOnDestroy={true}
-                observeChildren={true}
+                onRenderComplete={({ isResize, mounted, updated }) => {
+                  setIsGridRender(Boolean(updated));
+                }}
               >
                 {dataList?.pages?.flat().map((res: FeedType, index: number) => {
                   sizes(res.imgAspect);
                   sizeAspect(res.imgAspect);
+
                   return (
-                    <CardList size={checkSize} key={res.id}>
+                    <CardList
+                      render={isGridRender}
+                      size={checkSize}
+                      key={res.id}
+                    >
                       <Card
                         aspect={checkAspect}
                         to={"/feed/detail"}
@@ -142,18 +147,31 @@ const FeedCategory = ({ url, feed }: Props) => {
                           </UserReactBox>
                         </UserInfoBox>
                         <UserText>{res.text}</UserText>
+                        {res?.tag?.length !== 0 && (
+                          <TagList>
+                            {res?.tag?.map((tag, index) => {
+                              return (
+                                <Tag key={index}>
+                                  <span>#</span>
+                                  <TagName>{tag}</TagName>
+                                </Tag>
+                              );
+                            })}
+                          </TagList>
+                        )}
                       </UserBox>
                     </CardList>
                   );
                 })}
+
+                <div
+                  ref={ref}
+                  // style={{
+                  //   position: "absolute",
+                  //   bottom: "100px",
+                  // }}
+                />
               </MasonryGrid>
-              <div
-                ref={ref}
-                // style={{
-                //   position: "absolute",
-                //   bottom: "100px",
-                // }}
-              />
             </CardBox>
           ) : (
             <NotInfoBox>
@@ -163,7 +181,22 @@ const FeedCategory = ({ url, feed }: Props) => {
         </>
       ) : (
         <CardBox>
-          <HomeSkeleton />
+          <MasonryGrid
+            className="container"
+            gap={20}
+            defaultDirection={"end"}
+            align={"stretch"}
+            column={2}
+            columnSize={0}
+            columnSizeRatio={0}
+            outlineSize={0}
+            autoResize={true}
+            useFit={true}
+            preserveUIOnDestroy={true}
+            observeChildren={true}
+          >
+            <HomeSkeleton />
+          </MasonryGrid>
         </CardBox>
       )}
     </>
@@ -176,24 +209,27 @@ export default FeedCategory;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const CardBox = styled.ul`
+const CardBox = styled.ul<{ render?: boolean }>`
   width: 100%;
+  /* display: ${(props) => (props.render ? "block" : "grid")}; */
+  /* grid-template-columns: ${(props) => props.render && `repeat(2, 1fr)`}; */
+  /* padding: 0 10px 10px; */
   padding: 10px 20px 20px;
-  /* padding: 10px 10px 10px; */
-  /* display: grid; */
-  /* grid-template-columns: repeat(2, 1fr); */
+  /* gap: 20px; */
   /* grid-auto-rows: auto; */
+  /* grid-auto-rows: 10px; */
 `;
 
-const CardList = styled.li<{ size?: number }>`
-  /* display: flex; */
-  /* flex-direction: column; */
+const CardList = styled.li<{ render?: boolean; size?: number }>`
+  position: ${(props) => (props.render ? "absolute" : "relative")};
+  /* position: absolute; */
+  width: 318px;
   border-radius: 8px;
   border: 2px solid ${secondColor};
   overflow: hidden;
-  position: absolute;
+  background: #fff;
   /* margin: 10px; */
-  /* grid-row-end: span ${(props) => (props.size ? props.size : 44)}; */
+  /* grid-row-end: span ${(props) => Math.ceil(props.size)}; */
 
   animation-name: slideUp;
   animation-duration: 0.3s;
@@ -204,7 +240,7 @@ const CardList = styled.li<{ size?: number }>`
       opacity: 0;
       transform: translateY(50px);
     }
-    50% {
+    65% {
       opacity: 0.5;
     }
     100% {
@@ -216,7 +252,6 @@ const CardList = styled.li<{ size?: number }>`
 
 const Card = styled(Link)<{ aspect?: number }>`
   display: block;
-
   position: relative;
   cursor: pointer;
   outline: none;
@@ -228,7 +263,6 @@ const Card = styled(Link)<{ aspect?: number }>`
 const WeatherEmojiBox = styled.div`
   position: absolute;
   z-index: 1;
-
   top: 8px;
   left: 8px;
   background-color: rgba(34, 34, 34, 0.4);
@@ -362,6 +396,38 @@ const UserText = styled.p`
   line-height: 20px;
   font-size: 14px;
   letter-spacing: -0.21px;
+`;
+
+const TagList = styled.ul`
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  gap: 10px;
+`;
+
+const Tag = styled.li`
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* line-height: 16px; */
+  border-radius: 64px;
+  background-color: #f7f7f7;
+  padding: 8px 10px;
+  color: rgb(255, 86, 115);
+
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+  span {
+    margin-right: 4px;
+  }
+`;
+
+const TagName = styled.div`
+  font-weight: 500;
 `;
 
 const NotInfoBox = styled.div`

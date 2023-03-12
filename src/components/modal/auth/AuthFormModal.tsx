@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import {
@@ -8,10 +8,16 @@ import {
 } from "firebase/auth";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { useDispatch } from "react-redux";
-import { IoCloseOutline } from "react-icons/io5";
+import {
+  IoCheckmarkCircleOutline,
+  IoCloseCircleOutline,
+  IoCloseOutline,
+} from "react-icons/io5";
 import { authService, dbService } from "../../../fbase";
 import { currentUser, loginToken } from "../../../app/user";
 import defaultAccount from "../../../assets/account_img_default.png";
+import ColorList from "../../../assets/ColorList";
+import { toast } from "react-hot-toast";
 
 type Props = {
   modalOpen: boolean;
@@ -22,7 +28,14 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [dpName, setDpName] = useState("");
-  const [select, setSelect] = useState("");
+  const [emailMessage, setEmailMessage] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState(false);
+  const [dpNameMessage, setDpNameMessage] = useState(false);
+  const [select, setSelect] = useState({
+    email: false,
+    password: false,
+    dpName: false,
+  });
   const [isExistAccount, setIsExistAccount] = useState(true);
   const [error, setError] = useState("");
   const dispatch = useDispatch();
@@ -30,7 +43,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
 
   const SignUser = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    // if (emailMessage && passwordMessage && dpNameMessage) {
     try {
       let user;
       if (isExistAccount) {
@@ -139,146 +152,249 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
         setError(error.message);
       }
     }
+    // }
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { name, value },
     } = e;
+
     if (name === "email") {
       setEmail(value);
-    } else if (name === "password") {
+    }
+    if (name === "password") {
       setPassword(value);
-    } else if (name === "dpName") {
+    }
+    if (name === "dpName") {
       setDpName(value);
     }
   };
 
+  // 정규식 체크
+  useEffect(() => {
+    const emailRegex =
+      /([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-z]{2,4}|[0-9]{1,3})(\]?)$/;
+    const passwordRegex =
+      /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/;
+    const dpNameRegex = /^[a-zA-Z0-9_.]+$/;
+
+    if (!emailRegex.test(email)) {
+      setEmailMessage(false);
+    } else {
+      setEmailMessage(true);
+    }
+    // if (!passwordRegex.test(password)) {
+    //   setPasswordMessage(false);
+    // } else {
+    // setPasswordMessage(true);
+    // }
+    if (!dpNameRegex.test(dpName)) {
+      setDpNameMessage(false);
+    } else {
+      setDpNameMessage(true);
+    }
+  }, [dpName, email, password]);
+
+  // 인풋 에러
+  const inputError = useMemo(() => {
+    if (email.length > 0 && select.email && !emailMessage) {
+      return "사용할 수 없는 이메일 주소입니다.";
+    }
+    if (password.length > 0 && select.password && !passwordMessage) {
+      return "숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요.";
+    }
+    if (dpName.length > 0 && select.dpName && !dpName) {
+      return "사용자 이름에는 문자, 숫자, 밑줄 및 마침표만 사용할 수 있습니다.";
+    }
+  }, [
+    dpName,
+    email.length,
+    emailMessage,
+    password.length,
+    passwordMessage,
+    select.dpName,
+    select.email,
+    select.password,
+  ]);
+
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
-      <Wrapper>
-        <Container>
-          <LogoBox></LogoBox>
-          <ListDelete onClick={modalClose}>
+      <Container>
+        <Header>
+          <LogoBox>SHEATHER</LogoBox>
+          <Category>{isExistAccount ? "로그인" : "회원가입"}</Category>
+          <IconBox onClick={modalClose}>
             <IoCloseOutline />
-          </ListDelete>
-          <FormBox>
-            <Form onSubmit={SignUser}>
-              <EmailBox>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Email"
-                  required
-                  value={email}
-                  onChange={onChange}
-                  // select={select}
-                  autoComplete="off"
-                  onFocus={() => setSelect("email")}
-                  onBlur={() => setSelect("")}
-                />
-              </EmailBox>
-              {!isExistAccount && (
-                <EmailBox>
-                  <input
-                    name="dpName"
-                    type="dpName"
-                    placeholder="DisplayName"
-                    required
-                    value={dpName}
-                    onChange={onChange}
-                    // select={select}
-                    autoComplete="off"
-                    onFocus={() => setSelect("dpName")}
-                    onBlur={() => setSelect("")}
-                  />
-                </EmailBox>
+          </IconBox>
+        </Header>
+        <Form onSubmit={SignUser} method="post">
+          <EmailBox>
+            <Input
+              name="email"
+              type="email"
+              placeholder="이메일 주소"
+              // required
+              value={email}
+              onChange={onChange}
+              autoComplete="off"
+              onFocus={() => setSelect((prev) => ({ ...prev, email: false }))}
+              onBlur={() => setSelect((prev) => ({ ...prev, email: true }))}
+            />
+            {email.length > 0 && select.email && (
+              <InputCheckBox check={emailMessage}>
+                {emailMessage ? (
+                  <IoCheckmarkCircleOutline />
+                ) : (
+                  <IoCloseCircleOutline />
+                )}
+              </InputCheckBox>
+            )}
+          </EmailBox>
+          {!isExistAccount && (
+            <EmailBox>
+              <Input
+                name="dpName"
+                type="dpName"
+                placeholder="사용자 이름"
+                // required
+                value={dpName}
+                onChange={onChange}
+                autoComplete="off"
+                onFocus={() =>
+                  setSelect((prev) => ({ ...prev, dpName: false }))
+                }
+                onBlur={() => setSelect((prev) => ({ ...prev, dpName: true }))}
+              />
+              {dpName.length > 0 && select.dpName && (
+                <InputCheckBox check={dpNameMessage}>
+                  {dpNameMessage ? (
+                    <IoCheckmarkCircleOutline />
+                  ) : (
+                    <IoCloseCircleOutline />
+                  )}
+                </InputCheckBox>
               )}
-              <PasswordBox>
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  required
-                  value={password}
-                  onChange={onChange}
-                  // select={select}
-                  autoComplete="off"
-                  onFocus={() => setSelect("password")}
-                  onBlur={() => setSelect("")}
-                />
-              </PasswordBox>
-              <SignBtnBox>
-                <SignBtn>{isExistAccount ? "로그인" : "회원가입"}</SignBtn>
-              </SignBtnBox>
-              {error && <ErrorText>{error}</ErrorText>}
-              <SignInfo>
-                <SignUp onClick={toggleAccount}>
-                  {isExistAccount ? "회원가입" : "로그인"}
-                </SignUp>
-                <AccountBox>
-                  <AccountFind>계정 찾기</AccountFind>
-                  <AccountFind>비밀번호 찾기</AccountFind>
-                </AccountBox>
-              </SignInfo>
-            </Form>
-          </FormBox>
-        </Container>
-      </Wrapper>
+            </EmailBox>
+          )}
+          <PasswordBox>
+            <Input
+              name="password"
+              type="password"
+              placeholder="비밀번호"
+              // required
+              value={password}
+              onChange={onChange}
+              autoComplete="off"
+              autoCapitalize="off"
+              onFocus={() =>
+                setSelect((prev) => ({ ...prev, password: false }))
+              }
+              onBlur={() => setSelect((prev) => ({ ...prev, password: true }))}
+            />
+            {password.length > 0 && select.password && (
+              <InputCheckBox check={passwordMessage}>
+                {passwordMessage ? (
+                  <IoCheckmarkCircleOutline />
+                ) : (
+                  <IoCloseCircleOutline />
+                )}
+              </InputCheckBox>
+            )}
+          </PasswordBox>
+          <SignBtnBox>
+            <SignBtn>{isExistAccount ? "로그인" : "회원가입"}</SignBtn>
+          </SignBtnBox>
+          {error ? (
+            <ErrorText>{error}</ErrorText>
+          ) : (
+            <ErrorText>{inputError}</ErrorText>
+          )}
+        </Form>
+        <SignInfo>
+          <SignUp onClick={toggleAccount}>
+            {isExistAccount ? "회원가입" : "로그인"}
+          </SignUp>
+          <AccountBox>
+            <AccountFind>계정 찾기</AccountFind>
+            <AccountFind>비밀번호 찾기</AccountFind>
+          </AccountBox>
+        </SignInfo>
+      </Container>
     </Modal>
   );
 };
 
 export default AuthFormModal;
 
-const Wrapper = styled.div`
-  overflow-y: scroll;
-  -ms-overflow-style: none; // 인터넷 익스플로러
-  scrollbar-width: none; // 파이어폭스
-
-  ::-webkit-scrollbar {
-    display: none;
-  }
-
-  outline: none;
-  font-size: 14px;
-  line-height: 1.5;
-  font-family: Inter, Spoqa Han Sans Neo, Apple SD Gothic Neo, Malgun Gothic,
-    \b9d1\c740\ace0\b515, sans-serif;
-  color: #000;
-  letter-spacing: -0.015em;
-
-  a {
-    color: #000;
-    text-decoration: none;
-  }
-`;
+const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.div`
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 320px;
-  /* height: 500px; */
+  width: 480px;
   margin: 0 auto;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 8px;
   text-align: center;
+  border: 2px solid ${secondColor};
+  box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
+  outline: none;
   /* padding-bottom: 24px; */
 
-  @media screen and (min-width: 640px) {
+  /* @media screen and (min-width: 640px) {
     width: 500px;
+  } */
+`;
+
+const Header = styled.header`
+  width: 100%;
+  padding: 0px 14px;
+  /* min-height: 52px; */
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid ${thirdColor};
+  position: relative;
+`;
+
+const Category = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  font-size: 14px;
+`;
+
+const IconBox = styled.div`
+  width: 48px;
+  height: 48px;
+  /* position: absolute; */
+  /* right: 0; */
+  margin-right: -14px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    color: #6f4ccf;
+  }
+
+  svg {
+    font-size: 24px;
   }
 `;
 
-const LogoBox = styled.div`
-  width: 70px;
-  height: 30px;
-  margin: 0 auto;
-  text-align: center;
-  padding-top: 50px;
-  padding-bottom: 24px;
+const LogoBox = styled.p`
+  /* width: 70px; */
+  /* margin-left: 12px; */
+  font-weight: bold;
 `;
 
 const Logo = styled.img`
@@ -286,46 +402,63 @@ const Logo = styled.img`
   width: 100%;
 `;
 
-const FormBox = styled.article`
-  position: relative;
-  width: 90%;
-  margin: 24px auto;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  font-size: 12px;
+const FormBox = styled.article``;
 
-  form {
-    padding: 50px 50px;
-  }
+const Form = styled.form`
+  padding: 50px 50px 0;
 `;
 
-const Form = styled.form``;
-
 const EmailBox = styled.div`
-  position: relative;
-  margin-bottom: 3px;
-  border: solid #ccc;
-  border-width: 0 0 2px;
-
-  input {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    height: 45px;
-    padding: 10px 0 8px;
-    border: 0;
-    font-size: 18px;
-    line-height: 25px;
-    color: #191919;
-    background-color: transparent;
-    box-sizing: border-box;
-    outline: 0 none;
-    caret-color: #191919;
-    opacity: 0.4;
-  }
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
+  border-radius: 8px;
+  padding: 0 12px;
+  border: 1px solid ${thirdColor};
 `;
 
 const PasswordBox = styled(EmailBox)``;
+
+const Input = styled.input`
+  width: 100%;
+  height: 46px;
+  font-size: 16px;
+  color: ${secondColor};
+  text-overflow: ellipsis;
+  white-space: pre-wrap;
+  background-color: transparent;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  transition: all 0.1s linear;
+  opacity: 1;
+  padding: 0;
+  margin: 0;
+
+  &::placeholder {
+    font-size: 12px;
+  }
+
+  &:focus::placeholder {
+    opacity: 0.4;
+    color: ${thirdColor};
+    transition: all 0.2s;
+  }
+`;
+
+const InputCheckBox = styled.div<{ check?: boolean }>`
+  width: 48px;
+  height: 48px;
+  margin-right: -12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${(props) => (props.check ? thirdColor : "red")};
+  svg {
+    font-size: 24px;
+  }
+`;
 
 const SignBtnBox = styled.div`
   padding-top: 40px;
@@ -334,22 +467,23 @@ const SignBtnBox = styled.div`
 
 const SignBtn = styled.button`
   cursor: pointer;
-  background-color: #fee500;
+  background-color: #6f4ccf;
   display: block;
   width: 100%;
   height: 50px;
-  border-radius: 4px;
-  font-weight: 400;
+  border-radius: 8px;
+  padding: 0;
   font-size: 16px;
-  line-height: 51px;
-  color: #191919;
+  color: #fff;
 `;
 
 const SignInfo = styled.div`
-  margin-top: 26px;
+  /* margin-top: 26px; */
   font-size: 12px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  padding: 20px;
 `;
 const SignUp = styled.p`
   cursor: pointer;
@@ -357,19 +491,22 @@ const SignUp = styled.p`
 
 const AccountBox = styled.ul`
   display: flex;
+  gap: 10px;
 `;
 
 const AccountFind = styled.li`
   cursor: pointer;
   &:first-of-type {
-    ::after {
+    padding-right: 10px;
+    border-right: 1px solid ${fourthColor};
+    /* ::after {
       content: "";
       float: right;
       width: 1px;
       height: 10px;
       margin: 4px 10px;
-      background-color: rgba(0, 0, 0, 0.08);
-    }
+      background-color: rgba(34, 34, 34, 0.078);
+    } */
   }
 `;
 
@@ -386,8 +523,8 @@ const ErrorText = styled.p`
 
 const ListDelete = styled.button`
   position: absolute;
-  z-index: 10;
-  padding: 9px;
+  /* z-index: 10; */
+  /* padding: 9px; */
   top: 0px;
   right: 0px;
 

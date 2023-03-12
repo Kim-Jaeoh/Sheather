@@ -2,21 +2,24 @@ import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { onSnapshot, doc } from "firebase/firestore";
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
+import { FiLogOut } from "react-icons/fi";
 import { MdGridOn } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { Link, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { RootState } from "../app/store";
 import { UserType } from "../app/user";
 import ColorList from "../assets/ColorList";
+import ExploreSkeleton from "../assets/skeleton/ExploreSkeleton";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
 import ProfilePost from "../components/profile/ProfilePost";
 import { dbService } from "../fbase";
 import useInfinityScroll from "../hooks/useInfinityScroll";
+import useLogout from "../hooks/useLogout";
 import useToggleFollow from "../hooks/useToggleFollow";
 import { FeedType } from "../types/type";
 
@@ -28,50 +31,28 @@ const Profile = () => {
   );
   const [selectCategory, setSelectCategory] = useState(0);
   const [post, setPost] = useState(null);
+  const [notInfoText, setNotInfoText] = useState("");
   const [account, setAccount] = useState(null);
   const [followInfo, setFollowInfo] = useState(null);
   const [followCategory, setFollowCategory] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const { onLogOutClick } = useLogout();
   const { toggleFollow } = useToggleFollow();
-  const { pathname } = useLocation();
   const { id, "*": type } = useParams();
   const {
     dataList: feedArray,
     isLoading: isLoading2,
     ref,
   } = useInfinityScroll({
-    url: "http://localhost:4000/api/feed/recent?",
+    url: `${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`,
     count: 9,
   });
 
-  // 계정 정보 가져오기
-  // 팔로우 모달 -> 상대 프로필 이동 -> 팔로우 버튼을 누를 때마다 렌더링이 되며 본인 프로필과 상대의 프로필이 겹쳐 보였음
-  // => if문을 사용하여 본인 프로필이 아닐 경우에만 Firebase에서 타 계정 정보 받아오기
-  useEffect(() => {
-    if (userObj.displayName !== id) {
-      onSnapshot(doc(dbService, "users", id), (doc) => {
-        setAccount(doc.data());
-      });
-    } else {
-      setAccount(userObj);
-    }
-  }, [id, userObj]);
-
-  useEffect(() => {
-    if (type === "post") {
-      return setSelectCategory(0);
-    }
-    if (type === "like") {
-      return setSelectCategory(1);
-    }
-    if (type === "bookmark") {
-      return setSelectCategory(2);
-    }
-  }, [type]);
-
   const feedApi = async () => {
-    const { data } = await axios.get("http://localhost:4000/api/feed");
+    const { data } = await axios.get(
+      `${process.env.REACT_APP_SERVER_PORT}/api/feed`
+    );
     return data;
   };
 
@@ -91,6 +72,32 @@ const Profile = () => {
     return filter;
   }, [feedData, account?.email]);
 
+  // 계정 정보 가져오기
+  // 팔로우 모달 -> 상대 프로필 이동 -> 팔로우 버튼을 누를 때마다 렌더링이 되며 본인 프로필과 상대의 프로필이 겹쳐 보였음
+  // => if문을 사용하여 본인 프로필이 아닐 경우에만 Firebase에서 타 계정 정보 받아오기
+  useEffect(() => {
+    if (userObj.displayName !== id) {
+      onSnapshot(doc(dbService, "users", id), (doc) => {
+        setAccount(doc.data());
+      });
+    } else {
+      setAccount(userObj);
+    }
+  }, [id, userObj]);
+
+  //
+  useEffect(() => {
+    if (type === "post") {
+      return setSelectCategory(0);
+    }
+    if (type === "like") {
+      return setSelectCategory(1);
+    }
+    if (type === "bookmark") {
+      return setSelectCategory(2);
+    }
+  }, [type]);
+
   useEffect(() => {
     if (selectCategory === 0) {
       const recentFilter = feedArray?.pages
@@ -106,6 +113,7 @@ const Profile = () => {
           return feedArray?.pages?.flat()?.filter((asd) => asd.id === res);
         })
         .flat();
+
       return setPost(likeFilter);
     }
 
@@ -115,6 +123,7 @@ const Profile = () => {
           return feedArray?.pages?.flat()?.filter((asd) => asd.id === res);
         })
         .flat();
+
       return setPost(bookmarkFilter);
     }
   }, [
@@ -124,6 +133,19 @@ const Profile = () => {
     feedArray?.pages,
     selectCategory,
   ]);
+
+  useEffect(() => {
+    if (myPost?.length !== 0) {
+      setNotInfoText("게시물을 공유하면 회원님의 프로필에 표시됩니다.");
+    }
+    if (selectCategory === 1) {
+      setNotInfoText("사람들의 게시물에 좋아요를 누르면 여기에 표시됩니다.");
+    }
+
+    if (selectCategory === 2) {
+      setNotInfoText("사람들의 게시물에 북마크를 누르면 여기에 표시됩니다.");
+    }
+  }, [myPost?.length, selectCategory]);
 
   const onModalClick = () => {
     setModalOpen((prev) => !prev);
@@ -180,6 +202,9 @@ const Profile = () => {
                       <ProfileEditBtn onClick={onEditModalClick}>
                         프로필 수정
                       </ProfileEditBtn>
+                      <LogoutBtn onClick={onLogOutClick}>
+                        <FiLogOut />
+                      </LogoutBtn>
                     </BtnBox>
                   ) : (
                     <FollowBtnBox
@@ -230,7 +255,6 @@ const Profile = () => {
                 select={selectCategory}
                 num={0}
                 to={`post`}
-                state={account?.email}
               >
                 <MdGridOn />
                 게시물
@@ -240,7 +264,6 @@ const Profile = () => {
                 select={selectCategory}
                 num={1}
                 to={`like`}
-                state={account?.email}
               >
                 <FaRegHeart />
                 좋아요
@@ -250,38 +273,19 @@ const Profile = () => {
                 select={selectCategory}
                 num={2}
                 to={`bookmark`}
-                state={account?.email}
+                state={account?.id}
               >
-                <FaRegBookmark />
                 북마크
               </Category>
             </CategoryBox>
-            <CardList length={post?.length}>
-              <Routes>
-                {Array.from(["post", "like", "bookmark"]).map((res, index) => (
-                  <Route
-                    path={res}
-                    key={res}
-                    element={
-                      <ProfilePost
-                        ref={ref}
-                        myPost={post}
-                        postLength={myPost?.length}
-                        email={account?.email}
-                        cat={res}
-                      />
-                    }
-                  />
-                ))}
-              </Routes>
-              {/* <div
-                ref={ref}
-                // style={{
-                //   position: "absolute",
-                //   bottom: "-100px",
-                // }}
-              /> */}
-            </CardList>
+
+            <ProfilePost
+              myPost={post}
+              loading={isLoading2}
+              notInfoText={notInfoText}
+              email={account?.email}
+              ref={ref}
+            />
           </Container>
         </Wrapper>
       )}
@@ -333,6 +337,7 @@ const ProfileBox = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
+  /* padding: 20px; */
   position: relative;
 `;
 
@@ -407,6 +412,7 @@ const ProfileAct = styled.div`
 `;
 
 const BtnBox = styled.div`
+  display: flex;
   /* position: absolute;
   top: 0;
   right: 0; */
@@ -424,6 +430,29 @@ const ProfileEditBtn = styled.button`
   &:hover,
   &:active {
     background-color: #6f4ccf;
+    color: #fff;
+  }
+`;
+
+const LogoutBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-left: 8px;
+  padding: 8px;
+  border: 1px solid ${thirdColor};
+  color: ${thirdColor};
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.1s linear;
+
+  &:hover,
+  &:active {
+    border: 1px solid ${secondColor};
+    background-color: ${secondColor};
     color: #fff;
   }
 `;
@@ -471,7 +500,7 @@ const CategoryBox = styled.ul`
 `;
 
 const Category = styled(Link)<{ select: number; num: number }>`
-  padding: 16px 0 20px;
+  padding: 16px 0 30px;
   /* border-top: ${(props) =>
     props.num === props.select && `2px solid ${secondColor}`}; */
   font-weight: ${(props) => props.num === props.select && "bold"};
@@ -502,9 +531,10 @@ const Category = styled(Link)<{ select: number; num: number }>`
 
 const CardList = styled.ul<{ length: number }>`
   width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  padding: 20px;
+  /* display: flex; */
+  /* flex-wrap: wrap; */
+  /* gap: 16px; */
   /* justify-content: ${(props) =>
     props.length > 3 ? "space-between" : "flex-start"}; */
   /* gap: 20px; */

@@ -139,6 +139,7 @@ const FeedWeatherInfo = () => {
                 onChanged={(e) => console.log(e)}
                 moveType="freeScroll"
                 bound={true}
+                bounce={0}
                 align="prev"
               >
                 {/* <WearInfo> */}
@@ -253,7 +254,8 @@ const FlickingCategoryBox = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 50px;
+  flex: 1;
+  /* height: 44px; */
   cursor: pointer;
   &::after {
     right: 0px;
@@ -287,7 +289,7 @@ const TagBox = styled.div`
 `;
 
 const Tag = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   white-space: nowrap;
   padding: 6px 8px;
   display: flex;
@@ -306,7 +308,7 @@ const WeatherIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 70px;
+  width: 64px;
   /* height: 50px; */
   flex: 1;
   overflow: hidden;
@@ -333,7 +335,7 @@ const InfoText = styled.span`
 `;
 
 const WeatherTemp = styled.p<{ changeColor?: string }>`
-  font-size: 20px;
+  font-size: 18px;
   /* height: 50px; */
   flex: 1;
   font-weight: bold;

@@ -1,23 +1,16 @@
 import styled from "@emotion/styled";
-import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import ColorList from "../../assets/ColorList";
 import { FeedType } from "../../types/type";
-import defaultAccount from "../../assets/account_img_default.png";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useToggleBookmark from "../../hooks/useToggleBookmark";
 import useToggleLike from "../../hooks/useToggleLike";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
-import HomeSkeleton from "../../assets/skeleton/HomeSkeleton";
-import { useEffect, useState } from "react";
-import { getDoc, doc } from "firebase/firestore";
-import { UserType } from "../../app/user";
-import { dbService } from "../../fbase";
-import FeedProfileImage from "../feed/FeedProfileImage";
-import FeedProfileDisplayName from "../feed/FeedProfileDisplayName";
+import { useEffect, useRef, useState } from "react";
 import { FrameGrid } from "@egjs/react-grid";
 import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
+import { cloneDeep } from "lodash";
 
 type Props = {
   feed?: FeedType[];
@@ -25,43 +18,54 @@ type Props = {
 };
 
 const ExploreFeedCategory = ({ url, feed }: Props) => {
-  const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
-  const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
-  const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
+  const [isGridRender, setIsGridRender] = useState(false);
+  const [randomFeed, setRandomFeed] = useState(null);
+  const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 10 });
 
-  let checkSize: number;
-  let checkAspect: number;
-  const sizes = (aspect: string) => {
-    if (aspect === "4/3") {
-      return (checkSize = 36);
-    }
-    if (aspect === "1/1") {
-      return (checkSize = 44);
-    }
-    if (aspect === "3/4") {
-      return (checkSize = 54);
-    }
-  };
-  const sizeAspect = (aspect: string) => {
-    if (aspect === "4/3") {
-      return (checkAspect = 74.6);
-    }
-    if (aspect === "1/1") {
-      return (checkAspect = 100);
-    }
-    if (aspect === "3/4") {
-      return (checkAspect = 132.6);
-    }
-  };
+  //  랜덤화
+  useEffect(() => {
+    // 객체 깊은 복사
+    let arr = cloneDeep(dataList?.pages.flat()); // 렌더링이 2번 돼서 cloneDeep으로 해결
+
+    const randomArray = (array: FeedType[]) => {
+      // (피셔-예이츠)
+      for (let index = array?.length - 1; index > 0; index--) {
+        // 무작위 index 값을 만든다. (0 이상의 배열 길이 값)
+        const randomPosition = Math.floor(Math.random() * (index + 1));
+
+        // 임시로 원본 값을 저장하고, randomPosition을 사용해 배열 요소를 섞는다.
+        const temporary = array[index];
+        array[index] = array[randomPosition];
+        array[randomPosition] = temporary;
+      }
+    };
+
+    randomArray(arr);
+    setRandomFeed(arr);
+  }, [dataList]);
+
+  // let checkSize: number;
+  // let checkAspect: number;
+  // const sizes = (aspect: string) => {
+  //   if (aspect === "4/3") {
+  //     checkAspect = 74.6;
+  //     return (checkSize = 36);
+  //   }
+  //   if (aspect === "1/1") {
+  //     checkAspect = 100;
+  //     return (checkSize = 44);
+  //   }
+  //   if (aspect === "3/4") {
+  //     checkAspect = 132.6;
+  //     return (checkSize = 54);
+  //   }
+  // };
 
   return (
     <>
       {!isLoading ? (
         <>
-          {dataList?.pages?.flat().length !== 0 ? (
+          {randomFeed?.length !== 0 ? (
             <CardBox>
               <FrameGrid
                 className="container"
@@ -70,6 +74,10 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
                 isConstantSize={true}
                 preserveUIOnDestroy={true}
                 observeChildren={true}
+                rectSize={0}
+                outlineSize={0}
+                useRoundedSize={true}
+                useFrameFill={true}
                 frame={[
                   [1, 1, 2, 2, 3, 3],
                   [1, 1, 2, 2, 3, 3],
@@ -80,17 +88,18 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
                   [6, 6, 9, 9, 10, 10],
                   [6, 6, 9, 9, 10, 10],
                 ]}
-                rectSize={0}
-                useFrameFill={true}
+                onRenderComplete={() => setIsGridRender(true)}
               >
-                {dataList?.pages?.flat().map((res: FeedType, index: number) => {
-                  sizes(res.imgAspect);
-                  sizeAspect(res.imgAspect);
-
+                {randomFeed?.map((res: FeedType, index: number) => {
+                  // sizes(res.imgAspect);
                   return (
-                    <CardList size={checkSize} key={res.id}>
+                    <CardList
+                      render={isGridRender}
+                      // size={checkSize}
+                      key={res.id}
+                    >
                       <Card
-                        aspect={checkAspect}
+                        // aspect={checkAspect}
                         to={"/feed/detail"}
                         state={{ id: res.id, email: res.email }}
                       >
@@ -110,47 +119,6 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
                           />
                         </CardImageBox>
                       </Card>
-                      {/* <UserBox>
-                      <UserInfoBox>
-                        <UserImageBox
-                          to={`/profile/${res.displayName}/post`}
-                          state={res.email}
-                          onContextMenu={(e) => e.preventDefault()}
-                        >
-                          <FeedProfileImage displayName={res.displayName} />
-                        </UserImageBox>
-                        <UserNameBox
-                          to={`/profile/${res.displayName}/post`}
-                          state={res.email}
-                        >
-                          <FeedProfileDisplayName
-                            displayName={res.displayName}
-                          />
-                        </UserNameBox>
-                        <UserReactBox>
-                          <UserIconBox>
-                            <UserIcon onClick={() => toggleLike(res)}>
-                              {userObj?.like?.filter((id) => id === res.id)
-                                .length > 0 ? (
-                                <FaHeart style={{ color: "#FF5673" }} />
-                              ) : (
-                                <FaRegHeart />
-                              )}
-                            </UserIcon>
-                            <UserReactNum>{res.like.length}</UserReactNum>
-                          </UserIconBox>
-                          <UserIcon onClick={() => toggleBookmark(res.id)}>
-                            {userObj?.bookmark?.filter((id) => id === res.id)
-                              .length > 0 ? (
-                              <FaBookmark style={{ color: "#FF5673" }} />
-                            ) : (
-                              <FaRegBookmark />
-                            )}
-                          </UserIcon>
-                        </UserReactBox>
-                      </UserInfoBox>
-                      <UserText>{res.text}</UserText>
-                    </UserBox> */}
                     </CardList>
                   );
                 })}
@@ -193,14 +161,14 @@ const CardBox = styled.ul`
   /* grid-auto-rows: auto; */
 `;
 
-const CardList = styled.li<{ size?: number }>`
+const CardList = styled.li<{ render?: boolean; size?: number }>`
   display: flex;
   flex-direction: column;
   /* margin: 4px; */
   border-radius: 8px;
-  border: 2px solid ${secondColor};
+  border: ${(props) => props.render && `2px solid ${secondColor}`};
   overflow: hidden;
-  position: absolute;
+  /* position: absolute; */
   /* grid-row-end: span ${(props) => (props.size ? props.size : 43)}; */
   animation-name: slideUp;
   animation-duration: 0.3s;
@@ -230,7 +198,7 @@ const Card = styled(Link)<{ aspect?: number }>`
   outline: none;
   overflow: hidden;
   /* border-bottom: 2px solid ${secondColor}; */
-  padding-top: ${(props) => `${props.aspect}%`};
+  /* padding-top: ${(props) => `${props.aspect}%`}; */
 `;
 
 const WeatherEmojiBox = styled.div`
