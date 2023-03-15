@@ -457,11 +457,11 @@ const DetailFeed = () => {
                       <UserTextBox>
                         <UserText>{res.text}</UserText>
                       </UserTextBox>
-                      {res?.tag && (
+                      {res?.tag.length > 0 && (
                         <TagList>
                           {res?.tag?.map((tag, index) => {
                             return (
-                              <Tag key={index}>
+                              <Tag key={index} color={bgColor}>
                                 <span>#</span>
                                 <TagName>{tag}</TagName>
                               </Tag>
@@ -890,7 +890,7 @@ const TagList = styled.ul`
   gap: 10px;
 `;
 
-const Tag = styled.li`
+const Tag = styled.li<{ color?: string }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -898,7 +898,7 @@ const Tag = styled.li`
   border-radius: 64px;
   background-color: #f7f7f7;
   padding: 8px 10px;
-  color: rgb(255, 86, 115);
+  color: ${(props) => props.color};
 
   cursor: pointer;
   &:hover {

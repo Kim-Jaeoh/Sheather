@@ -44,7 +44,6 @@ interface TagType {
 const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   const [tags, setTags] = useState<string[]>([]);
   const [checkTag, setCheckTag] = useState<TagType>();
-  const [focus, setFocus] = useState(null);
   const [attachments, setAttachments] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedImageNum, setSelectedImageNum] = useState(0);
@@ -399,10 +398,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
                   <ImageContainer key={index}>
                     {attachments[index] ? (
                       <ImageBox length={attachments?.length}>
-                        <ImageWrap
-                          onMouseLeave={() => setFocus("")}
-                          onMouseEnter={() => setFocus(index)}
-                        >
+                        <ImageWrap>
                           {Boolean(attachments[index].croppedImageUrl) && (
                             <CropBtn>
                               <BsCheck />

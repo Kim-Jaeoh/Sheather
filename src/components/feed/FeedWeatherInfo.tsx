@@ -139,7 +139,7 @@ const FeedWeatherInfo = () => {
                 onChanged={(e) => console.log(e)}
                 moveType="freeScroll"
                 bound={true}
-                bounce={0}
+                // bounce={0}
                 align="prev"
               >
                 {/* <WearInfo> */}

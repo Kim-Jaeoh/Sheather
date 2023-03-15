@@ -8,7 +8,7 @@ const SrollToTop = () => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  return <div />;
+  return <></>;
 };
 
 export default SrollToTop;

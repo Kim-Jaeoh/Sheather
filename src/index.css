@@ -221,4 +221,5 @@ table {
 ::-webkit-scrollbar-track {
   /* background: rgb(230, 230, 230); */
   background: #fafafa;
+  border-radius: 12px;
 }

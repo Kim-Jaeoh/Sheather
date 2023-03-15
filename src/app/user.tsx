@@ -1,26 +1,29 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+export interface CurrentUserType {
+  uid: string;
+  createdAt: number;
+  email: string;
+  profileURL: string;
+  displayName: string;
+  name: string;
+  description: string;
+  bookmark: string[];
+  like: string[];
+  follower: {
+    displayName: string;
+    time: number;
+  }[];
+  following: {
+    displayName: string;
+    time: number;
+  }[];
+  tag?: string[];
+}
+
 export interface UserType {
   loginToken?: boolean;
-  currentUser: {
-    uid: string;
-    createdAt: number;
-    email: string;
-    profileURL: string;
-    displayName: string;
-    name: string;
-    description: string;
-    bookmark: string[];
-    like: string[];
-    follower: {
-      displayName: string;
-      time: number;
-    }[];
-    following: {
-      displayName: string;
-      time: number;
-    }[];
-  };
+  currentUser: CurrentUserType;
 }
 
 const initialState: UserType = {

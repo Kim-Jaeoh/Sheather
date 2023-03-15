@@ -92,8 +92,6 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
     });
   };
 
-  console.log(tags);
-
   const bgColor = useMemo(() => {
     if (pathname.includes("feed")) {
       return "#ff5673";

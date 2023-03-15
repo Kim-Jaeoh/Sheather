@@ -181,22 +181,7 @@ const FeedCategory = ({ url, feed }: Props) => {
         </>
       ) : (
         <CardBox>
-          <MasonryGrid
-            className="container"
-            gap={20}
-            defaultDirection={"end"}
-            align={"stretch"}
-            column={2}
-            columnSize={0}
-            columnSizeRatio={0}
-            outlineSize={0}
-            autoResize={true}
-            useFit={true}
-            preserveUIOnDestroy={true}
-            observeChildren={true}
-          >
-            <HomeSkeleton />
-          </MasonryGrid>
+          <HomeSkeleton />
         </CardBox>
       )}
     </>

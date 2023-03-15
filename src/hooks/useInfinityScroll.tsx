@@ -15,8 +15,10 @@ const useInfinityScroll = ({ url, count }: props) => {
   const queryClient = useQueryClient();
 
   const fetchRepositories = async (page: number) => {
-    const res = await axios.get(`${url}limit=${count}&page=${page}`);
-    return res.data;
+    if (url !== "") {
+      const res = await axios.get(`${url}limit=${count}&page=${page}`);
+      return res.data;
+    }
   };
 
   const {
@@ -34,8 +36,10 @@ const useInfinityScroll = ({ url, count }: props) => {
       // refetchOnMount: true,
       refetchOnWindowFocus: false,
       getNextPageParam: (lastPage, allPages) => {
-        const nextPage = allPages.length + 1; //
-        return lastPage.length !== 0 ? nextPage : undefined; // 다음 데이터가 있는지 없는지 판단
+        if (lastPage) {
+          const nextPage = allPages.length + 1; //
+          return lastPage.length !== 0 ? nextPage : undefined; // 다음 데이터가 있는지 없는지 판단
+        }
       },
     }
   );

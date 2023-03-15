@@ -185,4 +185,4 @@ const NotInfoBox = styled.div`
   }
 `;
 
-const NotInfo = styled.div``;
+const NotInfo = styled.p``;

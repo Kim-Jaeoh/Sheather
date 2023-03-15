@@ -35,13 +35,6 @@ const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
     setTags(currentTags);
   }, [currentTags, setTags]);
 
-  // const tagArray = useMemo(() => {
-  //   if (tags) {
-  //     return tags;
-  //   }
-  //   return currentTags;
-  // }, [currentTags, tags]);
-
   return (
     <TextFormBox>
       <TextArea
@@ -59,11 +52,12 @@ const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
         <TagList>
           {currentTags.map((myTag, index) => (
             <Tag
+              color={bgColor}
               onClick={(e) => onDeleteCurrentTag(myTag)}
               key={myTag.concat(`${index}`)}
             >
               <span>#</span>
-              <TagName key={myTag}>{myTag}</TagName>
+              <TagName>{myTag}</TagName>
               <TagButton type="button">
                 <IoMdClose />
               </TagButton>
@@ -79,7 +73,7 @@ const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
               value={currentNewTag}
               onChange={onChangeCurrent}
               onKeyDown={onKeyPressCurrent}
-              placeholder="태그 입력 후 엔터"
+              placeholder="태그 입력"
             />
           </InputTagBox>
         </TagList>
@@ -124,10 +118,15 @@ const TextArea = styled.textarea`
   &::placeholder {
     font-size: 14px;
   }
+  &::placeholder:not(:focus) {
+    transition: all 0.15s;
+    opacity: 1;
+  }
+
   &:focus::placeholder {
     opacity: 0.4;
     color: ${thirdColor};
-    transition: all 0.2s;
+    transition: all 0.15s;
   }
 `;
 
@@ -201,29 +200,44 @@ const TagList = styled.ul`
 const Input = styled.input`
   width: 58px;
   max-width: 100%;
-  caret-color: ${mainColor};
+  /* caret-color: ${mainColor}; */
   padding: 8px 10px 8px 24px;
   box-sizing: content-box;
   outline: none;
   border: none;
   background: transparent;
+  &::placeholder:not(:focus) {
+    transition: all 0.15s;
+    opacity: 1;
+  }
+
+  &:focus::placeholder {
+    opacity: 0.4;
+    color: ${thirdColor};
+    transition: all 0.15s;
+  }
 `;
 
-const Tag = styled.li`
+const Tag = styled.li<{ color?: string }>`
   position: relative;
   display: flex;
   align-items: center;
   line-height: 16px;
   border-radius: 64px;
-  background-color: rgba(72, 163, 255, 0.08);
+  background-color: #f7f7f7;
   cursor: pointer;
   &:hover {
-    background-color: rgba(72, 163, 255, 0.2);
+    background-color: #f0f0f0;
   }
   span {
     position: absolute;
     font-size: 14px;
     left: 10px;
+  }
+
+  span,
+  div {
+    color: ${(props) => props.color};
   }
 `;
 
@@ -236,10 +250,10 @@ const TagButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  color: ${secondColor};
 `;
 
 const TagName = styled.div`
-  color: #379bff;
   padding: 8px 32px 8px 24px;
   font-weight: 500;
 `;

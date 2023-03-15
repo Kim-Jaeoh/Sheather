@@ -15,6 +15,8 @@ import { authService } from "./fbase";
 import Profile from "./pages/Profile";
 import { Toaster } from "react-hot-toast";
 import { SuspenseSpinner } from "./assets/SuspenseSpinner";
+import Search from "./pages/Search";
+import SearchResult from "./components/search/SearchResult";
 // const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
@@ -49,11 +51,11 @@ const App = () => {
   return (
     <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
-      <Toaster position="bottom-left" reverseOrder={false} />
       <Background>
         <Wrapper>
           <LeftBar />
           <Main>
+            <Toaster position="bottom-left" reverseOrder={false} />
             <Container>
               <Routes>
                 <Route path="/feed/*" element={<Home />} />
@@ -61,8 +63,10 @@ const App = () => {
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/message" element={<Message />} />
                 <Route path="/explore/*" element={<Explore />} />
-                <Route path="/profile/:id//*" element={<Profile />} />
+                <Route path="/explore/search" element={<SearchResult />} />
+                <Route path="/profile/:id/*" element={<Profile />} />
                 <Route path="/profile/detail" element={<DetailFeed />} />
+                <Route path="/search/*" element={<Search />} />
                 <Route
                   path="/"
                   element={<Navigate replace to="/feed/recent" />}

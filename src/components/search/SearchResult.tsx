@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import ColorList from "../../assets/ColorList";
 import { FeedType } from "../../types/type";
 import { useSelector } from "react-redux";
@@ -13,53 +13,42 @@ import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
 import { cloneDeep } from "lodash";
 
 type Props = {
-  feed?: FeedType[];
-  url?: string;
+  state?: string;
 };
 
-const ExploreFeedCategory = ({ url, feed }: Props) => {
+const SearchResult = () => {
   const [isGridRender, setIsGridRender] = useState(false);
   const [randomFeed, setRandomFeed] = useState(null);
-  const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 10 });
+  const [searchParams] = useSearchParams();
+  const { ref, isLoading, dataList } = useInfinityScroll({
+    url: `${
+      process.env.REACT_APP_SERVER_PORT
+    }/api/search?keyword=${searchParams.get("keyword")}&`,
+    count: 10,
+  });
 
   //  랜덤화
   useEffect(() => {
     // 객체 깊은 복사
-    let arr = cloneDeep(dataList?.pages.flat()); // 렌더링이 2번 돼서 cloneDeep으로 해결
+    let arr = cloneDeep(dataList?.pages?.flat()); // 렌더링이 2번 돼서 cloneDeep으로 해결
 
-    const randomArray = (array: FeedType[]) => {
-      // (피셔-예이츠)
-      for (let index = array?.length - 1; index > 0; index--) {
-        // 무작위 index 값을 만든다. (0 이상의 배열 길이 값)
-        const randomPosition = Math.floor(Math.random() * (index + 1));
+    // const randomArray = (array: FeedType[]) => {
+    //   // (피셔-예이츠)
+    //   for (let index = array?.length - 1; index > 0; index--) {
+    //     // 무작위 index 값을 만든다. (0 이상의 배열 길이 값)
+    //     const randomPosition = Math.floor(Math.random() * (index + 1));
 
-        // 임시로 원본 값을 저장하고, randomPosition을 사용해 배열 요소를 섞는다.
-        const temporary = array[index];
-        array[index] = array[randomPosition];
-        array[randomPosition] = temporary;
-      }
-    };
+    //     // 임시로 원본 값을 저장하고, randomPosition을 사용해 배열 요소를 섞는다.
+    //     const temporary = array[index];
+    //     array[index] = array[randomPosition];
+    //     array[randomPosition] = temporary;
+    //   }
+    // };
 
-    randomArray(arr);
-    setRandomFeed(arr);
-  }, [dataList]);
-
-  // let checkSize: number;
-  // let checkAspect: number;
-  // const sizes = (aspect: string) => {
-  //   if (aspect === "4/3") {
-  //     checkAspect = 74.6;
-  //     return (checkSize = 36);
-  //   }
-  //   if (aspect === "1/1") {
-  //     checkAspect = 100;
-  //     return (checkSize = 44);
-  //   }
-  //   if (aspect === "3/4") {
-  //     checkAspect = 132.6;
-  //     return (checkSize = 54);
-  //   }
-  // };
+    // randomArray(arr);
+    const sort = arr?.sort((a, b) => a.createdAt - b.createdAt);
+    setRandomFeed(sort);
+  }, [dataList?.pages]);
 
   return (
     <>
@@ -71,13 +60,6 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
                 className="container"
                 gap={10}
                 defaultDirection={"end"}
-                // isConstantSize={true}
-                // preserveUIOnDestroy={true}
-                // observeChildren={true}
-                // rectSize={0}
-                // outlineSize={0}
-                // useRoundedSize={true}
-                // useFrameFill={true}
                 frame={[
                   [1, 1, 2, 2, 3, 3],
                   [1, 1, 2, 2, 3, 3],
@@ -93,13 +75,8 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
                 {randomFeed?.map((res: FeedType, index: number) => {
                   // sizes(res.imgAspect);
                   return (
-                    <CardList
-                      render={isGridRender}
-                      // size={checkSize}
-                      key={res.id}
-                    >
+                    <CardList render={isGridRender} key={res.id}>
                       <Card
-                        // aspect={checkAspect}
                         to={"/feed/detail"}
                         state={{ id: res.id, email: res.email }}
                       >
@@ -148,13 +125,14 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
 
 {
 }
-export default ExploreFeedCategory;
+export default SearchResult;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardBox = styled.ul`
   width: 100%;
   padding: 20px;
+  border-top: 2px solid ${secondColor};
   /* padding: 0 16px 16px; */
   /* display: grid; */
   /* grid-template-columns: 1fr 1fr 1fr; */

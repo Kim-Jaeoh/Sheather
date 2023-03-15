@@ -12,10 +12,10 @@ import moment from "moment";
 const WeatherSlider = lazy(() => import("../components/weather/WeatherSlider"));
 
 const Weather = () => {
-  const [weathers, setWeathers] = useState<WeathersFiveDataType | null>(null);
-  const [weatherss, setWeatherss] = useState<WeathersFiveDataType[] | null>(
-    null
-  );
+  const [weather, setWeather] = useState<WeathersFiveDataType | null>(null);
+  const [weatherArray, setWeatherArray] = useState<
+    WeathersFiveDataType[] | null
+  >(null);
   const [filterData1, setFilterData1] = useState<WeathersFiveDataType[]>([]);
   const [filterData2, setFilterData2] = useState<WeathersFiveDataType[]>([]);
   const [filterData3, setFilterData3] = useState<WeathersFiveDataType[]>([]);
@@ -56,7 +56,7 @@ const Weather = () => {
   // 시간 계산 추가
   useEffect(() => {
     if (weatherData) {
-      setWeathers({
+      setWeather({
         ...weatherData?.data,
         dt: weatherData?.data.dt * 1000, // +32400
         // realDateTime: weatherData?.data.dt + 32400, //+32400
@@ -66,50 +66,60 @@ const Weather = () => {
 
   useEffect(() => {
     if (weathersData) {
-      const ss = weathersData?.data?.list.map((res) => {
+      const list = weathersData?.data?.list.map((res) => {
         return { ...res, dt: res.dt * 1000 };
       });
-      // return setWeatherss({
+      // return setWeatherArray({
       //   ...res,
       //   dt: res.dt * 1000, // +32400
       //   // realDateTime: weatherData?.data.dt + 32400, //+32400
       // });
-      setWeatherss(ss);
+      setWeatherArray(list);
     }
   }, [weathersData]);
 
   // 날짜 정보 가져오기
   const dateArray = useMemo(() => {
-    const checkDate = weatherss?.map((res) => moment(res?.dt).format("DD"));
+    const checkDate = weatherArray?.map((res) => moment(res?.dt).format("DD"));
     const filter = new Set(checkDate); // 중복 제거
     return Array.from(filter);
-  }, [weatherss]);
+  }, [weatherArray]);
 
   const date1 = useMemo(
     () =>
-      weatherss?.filter((res) => moment(res?.dt).format("DD") === dateArray[0]),
-    [dateArray, weatherss]
+      weatherArray?.filter(
+        (res) => moment(res?.dt).format("DD") === dateArray[0]
+      ),
+    [dateArray, weatherArray]
   );
 
   const date2 = useMemo(
     () =>
-      weatherss?.filter((res) => moment(res?.dt).format("DD") === dateArray[1]),
-    [dateArray, weatherss]
+      weatherArray?.filter(
+        (res) => moment(res?.dt).format("DD") === dateArray[1]
+      ),
+    [dateArray, weatherArray]
   );
   const date3 = useMemo(
     () =>
-      weatherss?.filter((res) => moment(res?.dt).format("DD") === dateArray[2]),
-    [dateArray, weatherss]
+      weatherArray?.filter(
+        (res) => moment(res?.dt).format("DD") === dateArray[2]
+      ),
+    [dateArray, weatherArray]
   );
   const date4 = useMemo(
     () =>
-      weatherss?.filter((res) => moment(res?.dt).format("DD") === dateArray[3]),
-    [dateArray, weatherss]
+      weatherArray?.filter(
+        (res) => moment(res?.dt).format("DD") === dateArray[3]
+      ),
+    [dateArray, weatherArray]
   );
   const date5 = useMemo(
     () =>
-      weatherss?.filter((res) => moment(res?.dt).format("DD") === dateArray[4]),
-    [dateArray, weatherss]
+      weatherArray?.filter(
+        (res) => moment(res?.dt).format("DD") === dateArray[4]
+      ),
+    [dateArray, weatherArray]
   );
 
   // 이전 날짜 체크
@@ -147,10 +157,10 @@ const Weather = () => {
   }, [dayPlusCheck, filterData2]);
 
   useEffect(() => {
-    if (weathers && date1 && date2 && date3 && date4 && date5) {
-      setFilterData1([weathers, ...date1]);
+    if (weather && date1 && date2 && date3 && date4 && date5) {
+      setFilterData1([weather, ...date1]);
       if (dayPlusCheck) {
-        setFilterData2([weathers, ...date2]);
+        setFilterData2([weather, ...date2]);
       } else {
         setFilterData2(date2);
       }
@@ -158,7 +168,7 @@ const Weather = () => {
       setFilterData4(date4);
       setFilterData5(date5);
     }
-  }, [date1, date2, date3, date4, date5, dayPlusCheck, weathers]);
+  }, [date1, date2, date3, date4, date5, dayPlusCheck, weather]);
 
   return (
     <Container>

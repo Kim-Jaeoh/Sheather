@@ -6,7 +6,15 @@ import { MasonryGrid } from "@egjs/react-grid";
 
 const HomeSkeleton = () => {
   return (
-    <>
+    <MasonryGrid
+      className="container"
+      gap={20}
+      defaultDirection={"end"}
+      align={"stretch"}
+      column={2}
+      columnSize={0}
+      columnSizeRatio={0}
+    >
       {Array.from({ length: 6 }).map((res, index) => {
         return (
           <CardList key={index}>
@@ -19,7 +27,7 @@ const HomeSkeleton = () => {
           </CardList>
         );
       })}
-    </>
+    </MasonryGrid>
   );
 };
 
