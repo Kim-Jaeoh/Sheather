@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import ColorList from "../assets/ColorList";
@@ -6,59 +6,78 @@ import { FiSearch } from "react-icons/fi";
 import { debounce } from "lodash";
 import { IoIosCloseCircleOutline, IoMdArrowDropup } from "react-icons/io";
 import SearchList from "../components/search/SearchList";
+import useDebounce from "../hooks/useDebounce";
 
 const RightBar = () => {
   const [focus, setFocus] = useState(false);
   const [text, setText] = useState("");
+  const [debounceText, setDebounceText] = useState("");
   const [url, setUrl] = useState(``);
   const textRef = useRef(null);
+  const debouncedSearchTerm = useDebounce(text, 200);
 
+  // 검색 목록 api
   useEffect(() => {
-    const isHashtag = text.includes("#") ? text.split("#")[1] : text; // 해시태그 유무
+    console.log("머였더라");
+    const isHashtag = debounceText.includes("#")
+      ? debounceText.split("#")[1]
+      : debounceText; // 해시태그 유무
     setUrl(
       `${process.env.REACT_APP_SERVER_PORT}/api/search?keyword=${isHashtag}&`
     );
-  }, [text]);
+  }, [debounceText]);
 
-  const onChangetext = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+  // debounce된 text 유무
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      setDebounceText(debouncedSearchTerm);
+    } else {
+      setDebounceText("");
+    }
+  }, [debouncedSearchTerm]);
+
+  const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
     } = e;
     setText(value);
-  }, 200);
+  };
 
-  const onSubmittext = (e: React.FormEvent) => {
+  const onSubmitText = (e: React.FormEvent) => {
     e.preventDefault();
   };
 
-  const onDeletetext = () => {
-    setText("");
-    textRef.current.value = "";
+  const onFocus = () => {
+    setFocus(true);
   };
+
+  const onDeleteText = useCallback(() => {
+    setText("");
+    // textRef.current.value = "";
+  }, []);
 
   return (
     <Container>
       <SearchBox>
-        <InputtextBox onSubmit={onSubmittext} focus={focus}>
+        <InputTextBox onSubmit={onSubmitText} focus={focus}>
           <IconBox htmlFor="search">
             <FiSearch />
           </IconBox>
           <SearchInput
             spellCheck="false"
-            onFocus={() => setFocus(true)}
+            onFocus={onFocus}
             // onBlur={() => setFocus(false)}
             type="text"
             id="search"
             autoComplete="off"
             maxLength={12}
-            // defaultValue={text ? text : ""}
-            // value={text}
-            ref={textRef}
-            onChange={onChangetext}
+            value={text}
+            // ref={textRef}
+            onChange={onChangeText}
             placeholder="검색어를 입력하세요"
           />
           {text !== "" && (
-            <Closebox onClick={onDeletetext} type="button">
+            <Closebox onClick={onDeleteText} type="button">
               <IoIosCloseCircleOutline />
             </Closebox>
           )}
@@ -67,8 +86,13 @@ const RightBar = () => {
               <IoMdArrowDropup />
             </Closebox>
           )}
-        </InputtextBox>
-        <SearchList text={text} url={url} focus={focus} setFocus={setFocus} />
+        </InputTextBox>
+        <SearchList
+          text={debounceText}
+          url={url}
+          focus={focus}
+          setFocus={setFocus}
+        />
       </SearchBox>
       <div
         style={{ height: "300px", border: `1px solid red`, marginTop: "20px" }}
@@ -96,21 +120,20 @@ const Container = styled.section`
 
 const SearchBox = styled.article``;
 
-const InputtextBox = styled.form<{ focus: boolean }>`
+const InputTextBox = styled.form<{ focus: boolean }>`
   width: 100%;
   position: relative;
   display: flex;
   align-items: center;
   overflow: hidden;
-  border: 1px solid ${(props) => (props.focus ? secondColor : fourthColor)};
-  border-radius: 8px;
+  border: 2px solid ${(props) => (props.focus ? secondColor : fourthColor)};
+  border-radius: 20px;
   padding: 10px 40px 10px 10px;
   transition: all 0.15s linear;
   line-height: 0;
 `;
 
 const IconBox = styled.label`
-  /* margin-left: -8px; */
   margin-right: 10px;
   svg {
     width: 20px;
@@ -159,79 +182,4 @@ const Closebox = styled.button`
     width: 20px;
     height: 20px;
   }
-`;
-
-const SearchedBox = styled.ul<{ focus: boolean }>`
-  border: ${(props) =>
-    props.focus ? `1px solid ${secondColor}` : `0px solid ${secondColor}`};
-  margin-top: ${(props) => (props.focus ? `12px` : `0`)};
-  height: ${(props) => (props.focus ? `300px` : `0`)};
-  opacity: ${(props) => (props.focus ? `1` : `0`)};
-  transition: all 0.15s linear;
-  border-radius: 8px;
-  border: 1px solid ${secondColor};
-  margin-top: 12px;
-  height: 300px;
-  overflow: hidden;
-  overflow-y: auto;
-  opacity: 1;
-`;
-
-const SearchedListBox = styled.li`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: 12px;
-`;
-
-const SearchedList = styled(Link)`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  border: none;
-  outline: none;
-  gap: 12px;
-`;
-
-const SearchedImageBox = styled.div`
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid ${fourthColor};
-  border-radius: 50%;
-  overflow: hidden;
-`;
-
-const SearchedImage = styled.img`
-  display: block;
-  /* width: 100%; */
-  /* height: 100%; */
-  /* display: inline-block; */
-  /* content: ""; */
-  /* border: none; */
-  /* outline: none; */
-`;
-
-const SearchedInfoBox = styled.div`
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-size: 14px;
-  line-height: 20px;
-`;
-
-const SearchedInfoName = styled.p`
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const SearchedInfoDesc = styled.p`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 `;

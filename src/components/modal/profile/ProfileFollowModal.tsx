@@ -160,7 +160,7 @@ const Container = styled.div`
   top: 50%;
   transform: translate(-50%, -50%);
   background: #fff;
-  border-radius: 8px;
+  border-radius: 20px;
   border: 2px solid ${secondColor};
   box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
 `;
@@ -264,7 +264,7 @@ const FollowBtn = styled.button`
   font-size: 14px;
   padding: 8px 16px;
   color: #fff;
-  border-radius: 8px;
+  border-radius: 20px;
   border: 1px solid ${secondColor};
   background: ${secondColor};
   cursor: pointer;

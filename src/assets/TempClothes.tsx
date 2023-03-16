@@ -1,5 +1,9 @@
 import React from "react";
 
+interface ClothesCategoryType {
+  [key: string]: string[];
+}
+
 const TempClothes = () => {
   const tempClothes = [
     {
@@ -56,7 +60,7 @@ const TempClothes = () => {
     },
   ];
 
-  const ClothesCategory = {
+  const ClothesCategory: ClothesCategoryType = {
     outer: [
       "없음",
       "얇은 가디건",

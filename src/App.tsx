@@ -15,7 +15,7 @@ import { authService } from "./fbase";
 import Profile from "./pages/Profile";
 import { Toaster } from "react-hot-toast";
 import { SuspenseSpinner } from "./assets/SuspenseSpinner";
-import Search from "./pages/Search";
+import Search from "./components/search/Search";
 import SearchResult from "./components/search/SearchResult";
 // const Weather = lazy(() => import("./pages/Weather"));
 
@@ -67,6 +67,10 @@ const App = () => {
                 <Route path="/profile/:id/*" element={<Profile />} />
                 <Route path="/profile/detail" element={<DetailFeed />} />
                 <Route path="/search/*" element={<Search />} />
+                <Route
+                  path="/explore"
+                  element={<Navigate replace to="/explore/outer?detail=0" />}
+                />
                 <Route
                   path="/"
                   element={<Navigate replace to="/feed/recent" />}

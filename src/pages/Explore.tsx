@@ -13,6 +13,14 @@ import TempClothes from "../assets/TempClothes";
 import Flicking from "@egjs/react-flicking";
 import "../styles/DetailFlicking.css";
 
+const categoryArray = [
+  { cat: "아우터", link: "outer" },
+  { cat: "상의", link: "top" },
+  { cat: "내의", link: "innerTop" },
+  { cat: "하의", link: "bottom" },
+  { cat: "기타", link: "etc" },
+];
+
 const Explore = () => {
   const [selectCategory, setSelectCategory] = useState(0);
   const [secondSelectCategory, setSecondSelectCategory] = useState(0);
@@ -26,37 +34,31 @@ const Explore = () => {
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
 
-  const categoryArray = [
-    { cat: "아우터", link: "outer" },
-    { cat: "상의", link: "top" },
-    { cat: "내의", link: "innerTop" },
-    { cat: "하의", link: "bottom" },
-    { cat: "기타", link: "etc" },
-  ];
-
+  // api 값 불러오기
   useEffect(() => {
     const api = `${process.env.REACT_APP_SERVER_PORT}/api/explore`;
     if (+searchParams.get("detail") === 0) {
       return setUrl(
         `${api}?cat=${
-          categoryArray[selectCategory].link
+          categoryArray[selectCategory]?.link
         }&detail=${encodeURIComponent("전체")}&`
       );
     }
     return setUrl(
       `${api}?cat=${
-        categoryArray[selectCategory].link
+        categoryArray[selectCategory]?.link
       }&detail=${encodeURIComponent(detail)}&`
     );
   }, [detail, searchParams, selectCategory]);
 
+  // 카테고리
   useEffect(() => {
     const findIndex = categoryArray.findIndex(
       (res) => res.link === pathname?.split("/")[2]
     );
     setSelectCategory(findIndex);
     setSecondSelectCategory(+searchParams.get("detail"));
-    // 리팩토링!
+    // 리팩토링
     // if (pathname.includes("outer")) {
     //   return setSelectCategory(0);
     // }
@@ -98,7 +100,8 @@ const Explore = () => {
     selectCategory,
   ]);
 
-  const onClickToUrl = (type: string) => {
+  const onClickToUrl = (type: string, index: number) => {
+    setSecondSelectCategory(index);
     setDetail(type);
   };
 
@@ -118,7 +121,7 @@ const Explore = () => {
                 select={selectCategory}
                 num={index}
                 key={res.cat}
-                to={`${res.link}`}
+                to={`${res.link}?detail=0`}
               >
                 <SelectName>{res.cat}</SelectName>
               </Category>
@@ -136,16 +139,13 @@ const Explore = () => {
             align="prev"
           >
             <TagBox>
-              {secondMenu.map((res, index) => {
+              {secondMenu?.map((res, index) => {
                 return (
                   <SelectCurrentTime
                     key={index}
-                    to={`?cat=${
-                      categoryArray[selectCategory].link
-                    }&detail=${encodeURIComponent(index)}`}
+                    to={`?detail=${encodeURIComponent(index)}`}
                     onClick={() => {
-                      setSecondSelectCategory(index);
-                      onClickToUrl(res);
+                      onClickToUrl(res, index);
                     }}
                     select={secondSelectCategory}
                     num={index}
@@ -223,6 +223,7 @@ const Container = styled.main`
   /* padding: 20px; */
   position: relative;
   border-top: 2px solid ${secondColor};
+  /* background: #30c56e; */
 `;
 
 const CategoryBox = styled.nav`

@@ -311,7 +311,7 @@ const Container = styled.div`
   height: 100%;
   padding: 20px;
   border: 2px solid ${secondColor};
-  border-radius: 8px;
+  border-radius: 20px;
   overflow: hidden;
   background: #fff;
   box-shadow: #422a83 1px 1px, #422a83 0px 0px, #422a83 1px 1px, #422a83 2px 2px,
@@ -423,7 +423,7 @@ const ProfileEditBtn = styled.button`
   border: 1px solid #6f4ccf;
   color: #6f4ccf;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.1s linear;
 
@@ -445,7 +445,7 @@ const LogoutBtn = styled.button`
   border: 1px solid ${thirdColor};
   color: ${thirdColor};
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.1s linear;
 
@@ -467,7 +467,7 @@ const FollowBtn = styled.button`
   font-size: 14px;
   padding: 8px 16px;
   color: #fff;
-  border-radius: 8px;
+  border-radius: 20px;
   border: 1px solid ${secondColor};
   background: ${secondColor};
   cursor: pointer;
@@ -542,7 +542,7 @@ const CardList = styled.ul<{ length: number }>`
 
 const Card = styled.li`
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 20px;
   position: relative;
   margin-bottom: 30px;
   border: 1px solid #eee;

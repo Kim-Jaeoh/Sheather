@@ -177,7 +177,7 @@ const Container = styled.form<{ bgColor: string }>`
   top: 50%;
   transform: translate(-50%, -50%);
   background: #fff;
-  border-radius: 8px;
+  border-radius: 20px;
   border: 2px solid ${secondColor};
   box-shadow: 12px 12px 0 -2px ${(props) => props.bgColor},
     12px 12px ${secondColor};
@@ -468,7 +468,7 @@ const ProfileName = styled.input<{ focus: boolean }>`
   box-sizing: border-box;
   font-size: 14px;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: 20px;
   padding: 12px;
   border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
   transition: all 0.1s linear;
@@ -486,7 +486,7 @@ const ProfileDesc = styled.textarea<{ focus: boolean }>`
   border: none;
   padding: 12px;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: 20px;
   transition: all 0.1s linear;
   border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
   &::placeholder {
@@ -527,7 +527,7 @@ const FollowBtn = styled.button`
   font-size: 14px;
   padding: 8px 16px;
   color: #fff;
-  border-radius: 8px;
+  border-radius: 20px;
   border: 1px solid ${secondColor};
   background: ${secondColor};
   cursor: pointer;

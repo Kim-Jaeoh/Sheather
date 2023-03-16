@@ -471,7 +471,7 @@ const Container = styled.form`
   top: 50%;
   transform: translate(-50%, -50%);
   background: #fff;
-  border-radius: 8px;
+  border-radius: 20px;
   border: 2px solid ${secondColor};
   box-shadow: 12px 12px 0 -2px ${mainColor}, 12px 12px ${secondColor};
   &::-webkit-scrollbar {

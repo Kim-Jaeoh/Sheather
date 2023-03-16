@@ -124,10 +124,10 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const RangeBox = styled.div`
   position: absolute;
-  top: 40px;
+  top: 46px;
   /* padding: 20px; */
   z-index: 100;
-  border-radius: 8px;
+  border-radius: 20px;
   border: 2px solid ${secondColor};
   width: 300px;
   background: #fff;

@@ -54,65 +54,70 @@ const SearchResult = () => {
     <>
       {!isLoading ? (
         <>
-          {randomFeed?.length !== 0 ? (
-            <CardBox>
-              <FrameGrid
-                className="container"
-                gap={10}
-                defaultDirection={"end"}
-                frame={[
-                  [1, 1, 2, 2, 3, 3],
-                  [1, 1, 2, 2, 3, 3],
-                  [4, 4, 5, 5, 3, 3],
-                  [4, 4, 5, 5, 3, 3],
-                  [6, 6, 7, 7, 8, 8],
-                  [6, 6, 7, 7, 8, 8],
-                  [6, 6, 9, 9, 10, 10],
-                  [6, 6, 9, 9, 10, 10],
-                ]}
-                onRenderComplete={() => setIsGridRender(true)}
-              >
-                {randomFeed?.map((res: FeedType, index: number) => {
-                  // sizes(res.imgAspect);
-                  return (
-                    <CardList render={isGridRender} key={res.id}>
-                      <Card
-                        to={"/feed/detail"}
-                        state={{ id: res.id, email: res.email }}
-                      >
-                        <WeatherEmojiBox>
-                          <WeatherEmoji>{res.feel}</WeatherEmoji>
-                        </WeatherEmojiBox>
-                        <CardLengthBox>
-                          {res.url.length > 1 && (
-                            <CardLength>+{res.url.length}</CardLength>
-                          )}
-                        </CardLengthBox>
-                        <CardImageBox>
-                          <CardImage
-                            onContextMenu={(e) => e.preventDefault()}
-                            src={res.url[0]}
-                            alt=""
-                          />
-                        </CardImageBox>
-                      </Card>
-                    </CardList>
-                  );
-                })}
-              </FrameGrid>
-              <div
-                ref={ref}
-                // style={{
-                //   position: "absolute",
-                //   bottom: "-100px",
-                // }}
-              />
-            </CardBox>
-          ) : (
-            <NotInfoBox>
-              <NotInfo>해당 의류에 관한 글이 존재하지 않습니다.</NotInfo>
-            </NotInfoBox>
-          )}
+          <CardBox>
+            <TagCategory>
+              <TagCategoryText># {searchParams.get("keyword")}</TagCategoryText>
+            </TagCategory>
+            {randomFeed?.length !== 0 ? (
+              <>
+                <FrameGrid
+                  className="container"
+                  gap={10}
+                  defaultDirection={"end"}
+                  frame={[
+                    [1, 1, 2, 2, 3, 3],
+                    [1, 1, 2, 2, 3, 3],
+                    [4, 4, 5, 5, 3, 3],
+                    [4, 4, 5, 5, 3, 3],
+                    [6, 6, 7, 7, 8, 8],
+                    [6, 6, 7, 7, 8, 8],
+                    [6, 6, 9, 9, 10, 10],
+                    [6, 6, 9, 9, 10, 10],
+                  ]}
+                  onRenderComplete={() => setIsGridRender(true)}
+                >
+                  {randomFeed?.map((res: FeedType, index: number) => {
+                    // sizes(res.imgAspect);
+                    return (
+                      <CardList render={isGridRender} key={res.id}>
+                        <Card
+                          to={"/feed/detail"}
+                          state={{ id: res.id, email: res.email }}
+                        >
+                          <WeatherEmojiBox>
+                            <WeatherEmoji>{res.feel}</WeatherEmoji>
+                          </WeatherEmojiBox>
+                          <CardLengthBox>
+                            {res.url.length > 1 && (
+                              <CardLength>+{res.url.length}</CardLength>
+                            )}
+                          </CardLengthBox>
+                          <CardImageBox>
+                            <CardImage
+                              onContextMenu={(e) => e.preventDefault()}
+                              src={res.url[0]}
+                              alt=""
+                            />
+                          </CardImageBox>
+                        </Card>
+                      </CardList>
+                    );
+                  })}
+                </FrameGrid>
+                <div
+                  ref={ref}
+                  // style={{
+                  //   position: "absolute",
+                  //   bottom: "-100px",
+                  // }}
+                />
+              </>
+            ) : (
+              <NotInfoBox>
+                <NotInfo>해당 태그에 관한 글이 존재하지 않습니다.</NotInfo>
+              </NotInfoBox>
+            )}
+          </CardBox>
         </>
       ) : (
         <CardBox>
@@ -129,10 +134,31 @@ export default SearchResult;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
+const TagCategory = styled.div`
+  margin-top: 10px;
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: center;
+`;
+
+const TagCategoryText = styled.h2`
+  font-size: 22px;
+  text-align: center;
+  font-weight: 700;
+  color: ${secondColor};
+  padding: 8px 14px;
+  border: 2px solid ${secondColor};
+  border-radius: 9999px;
+  box-shadow: 0px 4px 0 -2px #222, 0px 4px ${secondColor};
+  background: #fff;
+`;
+
 const CardBox = styled.ul`
   width: 100%;
+  height: 100%;
   padding: 20px;
   border-top: 2px solid ${secondColor};
+  background: #30c56e;
   /* padding: 0 16px 16px; */
   /* display: grid; */
   /* grid-template-columns: 1fr 1fr 1fr; */
@@ -143,7 +169,7 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   display: flex;
   flex-direction: column;
   /* margin: 4px; */
-  border-radius: 8px;
+  border-radius: 20px;
   border: ${(props) => props.render && `2px solid ${secondColor}`};
   overflow: hidden;
   /* position: absolute; */
@@ -151,6 +177,7 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
+  box-shadow: 4px 4px 0px rgba(15, 87, 45, 0.3);
 
   @keyframes slideUp {
     0% {

@@ -31,6 +31,7 @@ import FeedEditModal from "../modal/feed/FeedEditModal";
 import toast from "react-hot-toast";
 import FeedMoreSelectModal from "../modal/feed/FeedMoreSelectModal";
 import { BiCopy } from "react-icons/bi";
+import TempClothes from "../../assets/TempClothes";
 
 type ReplyPayload = {
   id?: string;
@@ -66,6 +67,7 @@ const DetailFeed = () => {
   const { toggleFollow } = useToggleFollow();
   const { timeToString, timeToString2 } = useTimeFormat();
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
+  const { ClothesCategory } = TempClothes();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -221,6 +223,15 @@ const DetailFeed = () => {
     }
   };
 
+  const onWearClick = (cat: string, detail: string) => {
+    let number = ClothesCategory[cat].findIndex((res) => res === detail);
+    // top에만 "없음" 항목이 없어서 index가 부족하기 때문
+    if (cat === "top") {
+      number += 1;
+    }
+    navigate(`/explore/${cat}?detail=${number}`);
+  };
+
   return (
     <>
       {feedData && (
@@ -230,6 +241,14 @@ const DetailFeed = () => {
               (a: { replyAt: number }, b: { replyAt: number }) =>
                 b.replyAt - a.replyAt
             );
+            const { outer, top, innerTop, bottom, etc } = res.wearInfo;
+            const categoryTags = [
+              { name: "outer", type: "outer", detail: outer },
+              { name: "top", type: "top", detail: top },
+              { name: "innerTop", type: "innerTop", detail: innerTop },
+              { name: "bottom", type: "bottom", detail: bottom },
+              { name: "etc", type: "etc", detail: etc },
+            ];
             return (
               <Wrapper key={res.id} bgColor={bgColor}>
                 {isMore && !isFeedEdit ? (
@@ -344,21 +363,17 @@ const DetailFeed = () => {
                             <WearInfo>
                               <CategoryTagBox>
                                 <CategoryTag>{res.feel}</CategoryTag>
-                                {res.wearInfo.outer && (
-                                  <CategoryTag>
-                                    {res.wearInfo.outer}
-                                  </CategoryTag>
-                                )}
-                                {res.wearInfo.top && (
-                                  <CategoryTag>{res.wearInfo.top}</CategoryTag>
-                                )}
-                                {res.wearInfo.bottom && (
-                                  <CategoryTag>
-                                    {res.wearInfo.bottom}
-                                  </CategoryTag>
-                                )}
-                                {res.wearInfo.etc && (
-                                  <CategoryTag>{res.wearInfo.etc}</CategoryTag>
+                                {categoryTags.map((tag) =>
+                                  tag.detail ? (
+                                    <CategoryTag
+                                      key={tag.name}
+                                      onClick={() =>
+                                        onWearClick(tag.type, tag.detail)
+                                      }
+                                    >
+                                      {tag.detail}
+                                    </CategoryTag>
+                                  ) : null
                                 )}
                               </CategoryTagBox>
                             </WearInfo>
@@ -461,7 +476,11 @@ const DetailFeed = () => {
                         <TagList>
                           {res?.tag?.map((tag, index) => {
                             return (
-                              <Tag key={index} color={bgColor}>
+                              <Tag
+                                key={index}
+                                color={bgColor}
+                                to={`/explore/search?keyword=${tag}`}
+                              >
                                 <span>#</span>
                                 <TagName>{tag}</TagName>
                               </Tag>
@@ -538,75 +557,18 @@ const Wrapper = styled.div<{ bgColor: string }>`
 const Container = styled.div<{ shadowColor: string }>`
   position: relative;
   border: 2px solid ${secondColor};
-  border-radius: 8px;
+  border-radius: 20px;
   overflow: hidden;
   background: #fff;
-  box-shadow: ${(props) => props.shadowColor} 1px 1px,
-    ${(props) => props.shadowColor} 0px 0px,
-    ${(props) => props.shadowColor} 1px 1px,
-    ${(props) => props.shadowColor} 2px 2px,
-    ${(props) => props.shadowColor} 3px 3px,
-    ${(props) => props.shadowColor} 4px 4px,
-    ${(props) => props.shadowColor} 5px 5px,
-    ${(props) => props.shadowColor} 6px 6px,
-    ${(props) => props.shadowColor} 7px 7px,
-    ${(props) => props.shadowColor} 8px 8px,
-    ${(props) => props.shadowColor} 9px 9px,
-    ${(props) => props.shadowColor} 10px 10px,
-    ${(props) => props.shadowColor} 11px 11px,
-    ${(props) => props.shadowColor} 12px 12px,
-    ${(props) => props.shadowColor} 13px 13px,
-    ${(props) => props.shadowColor} 14px 14px,
-    ${(props) => props.shadowColor} 15px 15px,
-    ${(props) => props.shadowColor} 16px 16px,
-    ${(props) => props.shadowColor} 17px 17px,
-    ${(props) => props.shadowColor} 18px 18px,
-    ${(props) => props.shadowColor} 19px 19px,
-    ${(props) => props.shadowColor} 20px 20px,
-    ${(props) => props.shadowColor} 21px 21px,
-    ${(props) => props.shadowColor} 22px 22px,
-    ${(props) => props.shadowColor} 23px 23px,
-    ${(props) => props.shadowColor} 24px 24px,
-    ${(props) => props.shadowColor} 25px 25px,
-    ${(props) => props.shadowColor} 26px 26px,
-    ${(props) => props.shadowColor} 27px 27px,
-    ${(props) => props.shadowColor} 28px 28px,
-    ${(props) => props.shadowColor} 29px 29px,
-    ${(props) => props.shadowColor} 30px 30px,
-    ${(props) => props.shadowColor} 31px 31px,
-    ${(props) => props.shadowColor} 32px 32px,
-    ${(props) => props.shadowColor} 33px 33px,
-    ${(props) => props.shadowColor} 34px 34px,
-    ${(props) => props.shadowColor} 35px 35px,
-    ${(props) => props.shadowColor} 36px 36px,
-    ${(props) => props.shadowColor} 37px 37px,
-    ${(props) => props.shadowColor} 38px 38px,
-    ${(props) => props.shadowColor} 39px 39px,
-    ${(props) => props.shadowColor} 40px 40px,
-    ${(props) => props.shadowColor} 41px 41px,
-    ${(props) => props.shadowColor} 42px 42px,
-    ${(props) => props.shadowColor} 43px 43px,
-    ${(props) => props.shadowColor} 44px 44px,
-    ${(props) => props.shadowColor} 45px 45px,
-    ${(props) => props.shadowColor} 46px 46px,
-    ${(props) => props.shadowColor} 47px 47px,
-    ${(props) => props.shadowColor} 48px 48px,
-    ${(props) => props.shadowColor} 49px 49px,
-    ${(props) => props.shadowColor} 50px 50px,
-    ${(props) => props.shadowColor} 51px 51px,
-    ${(props) => props.shadowColor} 52px 52px,
-    ${(props) => props.shadowColor} 53px 53px,
-    ${(props) => props.shadowColor} 54px 54px,
-    ${(props) => props.shadowColor} 55px 55px,
-    ${(props) => props.shadowColor} 56px 56px,
-    ${(props) => props.shadowColor} 57px 57px,
-    ${(props) => props.shadowColor} 58px 58px,
-    ${(props) => props.shadowColor} 59px 59px,
-    ${(props) => props.shadowColor} 60px 60px,
-    ${(props) => props.shadowColor} 61px 61px,
-    ${(props) => props.shadowColor} 62px 62px,
-    ${(props) => props.shadowColor} 63px 63px;
-  /* box-shadow: 8px 8px 0px #86192c4c; */
+
+  box-shadow: ${(props) => {
+    let shadow = "";
+    for (let i = 1; i < 63; i++) {
+      shadow += `${props.shadowColor} ${i}px ${i}px,`;
+    }
+    shadow += `${props.shadowColor} 63px 63px`;
+    return shadow;
+  }};
 `;
 
 const Header = styled.div`
@@ -881,7 +843,7 @@ const InfoBox = styled.div`
   border-top: 1px solid ${thirdColor};
 `;
 
-const TagList = styled.ul`
+const TagList = styled.div`
   display: flex;
   align-items: center;
   font-size: 14px;
@@ -890,7 +852,7 @@ const TagList = styled.ul`
   gap: 10px;
 `;
 
-const Tag = styled.li<{ color?: string }>`
+const Tag = styled(Link)<{ color?: string }>`
   position: relative;
   display: flex;
   align-items: center;

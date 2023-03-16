@@ -23,7 +23,7 @@ const Home = () => {
     return moment(changeValue).format("YYYYMMDD");
   }, [changeValue]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // 최신
     if (selectCategory === 0) {
       return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`);
@@ -94,6 +94,7 @@ const Home = () => {
 
   const onModalClose = () => {
     setIsDetailModal((prev) => !prev);
+    // 취소 시 이전 카테고리로 이동
     if (url.includes("recent")) {
       setSelectCategory(0);
     }
@@ -107,30 +108,30 @@ const Home = () => {
       <FeedWeatherInfo />
       <SelectTimeBox select={selectCategory}>
         <SelectCategory>
-          <SelectCurrentTime
+          <SelectCategoryText
             to="recent"
             onClick={() => setSelectCategory(0)}
             select={selectCategory}
             num={0}
           >
             최신
-          </SelectCurrentTime>
-          <SelectCurrentTime
+          </SelectCategoryText>
+          <SelectCategoryText
             to="popular"
             onClick={() => setSelectCategory(1)}
             select={selectCategory}
             num={1}
           >
             인기
-          </SelectCurrentTime>
-          <SelectCurrentTime
+          </SelectCategoryText>
+          <SelectCategoryText
             to="date"
             onClick={onSelectCategory2}
             select={selectCategory}
             num={2}
           >
             날짜별
-          </SelectCurrentTime>
+          </SelectCategoryText>
         </SelectCategory>
 
         {selectCategory === 2 && isDetailModal && (
@@ -185,6 +186,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.main`
   height: 100%;
+  background-color: #ff5673;
   /* padding: 20px; */
   /* position: relative; */
 `;
@@ -202,7 +204,7 @@ const SelectTimeBox = styled.nav<{ select: number }>`
 
 const SelectDetailTimeBox = styled.div`
   width: 100%;
-  padding: 0 10px;
+  padding: 0 20px;
   margin-bottom: 20px;
   animation-name: slideDown;
   animation-duration: 0.5s;
@@ -238,6 +240,7 @@ const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
   font-weight: ${(props) =>
     props.select === props.category ? "bold" : "normal"};
   cursor: pointer;
+  color: #fff;
 `;
 
 const SelectDetailTime = styled.p`
@@ -246,7 +249,8 @@ const SelectDetailTime = styled.p`
   display: flex;
   align-items: center;
   justify-content: end;
-  color: ${thirdColor};
+  /* color: ${thirdColor}; */
+  color: #fff;
   padding-top: 10px;
   border-top: 1px solid ${fourthColor};
 `;
@@ -258,15 +262,23 @@ const SelectCategory = styled.div`
   gap: 10px;
 `;
 
-const SelectCurrentTime = styled(Link)<{ select: number; num: number }>`
-  border-radius: 9999px;
-  color: ${(props) => (props.num === props.select ? "#fff" : `${thirdColor}`)};
+const SelectCategoryText = styled(Link)<{ select: number; num: number }>`
+  /* ff5673 */
+  width: 70px;
+  flex: 1;
+  color: ${(props) => (props.num === props.select ? "#222" : `#fff`)};
   background: ${(props) =>
-    props.num === props.select ? "#ff5673" : "transparent"};
+    props.num === props.select ? "#fff" : "transparent"};
+  border-radius: 9999px;
   border: 2px solid
-    ${(props) => (props.num === props.select ? "#ff5673" : "tranparent")};
-  padding: 6px 12px;
+    ${(props) => (props.num === props.select ? "#222" : "tranparent")};
+  padding: 8px 10px;
+  text-align: center;
+  white-space: nowrap;
   font-size: 18px;
   font-weight: ${(props) => (props.num === props.select ? "700" : "500")};
+  box-shadow: ${(props) =>
+    props.num === props.select &&
+    ` 0px 4px 0 -2px #222, 0px 4px ${secondColor}`};
   cursor: pointer;
 `;

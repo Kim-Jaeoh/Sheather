@@ -40,7 +40,7 @@ const RangeBox = styled.div<{ bgColor: string }>`
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 100;
-  border-radius: 8px;
+  border-radius: 20px;
   border: 2px solid ${secondColor};
   width: 300px;
   background: #fff;

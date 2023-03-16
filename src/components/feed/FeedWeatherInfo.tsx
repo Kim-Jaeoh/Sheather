@@ -192,7 +192,7 @@ const WeatherBox = styled.div`
 const NowBox = styled.div<{ changeColor: string }>`
   width: 22px;
   height: 100%;
-  padding: 6px 14px;
+  /* padding: 6px 14px; */
   background-color: ${(props) => props.changeColor};
   display: flex;
   align-items: center;
@@ -201,7 +201,7 @@ const NowBox = styled.div<{ changeColor: string }>`
   border-right: 2px solid #222222;
 
   p {
-    font-size: 14px;
+    font-size: 12px;
     letter-spacing: 2px;
     font-weight: bold;
     color: #fff;
@@ -289,7 +289,8 @@ const TagBox = styled.div`
 `;
 
 const Tag = styled.div`
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
   white-space: nowrap;
   padding: 6px 8px;
   display: flex;
@@ -338,8 +339,9 @@ const WeatherTemp = styled.p<{ changeColor?: string }>`
   font-size: 18px;
   /* height: 50px; */
   flex: 1;
-  font-weight: bold;
-  color: ${(props) => props.changeColor};
+  font-weight: 500;
+  /* color: ${secondColor}; */
+  /* color: ${(props) => props.changeColor}; */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -210,11 +210,11 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Wrapper = styled.div`
   background: #fff;
   width: 100%;
-  border-radius: 8px;
+  border-radius: 20px;
   overflow: hidden;
   position: relative;
   border: 2px solid ${secondColor};
-  box-shadow: 8px 8px 0px rgba(35, 92, 150, 0.3);
+  /* box-shadow: 8px 8px 0px rgba(35, 92, 150, 0.3); */
   &:not(:last-of-type) {
     margin-bottom: 20px;
   }

@@ -164,7 +164,7 @@ const LeftBar = () => {
             cat="explore"
             onClick={() => setSelectMenu(3)}
             color="#30c56e"
-            to="/explore/outer"
+            to="/explore"
           >
             <MenuList>
               <FiSearch />

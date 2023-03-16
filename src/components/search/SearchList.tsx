@@ -18,10 +18,14 @@ type Props = {
   setFocus: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-interface localType {
-  at: number;
-  type: string;
-  search: string;
+export interface localType {
+  at?: number;
+  type?: string;
+  search?: string;
+  tag?: string;
+  displayName?: string;
+  profileURL?: string;
+  name?: string;
 }
 
 const SearchList = ({ url, text, focus, setFocus }: Props) => {
@@ -35,10 +39,8 @@ const SearchList = ({ url, text, focus, setFocus }: Props) => {
   );
   const { ref, isLoading, dataList } = useInfinityScroll({
     url,
-    count: 6,
+    count: 10,
   });
-  const navigate = useNavigate();
-
   const data = dataList?.pages?.flat();
 
   useEffect(() => {
@@ -54,48 +56,42 @@ const SearchList = ({ url, text, focus, setFocus }: Props) => {
   }, [keywords, text]);
 
   useEffect(() => {
-    if (text !== "") {
-      const userInfo = async () => {
-        const q = query(collection(dbService, "users"));
-        const data = await getDocs(q);
+    const userInfo = async () => {
+      const q = query(collection(dbService, "users"));
+      const dataList = await getDocs(q);
 
-        const userArray = data.docs.map((doc) => ({
-          id: doc.id,
-          uid: doc.id,
-          ...doc.data(),
-        }));
+      const userArray = dataList.docs.map((doc) => ({
+        id: doc.id,
+        uid: doc.id,
+        ...doc.data(),
+      }));
 
-        // // 본인 제외 노출
-        // const exceptArray = userArray.filter(
-        //   (name: { uid: string }) => name.uid !== userObj.uid
-        // );
-        setUsers(userArray);
-        setLoading(true);
-      };
-      userInfo();
-    }
+      setUsers(userArray);
+      setLoading(true);
+    };
+    userInfo();
     return () => setLoading(false);
-  }, [text, userObj.uid]);
+  }, [userObj.uid]);
 
   // 유저 목록
   const userResult = useMemo(() => {
-    if (users && !text.includes(" ")) {
-      const filterNameAndEmail = users?.filter((user: CurrentUserType) =>
-        user.displayName.includes(text)
-      );
-      return filterNameAndEmail;
-    }
+    // if (users && text !== "") {
+    const filterNameAndEmail = users?.filter((user: CurrentUserType) =>
+      user.displayName.includes(text)
+    );
+    return filterNameAndEmail;
+    // }
   }, [text, users]);
 
-  const onListClick = (type: string, word: string) => {
+  const onListClick = (type: string, word: string, name: string) => {
     if (type === "tag") {
       setKeywords((prev: localType[]) => [
-        { at: Date.now(), type: "tag", search: word },
+        { at: Date.now(), type: "tag", search: word, name: null },
         ...prev,
       ]);
     } else {
       setKeywords((prev: localType[]) => [
-        { at: Date.now(), type: "user", search: word },
+        { at: Date.now(), type: "user", search: word, name: name },
         ...prev,
       ]);
     }
@@ -104,12 +100,12 @@ const SearchList = ({ url, text, focus, setFocus }: Props) => {
 
   return (
     <SearchedBox focus={focus}>
-      {text !== "" && (
+      {text !== "" ? (
         <>
-          {data?.length !== 0 && data !== undefined && (
+          {loading && data?.length !== 0 && data !== undefined && (
             <SearchedListBox>
               <SearchedList
-                onClick={() => onListClick("tag", text)}
+                onClick={() => onListClick("tag", text, "")}
                 to={`/explore/search?keyword=${text}`}
               >
                 <SearchedImageBox>
@@ -128,7 +124,7 @@ const SearchList = ({ url, text, focus, setFocus }: Props) => {
             return (
               <SearchedListBox key={index}>
                 <SearchedList
-                  onClick={() => onListClick("user", res.displayName)}
+                  onClick={() => onListClick("user", res.displayName, res.name)}
                   to={`/profile/${res.displayName}`}
                 >
                   <SearchedImageBox>
@@ -144,25 +140,13 @@ const SearchList = ({ url, text, focus, setFocus }: Props) => {
           })}
           <div ref={ref} />
         </>
-      )}
-
-      {text === "" && (
-        <>
-          {keywords?.length === 0 ? (
-            <NotInfoBox>
-              <NotInfo>최근 검색 내역 없음</NotInfo>
-            </NotInfoBox>
-          ) : (
-            <>
-              {
-                <SearchedShowList
-                  keywords={keywords}
-                  onListClick={onListClick}
-                />
-              }
-            </>
-          )}
-        </>
+      ) : (
+        <SearchedShowList
+          text={text}
+          keywords={keywords}
+          setKeywords={setKeywords}
+          onListClick={onListClick}
+        />
       )}
 
       {focus && userResult?.length === 0 && data?.length === 0 && (
@@ -179,16 +163,16 @@ export default SearchList;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const SearchedBox = styled.ul<{ focus: boolean }>`
-  border: ${(props) =>
-    props.focus ? `1px solid ${secondColor}` : `0px solid ${secondColor}`};
+  border: 2px solid ${(props) => (props.focus ? secondColor : fourthColor)};
   margin-top: ${(props) => (props.focus ? `12px` : `0`)};
   height: ${(props) => (props.focus ? `300px` : `0`)};
   opacity: ${(props) => (props.focus ? `1` : `0`)};
   transition: all 0.15s linear;
-  border-radius: 8px;
+  border-radius: 20px;
   position: relative;
   overflow: hidden;
   overflow-y: auto;
+
   /* border: 1px solid ${secondColor};
   margin-top: 12px;
   height: 300px;

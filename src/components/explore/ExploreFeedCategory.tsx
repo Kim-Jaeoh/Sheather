@@ -165,7 +165,7 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   display: flex;
   flex-direction: column;
   /* margin: 4px; */
-  border-radius: 8px;
+  border-radius: 20px;
   border: ${(props) => props.render && `2px solid ${secondColor}`};
   overflow: hidden;
   /* position: absolute; */

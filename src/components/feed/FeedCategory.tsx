@@ -151,7 +151,10 @@ const FeedCategory = ({ url, feed }: Props) => {
                           <TagList>
                             {res?.tag?.map((tag, index) => {
                               return (
-                                <Tag key={index}>
+                                <Tag
+                                  key={index}
+                                  to={`/explore/search?keyword=${tag}`}
+                                >
                                   <span>#</span>
                                   <TagName>{tag}</TagName>
                                 </Tag>
@@ -209,7 +212,7 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   position: ${(props) => (props.render ? "absolute" : "relative")};
   /* position: absolute; */
   width: 318px;
-  border-radius: 8px;
+  border-radius: 20px;
   border: 2px solid ${secondColor};
   overflow: hidden;
   background: #fff;
@@ -219,6 +222,9 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
+  /* box-shadow: 0px 6px 0 -2px #222, 0px 6px ${secondColor}; */
+  /* box-shadow: 6px 6px 0px rgba(114, 25, 40, 0.3); */
+  /* box-shadow: 4px 4px 0px ${secondColor}; */
 
   @keyframes slideUp {
     0% {
@@ -383,7 +389,7 @@ const UserText = styled.p`
   letter-spacing: -0.21px;
 `;
 
-const TagList = styled.ul`
+const TagList = styled.div`
   display: flex;
   align-items: center;
   font-size: 12px;
@@ -392,7 +398,7 @@ const TagList = styled.ul`
   gap: 10px;
 `;
 
-const Tag = styled.li`
+const Tag = styled(Link)`
   position: relative;
   display: flex;
   align-items: center;
@@ -400,7 +406,7 @@ const Tag = styled.li`
   border-radius: 64px;
   background-color: #f7f7f7;
   padding: 8px 10px;
-  color: rgb(255, 86, 115);
+  color: #ff5673;
 
   cursor: pointer;
   &:hover {
@@ -442,4 +448,6 @@ const NotInfoBox = styled.div`
   }
 `;
 
-const NotInfo = styled.div``;
+const NotInfo = styled.span`
+  color: #fff;
+`;
