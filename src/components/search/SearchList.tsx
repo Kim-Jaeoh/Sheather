@@ -164,7 +164,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const SearchedBox = styled.ul<{ focus: boolean }>`
   border: 2px solid ${(props) => (props.focus ? secondColor : fourthColor)};
-  margin-top: ${(props) => (props.focus ? `12px` : `0`)};
+  margin-top: ${(props) => (props.focus ? `14px` : `0`)};
   height: ${(props) => (props.focus ? `300px` : `0`)};
   opacity: ${(props) => (props.focus ? `1` : `0`)};
   transition: all 0.15s linear;
@@ -172,7 +172,10 @@ const SearchedBox = styled.ul<{ focus: boolean }>`
   position: relative;
   overflow: hidden;
   overflow-y: auto;
-
+  box-shadow: ${(props) =>
+    props.focus &&
+    `0px 1px ${secondColor}, 0px 2px ${secondColor},
+    0px 3px ${secondColor}, 0px 4px ${secondColor}`};
   /* border: 1px solid ${secondColor};
   margin-top: 12px;
   height: 300px;

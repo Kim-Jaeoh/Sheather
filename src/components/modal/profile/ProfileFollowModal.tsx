@@ -51,7 +51,6 @@ const ProfileFollowModal = ({
       setAccount((prev: UserType[]) => [...prev, docSnap.data()]);
       setIsLoading(true);
     });
-    // return () => modalClose();
   }, [followInfo]);
 
   return (

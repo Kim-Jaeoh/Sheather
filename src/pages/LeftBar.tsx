@@ -213,20 +213,24 @@ const LeftBar = () => {
 
 export default LeftBar;
 
-const Container = styled.nav`
+const Container = styled.section`
   position: sticky;
   top: 0;
   flex: 0 1 auto;
-  width: 250px;
+  width: 220px;
   height: 100vh;
   background: #fff;
   user-select: none;
-  padding: 0 20px;
+  padding: 0 30px;
   border: 2px solid #222222;
+  border-radius: 40px 0 0 40px;
 `;
 
-const MenuBox = styled.div<{ pathname: string }>`
+const MenuBox = styled.nav<{ pathname: string }>`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const LogoBox = styled.div`
@@ -244,7 +248,7 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
   display: flex;
   align-items: center;
   outline: none;
-
+  width: 100%;
   svg {
     font-size: 24px;
   }
@@ -261,6 +265,10 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
   &:hover li:hover,
   &:active li:active {
     border: 2px solid #222222;
+    /* box-shadow: 1px 1px 0 ${(props) => props.color},
+      2px 2px 0 ${(props) => props.color}, 3px 3px 0 ${(props) => props.color},
+      4px 4px 0 ${(props) => props.color}, 5px 5px 0 ${(props) => props.color},
+      6px 6px 0 2px #222222; */
     box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px #222222;
   }
 `;
@@ -269,6 +277,7 @@ const MenuBtn = styled.div<{ cat: string; menu: string; color: string }>`
   display: flex;
   align-items: center;
   outline: none;
+  width: 100%;
 
   svg {
     font-size: 24px;
@@ -307,8 +316,9 @@ const MenuList = styled.li`
 const MenuText = styled.h2`
   font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
   margin-bottom: -4px; // 폰트 교체로 인해 여백 제거
-  margin-left: 20px;
+  margin-left: 18px;
   font-size: 18px;
+  white-space: nowrap;
 `;
 
 const UserProfileBox = styled.div`

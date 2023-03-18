@@ -9,15 +9,17 @@ import { dbService } from "../fbase";
 import { FeedType } from "../types/type";
 
 const useToggleLike = () => {
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
   // firebase 계정에 추가
   const fbLike = async (resId: string) => {
-    if (!userObj.displayName) {
+    if (!userLogin) {
       return alert("로그인하기~~");
     }
     if (userObj.like?.includes(resId)) {

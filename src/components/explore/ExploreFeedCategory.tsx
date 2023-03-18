@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { FrameGrid } from "@egjs/react-grid";
 import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
 import { cloneDeep } from "lodash";
+import AuthFormModal from "../modal/auth/AuthFormModal";
 
 type Props = {
   feed?: FeedType[];
@@ -18,7 +19,13 @@ type Props = {
 };
 
 const ExploreFeedCategory = ({ url, feed }: Props) => {
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const [isGridRender, setIsGridRender] = useState(false);
+  const [isAuthModal, setIsAuthModal] = useState(false);
   const [randomFeed, setRandomFeed] = useState(null);
   const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 10 });
 
@@ -27,57 +34,46 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
     // 객체 깊은 복사
     let arr = cloneDeep(dataList?.pages.flat()); // 렌더링이 2번 돼서 cloneDeep으로 해결
 
-    const randomArray = (array: FeedType[]) => {
-      // (피셔-예이츠)
-      for (let index = array?.length - 1; index > 0; index--) {
-        // 무작위 index 값을 만든다. (0 이상의 배열 길이 값)
-        const randomPosition = Math.floor(Math.random() * (index + 1));
+    // const randomArray = (array: FeedType[]) => {
+    //   // (피셔-예이츠)
+    //   for (let index = array?.length - 1; index > 0; index--) {
+    //     // 무작위 index 값을 만든다. (0 이상의 배열 길이 값)
+    //     const randomPosition = Math.floor(Math.random() * (index + 1));
 
-        // 임시로 원본 값을 저장하고, randomPosition을 사용해 배열 요소를 섞는다.
-        const temporary = array[index];
-        array[index] = array[randomPosition];
-        array[randomPosition] = temporary;
-      }
-    };
+    //     // 임시로 원본 값을 저장하고, randomPosition을 사용해 배열 요소를 섞는다.
+    //     const temporary = array[index];
+    //     array[index] = array[randomPosition];
+    //     array[randomPosition] = temporary;
+    //   }
+    // };
 
-    randomArray(arr);
+    // randomArray(arr);
     setRandomFeed(arr);
   }, [dataList]);
 
-  // let checkSize: number;
-  // let checkAspect: number;
-  // const sizes = (aspect: string) => {
-  //   if (aspect === "4/3") {
-  //     checkAspect = 74.6;
-  //     return (checkSize = 36);
-  //   }
-  //   if (aspect === "1/1") {
-  //     checkAspect = 100;
-  //     return (checkSize = 44);
-  //   }
-  //   if (aspect === "3/4") {
-  //     checkAspect = 132.6;
-  //     return (checkSize = 54);
-  //   }
-  // };
+  const onLogState = () => {
+    if (!userLogin) {
+      setIsAuthModal(true);
+    }
+  };
+
+  const onAuthModal = () => {
+    setIsAuthModal((prev) => !prev);
+  };
 
   return (
     <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+      )}
       {!isLoading ? (
         <>
           {randomFeed?.length !== 0 ? (
             <CardBox>
               <FrameGrid
                 className="container"
-                gap={10}
+                gap={16}
                 defaultDirection={"end"}
-                // isConstantSize={true}
-                // preserveUIOnDestroy={true}
-                // observeChildren={true}
-                // rectSize={0}
-                // outlineSize={0}
-                // useRoundedSize={true}
-                // useFrameFill={true}
                 frame={[
                   [1, 1, 2, 2, 3, 3],
                   [1, 1, 2, 2, 3, 3],
@@ -95,12 +91,13 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
                   return (
                     <CardList
                       render={isGridRender}
+                      onClick={onLogState}
                       // size={checkSize}
                       key={res.id}
                     >
                       <Card
                         // aspect={checkAspect}
-                        to={"/feed/detail"}
+                        to={userLogin && "/feed/detail"}
                         state={{ id: res.id, email: res.email }}
                       >
                         <WeatherEmojiBox>
@@ -154,7 +151,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardBox = styled.ul`
   width: 100%;
-  padding: 20px;
+  padding: 10px 40px 40px;
   /* padding: 0 16px 16px; */
   /* display: grid; */
   /* grid-template-columns: 1fr 1fr 1fr; */
@@ -164,12 +161,14 @@ const CardBox = styled.ul`
 const CardList = styled.li<{ render?: boolean; size?: number }>`
   display: flex;
   flex-direction: column;
-  /* margin: 4px; */
   border-radius: 20px;
   border: ${(props) => props.render && `2px solid ${secondColor}`};
   overflow: hidden;
-  /* position: absolute; */
-  /* grid-row-end: span ${(props) => (props.size ? props.size : 43)}; */
+  /* box-shadow: 0px 6px 0 -2px #30c56e, 0px 6px ${secondColor}; */
+
+  /* box-shadow: 1px 1px ${secondColor}, 2px 2px ${secondColor}, */
+  /* 3px 3px ${secondColor}, 4px 4px ${secondColor}; */
+
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
@@ -197,6 +196,7 @@ const Card = styled(Link)<{ aspect?: number }>`
   cursor: pointer;
   outline: none;
   overflow: hidden;
+
   /* border-bottom: 2px solid ${secondColor}; */
   /* padding-top: ${(props) => `${props.aspect}%`}; */
 `;
@@ -256,98 +256,13 @@ const CardImage = styled.img`
   display: block;
   width: 100%;
   height: 100%;
-`;
-
-const UserBox = styled.div`
-  padding: 12px 12px;
-  flex: 1;
-`;
-
-const UserInfoBox = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const UserImageBox = styled(Link)`
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 1px solid ${fourthColor};
-  object-fit: cover;
-  cursor: pointer;
-  position: relative;
-`;
-
-const UserImage = styled.img`
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-  image-rendering: auto;
-`;
-
-const UserNameBox = styled(Link)`
-  cursor: pointer;
-  overflow: hidden;
-  position: relative;
-  text-overflow: ellipsis;
-  flex: 1;
-  padding: 8px;
-  white-space: nowrap;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.15px;
-
-  color: ${secondColor};
-`;
-
-const UserReactBox = styled.div`
-  display: flex;
-  margin: 0;
-  padding: 0;
-  align-items: center;
-  gap: 12px;
-`;
-
-const UserIconBox = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const UserIcon = styled.div`
-  display: flex;
-  align-items: center;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  color: ${thirdColor};
-  svg {
-    font-size: 16px;
-  }
-`;
-
-const UserReactNum = styled.p`
-  font-size: 14px;
-  margin-left: 4px;
-  color: ${thirdColor};
-`;
-
-const UserText = styled.p`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  margin-top: 10px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-height: 20px;
-  font-size: 14px;
-  letter-spacing: -0.21px;
+  background: #fff;
 `;
 
 const NotInfoBox = styled.div`
   width: 100%;
-  height: 200px;
+  flex: 1;
+  /* height: 200px; */
   margin: 0 auto;
   display: flex;
   align-items: center;

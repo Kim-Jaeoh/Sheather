@@ -32,6 +32,7 @@ import toast from "react-hot-toast";
 import FeedMoreSelectModal from "../modal/feed/FeedMoreSelectModal";
 import { BiCopy } from "react-icons/bi";
 import TempClothes from "../../assets/TempClothes";
+import AuthFormModal from "../modal/auth/AuthFormModal";
 
 type ReplyPayload = {
   id?: string;
@@ -54,12 +55,15 @@ type locationProps = {
 
 const DetailFeed = () => {
   const textRef = useRef<HTMLTextAreaElement>(null);
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const [replyText, setReplyText] = useState("");
   const [onMouse, setOnMouse] = useState(false);
   const [isMore, setIsMore] = useState(false);
+  const [isAuthModal, setIsAuthModal] = useState(false);
   const [isFeedEdit, setIsFeedEdit] = useState(false);
   const { state, pathname } = useLocation() as locationProps;
   const { toggleLike } = useToggleLike();
@@ -225,15 +229,28 @@ const DetailFeed = () => {
 
   const onWearClick = (cat: string, detail: string) => {
     let number = ClothesCategory[cat].findIndex((res) => res === detail);
-    // top에만 "없음" 항목이 없어서 index가 부족하기 때문
-    if (cat === "top") {
-      number += 1;
-    }
+    // // top에만 "없음" 항목이 없어서 index가 부족하기 때문
+    // if (cat === "top") {
+    //   number += 1;
+    // }
     navigate(`/explore/${cat}?detail=${number}`);
+  };
+
+  const onLogState = () => {
+    if (!userLogin) {
+      setIsAuthModal(true);
+    }
+  };
+
+  const onAuthModal = () => {
+    setIsAuthModal((prev) => !prev);
   };
 
   return (
     <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+      )}
       {feedData && (
         <>
           {detailInfo.map((res) => {
@@ -498,6 +515,7 @@ const DetailFeed = () => {
                               <DetailFeedReply
                                 key={index}
                                 userObj={userObj.email}
+                                isLogin={userLogin}
                                 reply={reply}
                                 onDelete={onReplyDelete}
                               />
@@ -505,7 +523,7 @@ const DetailFeed = () => {
                           })}
                         </>
                       )}
-                      <ReplyEditBox>
+                      <ReplyEditBox onClick={onLogState}>
                         <ReplyEditText
                           spellCheck="false"
                           maxLength={120}
@@ -548,7 +566,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Wrapper = styled.div<{ bgColor: string }>`
   position: relative;
   overflow: hidden;
-  padding: 34px;
+  padding: 40px;
   /* padding: 20px 60px 30px; */
   background: ${(props) => props.bgColor};
   border-top: 2px solid ${secondColor};
@@ -572,7 +590,7 @@ const Container = styled.div<{ shadowColor: string }>`
 `;
 
 const Header = styled.div`
-  padding: 14px;
+  padding: 20px;
   border-bottom: 1px solid ${thirdColor};
 `;
 
@@ -687,7 +705,7 @@ const Card = styled.div`
 `;
 
 const CardImage = styled.img`
-  object-fit: cover;
+  /* object-fit: cover; */
   display: block;
   width: 100%;
   height: 100%;
@@ -702,7 +720,7 @@ const WearDetailBox = styled.div`
 `;
 
 const WearDetail = styled.div`
-  padding: 10px 14px;
+  padding: 14px 14px;
   display: flex;
   flex: 1;
   align-items: center;
@@ -714,6 +732,7 @@ const WearDetail = styled.div`
 const WearInfoBox = styled.div`
   display: flex;
   align-items: center;
+  width: 100%;
 `;
 
 const WearInfoMain = styled.div`
@@ -722,7 +741,7 @@ const WearInfoMain = styled.div`
   color: ${secondColor};
   /* min-width: 55px; */
   text-align: center;
-  margin-right: 8px;
+  margin-right: 12px;
   /* padding-right: 8px; */
   /* border-right: 1px solid ${thirdColor}; */
   font-size: 14px;
@@ -736,6 +755,7 @@ const WearInfoMain = styled.div`
 
 const FlickingCategoryBox = styled.div`
   position: relative;
+  width: 100%;
   cursor: pointer;
   &::after {
     right: 0px;
@@ -801,6 +821,7 @@ const PaginationSpan = styled.span<{ slideIndex: number }>`
 const WearInfo = styled.div`
   display: flex;
   align-items: center;
+  /* width: 100%; */
   gap: 10px;
 `;
 
@@ -829,12 +850,12 @@ const CategoryTag = styled.div`
   display: flex;
   align-items: center;
   border: 1px solid ${thirdColor};
-  border-radius: 4px;
+  border-radius: 20px;
 
   svg {
     margin-right: 2px;
     font-size: 12px;
-    color: ${secondColor};
+    color: ${thirdColor};
   }
 `;
 

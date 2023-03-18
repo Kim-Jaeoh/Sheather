@@ -9,6 +9,8 @@ import {
   WeathersFiveDataType,
 } from "../types/type";
 import moment from "moment";
+import WeatherSliderSkeleton from "../assets/skeleton/WeatherSliderSkeleton";
+import ColorList from "../assets/ColorList";
 const WeatherSlider = lazy(() => import("../components/weather/WeatherSlider"));
 
 const Weather = () => {
@@ -53,7 +55,7 @@ const Weather = () => {
     enabled: Boolean(location),
   });
 
-  // 시간 계산 추가
+  // 현재 날짜 시간 계산
   useEffect(() => {
     if (weatherData) {
       setWeather({
@@ -64,6 +66,7 @@ const Weather = () => {
     }
   }, [weatherData]);
 
+  // 단기 예보 시간 계산
   useEffect(() => {
     if (weathersData) {
       const list = weathersData?.data?.list.map((res) => {
@@ -85,44 +88,22 @@ const Weather = () => {
     return Array.from(filter);
   }, [weatherArray]);
 
-  const date1 = useMemo(
-    () =>
-      weatherArray?.filter(
-        (res) => moment(res?.dt).format("DD") === dateArray[0]
-      ),
-    [dateArray, weatherArray]
-  );
+  // 날짜 맞는지 체크
+  const GetDate = (dateStr: string, weatherArray: WeathersFiveDataType[]) => {
+    return useMemo(
+      () =>
+        weatherArray?.filter((res) => moment(res?.dt).format("DD") === dateStr),
+      [dateStr, weatherArray]
+    );
+  };
 
-  const date2 = useMemo(
-    () =>
-      weatherArray?.filter(
-        (res) => moment(res?.dt).format("DD") === dateArray[1]
-      ),
-    [dateArray, weatherArray]
-  );
-  const date3 = useMemo(
-    () =>
-      weatherArray?.filter(
-        (res) => moment(res?.dt).format("DD") === dateArray[2]
-      ),
-    [dateArray, weatherArray]
-  );
-  const date4 = useMemo(
-    () =>
-      weatherArray?.filter(
-        (res) => moment(res?.dt).format("DD") === dateArray[3]
-      ),
-    [dateArray, weatherArray]
-  );
-  const date5 = useMemo(
-    () =>
-      weatherArray?.filter(
-        (res) => moment(res?.dt).format("DD") === dateArray[4]
-      ),
-    [dateArray, weatherArray]
-  );
+  const date1 = GetDate(dateArray[0], weatherArray);
+  const date2 = GetDate(dateArray[1], weatherArray);
+  const date3 = GetDate(dateArray[2], weatherArray);
+  const date4 = GetDate(dateArray[3], weatherArray);
+  const date5 = GetDate(dateArray[4], weatherArray);
 
-  // 이전 날짜 체크
+  // 오늘 날짜 체크
   const dayCheck = useMemo(() => {
     const time = new Date();
     if (filterData1) {
@@ -131,7 +112,7 @@ const Weather = () => {
     }
   }, [filterData1]);
 
-  // day+1 날짜 체크2
+  // day+1 날짜 체크
   const dayPlusCheck = useMemo(() => {
     const time = new Date();
     if (date2) {
@@ -172,15 +153,24 @@ const Weather = () => {
 
   return (
     <Container>
-      {/* <Toaster position="bottom-left" reverseOrder={false} /> */}
       <WeatherBox>
-        <>
-          {dayCheck && <WeatherSlider data={timeCheck} />}
-          <WeatherSlider data={dayPlusCheck ? timePlusCheck : filterData2} />
-          <WeatherSlider data={filterData3} />
-          <WeatherSlider data={filterData4} />
-          <WeatherSlider data={filterData5} />
-        </>
+        {!isLoading ? (
+          <>
+            {/* {dayCheck && <WeatherSlider data={timeCheck} />} */}
+            {dayCheck && <WeatherSlider data={filterData1} />}
+            {/* <WeatherSlider data={dayPlusCheck ? timePlusCheck : filterData2} /> */}
+            <WeatherSlider data={filterData2} />
+            <WeatherSlider data={filterData3} />
+            <WeatherSlider data={filterData4} />
+            <WeatherSlider data={filterData5} />
+          </>
+        ) : (
+          <>
+            {Array.from({ length: 4 }).map((res, index) => (
+              <WeatherSliderSkeleton key={index} />
+            ))}
+          </>
+        )}
       </WeatherBox>
     </Container>
   );
@@ -188,17 +178,19 @@ const Weather = () => {
 
 export default Weather;
 
+const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+
 const Container = styled.main`
   overflow: hidden;
   /* width: 700px; */
   height: 100%;
-  border-top: 2px solid #222;
+  border-top: 2px solid ${secondColor};
   background: #48a3ff;
 `;
 
 const WeatherBox = styled.div`
   position: relative;
-  padding: 20px;
+  padding: 40px;
   > div:last-of-type {
     /* border-bottom: none; */
   }

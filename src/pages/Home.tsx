@@ -259,19 +259,22 @@ const SelectCategory = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 20px;
 `;
 
 const SelectCategoryText = styled(Link)<{ select: number; num: number }>`
   /* ff5673 */
   width: 70px;
   flex: 1;
-  color: ${(props) => (props.num === props.select ? "#222" : `#fff`)};
+  color: ${secondColor};
+  /* color: ${(props) => (props.num === props.select ? "#222" : `#fff`)}; */
   background: ${(props) =>
     props.num === props.select ? "#fff" : "transparent"};
   border-radius: 9999px;
-  border: 2px solid
-    ${(props) => (props.num === props.select ? "#222" : "tranparent")};
+  /* border: 2px solid
+    ${(props) => (props.num === props.select ? "#222" : "tranparent")}; */
+  border: ${(props) =>
+    props.num === props.select ? "2px solid #222" : "1px solid #222"};
   padding: 8px 10px;
   text-align: center;
   white-space: nowrap;
@@ -279,6 +282,10 @@ const SelectCategoryText = styled(Link)<{ select: number; num: number }>`
   font-weight: ${(props) => (props.num === props.select ? "700" : "500")};
   box-shadow: ${(props) =>
     props.num === props.select &&
-    ` 0px 4px 0 -2px #222, 0px 4px ${secondColor}`};
+    `0px 4px 0 -2px ${secondColor}, 0px 4px ${secondColor}
+    `};
+  /* box-shadow: ${(props) =>
+    props.num === props.select &&
+    ` 0px 4px 0 -2px #222, 0px 4px ${secondColor}`}; */
   cursor: pointer;
 `;

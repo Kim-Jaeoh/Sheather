@@ -485,10 +485,10 @@ const Header = styled.header`
   display: flex;
   align-items: center;
   padding-right: 14px;
-  border-radius: 12px 12px 0 0;
   border-bottom: 1px solid ${thirdColor};
   position: sticky;
-  background: rgba(255, 255, 255, 0.808);
+  /* border-radius: 12px 12px 0 0; */
+  /* background: rgba(255, 255, 255, 0.808); */
   top: 0px;
   z-index: 10;
 `;

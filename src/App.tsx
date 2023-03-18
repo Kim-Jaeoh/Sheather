@@ -15,8 +15,9 @@ import { authService } from "./fbase";
 import Profile from "./pages/Profile";
 import { Toaster } from "react-hot-toast";
 import { SuspenseSpinner } from "./assets/SuspenseSpinner";
-import Search from "./components/search/Search";
+import SearchBox from "./components/search/SearchBox";
 import SearchResult from "./components/search/SearchResult";
+import ListCategory from "./components/explore/ListCategory";
 // const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
@@ -55,7 +56,7 @@ const App = () => {
         <Wrapper>
           <LeftBar />
           <Main>
-            <Toaster position="bottom-left" reverseOrder={false} />
+            <Toaster position="bottom-center" reverseOrder={false} />
             <Container>
               <Routes>
                 <Route path="/feed/*" element={<Home />} />
@@ -64,9 +65,9 @@ const App = () => {
                 <Route path="/message" element={<Message />} />
                 <Route path="/explore/*" element={<Explore />} />
                 <Route path="/explore/search" element={<SearchResult />} />
+                <Route path="/explore/tag" element={<ListCategory />} />
                 <Route path="/profile/:id/*" element={<Profile />} />
                 <Route path="/profile/detail" element={<DetailFeed />} />
-                <Route path="/search/*" element={<Search />} />
                 <Route
                   path="/explore"
                   element={<Navigate replace to="/explore/outer?detail=0" />}
@@ -104,17 +105,19 @@ const Wrapper = styled.div`
 
 const Main = styled.main`
   /* flex: 1 1 auto; */
-  width: 700px;
+  /* width: 700px; */
+  flex: 1;
+  max-width: 760px;
   display: flex;
   flex-direction: column;
   height: auto;
-  padding: 0 20px;
+  /* padding: 0 20px; */
 `;
 
 const Container = styled.section`
   flex: 1;
   width: 100%;
   /* border-top: 2px solid #222; */
-  border-left: 2px solid #222;
-  border-right: 2px solid #222;
+  /* border-left: 2px solid #222; */
+  /* border-right: 2px solid #222; */
 `;

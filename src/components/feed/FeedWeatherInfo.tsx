@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
 import { WeatherDataType } from "../../types/type";
 import axios, { AxiosError, AxiosResponse } from "axios";
@@ -15,6 +15,8 @@ import ColorList from "../../assets/ColorList";
 const FeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
   const { pathname } = useLocation();
+  const { ClothesCategory } = TempClothes();
+  const navigate = useNavigate();
 
   const changeColor = useMemo(() => {
     if (pathname.includes("feed")) {
@@ -285,6 +287,8 @@ const WearInfo = styled.div`
 const TagBox = styled.div`
   display: flex;
   flex: nowrap;
+  width: 100%;
+  padding: 2px;
   gap: 8px;
 `;
 
@@ -329,6 +333,7 @@ const InfoText = styled.span`
   align-items: center;
   justify-content: center;
   svg {
+    color: ${thirdColor};
     display: flex;
     align-items: center;
     justify-content: center;

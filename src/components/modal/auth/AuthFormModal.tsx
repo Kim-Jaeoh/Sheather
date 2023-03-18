@@ -337,7 +337,7 @@ const Container = styled.div`
   width: 480px;
   margin: 0 auto;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 20px;
   text-align: center;
   border: 2px solid ${secondColor};
   box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
@@ -411,9 +411,9 @@ const Form = styled.form`
 const EmailBox = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   width: 100%;
-  border-radius: 8px;
+  border-radius: 20px;
   padding: 0 12px;
   border: 1px solid ${thirdColor};
 `;

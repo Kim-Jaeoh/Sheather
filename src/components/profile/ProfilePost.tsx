@@ -8,6 +8,7 @@ import useInfinityScroll from "../../hooks/useInfinityScroll";
 import { UserType } from "../../app/user";
 import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
 import ProfileSkeleton from "../../assets/skeleton/ProfileSkeleton";
+import ColorList from "../../assets/ColorList";
 
 type props = {
   myPost: FeedType[];
@@ -76,23 +77,28 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
 
 export default ProfilePost;
 
+const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+
 const CardBox = styled.ul`
   width: 100%;
-  display: grid;
-  gap: 16px;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-auto-rows: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  /* grid-template-columns: 1fr 1fr 1fr; */
+  /* grid-auto-rows: auto; */
 `;
 
 const Card = styled.li`
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 20px;
   display: block;
-  width: 184px;
-  height: 184px;
+  width: 200px;
+  height: 200px;
   position: relative;
   overflow: hidden;
-  border: 2px solid #222;
+  border: 2px solid ${secondColor};
+  /* box-shadow: 0px 6px ${secondColor}, 0px 6px 0 -2px ${secondColor}; */
 
   animation-name: slideUp;
   animation-duration: 0.3s;
@@ -156,11 +162,13 @@ const CardImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background: #fff;
 `;
 
 const NotInfoBox = styled.div`
+  flex: 1;
   width: 100%;
-  height: 200px;
+  /* height: 200px; */
   /* margin: 0 auto; */
   display: flex;
   align-items: center;

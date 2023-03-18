@@ -10,11 +10,12 @@ import { Link } from "react-router-dom";
 
 type Props = {
   userObj: string;
+  isLogin: boolean;
   reply: replyType;
   onDelete: (text: replyType) => void;
 };
 
-const DetailFeedReply = ({ userObj, reply, onDelete }: Props) => {
+const DetailFeedReply = ({ userObj, isLogin, reply, onDelete }: Props) => {
   const [replyCreatorInfo, setReplyCreatorInfo] = useState(null);
   const { timeToString, timeToString2 } = useTimeFormat();
 
@@ -28,12 +29,16 @@ const DetailFeedReply = ({ userObj, reply, onDelete }: Props) => {
   return (
     <ReplyBox>
       <UserInfoBox>
-        <UserImageBox to={`/profile/${replyCreatorInfo?.displayName}/post`}>
+        <UserImageBox
+          to={isLogin && `/profile/${replyCreatorInfo?.displayName}/post`}
+        >
           <UserImage src={replyCreatorInfo?.profileURL} alt="" />
         </UserImageBox>
         <UserWriteInfo>
           <ReplyInfoBox>
-            <ReplyId to={`/profile/${replyCreatorInfo?.displayName}/post`}>
+            <ReplyId
+              to={isLogin && `/profile/${replyCreatorInfo?.displayName}/post`}
+            >
               {reply.displayName}
             </ReplyId>
             <ReplyText>{reply.text}</ReplyText>

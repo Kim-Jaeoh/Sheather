@@ -18,6 +18,7 @@ import FeedProfileImage from "./FeedProfileImage";
 import FeedProfileDisplayName from "./FeedProfileDisplayName";
 import { FrameGrid, MasonryGrid } from "@egjs/react-grid";
 import { Spinner } from "../../assets/Spinner";
+import AuthFormModal from "../modal/auth/AuthFormModal";
 
 type Props = {
   feed?: FeedType[];
@@ -26,11 +27,14 @@ type Props = {
 
 const FeedCategory = ({ url, feed }: Props) => {
   const [isGridRender, setIsGridRender] = useState(false);
+  const [isAuthModal, setIsAuthModal] = useState(false);
   const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
   const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
 
   let checkSize: number;
@@ -58,8 +62,21 @@ const FeedCategory = ({ url, feed }: Props) => {
     }
   };
 
+  const onLogState = () => {
+    if (!userLogin) {
+      setIsAuthModal(true);
+    }
+  };
+
+  const onAuthModal = () => {
+    setIsAuthModal((prev) => !prev);
+  };
+
   return (
     <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+      )}
       {!isLoading ? (
         <>
           {dataList?.pages?.flat().length !== 0 ? (
@@ -85,10 +102,11 @@ const FeedCategory = ({ url, feed }: Props) => {
                       render={isGridRender}
                       size={checkSize}
                       key={res.id}
+                      onClick={onLogState}
                     >
                       <Card
                         aspect={checkAspect}
-                        to={"/feed/detail"}
+                        to={userLogin && "/feed/detail"}
                         state={{ id: res.id, email: res.email }}
                       >
                         <WeatherEmojiBox>
@@ -110,14 +128,14 @@ const FeedCategory = ({ url, feed }: Props) => {
                       <UserBox>
                         <UserInfoBox>
                           <UserImageBox
-                            to={`/profile/${res.displayName}/post`}
+                            to={userLogin && `/profile/${res.displayName}/post`}
                             state={res.displayName}
                             onContextMenu={(e) => e.preventDefault()}
                           >
                             <FeedProfileImage displayName={res.displayName} />
                           </UserImageBox>
                           <UserNameBox
-                            to={`/profile/${res.displayName}/post`}
+                            to={userLogin && `/profile/${res.displayName}/post`}
                             state={res.displayName}
                           >
                             <FeedProfileDisplayName
@@ -134,7 +152,9 @@ const FeedCategory = ({ url, feed }: Props) => {
                                   <FaRegHeart />
                                 )}
                               </UserIcon>
-                              <UserReactNum>{res.like.length}</UserReactNum>
+                              {res.like.length > 0 && (
+                                <UserReactNum>{res.like.length}</UserReactNum>
+                              )}
                             </UserIconBox>
                             <UserIcon onClick={() => toggleBookmark(res.id)}>
                               {userObj?.bookmark?.filter((id) => id === res.id)
@@ -199,23 +219,24 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardBox = styled.ul<{ render?: boolean }>`
   width: 100%;
-  /* display: ${(props) => (props.render ? "block" : "grid")}; */
+  padding: 10px 40px 40px;
   /* grid-template-columns: ${(props) => props.render && `repeat(2, 1fr)`}; */
   /* padding: 0 10px 10px; */
-  padding: 10px 20px 20px;
   /* gap: 20px; */
   /* grid-auto-rows: auto; */
   /* grid-auto-rows: 10px; */
 `;
 
 const CardList = styled.li<{ render?: boolean; size?: number }>`
-  position: ${(props) => (props.render ? "absolute" : "relative")};
+  /* position: ${(props) => (props.render ? "absolute" : "relative")}; */
   /* position: absolute; */
-  width: 318px;
+  width: 326px;
   border-radius: 20px;
   border: 2px solid ${secondColor};
   overflow: hidden;
   background: #fff;
+  /* box-shadow: 0px 6px 0 -2px #ff5673, 0px 6px ${secondColor}; */
+  /* 4px 4px 0 2px #ff5673; */
   /* margin: 10px; */
   /* grid-row-end: span ${(props) => Math.ceil(props.size)}; */
 
@@ -300,6 +321,7 @@ const CardImage = styled.img`
   display: block;
   width: 100%;
   height: 100%;
+  background: #fff;
 `;
 
 const UserBox = styled.div`

@@ -284,10 +284,12 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                   </ProfileImagesBox>
                   <ProfileInfoBox>
                     <ProfileInfo>
-                      <ProfileCategory>이름</ProfileCategory>
+                      <ProfileCategory htmlFor="name">이름</ProfileCategory>
                       <ProfileName
                         type="text"
+                        id="name"
                         value={name}
+                        maxLength={20}
                         onChange={onChangeName}
                         focus={focusName}
                         onFocus={() => setFocusName(true)}
@@ -296,9 +298,12 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                       />
                     </ProfileInfo>
                     <ProfileInfo>
-                      <ProfileCategory>사용자 이름</ProfileCategory>
+                      <ProfileCategory htmlFor="dpName">
+                        사용자 이름
+                      </ProfileCategory>
                       <ProfileName
                         type="text"
+                        id="dpName"
                         value={displayName}
                         onChange={onChangeDsName}
                         focus={focusDsName}
@@ -308,9 +313,12 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                       />
                     </ProfileInfo>
                     <ProfileInfo>
-                      <ProfileCategory>자기 소개</ProfileCategory>
+                      <ProfileCategory htmlFor="desc">
+                        자기 소개
+                      </ProfileCategory>
                       <ProfileDesc
                         spellCheck="false"
+                        id="desc"
                         maxLength={120}
                         value={description}
                         onChange={onChangeDesc}
@@ -530,8 +538,10 @@ const ProfileInfo = styled.div`
   }
 `;
 
-const ProfileCategory = styled.p`
+const ProfileCategory = styled.label`
+  display: block;
   font-size: 14px;
+  margin-left: 2px;
   margin-bottom: 8px;
 `;
 
@@ -540,7 +550,7 @@ const ProfileName = styled.input<{ focus: boolean }>`
   box-sizing: border-box;
   font-size: 14px;
   font-weight: 500;
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 12px;
   border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
   transition: all 0.1s linear;
@@ -558,7 +568,7 @@ const ProfileDesc = styled.textarea<{ focus: boolean }>`
   border: none;
   padding: 12px;
   font-weight: 500;
-  border-radius: 20px;
+  border-radius: 8px;
   transition: all 0.1s linear;
   border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
   &::placeholder {

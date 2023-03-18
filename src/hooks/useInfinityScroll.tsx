@@ -35,6 +35,7 @@ const useInfinityScroll = ({ url, count }: props) => {
     {
       // refetchOnMount: true,
       refetchOnWindowFocus: false,
+      keepPreviousData: true,
       getNextPageParam: (lastPage, allPages) => {
         if (lastPage) {
           const nextPage = allPages.length + 1; //
@@ -44,14 +45,14 @@ const useInfinityScroll = ({ url, count }: props) => {
     }
   );
 
-  useEffect(() => {
-    return () => {
-      queryClient.setQueryData(["feed", url], (data: any) => ({
-        pages: data?.pages?.slice(0, 1),
-        pageParams: data?.pageParams?.slice(0, 1),
-      }));
-    };
-  }, [url]);
+  // useEffect(() => {
+  //   return () => {
+  //     queryClient.setQueryData(["feed", url], (data: any) => ({
+  //       pages: data?.pages?.slice(0, 1),
+  //       pageParams: data?.pageParams?.slice(0, 1),
+  //     }));
+  //   };
+  // }, [url]);
 
   const { ref, inView } = useInView();
 

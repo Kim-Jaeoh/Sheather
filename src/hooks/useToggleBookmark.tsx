@@ -6,14 +6,16 @@ import { currentUser } from "../app/user";
 import { dbService } from "../fbase";
 
 const useToggleBookmark = () => {
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
 
   const dispatch = useDispatch();
 
   const toggleBookmark = async (resId: string) => {
-    if (!userObj.displayName) {
+    if (!userLogin) {
       return alert("로그인하기~~");
     }
     if (userObj.bookmark?.includes(resId)) {

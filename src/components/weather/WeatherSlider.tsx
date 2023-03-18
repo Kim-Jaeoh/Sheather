@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiShare } from "react-icons/fi";
@@ -80,10 +80,10 @@ const WeatherSlider = ({ data }: PropsType) => {
       {shareBtn && (
         <ShareWeatherModal shareBtn={shareBtn} setShareBtn={setShareBtn} />
       )}
-      {data[0] ? (
+      {data && (
         <Wrapper>
           <WeatherDateBox>
-            <WeatherDate>{day}</WeatherDate>
+            <WeatherDate>{data.length > 8 ? `오늘 ~ ${day}` : day}</WeatherDate>
           </WeatherDateBox>
           <PrevArrow onClick={onClickArrowPrev} visible={visible}>
             <ArrowIcon>
@@ -196,8 +196,6 @@ const WeatherSlider = ({ data }: PropsType) => {
             </Flicking>
           </FlickingBox>
         </Wrapper>
-      ) : (
-        <WeatherSliderSkeleton />
       )}
     </>
   );
@@ -215,12 +213,14 @@ const Wrapper = styled.div`
   position: relative;
   border: 2px solid ${secondColor};
   /* box-shadow: 8px 8px 0px rgba(35, 92, 150, 0.3); */
+  /* box-shadow: 0px 6px 0 -2px #48a3ff, 0px 6px ${secondColor}; */
   &:not(:last-of-type) {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
 `;
 
 const FlickingBox = styled.ul`
+  height: 356px;
   li:not(:last-of-type) {
     border-right: 1px solid ${fourthColor};
   }
@@ -282,7 +282,8 @@ const WeatherDateBox = styled.div`
 const WeatherDate = styled.span`
   font-size: 14px;
   font-weight: bold;
-  width: 50px;
+  /* width: 50px; */
+  white-space: nowrap;
   padding: 6px 10px;
   border-radius: 9999px;
   background-color: #48a3ff;
@@ -412,7 +413,7 @@ const ArrowIcon = styled.span`
 `;
 
 const NextArrow = styled(ArrowStandard)<{ visible: boolean }>`
-  right: 264px;
+  right: 290px;
   color: ${(props) => !props.visible && fourthColor};
   border-color: ${(props) => !props.visible && fourthColor};
   cursor: ${(props) => !props.visible && "default"};
@@ -424,7 +425,7 @@ const NextArrow = styled(ArrowStandard)<{ visible: boolean }>`
 `;
 
 const PrevArrow = styled(ArrowStandard)<{ visible: boolean }>`
-  left: 264px;
+  left: 290px;
   color: ${(props) => !props.visible && fourthColor};
   border-color: ${(props) => !props.visible && fourthColor};
   cursor: ${(props) => !props.visible && "default"};

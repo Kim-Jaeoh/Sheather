@@ -31,6 +31,7 @@ const SearchedShowList = ({
 }: Props) => {
   const [combineArray, setCombineArray] = useState([]);
 
+  // 정보 가져오기
   useEffect(() => {
     const getList = async (res: localType) => {
       const user = res.type === "user";
@@ -65,22 +66,22 @@ const SearchedShowList = ({
     // listResult();
 
     // 2. map에서 Promise 방식 (병렬 처리)
-    const showMessages = async () => {
+    const showList = async () => {
       const uniqueArr = keywords.filter(
         (obj, index, self) =>
           index ===
           self.findIndex((t) => t.type === obj.type && t.search === obj.search)
       );
 
-      // RIGHT :: Array.map using async-await and Promise.all
-      const messages = await Promise.all(
+      const list = await Promise.all(
         uniqueArr.map((res) => {
           return getList(res);
         })
       );
-      setCombineArray(messages);
+      setCombineArray(list);
     };
-    showMessages();
+
+    showList();
   }, [keywords]);
 
   const onDelete = (type: string, search: string) => {

@@ -18,7 +18,8 @@ const Container = styled.footer`
   /* max-width: 1100px; */
   width: 100%;
   height: 80px;
-  border: 2px solid #222222;
+  border-top: 2px solid #222222;
+  border-bottom: 2px solid #222222;
 `;
 
 const InfoBox = styled.div`

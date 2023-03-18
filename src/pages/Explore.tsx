@@ -51,13 +51,37 @@ const Explore = () => {
     );
   }, [detail, searchParams, selectCategory]);
 
+  // 뒤로, 앞으로 갈 시 이전 데이터 받아오기
+  useEffect(() => {
+    let cat = pathname?.split("/")[2];
+    setDetail(ClothesCategory[cat][+searchParams.get("detail")]);
+  }, [ClothesCategory, pathname, searchParams]);
+
   // 카테고리
   useEffect(() => {
+    let cat = pathname?.split("/")[2];
+    // const keysOfWear = Object.keys(ClothesCategory);
+    // const keys = keysOfWear.find(
+    //   (key) => ClothesCategory[key] === ClothesCategory[cat]
+    // );
+
+    // let number: number = ClothesCategory[cat].findIndex(
+    //   (res) => res === ClothesCategory[cat][+searchParams.get("detail")]
+    // );
+
+    // top에만 "없음" 항목이 없어서 index가 부족하기 때문
+
+    let number = +searchParams.get("detail");
+    if (cat === "top") {
+      // number += 1;
+    }
+
+    console.log(number);
     const findIndex = categoryArray.findIndex(
       (res) => res.link === pathname?.split("/")[2]
     );
     setSelectCategory(findIndex);
-    setSecondSelectCategory(+searchParams.get("detail"));
+    setSecondSelectCategory(number);
     // 리팩토링
     // if (pathname.includes("outer")) {
     //   return setSelectCategory(0);
@@ -74,7 +98,7 @@ const Explore = () => {
     // if (pathname.includes("etc")) {
     //   return setSelectCategory(4);
     // }
-  }, [pathname, searchParams]);
+  }, [ClothesCategory, pathname, searchParams]);
 
   // 세부 카테고리에 '전체' 태그 추가
   const secondMenu = useMemo(() => {
@@ -157,49 +181,7 @@ const Explore = () => {
             </TagBox>
           </Flicking>
         </SelectCategory>
-
-        {/* {selectCategory === 2 && isDetailModal && (
-          <RangeTimeModal
-            modalOpen={isDetailModal}
-            modalClose={onModalClose}
-            rangeTime={rangeTime}
-            setRangeTime={setRangeTime}
-            changeValue={changeValue}
-            setChangeValue={setChangeValue}
-            onReset={onReset}
-            onDone={onDone}
-          />
-        )} */}
       </SelectTimeBox>
-
-      {/* {isDetailDone && selectCategory === 2 && (
-        <SelectDetailTimeBox>
-          <SelectCategoryBox>
-            <SelectCategoryBtn
-              select={dateCategory}
-              category={"outer"}
-              type="button"
-              onClick={() => setDateCategory("outer")}
-            >
-              최신순
-            </SelectCategoryBtn>
-            <SelectCategoryBtn
-              select={dateCategory}
-              category={"popular"}
-              type="button"
-              onClick={() => setDateCategory("popular")}
-            >
-              인기순
-            </SelectCategoryBtn>
-          </SelectCategoryBox>
-          <SelectDetailTime>
-            {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
-            {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
-            {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
-          </SelectDetailTime>
-        </SelectDetailTimeBox>
-      )} */}
-
       <Routes>
         {categoryArray.map((res, index) => {
           return (
@@ -218,76 +200,65 @@ export default Explore;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Container = styled.main`
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  /* padding: 20px; */
   position: relative;
-  border-top: 2px solid ${secondColor};
-  /* background: #30c56e; */
+  background: #30c56e;
 `;
 
 const CategoryBox = styled.nav`
-  margin-top: 20px;
-  border-bottom: 1px solid ${thirdColor};
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-top: 2px solid ${secondColor};
+  border-bottom: 2px solid ${secondColor};
   box-sizing: border-box;
+  background: #fff;
 `;
 
 const CategoryList = styled.ul`
-  height: 44px;
+  width: 100%;
+  height: 60px;
   padding-left: 16px;
   padding-right: 16px;
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: 40px;
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
-  /* display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 44px;
-  gap: 40px;
-  margin-top: 20px;
-  overflow-x: auto;
-  overflow-y: hidden; */
-  /* border-bottom: 1px solid ${thirdColor}; */
 `;
 
 const Category = styled(Link)<{ select: number; num: number }>`
-  flex: 0 0 auto;
-  /* display: inline-flex;
-  height: 44px;
-  font-size: 16px;
   position: relative;
-  padding-top: 15px;
-  padding-bottom: 6px;
-  color: #222;
-  cursor: pointer;
-  border-bottom: 2px solid #222; */
-  margin: 0;
-  padding: 16px 0 6px;
-  height: 44px;
-  font-weight: ${(props) => props.num === props.select && "bold"};
-  color: ${(props) => props.num !== props.select && thirdColor};
-  font-size: 16px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  position: relative;
-  border-bottom: ${(props) =>
-    props.num === props.select
-      ? `2px solid ${secondColor}`
-      : "2px solid transparent"};
+  flex: 0 0 auto;
+  height: 100%;
+  /* color: ${(props) => props.num !== props.select && thirdColor}; */
+  font-weight: ${(props) => (props.num === props.select ? 700 : 500)};
+  font-size: ${(props) => (props.num === props.select ? "18px" : "16px")};
+  cursor: pointer;
+
+  &:after {
+    position: absolute;
+    bottom: 0;
+    display: block;
+    width: 100%;
+    height: 4px;
+    content: "";
+    background-color: ${(props) =>
+      props.num === props.select ? secondColor : `transparent`};
+  }
 `;
 
 const SelectName = styled.span`
   position: relative;
   line-height: 20px;
-  background-color: #fff;
 `;
 
 const SelectTimeBox = styled.nav<{ select: number }>`
@@ -297,76 +268,26 @@ const SelectTimeBox = styled.nav<{ select: number }>`
   justify-content: center;
   flex-direction: column;
   margin: 0 auto;
-  margin-top: 16px;
   margin-bottom: 14px;
-  padding: 0 100px;
-`;
-
-const SelectDetailTimeBox = styled.div`
   width: 100%;
-  padding: 0 10px;
-  margin-bottom: 10px;
-  animation-name: slideDown;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-in-out;
-
-  @keyframes slideDown {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  }
-`;
-
-const SelectCategoryBox = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  gap: 12px;
-  margin-bottom: 10px;
-`;
-
-const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
-  padding: 0;
-  transition: all 0.15s linear;
-  font-size: 14px;
-  font-weight: ${(props) =>
-    props.select === props.category ? "bold" : "normal"};
-  cursor: pointer;
-`;
-
-const SelectDetailTime = styled.p`
-  width: 100%;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  color: ${thirdColor};
-  padding-top: 10px;
-  border-top: 1px solid ${fourthColor};
+  padding: 10px 100px;
 `;
 
 const SelectCategory = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   min-width: 500px;
   position: relative;
   &::after {
     right: 0px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #30c56e);
     position: absolute;
     top: 0px;
     z-index: 10;
     height: 100%;
-    width: 14px;
+    width: 40px;
     content: "";
   }
   /* gap: 10px; */
@@ -376,35 +297,30 @@ const TagBox = styled.div`
   display: flex;
   align-items: center;
   flex: nowrap;
-  gap: 8px;
+  gap: 10px;
+  height: 40px;
 `;
 
 const SelectCurrentTime = styled(Link)<{ select: number; num: number }>`
   border-radius: 9999px;
-  color: ${(props) => (props.num === props.select ? "#fff" : `${thirdColor}`)};
+  color: ${secondColor};
+  /* color: ${(props) =>
+    props.num === props.select ? secondColor : "#fff"}; */
   background: ${(props) =>
-    props.num === props.select ? "#ff5673" : "transparent"};
+    props.num === props.select ? "#fff" : "transparent"};
   border: ${(props) =>
     props.num === props.select
-      ? "2px solid #ff5673"
-      : `1px solid ${fourthColor}`};
+      ? `2px solid ${secondColor}`
+      : `1px solid ${secondColor}`};
+  /* border: ${(props) =>
+    props.num === props.select
+      ? `2px solid ${secondColor}`
+      : `1px solid transparent`}; */
   padding: 6px 10px;
   /* line-height: 18px; */
   font-size: 14px;
-  font-weight: ${(props) => props.num === props.select && "bold"};
+  font-weight: ${(props) => (props.num === props.select ? 700 : 500)};
   cursor: pointer;
-  /* padding: 7px 16px;
-  font-size: 14px;
-  letter-spacing: -0.21px;
-  line-height: 17px;
-  display: -webkit-box;
-  display: flex;
-  -webkit-box-align: center;
-  align-items: center;
-  background: ${(props) =>
-    props.num === props.select ? "#ff5673" : "transparent"};
-  color: ${(props) => (props.num === props.select ? "#fff" : `${thirdColor}`)};
-  border: 1px solid #f0f0f0;
-  border-radius: 30px;
-  cursor: pointer; */
+  box-shadow: ${(props) =>
+    props.num === props.select && `0 3px 0 ${secondColor}`};
 `;

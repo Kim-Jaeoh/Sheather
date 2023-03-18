@@ -36,32 +36,12 @@ export default HomeSkeleton;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardList = styled.li`
-  display: flex;
-  flex-direction: column;
-  margin: 10px;
-  border-radius: 8px;
-  border: 2px solid ${secondColor};
-  overflow: hidden;
-  grid-row-end: span 43;
-  border: 2px solid #dbdbdb;
   width: 318px;
   height: 404px;
-  animation-name: slideUp;
-  animation-duration: 0.3s;
-  animation-timing-function: linear;
-  @keyframes slideUp {
-    0% {
-      opacity: 0;
-      transform: translateY(50px);
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  border: 2px solid #22222222;
 `;
 
 const Card = styled.div`
@@ -70,17 +50,12 @@ const Card = styled.div`
   cursor: pointer;
   outline: none;
   overflow: hidden;
-  border-bottom: 2px solid ${secondColor};
-  width: 314px;
+  border-bottom: 2px solid #22222222;
   height: 314px;
-  /* padding: 12px; */
-  border-bottom: 2px solid #dbdbdb;
 `;
 
 const UserBox = styled.div`
   padding: 12px 12px;
   flex: 1;
-  width: 314px;
-  height: 84px;
   padding: 12px;
 `;

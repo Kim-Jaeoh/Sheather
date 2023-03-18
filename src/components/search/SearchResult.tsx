@@ -62,7 +62,7 @@ const SearchResult = () => {
               <>
                 <FrameGrid
                   className="container"
-                  gap={10}
+                  gap={20}
                   defaultDirection={"end"}
                   frame={[
                     [1, 1, 2, 2, 3, 3],
@@ -156,7 +156,7 @@ const TagCategoryText = styled.h2`
 const CardBox = styled.ul`
   width: 100%;
   height: 100%;
-  padding: 20px;
+  padding: 20px 40px 40px;
   border-top: 2px solid ${secondColor};
   background: #30c56e;
   /* padding: 0 16px 16px; */
@@ -177,7 +177,7 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
-  box-shadow: 4px 4px 0px rgba(15, 87, 45, 0.3);
+  /* box-shadow: 4px 4px 0px rgba(15, 87, 45, 0.3); */
 
   @keyframes slideUp {
     0% {
@@ -261,93 +261,7 @@ const CardImage = styled.img`
   display: block;
   width: 100%;
   height: 100%;
-`;
-
-const UserBox = styled.div`
-  padding: 12px 12px;
-  flex: 1;
-`;
-
-const UserInfoBox = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const UserImageBox = styled(Link)`
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 1px solid ${fourthColor};
-  object-fit: cover;
-  cursor: pointer;
-  position: relative;
-`;
-
-const UserImage = styled.img`
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-  image-rendering: auto;
-`;
-
-const UserNameBox = styled(Link)`
-  cursor: pointer;
-  overflow: hidden;
-  position: relative;
-  text-overflow: ellipsis;
-  flex: 1;
-  padding: 8px;
-  white-space: nowrap;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.15px;
-
-  color: ${secondColor};
-`;
-
-const UserReactBox = styled.div`
-  display: flex;
-  margin: 0;
-  padding: 0;
-  align-items: center;
-  gap: 12px;
-`;
-
-const UserIconBox = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const UserIcon = styled.div`
-  display: flex;
-  align-items: center;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  color: ${thirdColor};
-  svg {
-    font-size: 16px;
-  }
-`;
-
-const UserReactNum = styled.p`
-  font-size: 14px;
-  margin-left: 4px;
-  color: ${thirdColor};
-`;
-
-const UserText = styled.p`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  margin-top: 10px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-height: 20px;
-  font-size: 14px;
-  letter-spacing: -0.21px;
+  background: #fff;
 `;
 
 const NotInfoBox = styled.div`
