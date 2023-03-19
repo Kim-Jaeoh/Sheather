@@ -86,15 +86,6 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
 
   // 이미지 추가 시 view 렌더 시 이미지 노출
   useEffect(() => {
-    // if (selectedImage == null && attachments.length !== 0) {
-    //   setSelectedImage(attachments[0]);
-    //   // setSelectedImageNum(0);
-    // }
-    // if (attachments.length === 0) {
-    //   setSelectedImage(null);
-    //   // setSelectedImageNum(null);
-    // }
-    // 클릭한 이미지
     setSelectedImage(attachments[selectedImageNum]);
   }, [attachments, selectedImage, selectedImageNum]);
 
@@ -206,8 +197,6 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   // 다음 버튼
   const onNextClick = () => {
     if (attachments.length !== 0) {
-      // setSelectedImage(attachments[0]);
-      // setSelectedImage(null);
       setIsNextClick((prev) => !prev);
     }
   };
@@ -215,8 +204,6 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   // 이전 버튼
   const onPrevClick = () => {
     if (isNextClick) {
-      // setSelectedImage(attachments[0]);
-      // setSelectedImage(null);
       return setIsNextClick(false);
     }
     if (attachments.length === 0) {

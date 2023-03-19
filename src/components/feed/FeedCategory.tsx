@@ -83,7 +83,7 @@ const FeedCategory = ({ url, feed }: Props) => {
             <CardBox render={isGridRender}>
               <MasonryGrid
                 className="container"
-                gap={20}
+                gap={30}
                 defaultDirection={"end"}
                 align={"stretch"}
                 column={2}
@@ -230,7 +230,7 @@ const CardBox = styled.ul<{ render?: boolean }>`
 const CardList = styled.li<{ render?: boolean; size?: number }>`
   /* position: ${(props) => (props.render ? "absolute" : "relative")}; */
   /* position: absolute; */
-  width: 326px;
+  width: 330px;
   border-radius: 20px;
   border: 2px solid ${secondColor};
   overflow: hidden;
@@ -243,9 +243,6 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
-  /* box-shadow: 0px 6px 0 -2px #222, 0px 6px ${secondColor}; */
-  /* box-shadow: 6px 6px 0px rgba(114, 25, 40, 0.3); */
-  /* box-shadow: 4px 4px 0px ${secondColor}; */
 
   @keyframes slideUp {
     0% {

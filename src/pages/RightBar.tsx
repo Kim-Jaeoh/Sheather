@@ -27,5 +27,6 @@ const Container = styled.section`
   top: 0;
   border: 2px solid ${secondColor};
   padding: 20px;
+  overflow: hidden;
   border-radius: 0 40px 40px 0;
 `;

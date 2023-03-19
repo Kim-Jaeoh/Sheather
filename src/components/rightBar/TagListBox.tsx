@@ -116,8 +116,8 @@ const Container = styled.article`
   margin-top: 30px;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0px 1px ${secondColor}, 0px 2px ${secondColor},
-    0px 3px ${secondColor}, 0px 4px ${secondColor};
+  /* box-shadow: 0px 1px ${secondColor}, 0px 2px ${secondColor},
+    0px 3px ${secondColor}, 0px 4px ${secondColor}; */
 `;
 
 const CategoryBox = styled.div`

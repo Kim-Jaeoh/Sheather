@@ -1,35 +1,30 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { FeedType } from "../../types/type";
-import axios from "axios";
-import TagListSkeleton from "../../assets/skeleton/TagListSkeleton";
-import {
-  query,
-  collection,
-  where,
-  getDocs,
-  DocumentData,
-} from "firebase/firestore";
-import { dbService } from "../../fbase";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import { CurrentUserType } from "../../app/user";
-import useToggleFollow from "../../hooks/useToggleFollow";
-import AuthFormModal from "../modal/auth/AuthFormModal";
+import { useQuery } from "@tanstack/react-query";
+import { FeedType } from "../../types/type";
+import axios from "axios";
+import { DocumentData, query, collection, getDocs } from "firebase/firestore";
 import { cloneDeep } from "lodash";
-import FollowListSkeleton from "../../assets/skeleton/FollowListSkeleton";
+import { CurrentUserType } from "../../app/user";
+import { dbService } from "../../fbase";
+import useToggleFollow from "../../hooks/useToggleFollow";
 
-const FollowListBox = () => {
+interface Count {
+  [key: string]: number;
+}
+
+const FollowCategoryList = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
   );
   const [users, setUsers] = useState<CurrentUserType[] | DocumentData[]>([]);
-  const [isAuthModal, setIsAuthModal] = useState(false);
+  const [arrState, setArrState] = useState(false);
   const { toggleFollow } = useToggleFollow();
 
   // 계정 정보 가져오기
@@ -47,7 +42,7 @@ const FollowListBox = () => {
       );
 
       // 2. 1에서 팔로우 안 된 계정 필터링
-      const notFollowed = filter.filter(
+      const notFollowed = filter?.filter(
         (res) =>
           !res.follower.some(
             (asd: { displayName: string }) =>
@@ -64,6 +59,14 @@ const FollowListBox = () => {
     });
   }, [userObj.displayName]);
 
+  // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
+  useEffect(() => {
+    // 2의 배수가 아니고, 2개 중 1개 모자랄 때
+    if (users?.length % 2 === 1) {
+      setArrState(true);
+    }
+  }, [users?.length]);
+
   // 배열 랜덤
   const randomArray = (array: DocumentData[]) => {
     // (피셔-예이츠)
@@ -77,113 +80,121 @@ const FollowListBox = () => {
       array[randomPosition] = temporary;
     }
   };
-
-  const onLogState = () => {
-    if (!userLogin) {
-      setIsAuthModal(true);
-    }
-  };
-
-  const onAuthModal = () => {
-    setIsAuthModal((prev) => !prev);
-  };
-
   return (
     <Container>
-      {isAuthModal && (
-        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
-      )}
       <CategoryBox>
-        <Category>추천</Category>
-        <AllClick to={`explore/people`}>더 보기</AllClick>
+        <SelectName>추천</SelectName>
       </CategoryBox>
-      <UserListBox>
-        {users.length > 0 ? (
-          users.map((res, index) => (
-            <UserList onClick={onLogState} key={index}>
-              {index < 5 && (
-                <>
-                  <User
-                    to={userLogin && `/profile/${res.displayName}/post`}
-                    state={res.displayName}
-                  >
-                    <ProfileImageBox>
-                      <ProfileImage src={res.profileURL} alt="profile image" />
-                    </ProfileImageBox>
-                    <ProfileInfoBox>
-                      <ProfileDsName>{res.displayName}</ProfileDsName>
-                      {res.name && <ProfileName>{res.name}</ProfileName>}
-                    </ProfileInfoBox>
-                  </User>
-                  {res?.email !== userObj.email && (
-                    <FollowBtnBox
-                      onClick={() => userLogin && toggleFollow(res.displayName)}
+      <ListBox>
+        <>
+          {users?.map((res, index) => {
+            // 해당 태그가 피드 리스트에 포함되어 있는지 필터링
+            return (
+              <List key={index}>
+                {index < 5 && (
+                  <>
+                    <User
+                      to={userLogin && `/profile/${res.displayName}/post`}
+                      state={res.displayName}
                     >
-                      {userObj.following.filter((obj) =>
-                        obj?.displayName?.includes(res?.displayName)
-                      ).length !== 0 ? (
-                        <FollowingBtn>팔로잉</FollowingBtn>
-                      ) : (
-                        <FollowBtn>팔로우</FollowBtn>
-                      )}
-                    </FollowBtnBox>
-                  )}
-                </>
-              )}
-            </UserList>
-          ))
-        ) : (
-          <FollowListSkeleton />
-        )}
-      </UserListBox>
+                      <ProfileImageBox>
+                        <ProfileImage
+                          src={res.profileURL}
+                          alt="profile image"
+                        />
+                      </ProfileImageBox>
+                      <ProfileInfoBox>
+                        <ProfileDsName>{res.displayName}</ProfileDsName>
+                        {res.name && <ProfileName>{res.name}</ProfileName>}
+                        {res.description && (
+                          <ProfileName>{res.description}</ProfileName>
+                        )}
+                      </ProfileInfoBox>
+                    </User>
+                    {res?.email !== userObj.email && (
+                      <FollowBtnBox
+                        onClick={() =>
+                          userLogin && toggleFollow(res.displayName)
+                        }
+                      >
+                        {userObj.following.filter((obj) =>
+                          obj?.displayName?.includes(res?.displayName)
+                        ).length !== 0 ? (
+                          <FollowingBtn>팔로잉</FollowingBtn>
+                        ) : (
+                          <FollowBtn>팔로우</FollowBtn>
+                        )}
+                      </FollowBtnBox>
+                    )}
+                  </>
+                )}
+              </List>
+            );
+          })}
+          {arrState && <NullCard />}
+        </>
+      </ListBox>
     </Container>
   );
 };
 
-export default FollowListBox;
+export default FollowCategoryList;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Container = styled.article`
-  max-height: 278px;
-  border: 2px solid ${secondColor};
-  margin-top: 30px;
-  border-radius: 20px;
-  overflow: hidden;
-  /* box-shadow: 0px 1px ${secondColor}, 0px 2px ${secondColor},
-    0px 3px ${secondColor}, 0px 4px ${secondColor}; */
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  background: #30c56e;
 `;
 
-const CategoryBox = styled.div`
+const CategoryBox = styled.nav`
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 60px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 20px 12px;
+  justify-content: center;
+  border-top: 2px solid ${secondColor};
+  border-bottom: 2px solid ${secondColor};
+  box-sizing: border-box;
+  background: #fff;
+  z-index: 20;
 `;
 
-const Category = styled.h2`
+const SelectName = styled.span`
   font-weight: 700;
   font-size: 18px;
 `;
 
-const AllClick = styled(Link)`
-  font-weight: 700;
-  font-size: 12px;
-  padding: 0;
-  margin: 0;
-  color: ${mainColor};
-  cursor: pointer;
-
-  &:hover,
-  &:active {
-    color: #3188df;
-  }
+const ListBox = styled.ul`
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 40px;
+  gap: 20px;
 `;
 
-const UserListBox = styled.ul``;
-
-const UserList = styled.li`
+const List = styled.li`
   position: relative;
+  height: 90px;
+  overflow: hidden;
+  border: 2px solid ${secondColor};
+  border-radius: 20px;
+  background: #fff;
+  animation-name: slideUp;
+  animation-duration: 0.3s;
+  animation-timing-function: linear;
+  flex: 1 0 40%;
+`;
+
+const NullCard = styled.div`
+  flex: 1 0 40%;
 `;
 
 const User = styled(Link)`
@@ -192,7 +203,7 @@ const User = styled(Link)`
   gap: 12px;
   margin: 0;
   padding: 12px 16px;
-  height: 56px;
+  height: 100%;
   transition: all 0.15s linear;
   cursor: pointer;
 
@@ -203,8 +214,8 @@ const User = styled(Link)`
 `;
 
 const ProfileImageBox = styled.div`
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border: 1px solid ${fourthColor};
   border-radius: 50%;
   overflow: hidden;
@@ -220,11 +231,16 @@ const ProfileImage = styled.img`
 const ProfileInfoBox = styled.div`
   cursor: pointer;
   flex: 1;
-  padding-right: 20px;
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+  flex-direction: column;
+  gap: 2px;
+  /* padding-right: 20px; */
 `;
 
 const ProfileDsName = styled.p`
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   width: 120px;
   line-height: 18px;
@@ -234,7 +250,7 @@ const ProfileDsName = styled.p`
 `;
 
 const ProfileName = styled.p`
-  font-size: 12px;
+  font-size: 14px;
   color: ${thirdColor};
   width: 120px;
   line-height: 18px;
@@ -266,8 +282,8 @@ const FollowBtn = styled.button`
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 12px;
-  padding: 6px 10px;
+  font-size: 14px;
+  padding: 10px 14px;
   color: #fff;
   border-radius: 20px;
   border: 1px solid ${secondColor};

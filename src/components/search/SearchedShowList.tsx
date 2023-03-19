@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import ColorList from "../../assets/ColorList";
@@ -17,18 +17,12 @@ import { IoIosCloseCircleOutline, IoMdClose } from "react-icons/io";
 import { localType } from "./SearchList";
 
 type Props = {
-  text: string;
   keywords: localType[];
   setKeywords: React.Dispatch<React.SetStateAction<localType[]>>;
   onListClick: (type: string, word: string, name?: string) => void;
 };
 
-const SearchedShowList = ({
-  text,
-  keywords,
-  setKeywords,
-  onListClick,
-}: Props) => {
+const SearchedShowList = ({ keywords, setKeywords, onListClick }: Props) => {
   const [combineArray, setCombineArray] = useState([]);
 
   // 정보 가져오기
@@ -84,19 +78,24 @@ const SearchedShowList = ({
     showList();
   }, [keywords]);
 
-  const onDelete = (type: string, search: string) => {
-    // 노출된 검색 내역 수정
-    const filterCombineArray = combineArray.filter(
-      (res) => !(res.type === type && res.search === search)
-    );
-    setCombineArray(filterCombineArray);
+  const onDelete = useCallback(
+    (type: string, search: string) => {
+      // 노출된 검색 내역 수정
+      const filterCombineArray = cloneDeep(
+        combineArray.filter(
+          (res) => !(res.type === type && res.search === search)
+        )
+      );
+      setCombineArray(filterCombineArray);
 
-    // 키워드 수정 (localStorage 반영됨)
-    const filterKeyword = cloneDeep(
-      keywords.filter((res) => !(res.type === type && res.search === search))
-    );
-    setKeywords(filterKeyword);
-  };
+      // 키워드 수정 (localStorage 반영됨)
+      const filterKeyword = cloneDeep(
+        keywords.filter((res) => !(res.type === type && res.search === search))
+      );
+      setKeywords(filterKeyword);
+    },
+    [combineArray, keywords, setKeywords]
+  );
 
   const onDeleteAll = () => {
     setCombineArray([]);
@@ -114,52 +113,54 @@ const SearchedShowList = ({
               모두 지우기
             </DeleteAllBtn>
           </DeleteAllBox>
-          {combineArray.length ? (
-            combineArray
-              .sort((a, b) => b.at - a.at)
-              .map((res, index) => {
-                return (
-                  <SearchedListBox key={index}>
-                    {res.type === "tag" ? (
-                      <SearchedList
-                        onClick={() => onListClick("tag", res.search)}
-                        to={`/explore/search?keyword=${res.search}`}
+          <SearchedListBox>
+            {combineArray.length ? (
+              combineArray
+                .sort((a, b) => b.at - a.at)
+                .map((res, index) => {
+                  return (
+                    <SearchedList key={index}>
+                      {res.type === "tag" ? (
+                        <List
+                          onClick={() => onListClick("tag", res.search)}
+                          to={`/explore/search?keyword=${res.search}`}
+                        >
+                          <SearchedImageBox>
+                            <HiHashtag />
+                          </SearchedImageBox>
+                          <SearchedInfoBox>
+                            <SearchedInfoName>{res.search}</SearchedInfoName>
+                          </SearchedInfoBox>
+                        </List>
+                      ) : (
+                        <List
+                          onClick={() =>
+                            onListClick("user", res.search, res.name)
+                          }
+                          to={`/profile/${res.search}`}
+                        >
+                          <SearchedImageBox>
+                            <SearchedImage src={res.profileURL} />
+                          </SearchedImageBox>
+                          <SearchedInfoBox>
+                            <SearchedInfoName>{res.search}</SearchedInfoName>
+                            <SearchedInfoDesc>{res.name}</SearchedInfoDesc>
+                          </SearchedInfoBox>
+                        </List>
+                      )}
+                      <Closebox
+                        onClick={() => onDelete(res.type, res.search)}
+                        type="button"
                       >
-                        <SearchedImageBox>
-                          <HiHashtag />
-                        </SearchedImageBox>
-                        <SearchedInfoBox>
-                          <SearchedInfoName>{res.search}</SearchedInfoName>
-                        </SearchedInfoBox>
-                      </SearchedList>
-                    ) : (
-                      <SearchedList
-                        onClick={() =>
-                          onListClick("user", res.search, res.name)
-                        }
-                        to={`/profile/${res.search}`}
-                      >
-                        <SearchedImageBox>
-                          <SearchedImage src={res.profileURL} />
-                        </SearchedImageBox>
-                        <SearchedInfoBox>
-                          <SearchedInfoName>{res.search}</SearchedInfoName>
-                          <SearchedInfoDesc>{res.name}</SearchedInfoDesc>
-                        </SearchedInfoBox>
-                      </SearchedList>
-                    )}
-                    <Closebox
-                      onClick={() => onDelete(res.type, res.search)}
-                      type="button"
-                    >
-                      <IoMdClose />
-                    </Closebox>
-                  </SearchedListBox>
-                );
-              })
-          ) : (
-            <Spinner />
-          )}
+                        <IoMdClose />
+                      </Closebox>
+                    </SearchedList>
+                  );
+                })
+            ) : (
+              <Spinner />
+            )}
+          </SearchedListBox>
         </>
       ) : (
         <NotInfoBox>
@@ -194,13 +195,20 @@ const DeleteAllBtn = styled.button`
   font-weight: 500;
 `;
 
-const SearchedListBox = styled.li`
+const SearchedListBox = styled.ul`
+  position: relative;
+  overflow: hidden;
+  overflow-y: scroll;
+  height: 256px;
+`;
+
+const SearchedList = styled.li`
   width: 100%;
   display: flex;
   align-items: center;
 `;
 
-const SearchedList = styled(Link)`
+const List = styled(Link)`
   width: 100%;
   display: flex;
   align-items: center;

@@ -370,6 +370,7 @@ const ProfileInfoBox = styled.div`
 const ProfileDsName = styled.p`
   font-size: 20px;
   line-height: 34px;
+  font-weight: 500;
 `;
 
 const ProfileName = styled.p`
@@ -391,15 +392,18 @@ const ProfileDesc = styled.p`
 const ProfileActBox = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 30px;
 `;
 
 const ProfileAct = styled.div`
   font-size: 14px;
+  color: ${thirdColor};
   &:not(:first-of-type) {
     cursor: pointer;
   }
   em {
+    margin-left: 4px;
+    color: ${secondColor};
     font-weight: 500;
   }
 `;
@@ -433,7 +437,7 @@ const LogoutBtn = styled.button`
   justify-content: center;
   width: 34px;
   height: 34px;
-  margin-left: 8px;
+  margin-left: 10px;
   padding: 8px;
   border: 1px solid ${thirdColor};
   color: ${thirdColor};
@@ -483,7 +487,7 @@ const FollowingBtn = styled(FollowBtn)`
   }
 `;
 
-const CategoryBox = styled.ul`
+const CategoryBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;

@@ -14,8 +14,8 @@ import SearchedShowList from "./SearchedShowList";
 type Props = {
   url: string;
   text: string;
-  focus: boolean;
-  setFocus: React.Dispatch<React.SetStateAction<boolean>>;
+  onListClick: (type: string, word: string, name: string) => void;
+  // setFocus: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export interface localType {
@@ -28,32 +28,17 @@ export interface localType {
   name?: string;
 }
 
-const SearchList = ({ url, text, focus, setFocus }: Props) => {
+const SearchList = ({ url, text, onListClick }: Props) => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
   const [users, setUsers] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [keywords, setKeywords] = useState<localType[]>(
-    JSON.parse(localStorage.getItem("keywords")) || []
-  );
   const { ref, isLoading, dataList } = useInfinityScroll({
     url,
     count: 10,
   });
   const data = dataList?.pages?.flat();
-
-  useEffect(() => {
-    if (keywords.length) {
-      // 중복 제거
-      const uniqueArr = keywords.filter(
-        (obj, index, self) =>
-          index ===
-          self.findIndex((t) => t.type === obj.type && t.search === obj.search)
-      );
-      localStorage.setItem("keywords", JSON.stringify(uniqueArr));
-    }
-  }, [keywords, text]);
 
   useEffect(() => {
     const userInfo = async () => {
@@ -83,106 +68,58 @@ const SearchList = ({ url, text, focus, setFocus }: Props) => {
     // }
   }, [text, users]);
 
-  const onListClick = (type: string, word: string, name: string) => {
-    if (type === "tag") {
-      setKeywords((prev: localType[]) => [
-        { at: Date.now(), type: "tag", search: word, name: null },
-        ...prev,
-      ]);
-    } else {
-      setKeywords((prev: localType[]) => [
-        { at: Date.now(), type: "user", search: word, name: name },
-        ...prev,
-      ]);
-    }
-    setFocus(false);
-  };
-
   return (
-    <SearchedBox focus={focus}>
-      {text !== "" ? (
-        <>
-          {loading && data?.length !== 0 && data !== undefined && (
-            <SearchedListBox>
-              <SearchedList
-                onClick={() => onListClick("tag", text, "")}
-                to={`/explore/search?keyword=${text}`}
-              >
-                <SearchedImageBox>
-                  <HiHashtag />
-                </SearchedImageBox>
-                <SearchedInfoBox>
-                  <SearchedInfoName>{text}</SearchedInfoName>
-                  <SearchedInfoDesc>
-                    게시물 {dataList?.pages?.flat()?.length}
-                  </SearchedInfoDesc>
-                </SearchedInfoBox>
-              </SearchedList>
-            </SearchedListBox>
-          )}
-          {userResult?.map((res: CurrentUserType, index: number) => {
-            return (
-              <SearchedListBox key={index}>
-                <SearchedList
-                  onClick={() => onListClick("user", res.displayName, res.name)}
-                  to={`/profile/${res.displayName}`}
-                >
-                  <SearchedImageBox>
-                    <SearchedImage src={res.profileURL} />
-                  </SearchedImageBox>
-                  <SearchedInfoBox>
-                    <SearchedInfoName>{res.displayName}</SearchedInfoName>
-                    <SearchedInfoDesc>{res.name}</SearchedInfoDesc>
-                  </SearchedInfoBox>
-                </SearchedList>
-              </SearchedListBox>
-            );
-          })}
-          <div ref={ref} />
-        </>
-      ) : (
-        <SearchedShowList
-          text={text}
-          keywords={keywords}
-          setKeywords={setKeywords}
-          onListClick={onListClick}
-        />
+    <>
+      {loading && data?.length !== 0 && data !== undefined && (
+        <SearchedListBox>
+          <SearchedList
+            onClick={() => onListClick("tag", text, "")}
+            to={`/explore/search?keyword=${text}`}
+          >
+            <SearchedImageBox>
+              <HiHashtag />
+            </SearchedImageBox>
+            <SearchedInfoBox>
+              <SearchedInfoName>{text}</SearchedInfoName>
+              <SearchedInfoDesc>
+                게시물 {dataList?.pages?.flat()?.length}
+              </SearchedInfoDesc>
+            </SearchedInfoBox>
+          </SearchedList>
+        </SearchedListBox>
       )}
+      {userResult?.map((res: CurrentUserType, index: number) => {
+        return (
+          <SearchedListBox key={index}>
+            <SearchedList
+              onClick={() => onListClick("user", res.displayName, res.name)}
+              to={`/profile/${res.displayName}`}
+            >
+              <SearchedImageBox>
+                <SearchedImage src={res.profileURL} />
+              </SearchedImageBox>
+              <SearchedInfoBox>
+                <SearchedInfoName>{res.displayName}</SearchedInfoName>
+                <SearchedInfoDesc>{res.name}</SearchedInfoDesc>
+              </SearchedInfoBox>
+            </SearchedList>
+          </SearchedListBox>
+        );
+      })}
+      <div ref={ref} />
 
-      {focus && userResult?.length === 0 && data?.length === 0 && (
+      {userResult?.length === 0 && data?.length === 0 && (
         <NotInfoBox>
           <NotInfo>검색 내역 없음</NotInfo>
         </NotInfoBox>
       )}
-    </SearchedBox>
+    </>
   );
 };
 
 export default SearchList;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
-const SearchedBox = styled.ul<{ focus: boolean }>`
-  border: 2px solid ${(props) => (props.focus ? secondColor : fourthColor)};
-  margin-top: ${(props) => (props.focus ? `14px` : `0`)};
-  height: ${(props) => (props.focus ? `300px` : `0`)};
-  opacity: ${(props) => (props.focus ? `1` : `0`)};
-  transition: all 0.15s linear;
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
-  overflow-y: auto;
-  box-shadow: ${(props) =>
-    props.focus &&
-    `0px 1px ${secondColor}, 0px 2px ${secondColor},
-    0px 3px ${secondColor}, 0px 4px ${secondColor}`};
-  /* border: 1px solid ${secondColor};
-  margin-top: 12px;
-  height: 300px;
-  overflow: hidden;
-  overflow-y: auto;
-  opacity: 1; */
-`;
 
 const SearchedListBox = styled.li`
   width: 100%;

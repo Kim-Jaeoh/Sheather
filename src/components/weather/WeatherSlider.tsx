@@ -83,18 +83,18 @@ const WeatherSlider = ({ data }: PropsType) => {
       {data && (
         <Wrapper>
           <WeatherDateBox>
+            <PrevArrow onClick={onClickArrowPrev} visible={visible}>
+              <ArrowIcon>
+                <IoIosArrowBack />
+              </ArrowIcon>
+            </PrevArrow>
             <WeatherDate>{data.length > 8 ? `오늘 ~ ${day}` : day}</WeatherDate>
+            <NextArrow onClick={onClickArrowNext} visible={visible2}>
+              <ArrowIcon>
+                <IoIosArrowForward />
+              </ArrowIcon>
+            </NextArrow>
           </WeatherDateBox>
-          <PrevArrow onClick={onClickArrowPrev} visible={visible}>
-            <ArrowIcon>
-              <IoIosArrowBack />
-            </ArrowIcon>
-          </PrevArrow>
-          <NextArrow onClick={onClickArrowNext} visible={visible2}>
-            <ArrowIcon>
-              <IoIosArrowForward />
-            </ArrowIcon>
-          </NextArrow>
           <FlickingBox>
             <Flicking
               align={data.length < 4 ? "center" : "prev"}
@@ -288,6 +288,7 @@ const WeatherDate = styled.span`
   border-radius: 9999px;
   background-color: #48a3ff;
   color: #fff;
+  margin: 0 14px;
 `;
 
 const WeatherList = styled.div<{
@@ -390,11 +391,11 @@ const WeatherCategorySub = styled.span`
 `;
 
 const ArrowStandard = styled.div`
-  position: absolute;
+  /* position: absolute; */
   width: 22px;
   height: 22px;
-  transform: translate(0, -50%);
-  top: 25px;
+  /* transform: translate(0, -50%); */
+  /* top: 25px; */
   border-radius: 50%;
   border: 1px solid #48a3ff;
   background-color: #fff;
@@ -413,7 +414,7 @@ const ArrowIcon = styled.span`
 `;
 
 const NextArrow = styled(ArrowStandard)<{ visible: boolean }>`
-  right: 290px;
+  right: 270px;
   color: ${(props) => !props.visible && fourthColor};
   border-color: ${(props) => !props.visible && fourthColor};
   cursor: ${(props) => !props.visible && "default"};
@@ -425,7 +426,7 @@ const NextArrow = styled(ArrowStandard)<{ visible: boolean }>`
 `;
 
 const PrevArrow = styled(ArrowStandard)<{ visible: boolean }>`
-  left: 290px;
+  left: 270px;
   color: ${(props) => !props.visible && fourthColor};
   border-color: ${(props) => !props.visible && fourthColor};
   cursor: ${(props) => !props.visible && "default"};

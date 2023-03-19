@@ -644,9 +644,16 @@ const MoreBtn = styled.button`
   justify-content: center;
   width: 32px;
   height: 32px;
+  background: #fff;
   padding: 0;
   margin-right: -6px;
+  border-radius: 50%;
+  transition: all 0.15s linear;
   cursor: pointer;
+  &:hover,
+  &:active {
+    background: ${fourthColor};
+  }
   svg {
     font-size: 20px;
   }

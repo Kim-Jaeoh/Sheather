@@ -60,23 +60,11 @@ const Explore = () => {
   // 카테고리
   useEffect(() => {
     let cat = pathname?.split("/")[2];
-    // const keysOfWear = Object.keys(ClothesCategory);
-    // const keys = keysOfWear.find(
-    //   (key) => ClothesCategory[key] === ClothesCategory[cat]
-    // );
-
-    // let number: number = ClothesCategory[cat].findIndex(
-    //   (res) => res === ClothesCategory[cat][+searchParams.get("detail")]
-    // );
-
-    // top에만 "없음" 항목이 없어서 index가 부족하기 때문
-
     let number = +searchParams.get("detail");
     if (cat === "top") {
       // number += 1;
     }
 
-    console.log(number);
     const findIndex = categoryArray.findIndex(
       (res) => res.link === pathname?.split("/")[2]
     );

@@ -1,16 +1,27 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "@emotion/styled";
 import { FiSearch } from "react-icons/fi";
 import { IoIosCloseCircleOutline, IoMdArrowDropup } from "react-icons/io";
 import useDebounce from "../../hooks/useDebounce";
-import SearchList from "./SearchList";
+import SearchList, { localType } from "./SearchList";
 import ColorList from "../../assets/ColorList";
+import SearchedShowList from "./SearchedShowList";
 
 const SearchBox = () => {
   const [focus, setFocus] = useState(false);
   const [text, setText] = useState("");
   const [debounceText, setDebounceText] = useState("");
+  const [toggleAnimation, setToggleAnimation] = useState(false);
   const [url, setUrl] = useState(``);
+  const [keywords, setKeywords] = useState<localType[]>(
+    JSON.parse(localStorage.getItem("keywords")) || []
+  );
   const debouncedSearchTerm = useDebounce(text, 200);
 
   // 검색 목록 api
@@ -32,6 +43,19 @@ const SearchBox = () => {
     }
   }, [debouncedSearchTerm]);
 
+  useEffect(() => {
+    // if (keywords.length) {
+    if (localStorage.getItem("keywords").length) {
+      // 중복 제거
+      const uniqueArr = keywords.filter(
+        (obj, index, self) =>
+          index ===
+          self.findIndex((t) => t.type === obj.type && t.search === obj.search)
+      );
+      localStorage.setItem("keywords", JSON.stringify(uniqueArr));
+    }
+  }, [keywords, text]);
+
   const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
@@ -43,13 +67,37 @@ const SearchBox = () => {
     e.preventDefault();
   };
 
-  const onFocus = () => {
-    setFocus(true);
-  };
-
   const onDeleteText = useCallback(() => {
     setText("");
   }, []);
+
+  const onListClick = (type: string, word: string, name: string) => {
+    if (type === "tag") {
+      setKeywords((prev: localType[]) => [
+        { at: Date.now(), type: "tag", search: word, name: null },
+        ...prev,
+      ]);
+    } else {
+      setKeywords((prev: localType[]) => [
+        { at: Date.now(), type: "user", search: word, name: name },
+        ...prev,
+      ]);
+    }
+    setFocus(false);
+  };
+
+  const onListOpen = () => {
+    setFocus(true);
+    setToggleAnimation(true);
+  };
+
+  const onListClose = () => {
+    setToggleAnimation(false);
+    const delay = setTimeout(() => {
+      setFocus(false);
+    }, 100);
+    return () => clearTimeout(delay);
+  };
 
   return (
     <Container>
@@ -59,8 +107,8 @@ const SearchBox = () => {
         </IconBox>
         <SearchInput
           spellCheck="false"
-          onFocus={onFocus}
-          // onBlur={() => setFocus(false)}
+          onFocus={onListOpen}
+          // onBlur={onListClose}
           type="text"
           id="search"
           autoComplete="off"
@@ -76,17 +124,29 @@ const SearchBox = () => {
           </Closebox>
         )}
         {focus && text === "" && (
-          <Closebox onClick={() => setFocus(false)} type="button">
+          <Closebox onClick={onListClose} type="button">
             <IoMdArrowDropup />
           </Closebox>
         )}
       </InputTextBox>
-      <SearchList
-        text={debounceText}
-        url={url}
-        focus={focus}
-        setFocus={setFocus}
-      />
+
+      {focus && (
+        <SearchedBox focus={focus} toggleAnimation={toggleAnimation}>
+          {text !== "" ? (
+            <SearchList
+              text={debounceText}
+              url={url}
+              onListClick={onListClick}
+            />
+          ) : (
+            <SearchedShowList
+              keywords={keywords}
+              setKeywords={setKeywords}
+              onListClick={onListClick}
+            />
+          )}
+        </SearchedBox>
+      )}
     </Container>
   );
 };
@@ -108,10 +168,6 @@ const InputTextBox = styled.form<{ focus: boolean }>`
   padding: 10px 40px 10px 10px;
   transition: all 0.15s linear;
   line-height: 0;
-  box-shadow: ${(props) =>
-    props.focus &&
-    `0px 1px ${secondColor}, 0px 2px ${secondColor},
-    0px 3px ${secondColor}, 0px 4px ${secondColor}`};
 `;
 
 const IconBox = styled.label<{ focus: boolean }>`
@@ -163,5 +219,41 @@ const Closebox = styled.button`
   svg {
     width: 20px;
     height: 20px;
+  }
+`;
+
+const SearchedBox = styled.div<{ focus: boolean; toggleAnimation: boolean }>`
+  border: 2px solid
+    ${(props) => (props.toggleAnimation ? secondColor : fourthColor)};
+  margin-top: 14px;
+  height: 300px;
+
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  /* overflow-y: auto; */
+
+  animation: ${(props) =>
+    props.toggleAnimation ? `open 0.15s linear` : `close 0.1s linear`};
+
+  @keyframes open {
+    from {
+      opacity: 0;
+      height: 0;
+    }
+    to {
+      opacity: 1;
+      height: 300px;
+    }
+  }
+  @keyframes close {
+    from {
+      opacity: 1;
+      height: 300px;
+    }
+    to {
+      opacity: 0;
+      height: 0;
+    }
   }
 `;

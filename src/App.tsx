@@ -17,7 +17,8 @@ import { Toaster } from "react-hot-toast";
 import { SuspenseSpinner } from "./assets/SuspenseSpinner";
 import SearchBox from "./components/search/SearchBox";
 import SearchResult from "./components/search/SearchResult";
-import ListCategory from "./components/explore/ListCategory";
+import TagCategoryList from "./components/explore/TagCategoryList";
+import FollowCategoryList from "./components/explore/FollowCategoryList";
 // const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
@@ -49,6 +50,8 @@ const App = () => {
     });
   }, []);
 
+  console.log(init);
+
   return (
     <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
@@ -65,7 +68,11 @@ const App = () => {
                 <Route path="/message" element={<Message />} />
                 <Route path="/explore/*" element={<Explore />} />
                 <Route path="/explore/search" element={<SearchResult />} />
-                <Route path="/explore/tag" element={<ListCategory />} />
+                <Route path="/explore/tag" element={<TagCategoryList />} />
+                <Route
+                  path="/explore/people"
+                  element={<FollowCategoryList />}
+                />
                 <Route path="/profile/:id/*" element={<Profile />} />
                 <Route path="/profile/detail" element={<DetailFeed />} />
                 <Route

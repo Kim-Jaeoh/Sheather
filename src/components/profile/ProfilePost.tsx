@@ -20,45 +20,69 @@ type props = {
 
 const ProfilePost = React.forwardRef<HTMLInputElement, props>(
   ({ myPost, email, loading, notInfoText }, ref) => {
+    const [arrState, setArrState] = useState(myPost?.length);
+
+    // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
+    useEffect(() => {
+      // 3의 배수가 아니고, 3개 중 2개 모자랄 때
+      if (myPost?.length % 3 === 1) {
+        setArrState(myPost?.length + 2);
+      }
+
+      // 3의 배수가 아니고, 3개 중 1개 모자랄 때
+      if (myPost?.length % 3 === 2) {
+        setArrState(myPost?.length + 1);
+      }
+    }, [myPost?.length]);
+
     return (
       <>
         {!loading ? (
           <>
             {myPost?.length !== 0 ? (
-              <CardBox>
-                <>
-                  {myPost?.map((res, index) => {
-                    return (
-                      <Card key={res?.id}>
+              <>
+                <CardBox>
+                  {Array.from({ length: arrState })?.map((res, index) => (
+                    <Card key={index} exist={Boolean(myPost[index])}>
+                      {myPost[index] ? (
                         <Link
                           to={"/profile/detail"}
-                          state={{ id: res.id, email: res.email }}
+                          state={{
+                            id: myPost[index].id,
+                            email: myPost[index].email,
+                          }}
                         >
                           <WeatherEmojiBox>
                             <WeatherEmoji>
-                              {res.feel.split(" ")[0]}
+                              {myPost[index].feel.split(" ")[0]}
                             </WeatherEmoji>
                           </WeatherEmojiBox>
-                          {res.url.length > 1 && (
+                          {myPost[index].url.length > 1 && (
                             <CardLengthBox>
-                              <CardLength>+{res.url.length}</CardLength>
+                              <CardLength>
+                                +{myPost[index].url.length}
+                              </CardLength>
                             </CardLengthBox>
                           )}
-                          <CardImage src={res.url[0]} alt="upload Image" />
+                          <CardImage
+                            src={myPost[index].url[0]}
+                            alt="upload Image"
+                          />
                         </Link>
-                      </Card>
-                    );
-                  })}
-
-                  <div
-                    ref={ref}
-                    // style={{
-                    //   position: "absolute",
-                    //   bottom: "-100px",
-                    // }}
-                  />
-                </>
-              </CardBox>
+                      ) : (
+                        <NulLCard />
+                      )}
+                    </Card>
+                  ))}
+                </CardBox>
+                <div
+                  ref={ref}
+                  // style={{
+                  //   position: "absolute",
+                  //   bottom: "-100px",
+                  // }}
+                />
+              </>
             ) : (
               <NotInfoBox>
                 <NotInfo>{notInfoText}</NotInfo>
@@ -85,20 +109,16 @@ const CardBox = styled.ul`
   flex-wrap: wrap;
   align-items: center;
   gap: 14px;
-  /* grid-template-columns: 1fr 1fr 1fr; */
-  /* grid-auto-rows: auto; */
 `;
 
-const Card = styled.li`
+const Card = styled.li<{ exist?: boolean }>`
   cursor: pointer;
   border-radius: 20px;
   display: block;
-  width: 200px;
-  height: 200px;
+  flex: 1 0 30%;
   position: relative;
   overflow: hidden;
-  border: 2px solid ${secondColor};
-  /* box-shadow: 0px 6px ${secondColor}, 0px 6px 0 -2px ${secondColor}; */
+  border: ${(props) => (props?.exist ? `2px solid ${secondColor}` : `none`)};
 
   animation-name: slideUp;
   animation-duration: 0.3s;
@@ -117,7 +137,15 @@ const Card = styled.li`
       transform: translateY(0px);
     }
   }
+
+  a {
+    position: relative;
+    display: block;
+    padding-bottom: 100%;
+  }
 `;
+
+const NulLCard = styled.div``;
 
 const WeatherEmojiBox = styled.div`
   position: absolute;
@@ -158,6 +186,11 @@ const CardLength = styled.span`
 `;
 
 const CardImage = styled.img`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: block;
   width: 100%;
   height: 100%;
