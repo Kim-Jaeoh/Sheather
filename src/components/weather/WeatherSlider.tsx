@@ -220,7 +220,7 @@ const Wrapper = styled.div`
 `;
 
 const FlickingBox = styled.ul`
-  height: 356px;
+  height: 354px;
   li:not(:last-of-type) {
     border-right: 1px solid ${fourthColor};
   }
