@@ -29,6 +29,7 @@ const FollowListBox = () => {
     }
   );
   const [users, setUsers] = useState<CurrentUserType[] | DocumentData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isAuthModal, setIsAuthModal] = useState(false);
   const { toggleFollow } = useToggleFollow();
 
@@ -61,6 +62,7 @@ const FollowListBox = () => {
       randomArray(cloneArr); // 배열 랜덤
 
       setUsers(cloneArr);
+      setIsLoading(true);
     });
   }, [userObj.displayName]);
 
@@ -88,55 +90,67 @@ const FollowListBox = () => {
     setIsAuthModal((prev) => !prev);
   };
 
+  console.log(users);
+
   return (
-    <Container>
-      {isAuthModal && (
-        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
-      )}
-      <CategoryBox>
-        <Category>추천</Category>
-        <AllClick to={`explore/people`}>더 보기</AllClick>
-      </CategoryBox>
-      <UserListBox>
-        {users.length > 0 ? (
-          users.map((res, index) => (
-            <UserList onClick={onLogState} key={index}>
-              {index < 5 && (
-                <>
-                  <User
-                    to={userLogin && `/profile/${res.displayName}/post`}
-                    state={res.displayName}
-                  >
-                    <ProfileImageBox>
-                      <ProfileImage src={res.profileURL} alt="profile image" />
-                    </ProfileImageBox>
-                    <ProfileInfoBox>
-                      <ProfileDsName>{res.displayName}</ProfileDsName>
-                      {res.name && <ProfileName>{res.name}</ProfileName>}
-                    </ProfileInfoBox>
-                  </User>
-                  {res?.email !== userObj.email && (
-                    <FollowBtnBox
-                      onClick={() => userLogin && toggleFollow(res.displayName)}
-                    >
-                      {userObj.following.filter((obj) =>
-                        obj?.displayName?.includes(res?.displayName)
-                      ).length !== 0 ? (
-                        <FollowingBtn>팔로잉</FollowingBtn>
-                      ) : (
-                        <FollowBtn>팔로우</FollowBtn>
-                      )}
-                    </FollowBtnBox>
-                  )}
-                </>
-              )}
-            </UserList>
-          ))
-        ) : (
-          <FollowListSkeleton />
+    <>
+      <Container>
+        {isAuthModal && (
+          <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
         )}
-      </UserListBox>
-    </Container>
+        <CategoryBox>
+          <Category>추천</Category>
+          {users.length > 0 && (
+            <AllClick to={`explore/people`}>더 보기</AllClick>
+          )}
+        </CategoryBox>
+        <UserListBox>
+          {isLoading ? (
+            users.map((res, index) => (
+              <UserList onClick={onLogState} key={index}>
+                {index < 5 && (
+                  <>
+                    <User
+                      to={userLogin && `/profile/${res.displayName}/post`}
+                      state={res.displayName}
+                    >
+                      <ProfileImageBox>
+                        <ProfileImage
+                          src={res.profileURL}
+                          alt="profile image"
+                        />
+                      </ProfileImageBox>
+                      <ProfileInfoBox>
+                        <ProfileDsName>{res.displayName}</ProfileDsName>
+                        {res.name && <ProfileName>{res.name}</ProfileName>}
+                      </ProfileInfoBox>
+                    </User>
+                    {res?.email !== userObj.email && (
+                      <FollowBtnBox
+                        onClick={() =>
+                          userLogin && toggleFollow(res.displayName)
+                        }
+                      >
+                        {userObj?.following?.filter((obj) =>
+                          obj?.displayName?.includes(res?.displayName)
+                        ).length !== 0 ? (
+                          <FollowingBtn>팔로잉</FollowingBtn>
+                        ) : (
+                          <FollowBtn>팔로우</FollowBtn>
+                        )}
+                      </FollowBtnBox>
+                    )}
+                  </>
+                )}
+              </UserList>
+            ))
+          ) : (
+            <FollowListSkeleton />
+          )}
+          {users.length === 0 && <NotUser>추천할 유저가 없습니다.</NotUser>}
+        </UserListBox>
+      </Container>
+    </>
   );
 };
 
@@ -289,4 +303,14 @@ const FollowingBtn = styled(FollowBtn)`
   &:active {
     background: ${fourthColor};
   }
+`;
+
+const NotUser = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: ${thirdColor};
+  padding: 12px 16px;
+  height: 60px;
 `;

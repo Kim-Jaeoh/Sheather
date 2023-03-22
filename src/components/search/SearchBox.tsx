@@ -45,7 +45,7 @@ const SearchBox = () => {
 
   useEffect(() => {
     // if (keywords.length) {
-    if (localStorage.getItem("keywords").length) {
+    if (localStorage?.getItem("keywords")?.length) {
       // 중복 제거
       const uniqueArr = keywords.filter(
         (obj, index, self) =>
@@ -53,6 +53,8 @@ const SearchBox = () => {
           self.findIndex((t) => t.type === obj.type && t.search === obj.search)
       );
       localStorage.setItem("keywords", JSON.stringify(uniqueArr));
+    } else {
+      return null;
     }
   }, [keywords, text]);
 

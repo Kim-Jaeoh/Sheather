@@ -38,7 +38,6 @@ const useFirestoreQuery = (query: any) => {
   }, [queryRef]);
 
   return docs;
-  // return docs.sort((a, b) => a?.createdAt?.seconds - b?.createdAt?.seconds);
 };
 
 export default useFirestoreQuery;

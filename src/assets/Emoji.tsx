@@ -31,10 +31,11 @@ const Emoji = ({ setText, textRef, right, bottom }: Props) => {
         <EmojiPickerBox right={right} bottom={bottom}>
           <EmojiPicker
             searchDisabled={true}
-            lazyLoadEmojis={true}
+            emojiVersion={`2.0`}
+            // lazyLoadEmojis={true}
             onEmojiClick={onEmojiClick}
-            width={340}
-            height={340}
+            width={300}
+            height={300}
           />
         </EmojiPickerBox>
       )}
@@ -73,6 +74,7 @@ const EmojiPickerBox = styled.div<{ right: number; bottom: number }>`
   position: absolute;
   /* top: -294px; */
   /* left: -360px; */
+  /* left: 0; */
   right: ${(props) => props.right}px;
   bottom: ${(props) => props.bottom}px;
   /* right: 0px;

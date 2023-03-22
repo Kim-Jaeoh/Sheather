@@ -1,81 +1,86 @@
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
-import imageCompression from "browser-image-compression";
-import { onSnapshot, doc, getDoc } from "firebase/firestore";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Point } from "react-easy-crop";
+import { onSnapshot, doc, collection, addDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { BsPersonPlusFill } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { RootState } from "../../../app/store";
-import { CurrentUserType, UserType } from "../../../app/user";
+import { CurrentUserType } from "../../../app/user";
 import ColorList from "../../../assets/ColorList";
 import { Spinner } from "../../../assets/Spinner";
 import { dbService } from "../../../fbase";
-import useToggleFollow from "../../../hooks/useToggleFollow";
 
 type Props = {
-  accountName: string;
   modalOpen: boolean;
-  followCategory: string;
-  followInfo: {
-    displayName: string;
-    time: number;
-  }[];
-  followLength: number;
+  myAccount: CurrentUserType;
   modalClose: () => void;
+  setClickInfo: React.Dispatch<React.SetStateAction<CurrentUserType>>;
 };
 
-const ProfileFollowModal = ({
-  accountName,
+const AddChatUserModal = ({
+  myAccount,
   modalOpen,
-  followInfo,
-  followCategory,
-  followLength,
   modalClose,
+  setClickInfo,
 }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
   );
-  const [account, setAccount] = useState([]);
+  const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { toggleFollow } = useToggleFollow();
 
   // 계정 정보 가져오기
   useEffect(() => {
-    followInfo.map(async (res) => {
-      const docSnap = await getDoc(doc(dbService, "users", res.displayName));
-      setAccount((prev: CurrentUserType[]) => {
-        // 중복 체크
-        if (!prev.some((user) => user.uid === docSnap.data().uid)) {
-          return [...prev, docSnap.data()];
-        } else {
-          return prev;
-        }
+    myAccount?.following?.map(async (res) => {
+      onSnapshot(doc(dbService, "users", res.displayName), (doc) => {
+        setUsers((prev: CurrentUserType[]) => {
+          // 중복 체크
+          if (!prev.some((user) => user.uid === doc.data().uid)) {
+            return [...prev, doc.data()];
+          } else {
+            return prev;
+          }
+        });
       });
-      setIsLoading(true);
     });
-  }, [followInfo]);
+    setIsLoading(true);
+  }, [myAccount?.following]);
+
+  // 채팅 생성
+  const onCreateChatClick = async (user: CurrentUserType) => {
+    const filter = myAccount.message.filter(
+      (message) => message.user === user.displayName
+    );
+
+    if (!filter[0]?.id) {
+      // 채팅 새로 만들기
+      await addDoc(collection(dbService, `messages`), {
+        member: [userObj.displayName, user.displayName],
+        message: [],
+      });
+    }
+    setClickInfo(user);
+    modalClose();
+  };
 
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
       <Container>
         <Header>
-          <Category>
-            {followCategory === "팔로워" ? "팔로워" : "팔로잉"}
-          </Category>
+          <Category>새로운 메세지</Category>
           <CloseBox onClick={modalClose}>
             <IoMdClose />
           </CloseBox>
         </Header>
         <UserListBox>
-          {followLength !== 0 ? (
+          {myAccount?.following?.length !== 0 ? (
             <>
               {isLoading ? (
-                account?.map((res, index) => {
+                users?.map((res, index) => {
                   return (
                     <UserList key={index}>
                       <ProfileImageBox
@@ -97,16 +102,8 @@ const ProfileFollowModal = ({
                         {res.name && <ProfileName>{res.name}</ProfileName>}
                       </ProfileInfoBox>
                       {res?.email !== userObj.email && (
-                        <FollowBtnBox
-                          onClick={() => toggleFollow(res.displayName)}
-                        >
-                          {userObj.following.filter((obj) =>
-                            obj?.displayName?.includes(res?.displayName)
-                          ).length !== 0 ? (
-                            <FollowingBtn>팔로잉</FollowingBtn>
-                          ) : (
-                            <FollowBtn>팔로우</FollowBtn>
-                          )}
+                        <FollowBtnBox onClick={() => onCreateChatClick(res)}>
+                          <FollowBtn>대화하기</FollowBtn>
                         </FollowBtnBox>
                       )}
                     </UserList>
@@ -124,21 +121,9 @@ const ProfileFollowModal = ({
                     <BsPersonPlusFill />
                   </Icon>
                 </IconBox>
-                <NotInfoCategory>
-                  {followCategory === "팔로워" ? "팔로워" : "팔로잉"}
-                </NotInfoCategory>
+                <NotInfoCategory>사람</NotInfoCategory>
                 <NotInfoText>
-                  {followCategory === "팔로워"
-                    ? `${
-                        accountName !== userObj.displayName
-                          ? accountName
-                          : "회원"
-                      }님을 팔로우하는 모든 사람이 여기에 표시됩니다.`
-                    : `${
-                        accountName !== userObj.displayName
-                          ? accountName
-                          : "회원"
-                      }님이 팔로우하는 모든 사람이 여기에 표시됩니다.`}
+                  팔로우하는 모든 사람이 여기에 표시됩니다
                 </NotInfoText>
               </NotInfo>
             </NotInfoBox>
@@ -149,7 +134,7 @@ const ProfileFollowModal = ({
   );
 };
 
-export default ProfileFollowModal;
+export default AddChatUserModal;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
@@ -278,16 +263,17 @@ const FollowBtn = styled.button`
   justify-content: center;
   font-weight: bold;
   font-size: 14px;
-  padding: 8px 16px;
-  color: #fff;
+  padding: 8px 12px;
   border-radius: 20px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
+  border: 1px solid ${thirdColor};
+  background: #fff;
+  color: ${secondColor};
+
   cursor: pointer;
   transition: all 0.1s linear;
   &:hover,
   &:active {
-    background: #000;
+    background: ${fourthColor};
   }
 `;
 

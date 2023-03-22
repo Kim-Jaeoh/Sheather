@@ -18,6 +18,10 @@ export interface CurrentUserType {
     displayName: string;
     time: number;
   }[];
+  message?: {
+    id: string;
+    user: string;
+  }[];
   tag?: string[];
 }
 
@@ -38,6 +42,7 @@ const initialState: UserType = {
     name: "",
     displayName: "",
     description: "",
+    message: [],
     follower: [],
     following: [],
   },

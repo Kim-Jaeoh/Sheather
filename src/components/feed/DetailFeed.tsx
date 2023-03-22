@@ -947,7 +947,7 @@ const ReplyEditBtn = styled.div<{ color: string }>`
   background: transparent;
   border: none;
   outline: none;
-  font-weight: bold;
+  font-weight: 500;
   color: ${(props) => props.color};
   font-size: 14px;
   cursor: pointer;
