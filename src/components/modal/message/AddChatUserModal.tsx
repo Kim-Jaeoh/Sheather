@@ -35,19 +35,24 @@ const AddChatUserModal = ({
 
   // 계정 정보 가져오기
   useEffect(() => {
-    myAccount?.following?.map(async (res) => {
-      onSnapshot(doc(dbService, "users", res.displayName), (doc) => {
-        setUsers((prev: CurrentUserType[]) => {
-          // 중복 체크
-          if (!prev.some((user) => user.uid === doc.data().uid)) {
-            return [...prev, doc.data()];
-          } else {
-            return prev;
-          }
-        });
-      });
+    let unsubscribe: any;
+    myAccount?.following?.forEach(async (res) => {
+      unsubscribe = onSnapshot(
+        doc(dbService, "users", res.displayName),
+        (doc) => {
+          setUsers((prev: CurrentUserType[]) => {
+            // 중복 체크
+            if (!prev.some((user) => user.uid === doc.data().uid)) {
+              return [...prev, doc.data()];
+            } else {
+              return prev;
+            }
+          });
+        }
+      );
     });
     setIsLoading(true);
+    return () => unsubscribe();
   }, [myAccount?.following]);
 
   // 채팅 생성
@@ -153,7 +158,7 @@ const Container = styled.div`
   background: #fff;
   border-radius: 20px;
   border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
+  box-shadow: 12px 12px 0 -2px #ff5c1b, 12px 12px ${secondColor};
 `;
 
 const Header = styled.header`
@@ -261,7 +266,7 @@ const FollowBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 500;
   font-size: 14px;
   padding: 8px 12px;
   border-radius: 20px;

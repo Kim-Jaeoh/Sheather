@@ -1,49 +1,53 @@
 import styled from "@emotion/styled";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  updateDoc,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { BiMessageAdd } from "react-icons/bi";
+import { BiMessageAdd, BiMessageDots } from "react-icons/bi";
+import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { RootState } from "../app/store";
-import { currentUser, CurrentUserType, UserType } from "../app/user";
+import { currentUser, CurrentUserType } from "../app/user";
 import ColorList from "../assets/ColorList";
+import MessageUserSkeleton from "../assets/skeleton/MessageUserSkeleton";
 import Chat from "../components/message/Chat";
-import MessageList from "../components/message/MessageList";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";
 import { dbService } from "../fbase";
+import { listType } from "../types/type";
 
 type Props = {};
 
 const Message = (props: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [myAccount, setMyAccount] = useState(null);
   const [users, setUsers] = useState([]);
+  const [addUserModal, setAddUserMOdal] = useState(false);
   const [clickInfo, setClickInfo] = useState<CurrentUserType>(null);
 
   // 본인 계정 정보 가져오기
   useEffect(() => {
-    onSnapshot(doc(dbService, "users", userObj?.displayName), (doc) => {
-      setMyAccount(doc.data());
-    });
+    const unsubscribe = onSnapshot(
+      doc(dbService, "users", userObj?.displayName),
+      (doc) => {
+        setMyAccount(doc.data());
+      }
+    );
 
-    // const querySnapshot = async () => {
-    //   const docRef = doc(dbService, "users", userObj?.displayName);
-    //   const docSnap = await getDoc(docRef);
-    //   return setMyAccount(docSnap.data());
-    // };
-
-    // querySnapshot();
+    return () => unsubscribe();
   }, [userObj.displayName]);
 
   // 상대 계정 정보 가져오기
   useEffect(() => {
+    let unsubscribe: any;
     if (myAccount) {
       myAccount?.message?.map(async (res: { user: string }) => {
-        onSnapshot(doc(dbService, "users", res.user), (doc) => {
+        unsubscribe = onSnapshot(doc(dbService, "users", res.user), (doc) => {
           setUsers((prev: CurrentUserType[]) => {
             // 중복 체크
             if (!prev.some((user) => user.uid === doc.data().uid)) {
@@ -54,15 +58,16 @@ const Message = (props: Props) => {
           });
         });
       });
+      return () => unsubscribe();
     }
   }, [myAccount]);
 
+  // 채팅방 클릭
   const onListClick = (user: CurrentUserType) => {
     setClickInfo(user);
   };
 
-  const [addUserModal, setAddUserMOdal] = useState(false);
-
+  // 채팅방 생성
   const onAddChatClick = () => {
     setAddUserMOdal((prev) => !prev);
   };
@@ -86,25 +91,48 @@ const Message = (props: Props) => {
                 <BiMessageAdd />
               </AddChatBtn>
             </Category>
-            <ChatRoomBox>
-              {users?.map((res: CurrentUserType, index: number) => (
-                <User onClick={() => onListClick(res)} key={res.displayName}>
-                  <ProfileImageBox>
-                    <ProfileImage src={res.profileURL} alt="profile image" />
-                  </ProfileImageBox>
-                  <ProfileInfoBox>
-                    <ProfileDsName>{res.displayName}</ProfileDsName>
-                    <ProfileName>{res.name}</ProfileName>
-                  </ProfileInfoBox>
-                </User>
-              ))}
-            </ChatRoomBox>
+            {users.length > 0 ? (
+              <ChatRoomBox>
+                {users?.map((res: CurrentUserType, index: number) => {
+                  return (
+                    <User
+                      onClick={() => onListClick(res)}
+                      key={res.displayName}
+                    >
+                      <ProfileImageBox>
+                        <ProfileImage
+                          src={res.profileURL}
+                          alt="profile image"
+                        />
+                      </ProfileImageBox>
+                      <ProfileInfoBox>
+                        <ProfileDsName>{res.displayName}</ProfileDsName>
+                        <ProfileName>{res.name}</ProfileName>
+                      </ProfileInfoBox>
+                      {userObj?.message?.some(
+                        (e) => !e.isRead && e.user === res.displayName
+                      ) && <NoticeBox />}
+                    </User>
+                  );
+                })}
+              </ChatRoomBox>
+            ) : (
+              <MessageUserSkeleton />
+            )}
           </ChatRoomList>
           <ChatRoom>
             {clickInfo ? (
               <Chat myAccount={myAccount} users={clickInfo} />
             ) : (
-              <div>빈 공간</div>
+              <NotInfoBox>
+                <IconBox>
+                  <Icon>
+                    <BiMessageDots />
+                  </Icon>
+                </IconBox>
+                <NotInfoCategory>메시지</NotInfoCategory>
+                <NotInfoText>친구에게 메시지를 보내보세요.</NotInfoText>
+              </NotInfoBox>
             )}
           </ChatRoom>
         </Container>
@@ -128,16 +156,13 @@ const Wrapper = styled.div`
 
 const Container = styled.div`
   display: flex;
-  /* position: relative; */
   position: absolute;
-  /* height: 100%; */
   top: 40px;
   right: 40px;
   bottom: 40px;
   left: 40px;
   border: 2px solid ${secondColor};
   border-radius: 20px;
-  /* overflow: hidden; */
   background: #fff;
   box-shadow: ${(props) => {
     let shadow = "";
@@ -155,7 +180,6 @@ const Category = styled.header`
   display: flex;
   align-items: center;
   justify-content: center;
-  /* gap: 12px; */
   padding: 0 20px;
   font-weight: 700;
   position: relative;
@@ -196,16 +220,14 @@ const ChatRoom = styled.div`
   height: 100%;
 `;
 
-const ChatRoomBox = styled.div`
-  /* padding: 20px; */
-`;
+const ChatRoomBox = styled.div``;
 
 const User = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
   margin: 0;
-  padding: 12px 16px;
+  padding: 14px 16px;
   height: 100%;
   transition: all 0.15s linear;
   cursor: pointer;
@@ -217,8 +239,8 @@ const User = styled.div`
 `;
 
 const ProfileImageBox = styled.div`
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border: 1px solid ${fourthColor};
   border-radius: 50%;
   overflow: hidden;
@@ -236,14 +258,12 @@ const ProfileInfoBox = styled.div`
   flex: 1;
   display: flex;
   justify-content: center;
-  /* align-items: center; */
   flex-direction: column;
   gap: 2px;
-  /* padding-right: 20px; */
 `;
 
 const ProfileDsName = styled.p`
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   width: 120px;
   line-height: 18px;
@@ -253,7 +273,7 @@ const ProfileDsName = styled.p`
 `;
 
 const ProfileName = styled.p`
-  font-size: 14px;
+  font-size: 12px;
   color: ${thirdColor};
   width: 120px;
   line-height: 18px;
@@ -262,13 +282,55 @@ const ProfileName = styled.p`
   white-space: nowrap;
 `;
 
-const ProfileDesc = styled.p`
+const NoticeBox = styled.div`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5c1b;
+`;
+
+const NotInfoBox = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 30px;
+`;
+
+const NotInfoCategory = styled.p`
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 10px;
+`;
+
+const IconBox = styled.div`
+  border: 2px solid ${secondColor};
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+`;
+
+const Icon = styled.div`
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+const NotInfoText = styled.p`
   font-size: 14px;
-  margin-top: 6px;
-  white-space: pre-wrap;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
 `;

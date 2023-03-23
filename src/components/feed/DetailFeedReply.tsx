@@ -21,9 +21,13 @@ const DetailFeedReply = ({ userObj, isLogin, reply, onDelete }: Props) => {
 
   //  map 처리 된 유저 정보들
   useEffect(() => {
-    onSnapshot(doc(dbService, "users", reply.displayName), (doc) => {
-      setReplyCreatorInfo(doc.data());
-    });
+    const unsubscribe = onSnapshot(
+      doc(dbService, "users", reply.displayName),
+      (doc) => {
+        setReplyCreatorInfo(doc.data());
+      }
+    );
+    return () => unsubscribe();
   }, [reply.displayName]);
 
   return (

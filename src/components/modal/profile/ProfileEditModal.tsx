@@ -103,7 +103,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
   useEffect(() => {
     const q = query(collection(dbService, "users"));
 
-    onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const usersArray = snapshot.docs.map((doc) => ({
         ...doc.data(),
       }));
@@ -117,6 +117,8 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
       );
       setCheckDisplayName(checkFilter.length === 0);
     });
+
+    return () => unsubscribe();
   }, [displayName, userObj.displayName]);
 
   const onSubmit = async (e: React.FormEvent) => {

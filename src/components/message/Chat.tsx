@@ -1,105 +1,76 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "@emotion/styled";
-import useFirestoreQuery from "../../hooks/useFirestoreQuery";
 import { dbService } from "../../fbase";
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
-  DocumentData,
-  getDoc,
   getDocs,
-  limit,
   onSnapshot,
-  orderBy,
   query,
-  serverTimestamp,
-  setDoc,
   updateDoc,
-  writeBatch,
 } from "firebase/firestore";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import ColorList from "../../assets/ColorList";
-import uuid from "react-uuid";
-import { BiSend } from "react-icons/bi";
-import Message from "../../pages/Message";
 import moment from "moment";
-import { CurrentUserType } from "../../app/user";
+import { currentUser, CurrentUserType } from "../../app/user";
 import { Link } from "react-router-dom";
 import { useHandleResizeTextArea } from "../../hooks/useHandleResizeTextArea";
 import Emoji from "../../assets/Emoji";
+import { listType, MessageType } from "../../types/type";
+import { useDispatch } from "react-redux";
 
 interface Props {
   users: CurrentUserType;
   myAccount: CurrentUserType;
 }
 
-interface MessageType {
-  text: string;
-  createdAt: number;
-  uid: string;
-  displayName: string;
-  profileURL: string;
-  isRead: boolean;
-}
-
-interface listType {
-  id: string;
-  member?: string;
-  message?: MessageType[];
-}
-
 const Chat = ({ myAccount, users }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const {
+    loginToken: userLogin,
+    currentUser: userObj,
+    newMessage,
+  } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [messages, setMessages] = useState(null);
   const [text, setText] = useState("");
   const [messageCollection, setMessageCollection] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>();
   const textRef = useRef<HTMLTextAreaElement>();
   const bottomListRef = useRef(null);
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
+  const dispatch = useDispatch();
 
-  // 첫 화면 하단 스크롤
+  // 화면 하단 스크롤
   useEffect(() => {
     bottomListRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 1. 문서 id값 가져오기
+  // 1. 채팅방 목록 및 정보 불러오기
   useEffect(() => {
-    const getCollectionId = async () => {
-      const q = query(collection(dbService, `messages`));
-      const getdoc = await getDocs(q);
-      const list: listType[] = getdoc.docs.map((res) => ({
-        id: res.id,
-        ...res.data(),
+    // 채팅방 입장 시 대화 내역 초기화 (렌더링 하는 순간에 다른 채팅방 유저 프로필이 보이기 때문)
+    setMessages(null);
+
+    const q = query(collection(dbService, `messages`));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const list: listType[] = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
       }));
-      const getId = list.filter(
+      const getInfo = list.filter(
         (res) =>
           res.member.includes(userObj.displayName) &&
           res.member.includes(users?.displayName)
       );
-      return setMessageCollection(getId[0]);
-    };
+      setMessageCollection(getInfo[0]);
+    });
+    return () => unsubscribe();
+  }, [userObj.displayName, users]);
 
-    getCollectionId();
-  }, [userObj.displayName, users?.displayName]);
-
-  // 2. 채팅 목록 불러오기
-  useEffect(() => {
-    if (messageCollection?.id) {
-      onSnapshot(doc(dbService, "messages", messageCollection?.id), (doc) => {
-        setMessages(doc.data());
-      });
-    }
-  }, [messageCollection?.id]);
-
-  // 계정 정보에 message id값 넣기
+  // 2-1. 채팅방 만들기 (계정 정보에 message id값 넣기)
   useEffect(() => {
     // 중복 체크
     const checkMyInfo = myAccount?.message?.some(
@@ -115,7 +86,11 @@ const Chat = ({ myAccount, users }: Props) => {
         await updateDoc(doc(dbService, "users", userObj.displayName), {
           message: [
             ...myAccount?.message,
-            { user: users?.displayName, id: messageCollection?.id },
+            {
+              user: users?.displayName, // 상대 아이디
+              id: messageCollection?.id,
+              isRead: true,
+            },
           ],
         });
       };
@@ -128,13 +103,31 @@ const Chat = ({ myAccount, users }: Props) => {
         await updateDoc(doc(dbService, "users", users.displayName), {
           message: [
             ...users?.message,
-            { user: userObj.displayName, id: messageCollection?.id },
+            {
+              user: userObj.displayName, // 본인 아이디
+              id: messageCollection?.id,
+              isRead: true,
+            },
           ],
         });
       };
       myAccountPushId();
     }
   }, [messageCollection, myAccount, userObj.displayName, users]);
+
+  // 2-2. 채팅 내역 불러오기
+  useEffect(() => {
+    if (messageCollection?.id) {
+      const unsubscribe = onSnapshot(
+        doc(dbService, "messages", messageCollection?.id),
+        (doc) => {
+          setMessages(doc.data());
+        }
+      );
+      setIsLoading(true);
+      return () => unsubscribe();
+    }
+  }, [messageCollection?.id]);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -148,7 +141,7 @@ const Chat = ({ myAccount, users }: Props) => {
     // 채팅 새로 만들기
     if (trimmedMessage && !messageCollection?.id) {
       await addDoc(collection(dbService, `messages`), {
-        member: [userObj.displayName, "5dong2"],
+        member: [userObj.displayName, users?.displayName],
         message: [
           {
             text: trimmedMessage,
@@ -162,7 +155,7 @@ const Chat = ({ myAccount, users }: Props) => {
     }
 
     // 채팅방에 글 보내기
-    if (trimmedMessage && messageCollection?.id) {
+    if (messages && trimmedMessage && messageCollection?.id) {
       const messageCopy = [...messages?.message];
       await updateDoc(doc(dbService, "messages", messageCollection?.id), {
         message: [
@@ -182,20 +175,54 @@ const Chat = ({ myAccount, users }: Props) => {
   };
 
   // 메세지 읽음 확인
-  const onReadMessage = async () => {
+  const onReadMessage = useCallback(async () => {
     if (messages) {
+      // 채팅 정보 값 변경
       const messageCopy = [...messages?.message];
       await updateDoc(doc(dbService, "messages", messageCollection?.id), {
         message: messageCopy.map((res) => {
           if (res?.displayName === users?.displayName) {
-            return { ...res, isRead: (res.isRead = true) };
+            return { ...res, isRead: true };
           } else {
             return { ...res };
           }
         }),
       });
+
+      // 계정 메시지 정보 값 변경
+      const copy = [...myAccount.message];
+      await updateDoc(doc(dbService, "users", userObj.displayName), {
+        message: copy.map((res) => {
+          if (users.displayName === res.user) {
+            return { ...res, isRead: true };
+          } else {
+            return { ...res };
+          }
+        }),
+      });
+
+      // store 메시지 정보 값 변경
+      dispatch(
+        currentUser({
+          ...userObj,
+          message: copy.map((res) => {
+            if (users.displayName === res.user) {
+              return { ...res, isRead: true };
+            } else {
+              return { ...res };
+            }
+          }),
+        })
+      );
     }
-  };
+  }, [
+    dispatch,
+    messageCollection?.id,
+    messages,
+    myAccount.message,
+    userObj,
+    users.displayName,
+  ]);
 
   return (
     <>
@@ -271,8 +298,8 @@ const Category = styled.header`
   height: 60px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 20px;
+  /* justify-content: center; */
+  padding: 0 40px;
   gap: 12px;
   border-bottom: 1px solid ${thirdColor};
 `;
@@ -297,12 +324,9 @@ const User = styled.div<{ isMine: boolean }>`
   display: block;
   margin: 0;
   transition: all 0.15s linear;
-  /* gap: 12px; */
   display: flex;
   align-items: center;
   flex-direction: ${(props) => (props.isMine ? `row-reverse` : `row`)};
-  /* justify-content: ${(props) =>
-    props.isMine ? `flex-end` : `flex-start`}; */
   &:not(:last-of-type) {
     margin-bottom: 14px;
   }
@@ -331,7 +355,7 @@ const ProfileInfoBox = styled.div`
   /* flex: 1; */
   display: flex;
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
   flex-direction: column;
   gap: 2px;
 `;
@@ -339,7 +363,6 @@ const ProfileInfoBox = styled.div`
 const ProfileDsName = styled.p`
   font-size: 14px;
   font-weight: 500;
-  /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -349,7 +372,6 @@ const ProfileDsName = styled.p`
 const ProfileName = styled.p`
   font-size: 12px;
   color: ${thirdColor};
-  /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -361,8 +383,8 @@ const SendMessageBox = styled.div`
 `;
 
 const SendMessage = styled.p<{ isMine: boolean }>`
-  border: 1px solid ${fourthColor};
-  background: ${(props) => (props.isMine ? fourthColor : `#fff`)};
+  border: 1px solid #efefef;
+  background: ${(props) => (props.isMine ? `#EFEFEF` : `#fff`)};
   padding: 8px 12px;
   border-radius: 20px;
   max-width: 230px;

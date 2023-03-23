@@ -90,8 +90,6 @@ const FollowListBox = () => {
     setIsAuthModal((prev) => !prev);
   };
 
-  console.log(users);
-
   return (
     <>
       <Container>

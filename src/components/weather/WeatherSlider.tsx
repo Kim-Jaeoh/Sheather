@@ -4,7 +4,7 @@ import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiShare } from "react-icons/fi";
 import { TbShirt } from "react-icons/tb";
 import WeatherClothes from "./WeatherClothes";
-import { shareWeather } from "../../app/getWeather";
+import { shareWeather } from "../../app/weather";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";

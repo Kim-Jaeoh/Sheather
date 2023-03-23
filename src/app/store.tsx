@@ -4,7 +4,7 @@ import {
   getDefaultMiddleware,
 } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
-import getWeather from "./getWeather";
+import getWeather from "./weather";
 import getCurrentUser from "./user";
 import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";

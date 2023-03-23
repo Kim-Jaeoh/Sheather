@@ -23,20 +23,13 @@ type Props = {
 const FeedProfileDisplayName = ({ displayName }: Props) => {
   const [account, setAccount] = useState(null);
 
-  // // 계정 정보 가져오기
-  // useEffect(() => {
-  //   const getAccount = async () => {
-  //     const docSnap = await getDoc(doc(dbService, "users", displayName));
-  //     setAccount(docSnap.data());
-  //   };
-  //   getAccount();
-  // }, [displayName]);
-
   // 계정 정보 가져오기
   useEffect(() => {
-    onSnapshot(doc(dbService, "users", displayName), (doc) =>
-      setAccount(doc.data())
+    const unsubscribe = onSnapshot(
+      doc(dbService, "users", displayName),
+      (doc) => setAccount(doc.data())
     );
+    return () => unsubscribe();
   }, [displayName]);
 
   return (

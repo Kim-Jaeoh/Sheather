@@ -2,18 +2,14 @@ import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { onSnapshot, doc } from "firebase/firestore";
-import React, { useLayoutEffect } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Toaster } from "react-hot-toast";
-import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
+import { useEffect, useMemo, useState } from "react";
+import { FaRegHeart } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { MdGridOn } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { Link, Route, Routes, useLocation, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { RootState } from "../app/store";
-import { UserType } from "../app/user";
 import ColorList from "../assets/ColorList";
-import ExploreSkeleton from "../assets/skeleton/ExploreSkeleton";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
 import ProfilePost from "../components/profile/ProfilePost";
@@ -77,9 +73,10 @@ const Profile = () => {
   // => if문을 사용하여 본인 프로필이 아닐 경우에만 Firebase에서 타 계정 정보 받아오기
   useEffect(() => {
     if (userObj.displayName !== id) {
-      onSnapshot(doc(dbService, "users", id), (doc) => {
+      const unsubcribe = onSnapshot(doc(dbService, "users", id), (doc) => {
         setAccount(doc.data());
       });
+      return () => unsubcribe();
     } else {
       setAccount(userObj);
     }
@@ -330,7 +327,6 @@ const ProfileBox = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
-  /* padding: 20px; */
   position: relative;
 `;
 
@@ -410,9 +406,6 @@ const ProfileAct = styled.div`
 
 const BtnBox = styled.div`
   display: flex;
-  /* position: absolute;
-  top: 0;
-  right: 0; */
 `;
 
 const ProfileEditBtn = styled.button`
@@ -498,10 +491,7 @@ const CategoryBox = styled.div`
 
 const Category = styled(Link)<{ select: number; num: number }>`
   padding: 16px 0 30px;
-  /* border-top: ${(props) =>
-    props.num === props.select && `2px solid ${secondColor}`}; */
   font-weight: ${(props) => props.num === props.select && "bold"};
-  /* margin-top: ${(props) => props.num === props.select && "-1px"}; */
   color: ${(props) => props.num !== props.select && thirdColor};
   font-size: 14px;
   cursor: pointer;

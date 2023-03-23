@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import imageCompression from "browser-image-compression";
-import { onSnapshot, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Point } from "react-easy-crop";
 import { BsPersonPlusFill } from "react-icons/bs";
@@ -309,24 +309,6 @@ const NotInfoBox = styled.div`
   align-items: center;
   justify-content: center;
   padding-bottom: 30px;
-
-  /* animation-name: slideDown;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-in-out; */
-
-  /* @keyframes slideDown {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  } */
 `;
 
 const NotInfo = styled.div`

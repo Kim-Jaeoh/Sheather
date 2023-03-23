@@ -1,45 +1,46 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { AiOutlineHome, AiFillHome } from "react-icons/ai";
-import {
-  BsChatDots,
-  BsChatDotsFill,
-  BsPersonCircle,
-  BsSun,
-  BsSunFill,
-} from "react-icons/bs";
-import { CiSearch } from "react-icons/ci";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AiOutlineHome } from "react-icons/ai";
+import { BsChatDots, BsPersonCircle, BsSun } from "react-icons/bs";
 import { FiPlusCircle, FiSearch } from "react-icons/fi";
-import { BiSearch } from "react-icons/bi";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import { useDispatch } from "react-redux";
-import { currentUser, loginToken } from "../app/user";
-import { authService, dbService } from "../fbase";
 import { RootState } from "../app/store";
 import { useSelector } from "react-redux";
-import { doc, onSnapshot } from "firebase/firestore";
-import useLogout from "../hooks/useLogout";
 import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import useCurrentLocation from "../hooks/useCurrentLocation";
-import { WeatherDataType } from "../types/type";
+import { listType, WeatherDataType } from "../types/type";
 import ShareWeatherModal from "../components/modal/shareWeather/ShareWeatherModal";
-import { shareWeather } from "../app/getWeather";
+import { shareWeather } from "../app/weather";
+import {
+  onSnapshot,
+  doc,
+  collection,
+  query,
+  updateDoc,
+} from "firebase/firestore";
+import { currentUser, CurrentUserType } from "../app/user";
+import { dbService } from "../fbase";
 
 const LeftBar = () => {
   const [isAuthModal, setIsAuthModal] = useState(false);
   const [selectMenu, setSelectMenu] = useState(0);
+  const [myAccount, setMyAccount] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [messageCollection, setMessageCollection] = useState(null);
   const [shareBtn, setShareBtn] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
-  const { onLogOutClick } = useLogout();
+  const {
+    loginToken: userLogin,
+    currentUser: userObj,
+    newMessage: message,
+  } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const { location } = useCurrentLocation();
 
   const nowWeatherApi = async () =>
@@ -56,6 +57,110 @@ const LeftBar = () => {
     onError: (e) => console.log(e),
     enabled: Boolean(location),
   });
+
+  // 본인 계정 정보 가져오기
+  useEffect(() => {
+    if (userLogin) {
+      const unsubscribe = onSnapshot(
+        doc(dbService, "users", userObj?.displayName),
+        (doc) => {
+          setMyAccount(doc.data());
+        }
+      );
+
+      return () => unsubscribe();
+    }
+  }, [userLogin, userObj?.displayName]);
+
+  // 상대 계정 정보 가져오기
+  useEffect(() => {
+    if (myAccount) {
+      myAccount?.message?.map(async (res: { user: string }) => {
+        onSnapshot(doc(dbService, "users", res.user), (doc) => {
+          setUsers((prev: CurrentUserType[]) => {
+            // 중복 체크
+            if (!prev.some((user) => user.uid === doc.data().uid)) {
+              return [...prev, doc.data()];
+            } else {
+              return prev;
+            }
+          });
+        });
+      });
+    }
+  }, [myAccount]);
+
+  // store에 message 정보 저장
+  useEffect(() => {
+    if (myAccount) {
+      const checkCurrentUserInfo = userObj?.message?.some(
+        (res: { id: string }) => res.id === messageCollection?.id
+      );
+
+      if (messageCollection && !checkCurrentUserInfo) {
+        dispatch(
+          currentUser({
+            ...userObj,
+            message: myAccount?.message.flat(),
+          })
+        );
+      }
+    }
+  }, [dispatch, messageCollection, myAccount?.message]);
+
+  // 채팅방 정보 불러오기
+  useEffect(() => {
+    const q = query(collection(dbService, `messages`));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const list: listType[] = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      const getInfo = users.map((user) => {
+        return list.filter(
+          (doc) =>
+            doc.member.includes(userObj.displayName) &&
+            doc.member.includes(user?.displayName)
+        );
+      });
+      setMessageCollection(getInfo.flat());
+    });
+    return () => unsubscribe();
+  }, [userObj.displayName, users]);
+
+  // 채팅방 알림 표시
+  useEffect(() => {
+    if (messageCollection) {
+      const filter = messageCollection.map((res: listType) => {
+        return res.message
+          .filter((msg) => msg.displayName !== userObj.displayName)
+          .filter((msg: { isRead: boolean }) => msg.isRead === false);
+      });
+
+      //  안 읽은 채팅방 체크
+      const notice = filter.flat();
+      if (notice.length > 0) {
+        const checkReadInfo = async () => {
+          const copy = [...myAccount?.message];
+          await updateDoc(doc(dbService, "users", userObj.displayName), {
+            message: copy.map((res) => {
+              if (
+                notice.some(
+                  (el: { displayName: string }) => el.displayName === res.user
+                )
+              ) {
+                return { ...res, isRead: false };
+              } else {
+                return { ...res };
+              }
+            }),
+          });
+        };
+
+        checkReadInfo();
+      }
+    }
+  }, [messageCollection, myAccount?.message, userObj.displayName]);
 
   useEffect(() => {
     if (pathname.includes("feed")) {
@@ -94,6 +199,7 @@ const LeftBar = () => {
     }
   }, [selectMenu]);
 
+  // 글 작성
   const onWriteClick = () => {
     if (userLogin) {
       setShareBtn((prev) => !prev);
@@ -104,11 +210,12 @@ const LeftBar = () => {
     }
   };
 
+  // 프로필 이동
   const onProfileClick = () => {
     if (!userLogin) {
       setIsAuthModal((prev) => !prev);
     } else {
-      navigate(`/profile/${userObj?.displayName}/post`, {
+      navigate(`profile/${userObj?.displayName}/post`, {
         state: userObj?.displayName,
       });
       setSelectMenu(5);
@@ -157,6 +264,7 @@ const LeftBar = () => {
             <MenuList>
               <BsChatDots />
               <MenuText>메세지</MenuText>
+              {userObj?.message?.some((res) => !res?.isRead) && <NoticeBox />}
             </MenuList>
           </MenuLink>
           <MenuLink
@@ -190,13 +298,18 @@ const LeftBar = () => {
           >
             <MenuList>
               {userLogin ? (
-                <UserProfileBox>
-                  <UserProfile src={userObj?.profileURL} alt="profile" />
-                </UserProfileBox>
+                <>
+                  <UserProfileBox>
+                    <UserProfile src={userObj?.profileURL} alt="profile" />
+                  </UserProfileBox>
+                  <MenuText>프로필</MenuText>
+                </>
               ) : (
-                <BsPersonCircle />
+                <>
+                  <BsPersonCircle />
+                  <MenuText>로그인</MenuText>
+                </>
               )}
-              <MenuText>프로필</MenuText>
             </MenuList>
           </MenuBtn>
           {isAuthModal && (
@@ -265,10 +378,6 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
   &:hover li:hover,
   &:active li:active {
     border: 2px solid #222222;
-    /* box-shadow: 1px 1px 0 ${(props) => props.color},
-      2px 2px 0 ${(props) => props.color}, 3px 3px 0 ${(props) => props.color},
-      4px 4px 0 ${(props) => props.color}, 5px 5px 0 ${(props) => props.color},
-      6px 6px 0 2px #222222; */
     box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px #222222;
   }
 `;
@@ -302,6 +411,7 @@ const MenuBtn = styled.div<{ cat: string; menu: string; color: string }>`
 const MenuList = styled.li`
   width: 100%;
   padding: 20px;
+  position: relative;
   display: flex;
   align-items: center;
   margin: 8px 0;
@@ -316,9 +426,10 @@ const MenuList = styled.li`
 const MenuText = styled.h2`
   font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
   margin-bottom: -4px; // 폰트 교체로 인해 여백 제거
-  margin-left: 18px;
+  margin-left: 16px;
   font-size: 18px;
   white-space: nowrap;
+  flex: 1;
 `;
 
 const UserProfileBox = styled.div`
@@ -333,4 +444,11 @@ const UserProfile = styled.img`
   display: block;
   width: 100%;
   height: 100%;
+`;
+
+const NoticeBox = styled.div`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5c1b;
 `;

@@ -21,6 +21,7 @@ export interface CurrentUserType {
   message?: {
     id: string;
     user: string;
+    isRead?: boolean;
   }[];
   tag?: string[];
 }
@@ -28,6 +29,7 @@ export interface CurrentUserType {
 export interface UserType {
   loginToken?: boolean;
   currentUser: CurrentUserType;
+  newMessage?: boolean;
 }
 
 const initialState: UserType = {
@@ -46,6 +48,7 @@ const initialState: UserType = {
     follower: [],
     following: [],
   },
+  newMessage: false,
 };
 
 const getCurrentUser = createSlice({
@@ -58,8 +61,11 @@ const getCurrentUser = createSlice({
     currentUser: (state, action) => {
       state.currentUser = action.payload;
     },
+    newMessage: (state, action) => {
+      state.newMessage = action.payload;
+    },
   },
 });
 
 export default getCurrentUser;
-export const { currentUser, loginToken } = getCurrentUser.actions;
+export const { currentUser, loginToken, newMessage } = getCurrentUser.actions;

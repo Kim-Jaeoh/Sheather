@@ -138,3 +138,18 @@ export interface ImageType {
   aspect?: AspectRatio;
   croppedImageUrl?: string;
 }
+
+export interface MessageType {
+  text: string;
+  createdAt: number;
+  uid: string;
+  displayName: string;
+  profileURL: string;
+  isRead: boolean;
+}
+
+export interface listType {
+  id: string;
+  member?: string;
+  message?: MessageType[];
+}

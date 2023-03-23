@@ -333,7 +333,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
                 checkTag.etc == null
               }
             >
-              <EditText>SHARE</EditText>
+              <EditText>공유</EditText>
             </EditBtn>
           )}
         </Header>
@@ -682,7 +682,7 @@ const NextBtn = styled.button`
 
 const EditBtn = styled.button`
   user-select: none;
-  padding: 8px 10px;
+  padding: 6px 10px;
   margin-left: auto;
   border: 1px solid ${mainColor};
   color: ${mainColor};
@@ -707,8 +707,9 @@ const EditBtn = styled.button`
 `;
 
 const EditText = styled.p`
-  font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
-  margin-bottom: -4px;
+  font-weight: 500;
+  /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
+  margin-bottom: -4px; */
 `;
 
 const IconBox = styled.div`
