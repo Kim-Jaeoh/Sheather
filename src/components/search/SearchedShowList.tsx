@@ -1,31 +1,25 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import ColorList from "../../assets/ColorList";
-import {
-  doc,
-  DocumentData,
-  DocumentReference,
-  getDoc,
-} from "firebase/firestore";
-import { CurrentUserType } from "../../app/user";
+import { doc, getDoc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { HiHashtag } from "react-icons/hi";
 import { Spinner } from "../../assets/Spinner";
 import { cloneDeep } from "lodash";
-import { IoIosCloseCircleOutline, IoMdClose } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 import { localType } from "./SearchList";
 
 type Props = {
-  keywords: localType[];
-  setKeywords: React.Dispatch<React.SetStateAction<localType[]>>;
+  searched: localType[];
+  setSearched: React.Dispatch<React.SetStateAction<localType[]>>;
   onListClick: (type: string, word: string, name?: string) => void;
 };
 
-const SearchedShowList = ({ keywords, setKeywords, onListClick }: Props) => {
+const SearchedShowList = ({ searched, setSearched, onListClick }: Props) => {
   const [combineArray, setCombineArray] = useState([]);
 
-  // 정보 가져오기
+  // 정보 가져온 뒤 새로운 배열로 반환
   useEffect(() => {
     const getList = async (res: localType) => {
       const user = res.type === "user";
@@ -45,7 +39,7 @@ const SearchedShowList = ({ keywords, setKeywords, onListClick }: Props) => {
     // const listResult = async () => {
     //   let arr: localType[] = [];
     //   // 중복 제거
-    //   const uniqueArr = keywords.filter(
+    //   const uniqueArr = searched.filter(
     //     (obj, index, self) =>
     //       index ===
     //       self.findIndex((t) => t.type === obj.type && t.search === obj.search)
@@ -61,7 +55,7 @@ const SearchedShowList = ({ keywords, setKeywords, onListClick }: Props) => {
 
     // 2. map에서 Promise 방식 (병렬 처리)
     const showList = async () => {
-      const uniqueArr = keywords.filter(
+      const uniqueArr = searched.filter(
         (obj, index, self) =>
           index ===
           self.findIndex((t) => t.type === obj.type && t.search === obj.search)
@@ -76,7 +70,7 @@ const SearchedShowList = ({ keywords, setKeywords, onListClick }: Props) => {
     };
 
     showList();
-  }, [keywords]);
+  }, [searched]);
 
   const onDelete = useCallback(
     (type: string, search: string) => {
@@ -90,16 +84,16 @@ const SearchedShowList = ({ keywords, setKeywords, onListClick }: Props) => {
 
       // 키워드 수정 (localStorage 반영됨)
       const filterKeyword = cloneDeep(
-        keywords.filter((res) => !(res.type === type && res.search === search))
+        searched.filter((res) => !(res.type === type && res.search === search))
       );
-      setKeywords(filterKeyword);
+      setSearched(filterKeyword);
     },
-    [combineArray, keywords, setKeywords]
+    [combineArray, searched, setSearched]
   );
 
   const onDeleteAll = () => {
     setCombineArray([]);
-    setKeywords([]);
+    setSearched([]);
     localStorage.setItem("keywords", JSON.stringify([]));
   };
 

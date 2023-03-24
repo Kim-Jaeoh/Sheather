@@ -19,7 +19,7 @@ const SearchBox = () => {
   const [debounceText, setDebounceText] = useState("");
   const [toggleAnimation, setToggleAnimation] = useState(false);
   const [url, setUrl] = useState(``);
-  const [keywords, setKeywords] = useState<localType[]>(
+  const [searched, setSearched] = useState<localType[]>(
     JSON.parse(localStorage.getItem("keywords")) || []
   );
   const debouncedSearchTerm = useDebounce(text, 200);
@@ -47,7 +47,7 @@ const SearchBox = () => {
     // if (keywords.length) {
     if (localStorage?.getItem("keywords")?.length) {
       // 중복 제거
-      const uniqueArr = keywords.filter(
+      const uniqueArr = searched.filter(
         (obj, index, self) =>
           index ===
           self.findIndex((t) => t.type === obj.type && t.search === obj.search)
@@ -56,7 +56,7 @@ const SearchBox = () => {
     } else {
       return null;
     }
-  }, [keywords, text]);
+  }, [searched, text]);
 
   const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -75,12 +75,12 @@ const SearchBox = () => {
 
   const onListClick = (type: string, word: string, name: string) => {
     if (type === "tag") {
-      setKeywords((prev: localType[]) => [
+      setSearched((prev: localType[]) => [
         { at: Date.now(), type: "tag", search: word, name: null },
         ...prev,
       ]);
     } else {
-      setKeywords((prev: localType[]) => [
+      setSearched((prev: localType[]) => [
         { at: Date.now(), type: "user", search: word, name: name },
         ...prev,
       ]);
@@ -142,8 +142,8 @@ const SearchBox = () => {
             />
           ) : (
             <SearchedShowList
-              keywords={keywords}
-              setKeywords={setKeywords}
+              searched={searched}
+              setSearched={setSearched}
               onListClick={onListClick}
             />
           )}

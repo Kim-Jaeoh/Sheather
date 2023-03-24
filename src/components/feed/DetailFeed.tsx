@@ -667,7 +667,8 @@ const FollowBtn = styled.button`
   font-size: 14px;
   padding: 10px 16px;
   color: #fff;
-  border-radius: 9999px;
+  /* border-radius: 9999px; */
+  border-radius: 8px;
   border: 1px solid ${secondColor};
   background: ${secondColor};
   cursor: pointer;
@@ -853,11 +854,12 @@ const CategoryTagBox = styled.div`
 
 const CategoryTag = styled.div`
   font-size: 12px;
-  padding: 6px 8px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
   border: 1px solid ${thirdColor};
-  border-radius: 20px;
+  border-radius: 8px;
+  /* border-radius: 20px; */
 
   svg {
     margin-right: 2px;

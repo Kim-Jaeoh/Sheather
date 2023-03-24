@@ -162,7 +162,6 @@ const Profile = () => {
 
   const onMessageClick = (res: CurrentUserType) => {
     onCreateChatClick(res);
-    // navigate(`/message/${res.displayName}`, { state: clickInfo })
   };
 
   return (
@@ -198,10 +197,29 @@ const Profile = () => {
                 <ProfileDetail>
                   <ProfileInfoBox>
                     <ProfileDsName>{account?.displayName}</ProfileDsName>
-                    {account?.name && <ProfileName>{account.name}</ProfileName>}
-                    {account?.description && (
-                      <ProfileDesc>{account.description}</ProfileDesc>
-                    )}
+                    <ProfileActBox>
+                      <ProfileAct>
+                        게시글 <em>{myPost?.length}</em>
+                      </ProfileAct>
+                      <ProfileAct
+                        onClick={() => {
+                          onModalClick();
+                          onClickFollowInfo(account?.follower);
+                          setFollowCategory("팔로워");
+                        }}
+                      >
+                        팔로워 <em>{account?.follower.length}</em>
+                      </ProfileAct>
+                      <ProfileAct
+                        onClick={() => {
+                          onModalClick();
+                          onClickFollowInfo(account?.following);
+                          setFollowCategory("팔로잉");
+                        }}
+                      >
+                        팔로잉 <em>{account?.following.length}</em>
+                      </ProfileAct>
+                    </ProfileActBox>
                   </ProfileInfoBox>
                   {account?.email === userObj.email ? (
                     <BtnBox>
@@ -235,29 +253,12 @@ const Profile = () => {
                     </ActBtnBox>
                   )}
                 </ProfileDetail>
-                <ProfileActBox>
-                  <ProfileAct>
-                    게시글 <em>{myPost?.length}</em>
-                  </ProfileAct>
-                  <ProfileAct
-                    onClick={() => {
-                      onModalClick();
-                      onClickFollowInfo(account?.follower);
-                      setFollowCategory("팔로워");
-                    }}
-                  >
-                    팔로워 <em>{account?.follower.length}</em>
-                  </ProfileAct>
-                  <ProfileAct
-                    onClick={() => {
-                      onModalClick();
-                      onClickFollowInfo(account?.following);
-                      setFollowCategory("팔로잉");
-                    }}
-                  >
-                    팔로잉 <em>{account?.following.length}</em>
-                  </ProfileAct>
-                </ProfileActBox>
+                <ProfileIntroBox>
+                  {account?.name && <ProfileName>{account.name}</ProfileName>}
+                  {account?.description && (
+                    <ProfileDesc>{account.description}</ProfileDesc>
+                  )}
+                </ProfileIntroBox>
               </ProfileDetailBox>
             </ProfileBox>
             <CategoryBox>
@@ -362,8 +363,9 @@ const ProfileImage = styled.img`
 const ProfileDetailBox = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
   flex: 1;
+  height: 108px;
 `;
 
 const ProfileDetail = styled.div`
@@ -375,6 +377,15 @@ const ProfileDetail = styled.div`
 const ProfileInfoBox = styled.div`
   flex: 1;
   padding-right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+`;
+
+const ProfileIntroBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 const ProfileDsName = styled.p`
@@ -385,13 +396,14 @@ const ProfileDsName = styled.p`
 
 const ProfileName = styled.p`
   font-size: 14px;
-  margin-top: 4px;
+  /* margin-top: 4px; */
 `;
 
 const ProfileDesc = styled.p`
-  margin-top: 8px;
+  /* margin-top: 8px; */
   font-size: 14px;
   white-space: pre-wrap;
+  color: ${thirdColor};
   display: -webkit-box;
   -webkit-line-clamp: 2;
   overflow: hidden;

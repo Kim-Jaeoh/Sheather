@@ -15,14 +15,16 @@ import { Spinner } from "../../../assets/Spinner";
 import { dbService } from "../../../fbase";
 import useToggleFollow from "../../../hooks/useToggleFollow";
 
+interface followInfoType {
+  displayName: string;
+  time: number;
+}
+
 type Props = {
   accountName: string;
   modalOpen: boolean;
   followCategory: string;
-  followInfo: {
-    displayName: string;
-    time: number;
-  }[];
+  followInfo: followInfoType[];
   followLength: number;
   modalClose: () => void;
 };
@@ -44,20 +46,24 @@ const ProfileFollowModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const { toggleFollow } = useToggleFollow();
 
-  // 계정 정보 가져오기
+  // 계정 정보 가져오기 (병렬 처리 = 한 번에 가져오기 위함)
   useEffect(() => {
-    followInfo.map(async (res) => {
+    const getList = async (res: followInfoType) => {
       const docSnap = await getDoc(doc(dbService, "users", res.displayName));
-      setAccount((prev: CurrentUserType[]) => {
-        // 중복 체크
-        if (!prev.some((user) => user.uid === docSnap.data().uid)) {
-          return [...prev, docSnap.data()];
-        } else {
-          return prev;
-        }
-      });
-      setIsLoading(true);
-    });
+      return docSnap.data();
+    };
+
+    const promiseList = async () => {
+      const list = await Promise.all(
+        followInfo.map((res) => {
+          setIsLoading(true);
+          return getList(res);
+        })
+      );
+      setAccount(list);
+    };
+
+    promiseList();
   }, [followInfo]);
 
   return (
