@@ -97,7 +97,8 @@ const WeatherSlider = ({ data }: PropsType) => {
           </WeatherDateBox>
           <FlickingBox>
             <Flicking
-              align={data.length < 4 ? "center" : "prev"}
+              align={"prev"}
+              // align={data.length < 4 ? "center" : "prev"}
               panelsPerView={data.length < 4 ? data.length : 4}
               circular={false}
               ref={flickingRef}
@@ -212,8 +213,6 @@ const Wrapper = styled.div`
   overflow: hidden;
   position: relative;
   border: 2px solid ${secondColor};
-  /* box-shadow: 8px 8px 0px rgba(35, 92, 150, 0.3); */
-  /* box-shadow: 0px 6px 0 -2px #48a3ff, 0px 6px ${secondColor}; */
   &:not(:last-of-type) {
     margin-bottom: 30px;
   }
@@ -328,7 +327,6 @@ const WeatherCategoryBox = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  /* justify-content: space-between; */
   gap: 26px;
   padding: 4px;
 `;
@@ -391,11 +389,8 @@ const WeatherCategorySub = styled.span`
 `;
 
 const ArrowStandard = styled.div`
-  /* position: absolute; */
   width: 22px;
   height: 22px;
-  /* transform: translate(0, -50%); */
-  /* top: 25px; */
   border-radius: 50%;
   border: 1px solid #48a3ff;
   background-color: #fff;

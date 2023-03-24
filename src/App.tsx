@@ -65,7 +65,7 @@ const App = () => {
                 <Route path="/feed/*" element={<Home />} />
                 <Route path="/feed/detail" element={<DetailFeed />} />
                 <Route path="/weather" element={<Weather />} />
-                <Route path="/message" element={<Message />} />
+                <Route path="/message/*" element={<Message />} />
                 <Route path="/explore/*" element={<Explore />} />
                 <Route path="/explore/search" element={<SearchResult />} />
                 <Route path="/explore/tag" element={<TagCategoryList />} />

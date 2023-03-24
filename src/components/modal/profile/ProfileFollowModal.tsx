@@ -280,7 +280,7 @@ const FollowBtn = styled.button`
   font-size: 14px;
   padding: 8px 16px;
   color: #fff;
-  border-radius: 20px;
+  border-radius: 8px;
   border: 1px solid ${secondColor};
   background: ${secondColor};
   cursor: pointer;

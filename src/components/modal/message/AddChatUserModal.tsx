@@ -1,6 +1,12 @@
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
-import { onSnapshot, doc, collection, addDoc } from "firebase/firestore";
+import {
+  onSnapshot,
+  doc,
+  collection,
+  addDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { BsPersonPlusFill } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
@@ -35,24 +41,20 @@ const AddChatUserModal = ({
 
   // 계정 정보 가져오기
   useEffect(() => {
-    let unsubscribe: any;
     myAccount?.following?.forEach(async (res) => {
-      unsubscribe = onSnapshot(
-        doc(dbService, "users", res.displayName),
-        (doc) => {
-          setUsers((prev: CurrentUserType[]) => {
-            // 중복 체크
-            if (!prev.some((user) => user.uid === doc.data().uid)) {
-              return [...prev, doc.data()];
-            } else {
-              return prev;
-            }
-          });
-        }
-      );
+      onSnapshot(doc(dbService, "users", res.displayName), (doc) => {
+        setUsers((prev: CurrentUserType[]) => {
+          // 중복 체크
+          if (!prev.some((user) => user.uid === doc.data().uid)) {
+            return [...prev, doc.data()];
+          } else {
+            return prev;
+          }
+        });
+      });
     });
     setIsLoading(true);
-    return () => unsubscribe();
+    // return () => unsubscribe();
   }, [myAccount?.following]);
 
   // 채팅 생성
@@ -66,6 +68,50 @@ const AddChatUserModal = ({
       await addDoc(collection(dbService, `messages`), {
         member: [userObj.displayName, user.displayName],
         message: [],
+      }).then((document) => {
+        // 중복 체크
+        const checkMyInfo = myAccount?.message?.some(
+          (res: { id: string }) => res.id === document?.id
+        );
+        const checkUserInfo = user?.message?.some(
+          (res: { id: string }) => res.id === document?.id
+        );
+
+        if (document.id) {
+          // 채팅 개설 시 본인 계정 message에 id값 추가
+          if (myAccount && !checkMyInfo) {
+            const myAccountPushId = async () => {
+              await updateDoc(doc(dbService, "users", userObj.displayName), {
+                message: [
+                  ...myAccount?.message,
+                  {
+                    user: user?.displayName, // 상대 아이디
+                    id: document?.id,
+                    isRead: true,
+                  },
+                ],
+              });
+            };
+            myAccountPushId();
+          }
+
+          // 채팅 개설 시 상대 계정 message에 id값 추가
+          if (user && !checkUserInfo) {
+            const UserAccountPushId = async () => {
+              await updateDoc(doc(dbService, "users", user.displayName), {
+                message: [
+                  ...user?.message,
+                  {
+                    user: userObj.displayName, // 본인 아이디
+                    id: document?.id,
+                    isRead: true,
+                  },
+                ],
+              });
+            };
+            UserAccountPushId();
+          }
+        }
       });
     }
     setClickInfo(user);

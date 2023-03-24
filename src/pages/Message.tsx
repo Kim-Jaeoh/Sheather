@@ -7,9 +7,12 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { AiOutlineMessage } from "react-icons/ai";
 import { BiMessageAdd, BiMessageDots } from "react-icons/bi";
+import { BsChatText } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 import { RootState } from "../app/store";
 import { currentUser, CurrentUserType } from "../app/user";
 import ColorList from "../assets/ColorList";
@@ -17,9 +20,14 @@ import MessageUserSkeleton from "../assets/skeleton/MessageUserSkeleton";
 import Chat from "../components/message/Chat";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";
 import { dbService } from "../fbase";
+import useCreateChat from "../hooks/useCreateChat";
 import { listType } from "../types/type";
 
 type Props = {};
+
+interface LocationType {
+  state: CurrentUserType;
+}
 
 const Message = (props: Props) => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
@@ -28,7 +36,8 @@ const Message = (props: Props) => {
   const [myAccount, setMyAccount] = useState(null);
   const [users, setUsers] = useState([]);
   const [addUserModal, setAddUserMOdal] = useState(false);
-  const [clickInfo, setClickInfo] = useState<CurrentUserType>(null);
+  // const [clickInfo, setClickInfo] = useState<CurrentUserType>(null);
+  const { clickInfo, setClickInfo } = useCreateChat();
 
   // 본인 계정 정보 가져오기
   useEffect(() => {
@@ -62,15 +71,20 @@ const Message = (props: Props) => {
     }
   }, [myAccount]);
 
+  const navigate = useNavigate();
+
   // 채팅방 클릭
   const onListClick = (user: CurrentUserType) => {
     setClickInfo(user);
+    navigate(`/message/${user.displayName}`);
   };
 
   // 채팅방 생성
   const onAddChatClick = () => {
     setAddUserMOdal((prev) => !prev);
   };
+
+  const { state } = useLocation() as LocationType;
 
   return (
     <>
@@ -88,7 +102,7 @@ const Message = (props: Props) => {
             <Category>
               <CategoryText>메시지</CategoryText>
               <AddChatBtn onClick={onAddChatClick}>
-                <BiMessageAdd />
+                <BsChatText />
               </AddChatBtn>
             </Category>
             {users.length > 0 ? (
@@ -121,8 +135,8 @@ const Message = (props: Props) => {
             )}
           </ChatRoomList>
           <ChatRoom>
-            {clickInfo ? (
-              <Chat myAccount={myAccount} users={clickInfo} />
+            {state || clickInfo ? (
+              <Chat myAccount={myAccount} users={state ? state : clickInfo} />
             ) : (
               <NotInfoBox>
                 <IconBox>

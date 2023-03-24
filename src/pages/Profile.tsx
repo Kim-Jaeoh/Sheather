@@ -7,13 +7,15 @@ import { FaRegHeart } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { MdGridOn } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { RootState } from "../app/store";
+import { CurrentUserType } from "../app/user";
 import ColorList from "../assets/ColorList";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
 import ProfilePost from "../components/profile/ProfilePost";
 import { dbService } from "../fbase";
+import useCreateChat from "../hooks/useCreateChat";
 import useInfinityScroll from "../hooks/useInfinityScroll";
 import useLogout from "../hooks/useLogout";
 import useToggleFollow from "../hooks/useToggleFollow";
@@ -44,6 +46,8 @@ const Profile = () => {
     url: `${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`,
     count: 9,
   });
+  const { clickInfo, onCreateChatClick } = useCreateChat();
+  const navigate = useNavigate();
 
   const feedApi = async () => {
     const { data } = await axios.get(
@@ -156,6 +160,11 @@ const Profile = () => {
     setEditModalOpen((prev) => !prev);
   };
 
+  const onMessageClick = (res: CurrentUserType) => {
+    onCreateChatClick(res);
+    // navigate(`/message/${res.displayName}`, { state: clickInfo })
+  };
+
   return (
     <>
       {account && (
@@ -204,21 +213,26 @@ const Profile = () => {
                       </LogoutBtn>
                     </BtnBox>
                   ) : (
-                    <FollowBtnBox
-                      onClick={() => toggleFollow(account?.displayName)}
-                    >
-                      {userObj?.following.filter((obj) =>
-                        obj.displayName.includes(account.displayName)
-                      ).length !== 0 ? (
-                        <BtnBox>
-                          <FollowingBtn>팔로잉</FollowingBtn>
-                        </BtnBox>
-                      ) : (
-                        <BtnBox>
-                          <FollowBtn>팔로우</FollowBtn>
-                        </BtnBox>
-                      )}
-                    </FollowBtnBox>
+                    <ActBtnBox>
+                      <FollowBtnBox
+                        onClick={() => toggleFollow(account?.displayName)}
+                      >
+                        {userObj?.following.filter((obj) =>
+                          obj.displayName.includes(account.displayName)
+                        ).length !== 0 ? (
+                          <BtnBox>
+                            <FollowingBtn>팔로잉</FollowingBtn>
+                          </BtnBox>
+                        ) : (
+                          <BtnBox>
+                            <FollowBtn>팔로우</FollowBtn>
+                          </BtnBox>
+                        )}
+                      </FollowBtnBox>
+                      <MessageBtnBox onClick={() => onMessageClick(account)}>
+                        <MessageBtn>메시지 보내기</MessageBtn>
+                      </MessageBtnBox>
+                    </ActBtnBox>
                   )}
                 </ProfileDetail>
                 <ProfileActBox>
@@ -406,6 +420,8 @@ const ProfileAct = styled.div`
 
 const BtnBox = styled.div`
   display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 const ProfileEditBtn = styled.button`
@@ -413,7 +429,7 @@ const ProfileEditBtn = styled.button`
   border: 1px solid #6f4ccf;
   color: #6f4ccf;
   font-weight: bold;
-  border-radius: 20px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.1s linear;
 
@@ -430,12 +446,11 @@ const LogoutBtn = styled.button`
   justify-content: center;
   width: 34px;
   height: 34px;
-  margin-left: 10px;
   padding: 8px;
   border: 1px solid ${thirdColor};
   color: ${thirdColor};
   font-weight: bold;
-  border-radius: 20px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.1s linear;
 
@@ -445,6 +460,12 @@ const LogoutBtn = styled.button`
     background-color: ${secondColor};
     color: #fff;
   }
+`;
+
+const ActBtnBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 const FollowBtnBox = styled.div``;
@@ -457,7 +478,7 @@ const FollowBtn = styled.button`
   font-size: 14px;
   padding: 8px 16px;
   color: #fff;
-  border-radius: 20px;
+  border-radius: 8px;
   border: 1px solid ${secondColor};
   background: ${secondColor};
   cursor: pointer;
@@ -470,6 +491,19 @@ const FollowBtn = styled.button`
 `;
 
 const FollowingBtn = styled(FollowBtn)`
+  border: 1px solid ${thirdColor};
+  background: #fff;
+  color: ${secondColor};
+
+  &:hover,
+  &:active {
+    background: ${fourthColor};
+  }
+`;
+
+const MessageBtnBox = styled.div``;
+
+const MessageBtn = styled(FollowBtn)`
   border: 1px solid ${thirdColor};
   background: #fff;
   color: ${secondColor};

@@ -133,11 +133,11 @@ const LeftBar = () => {
     if (messageCollection) {
       const filter = messageCollection.map((res: listType) => {
         return res.message
-          .filter((msg) => msg.displayName !== userObj.displayName)
-          .filter((msg: { isRead: boolean }) => msg.isRead === false);
+          .filter((msg) => msg.displayName !== userObj.displayName) // 1. 상대방 채팅 중
+          .filter((msg: { isRead: boolean }) => msg.isRead === false); // 2. 안 읽은 것 가져오기
       });
 
-      //  안 읽은 채팅방 체크
+      //  안 읽은 채팅방 있을 시 알림 표시
       const notice = filter.flat();
       if (notice.length > 0) {
         const checkReadInfo = async () => {
@@ -146,7 +146,8 @@ const LeftBar = () => {
             message: copy.map((res) => {
               if (
                 notice.some(
-                  (el: { displayName: string }) => el.displayName === res.user
+                  (chat: { displayName: string }) =>
+                    chat.displayName === res.user
                 )
               ) {
                 return { ...res, isRead: false };

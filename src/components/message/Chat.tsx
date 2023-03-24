@@ -5,7 +5,6 @@ import {
   addDoc,
   collection,
   doc,
-  getDocs,
   onSnapshot,
   query,
   updateDoc,
@@ -15,34 +14,50 @@ import { RootState } from "../../app/store";
 import ColorList from "../../assets/ColorList";
 import moment from "moment";
 import { currentUser, CurrentUserType } from "../../app/user";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useHandleResizeTextArea } from "../../hooks/useHandleResizeTextArea";
 import Emoji from "../../assets/Emoji";
 import { listType, MessageType } from "../../types/type";
 import { useDispatch } from "react-redux";
+import { AiOutlineDelete } from "react-icons/ai";
+import useCreateChat from "../../hooks/useCreateChat";
 
 interface Props {
   users: CurrentUserType;
   myAccount: CurrentUserType;
 }
 
+interface SortMessageType {
+  [key: string]: MessageType[];
+}
+
 const Chat = ({ myAccount, users }: Props) => {
-  const {
-    loginToken: userLogin,
-    currentUser: userObj,
-    newMessage,
-  } = useSelector((state: RootState) => {
+  const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
   const [messages, setMessages] = useState(null);
+  // const [sortMessages, setSortMessages] = useState<SortMessageType>({});
+  const [sortMessages, setSortMessages] = useState<
+    Array<[string, MessageType[]]>
+  >([]);
+  const [day, setDay] = useState([]);
   const [text, setText] = useState("");
   const [messageCollection, setMessageCollection] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>();
   const textRef = useRef<HTMLTextAreaElement>();
   const bottomListRef = useRef(null);
-  const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const dispatch = useDispatch();
+  const { handleResizeHeight } = useHandleResizeTextArea(textRef);
+
+  const dayArr: { [key: number]: string } = {
+    0: `일`,
+    1: `월`,
+    2: `화`,
+    3: `수`,
+    4: `목`,
+    5: `금`,
+    6: `토`,
+  };
 
   // 화면 하단 스크롤
   useEffect(() => {
@@ -70,77 +85,72 @@ const Chat = ({ myAccount, users }: Props) => {
     return () => unsubscribe();
   }, [userObj.displayName, users]);
 
-  // 2-1. 채팅방 만들기 (계정 정보에 message id값 넣기)
-  useEffect(() => {
-    // 중복 체크
-    const checkMyInfo = myAccount?.message?.some(
-      (res: { id: string }) => res.id === messageCollection?.id
-    );
-    const checkUserInfo = users?.message?.some(
-      (res: { id: string }) => res.id === messageCollection?.id
-    );
-
-    // 채팅 개설 시 본인 계정 message에 id값 추가
-    if (messageCollection && myAccount && !checkMyInfo) {
-      const myAccountPushId = async () => {
-        await updateDoc(doc(dbService, "users", userObj.displayName), {
-          message: [
-            ...myAccount?.message,
-            {
-              user: users?.displayName, // 상대 아이디
-              id: messageCollection?.id,
-              isRead: true,
-            },
-          ],
-        });
-      };
-      myAccountPushId();
-    }
-
-    // 채팅 개설 시 상대 계정 message에 id값 추가
-    if (messageCollection && users && !checkUserInfo) {
-      const myAccountPushId = async () => {
-        await updateDoc(doc(dbService, "users", users.displayName), {
-          message: [
-            ...users?.message,
-            {
-              user: userObj.displayName, // 본인 아이디
-              id: messageCollection?.id,
-              isRead: true,
-            },
-          ],
-        });
-      };
-      myAccountPushId();
-    }
-  }, [messageCollection, myAccount, userObj.displayName, users]);
-
-  // 2-2. 채팅 내역 불러오기
+  // 2. 채팅 내역 불러오기
   useEffect(() => {
     if (messageCollection?.id) {
       const unsubscribe = onSnapshot(
         doc(dbService, "messages", messageCollection?.id),
         (doc) => {
-          setMessages(doc.data());
+          setMessages(doc.data()); // 메세지 통으로 정리
+
+          // 메세지 날짜별로 정리
+          // 1. 객체로 생성 방법
+          // const sections: { [key: string]: MessageType[] } = {};
+          // doc.data().message?.forEach((chat: MessageType) => {
+          //   const monthDate = moment(chat.createdAt).format("YYYY-MM-DD");
+          //   if (Array.isArray(sections[monthDate])) {
+          //     sections[monthDate].push(chat);
+          //   } else {
+          //     sections[monthDate] = [chat];
+          //   }
+          // });
+          // setSortMessages(sections);
+
+          // 2. Map으로 생성 방법
+          const sections = new Map<string, MessageType[]>();
+          doc?.data()?.message?.forEach((chat: MessageType) => {
+            const monthDate = moment(chat.createdAt).format("YYYY년 M월 D일");
+            const section = sections.get(monthDate);
+            if (section) {
+              section.push(chat);
+            } else {
+              sections.set(monthDate, [chat]);
+            }
+
+            // 요일 구하기
+            const transDay = moment(chat.createdAt).format("YYYY-MM-DD");
+            const getDay = dayArr[moment(transDay).day()];
+            // 중복 체크
+            setDay((prev: string[]) => {
+              if (!prev.some((asd) => asd === getDay)) {
+                return [...prev, getDay];
+              } else {
+                return prev;
+              }
+            });
+          });
+
+          setSortMessages(Array.from(sections));
         }
       );
-      setIsLoading(true);
       return () => unsubscribe();
     }
   }, [messageCollection?.id]);
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  // 텍스트 입력
+  const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
   };
 
-  const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // 메시지 전송
+  const onSubmit = async () => {
     // 입력한 채팅 공백 제거
     const trimmedMessage = text.trim();
 
+    // console.log(trimmedMessage);
     // 채팅 새로 만들기
-    if (trimmedMessage && !messageCollection?.id) {
-      await addDoc(collection(dbService, `messages`), {
+    if (!messageCollection?.id) {
+      await addDoc(collection(dbService, `sections`), {
         member: [userObj.displayName, users?.displayName],
         message: [
           {
@@ -155,7 +165,7 @@ const Chat = ({ myAccount, users }: Props) => {
     }
 
     // 채팅방에 글 보내기
-    if (messages && trimmedMessage && messageCollection?.id) {
+    if (messages && messageCollection?.id) {
       const messageCopy = [...messages?.message];
       await updateDoc(doc(dbService, "messages", messageCollection?.id), {
         message: [
@@ -172,6 +182,21 @@ const Chat = ({ myAccount, users }: Props) => {
     }
 
     setText("");
+    textRef.current.style.height = "24px";
+  };
+
+  const onSendMessage = () => {
+    onSubmit();
+  };
+
+  // Enter 전송 / Shift + Enter 줄바꿈
+  const onKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (text !== "" && e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSubmit();
+    } else if (e.key === "Enter" && e.shiftKey) {
+      setText((value) => value + "\n"); // 줄바꿈 문자열 추가
+    }
   };
 
   // 메세지 읽음 확인
@@ -190,7 +215,7 @@ const Chat = ({ myAccount, users }: Props) => {
       });
 
       // 계정 메시지 정보 값 변경
-      const copy = [...myAccount.message];
+      const copy = [...myAccount?.message];
       await updateDoc(doc(dbService, "users", userObj.displayName), {
         message: copy.map((res) => {
           if (users.displayName === res.user) {
@@ -219,7 +244,7 @@ const Chat = ({ myAccount, users }: Props) => {
     dispatch,
     messageCollection?.id,
     messages,
-    myAccount.message,
+    myAccount?.message,
     userObj,
     users.displayName,
   ]);
@@ -227,39 +252,58 @@ const Chat = ({ myAccount, users }: Props) => {
   return (
     <>
       <Category>
-        <ProfileImageBox to={`/profile/${users?.displayName}/post`}>
-          <ProfileImage src={users?.profileURL} alt="profile image" />
-        </ProfileImageBox>
         <ProfileInfoBox>
-          <ProfileDsName>{users?.displayName}</ProfileDsName>
-          <ProfileName>{users?.name}</ProfileName>
+          <ProfileImageBox to={`/profile/${users?.displayName}/post`}>
+            <ProfileImage src={users?.profileURL} alt="profile image" />
+          </ProfileImageBox>
+          <ProfileInfo>
+            <ProfileDsName>{users?.displayName}</ProfileDsName>
+            <ProfileName>{users?.name}</ProfileName>
+          </ProfileInfo>
         </ProfileInfoBox>
+        <DeleteChatBtn>
+          <AiOutlineDelete />
+        </DeleteChatBtn>
       </Category>
       <Conatiner ref={containerRef}>
         <MessageBox>
-          {messages?.message?.map((res: MessageType, index: number) => {
-            const isMine = res?.displayName === userObj.displayName;
+          {sortMessages?.map((arr: [string, MessageType[]], index: number) => {
             return (
-              <User key={index} isMine={isMine}>
-                {!isMine && users && (
-                  <ProfileImageBox to={`/profile/${res?.displayName}/post`}>
-                    <ProfileImage src={users?.profileURL} alt="profile image" />
-                  </ProfileImageBox>
-                )}
-                <SendMessageBox>
-                  <SendMessage isMine={isMine}>{res?.text}</SendMessage>
-                </SendMessageBox>
-                <SeneMessageAt isMine={isMine}>
-                  <Read>{res?.isRead ? null : 1}</Read>
-                  {moment(res?.createdAt).format(`HH:mm`)}
-                </SeneMessageAt>
-              </User>
+              <GroupMessage key={arr[0]}>
+                <GroupDateBox>
+                  <GroupDate>{`${arr[0]} ${day[index]}요일`}</GroupDate>
+                </GroupDateBox>
+                {arr[1]?.map((res: MessageType, index: number) => {
+                  const isMine = res?.displayName === userObj.displayName;
+                  return (
+                    <User key={res.createdAt} isMine={isMine}>
+                      {!isMine && users && (
+                        <ProfileImageBox
+                          to={`/profile/${res?.displayName}/post`}
+                        >
+                          <ProfileImage
+                            src={users?.profileURL}
+                            alt="profile image"
+                          />
+                        </ProfileImageBox>
+                      )}
+                      <SendMessageBox>
+                        <SendMessage isMine={isMine}>{res?.text}</SendMessage>
+                      </SendMessageBox>
+                      <SeneMessageAt isMine={isMine}>
+                        <Read>{res?.isRead ? null : 1}</Read>
+                        {moment(res?.createdAt).format(`HH:mm`)}
+                      </SeneMessageAt>
+                    </User>
+                  );
+                })}
+              </GroupMessage>
             );
           })}
           <div ref={bottomListRef} />
         </MessageBox>
         <ChatBox>
-          <Form onSubmit={handleOnSubmit}>
+          <TextAreaBox onSubmit={onSubmit}>
             <Emoji
               setText={setText}
               textRef={textRef}
@@ -272,17 +316,18 @@ const Chat = ({ myAccount, users }: Props) => {
               value={text}
               onClick={onReadMessage}
               ref={textRef}
-              onChange={handleOnChange}
-              // onKeyDown={onKeyPress}
+              onChange={onChange}
+              onKeyDown={onKeyPress}
+              // onKeyUp={onKeyPress}
               onInput={handleResizeHeight}
               placeholder="메시지 입력..."
             />
             {text.length > 0 && (
-              <SendBtn type="submit" disabled={!text}>
+              <SendBtn type="button" onClick={onSendMessage} disabled={!text}>
                 보내기
               </SendBtn>
             )}
-          </Form>
+          </TextAreaBox>
         </ChatBox>
       </Conatiner>
     </>
@@ -298,38 +343,10 @@ const Category = styled.header`
   height: 60px;
   display: flex;
   align-items: center;
-  /* justify-content: center; */
-  padding: 0 40px;
+  justify-content: space-between;
+  padding: 0 20px;
   gap: 12px;
   border-bottom: 1px solid ${thirdColor};
-`;
-
-const Conatiner = styled.section`
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-`;
-
-const MessageBox = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-  height: 100;
-`;
-
-const User = styled.div<{ isMine: boolean }>`
-  display: block;
-  margin: 0;
-  transition: all 0.15s linear;
-  display: flex;
-  align-items: center;
-  flex-direction: ${(props) => (props.isMine ? `row-reverse` : `row`)};
-  &:not(:last-of-type) {
-    margin-bottom: 14px;
-  }
 `;
 
 const ProfileImageBox = styled(Link)`
@@ -351,6 +368,13 @@ const ProfileImage = styled.img`
 `;
 
 const ProfileInfoBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+`;
+
+const ProfileInfo = styled.div`
   cursor: pointer;
   /* flex: 1; */
   display: flex;
@@ -378,19 +402,84 @@ const ProfileName = styled.p`
   white-space: nowrap;
 `;
 
+const DeleteChatBtn = styled.button`
+  width: 24px;
+  height: 24px;
+  /* position: absolute; */
+  /* right: 20px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+`;
+
+const Conatiner = styled.section`
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+`;
+
+const MessageBox = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  padding: 0 20px 20px;
+  height: 100;
+`;
+
+const GroupMessage = styled.div``;
+
+const GroupDateBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+`;
+
+const GroupDate = styled.span`
+  padding: 10px 20px;
+  border: 1px solid #f3f3f3;
+  background: #f3f3f3;
+  border-radius: 20px;
+  font-size: 12px;
+  text-align: center;
+`;
+
+const User = styled.div<{ isMine: boolean }>`
+  display: block;
+  margin: 0;
+  transition: all 0.15s linear;
+  display: flex;
+  align-items: center;
+  flex-direction: ${(props) => (props.isMine ? `row-reverse` : `row`)};
+  &:not(:last-of-type) {
+    margin-bottom: 14px;
+  }
+`;
+
 const SendMessageBox = styled.div`
   margin: 0 10px;
 `;
 
 const SendMessage = styled.p<{ isMine: boolean }>`
-  border: 1px solid #efefef;
-  background: ${(props) => (props.isMine ? `#EFEFEF` : `#fff`)};
+  /* border: 1px solid #efefef; */
+  border: 1px solid ${(props) => (props.isMine ? `#ffeee8` : `#efefef`)};
+  background: ${(props) => (props.isMine ? `#ffeee8` : `#fff`)};
   padding: 8px 12px;
   border-radius: 20px;
   max-width: 230px;
   word-wrap: break-word;
   font-size: 14px;
   line-height: 16px;
+  white-space: pre;
 `;
 
 const SeneMessageAt = styled.span<{ isMine: boolean }>`
@@ -417,7 +506,7 @@ const ChatBox = styled.div`
   padding: 20px;
 `;
 
-const Form = styled.form`
+const TextAreaBox = styled.form`
   border: 1px solid ${thirdColor};
   border-radius: 22px;
   display: flex;
