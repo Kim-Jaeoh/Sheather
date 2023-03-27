@@ -55,13 +55,12 @@ const Weather = () => {
     enabled: Boolean(location),
   });
 
-  // 현재 날짜 시간 계산
+  // 현재 예보 시간 계산
   useEffect(() => {
     if (weatherData) {
       setWeather({
         ...weatherData?.data,
-        dt: weatherData?.data.dt * 1000, // +32400
-        // realDateTime: weatherData?.data.dt + 32400, //+32400
+        dt: weatherData?.data.dt * 1000,
       });
     }
   }, [weatherData]);
@@ -72,23 +71,18 @@ const Weather = () => {
       const list = weathersData?.data?.list.map((res) => {
         return { ...res, dt: res.dt * 1000 };
       });
-      // return setWeatherArray({
-      //   ...res,
-      //   dt: res.dt * 1000, // +32400
-      //   // realDateTime: weatherData?.data.dt + 32400, //+32400
-      // });
       setWeatherArray(list);
     }
   }, [weathersData]);
 
-  // 날짜 정보 가져오기
+  // 날짜 가져온 뒤 배열에 담기
   const dateArray = useMemo(() => {
     const checkDate = weatherArray?.map((res) => moment(res?.dt).format("DD"));
     const filter = new Set(checkDate); // 중복 제거
     return Array.from(filter);
   }, [weatherArray]);
 
-  // 날짜 맞는지 체크
+  // 해당 날짜 맞는지 체크
   const GetDate = (dateStr: string, weatherArray: WeathersFiveDataType[]) => {
     return useMemo(
       () =>
@@ -121,21 +115,21 @@ const Weather = () => {
     }
   }, [date2]);
 
-  // 현재 날씨 - 시간에 맞게 안내 위치 이동 (32400(초 단위) = 9시간)
-  // ( ex. 1시간 = 3600초(60*60*1000) )
-  const timeCheck = useMemo(() => {
-    if (dayCheck) {
-      const check = filterData1.sort((a, b) => a?.dt - b?.dt);
-      return dayCheck ? check : null;
-    }
-  }, [dayCheck, filterData1]);
+  // // 현재 날씨 - 시간에 맞게 안내 위치 이동 (32400(초 단위) = 9시간)
+  // // ( ex. 1시간 = 3600초(60*60*1000) )
+  // const timeCheck = useMemo(() => {
+  //   if (dayCheck) {
+  //     const check = filterData1.sort((a, b) => a?.dt - b?.dt);
+  //     return dayCheck ? check : null;
+  //   }
+  // }, [dayCheck, filterData1]);
 
-  const timePlusCheck = useMemo(() => {
-    if (dayPlusCheck) {
-      const check = filterData2.sort((a, b) => a?.dt - b?.dt);
-      return dayPlusCheck ? check : null;
-    }
-  }, [dayPlusCheck, filterData2]);
+  // const timePlusCheck = useMemo(() => {
+  //   if (dayPlusCheck) {
+  //     const check = filterData2.sort((a, b) => a?.dt - b?.dt);
+  //     return dayPlusCheck ? check : null;
+  //   }
+  // }, [dayPlusCheck, filterData2]);
 
   useEffect(() => {
     if (weather && date1 && date2 && date3 && date4 && date5) {
@@ -156,9 +150,7 @@ const Weather = () => {
       <WeatherBox>
         {!isLoading ? (
           <>
-            {/* {dayCheck && <WeatherSlider data={timeCheck} />} */}
             {dayCheck && <WeatherSlider data={filterData1} />}
-            {/* <WeatherSlider data={dayPlusCheck ? timePlusCheck : filterData2} /> */}
             <WeatherSlider data={filterData2} />
             <WeatherSlider data={filterData3} />
             <WeatherSlider data={filterData4} />
@@ -182,7 +174,6 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.main`
   overflow: hidden;
-  /* width: 700px; */
   height: 100%;
   border-top: 2px solid ${secondColor};
   background: #48a3ff;
@@ -191,7 +182,4 @@ const Container = styled.main`
 const WeatherBox = styled.div`
   position: relative;
   padding: 40px;
-  > div:last-of-type {
-    /* border-bottom: none; */
-  }
 `;

@@ -116,8 +116,8 @@ const LeftBar = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      const getInfo = users.map((user) => {
-        return list.filter(
+      const getInfo = users?.map((user) => {
+        return list?.filter(
           (doc) =>
             doc.member.includes(userObj.displayName) &&
             doc.member.includes(user?.displayName)

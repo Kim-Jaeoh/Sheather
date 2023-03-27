@@ -37,6 +37,12 @@ const FeedCategory = ({ url, feed }: Props) => {
   );
   const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
 
+  useEffect(() => {
+    // const checkResize = () => {
+    console.log(window.scroll);
+    // }
+  }, []);
+
   let checkSize: number;
   let checkAspect: number;
   const sizes = (aspect: string) => {

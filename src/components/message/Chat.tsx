@@ -4,39 +4,39 @@ import { dbService } from "../../fbase";
 import {
   addDoc,
   collection,
+  CollectionReference,
+  deleteDoc,
   doc,
+  DocumentData,
+  DocumentReference,
   onSnapshot,
   query,
   updateDoc,
 } from "firebase/firestore";
-import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
 import ColorList from "../../assets/ColorList";
 import moment from "moment";
 import { currentUser, CurrentUserType } from "../../app/user";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useHandleResizeTextArea } from "../../hooks/useHandleResizeTextArea";
 import Emoji from "../../assets/Emoji";
 import { listType, MessageType } from "../../types/type";
 import { useDispatch } from "react-redux";
 import { AiOutlineDelete } from "react-icons/ai";
+import { toast } from "react-hot-toast";
 import useCreateChat from "../../hooks/useCreateChat";
 
 interface Props {
+  userObj: CurrentUserType;
   users: CurrentUserType;
-  myAccount: CurrentUserType;
+  setClickInfo: React.Dispatch<React.SetStateAction<CurrentUserType>>;
 }
 
-interface SortMessageType {
-  [key: string]: MessageType[];
-}
+// interface SortMessageType {
+//   [key: string]: MessageType[];
+// }
 
-const Chat = ({ myAccount, users }: Props) => {
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
+const Chat = ({ userObj, users, setClickInfo }: Props) => {
   const [messages, setMessages] = useState(null);
-  // const [sortMessages, setSortMessages] = useState<SortMessageType>({});
   const [sortMessages, setSortMessages] = useState<
     Array<[string, MessageType[]]>
   >([]);
@@ -48,6 +48,7 @@ const Chat = ({ myAccount, users }: Props) => {
   const bottomListRef = useRef(null);
   const dispatch = useDispatch();
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
+  const navigate = useNavigate();
 
   const dayArr: { [key: number]: string } = {
     0: `일`,
@@ -75,7 +76,7 @@ const Chat = ({ myAccount, users }: Props) => {
         id: doc.id,
         ...doc.data(),
       }));
-      const getInfo = list.filter(
+      const getInfo = list?.filter(
         (res) =>
           res.member.includes(userObj.displayName) &&
           res.member.includes(users?.displayName)
@@ -147,7 +148,6 @@ const Chat = ({ myAccount, users }: Props) => {
     // 입력한 채팅 공백 제거
     const trimmedMessage = text.trim();
 
-    // console.log(trimmedMessage);
     // 채팅 새로 만들기
     if (!messageCollection?.id) {
       await addDoc(collection(dbService, `sections`), {
@@ -185,7 +185,7 @@ const Chat = ({ myAccount, users }: Props) => {
     textRef.current.style.height = "24px";
   };
 
-  const onSendMessage = () => {
+  const onClickSendMessage = () => {
     onSubmit();
   };
 
@@ -215,7 +215,7 @@ const Chat = ({ myAccount, users }: Props) => {
       });
 
       // 계정 메시지 정보 값 변경
-      const copy = [...myAccount?.message];
+      const copy = [...userObj?.message];
       await updateDoc(doc(dbService, "users", userObj.displayName), {
         message: copy.map((res) => {
           if (users.displayName === res.user) {
@@ -240,14 +240,54 @@ const Chat = ({ myAccount, users }: Props) => {
         })
       );
     }
-  }, [
-    dispatch,
-    messageCollection?.id,
-    messages,
-    myAccount?.message,
-    userObj,
-    users.displayName,
-  ]);
+  }, [dispatch, messageCollection?.id, messages, userObj, users.displayName]);
+
+  // 채팅방 나가기
+  const onChatDelete = async () => {
+    const filter = userObj?.message.filter(
+      (res) => res.user !== users.displayName
+    );
+
+    navigate(`/message`);
+
+    dispatch(
+      currentUser({
+        ...userObj,
+        message: filter,
+      })
+    );
+
+    await updateDoc(doc(dbService, "users", userObj.displayName), {
+      message: filter,
+    }).then(() => {
+      setClickInfo(null);
+      return toast.success("대화방이 삭제되었습니다.");
+    });
+
+    deleteDocument();
+  };
+
+  // 본인, 상대방 둘 다 채팅방 없을 때 문서 삭제
+  const deleteDocument = async () => {
+    const myFilter = userObj?.message.filter(
+      (res) => res.user === users.displayName
+    );
+    const userFilter = users?.message.filter(
+      (res) => res.user === userObj.displayName
+    );
+    const collectionRef = doc(dbService, "messages", myFilter[0].id);
+
+    if (myFilter.length !== userFilter.length) {
+      // 컬렉션 삭제
+      await deleteDoc(collectionRef)
+        .then(() => {
+          console.log("document delete success");
+        })
+        .catch((error) => {
+          console.error("document delete fail: ", error);
+        });
+    }
+  };
 
   return (
     <>
@@ -261,7 +301,7 @@ const Chat = ({ myAccount, users }: Props) => {
             <ProfileName>{users?.name}</ProfileName>
           </ProfileInfo>
         </ProfileInfoBox>
-        <DeleteChatBtn>
+        <DeleteChatBtn type="button" onClick={onChatDelete}>
           <AiOutlineDelete />
         </DeleteChatBtn>
       </Category>
@@ -318,12 +358,15 @@ const Chat = ({ myAccount, users }: Props) => {
               ref={textRef}
               onChange={onChange}
               onKeyDown={onKeyPress}
-              // onKeyUp={onKeyPress}
               onInput={handleResizeHeight}
               placeholder="메시지 입력..."
             />
             {text.length > 0 && (
-              <SendBtn type="button" onClick={onSendMessage} disabled={!text}>
+              <SendBtn
+                type="button"
+                onClick={onClickSendMessage}
+                disabled={!text}
+              >
                 보내기
               </SendBtn>
             )}

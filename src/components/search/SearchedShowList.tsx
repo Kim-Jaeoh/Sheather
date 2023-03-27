@@ -191,8 +191,7 @@ const DeleteAllBtn = styled.button`
 
 const SearchedListBox = styled.ul`
   position: relative;
-  overflow: hidden;
-  overflow-y: scroll;
+  overflow: hidden auto;
   height: 256px;
 `;
 

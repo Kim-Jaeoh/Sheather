@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../assets/ColorList";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -108,30 +108,30 @@ const Home = () => {
       <FeedWeatherInfo />
       <SelectTimeBox select={selectCategory}>
         <SelectCategory>
-          <SelectCategoryText
+          <SelectCategoryTextLink
             to="recent"
             onClick={() => setSelectCategory(0)}
             select={selectCategory}
             num={0}
           >
-            최신
-          </SelectCategoryText>
-          <SelectCategoryText
+            <SelectCategoryText>최신</SelectCategoryText>
+          </SelectCategoryTextLink>
+          <SelectCategoryTextLink
             to="popular"
             onClick={() => setSelectCategory(1)}
             select={selectCategory}
             num={1}
           >
-            인기
-          </SelectCategoryText>
-          <SelectCategoryText
+            <SelectCategoryText>인기</SelectCategoryText>
+          </SelectCategoryTextLink>
+          <SelectCategoryTextLink
             to="date"
             onClick={onSelectCategory2}
             select={selectCategory}
             num={2}
           >
-            날짜별
-          </SelectCategoryText>
+            <SelectCategoryText>날짜별</SelectCategoryText>
+          </SelectCategoryTextLink>
         </SelectCategory>
 
         {selectCategory === 2 && isDetailModal && (
@@ -187,8 +187,6 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Container = styled.main`
   height: 100%;
   background-color: #ff5673;
-  /* padding: 20px; */
-  /* position: relative; */
 `;
 
 const SelectTimeBox = styled.nav<{ select: number }>`
@@ -262,17 +260,13 @@ const SelectCategory = styled.div`
   gap: 20px;
 `;
 
-const SelectCategoryText = styled(Link)<{ select: number; num: number }>`
-  /* ff5673 */
+const SelectCategoryTextLink = styled(Link)<{ select: number; num: number }>`
   width: 70px;
   flex: 1;
   color: ${secondColor};
-  /* color: ${(props) => (props.num === props.select ? "#222" : `#fff`)}; */
   background: ${(props) =>
     props.num === props.select ? "#fff" : "transparent"};
   border-radius: 9999px;
-  /* border: 2px solid
-    ${(props) => (props.num === props.select ? "#222" : "tranparent")}; */
   border: ${(props) =>
     props.num === props.select ? "2px solid #222" : "1px solid #222"};
   padding: 8px 10px;
@@ -284,8 +278,8 @@ const SelectCategoryText = styled(Link)<{ select: number; num: number }>`
     props.num === props.select &&
     `0px 4px 0 -2px ${secondColor}, 0px 4px ${secondColor}
     `};
-  /* box-shadow: ${(props) =>
-    props.num === props.select &&
-    ` 0px 4px 0 -2px #222, 0px 4px ${secondColor}`}; */
+
   cursor: pointer;
 `;
+
+const SelectCategoryText = styled.h2``;

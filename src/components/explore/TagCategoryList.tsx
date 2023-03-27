@@ -140,7 +140,7 @@ const CategoryBox = styled.nav`
   z-index: 20;
 `;
 
-const SelectName = styled.span`
+const SelectName = styled.h2`
   font-weight: 700;
   font-size: 18px;
 `;

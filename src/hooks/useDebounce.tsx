@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 
-type Props = {};
-
 const useDebounce = (value: string, delay: number) => {
-  const [debounceValue, setDebounceValue] = useState(value);
+  const [debouncedSearchTerm, setDebounceSearchTerm] = useState(value);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebounceValue(value);
+      setDebounceSearchTerm(value);
     }, delay);
 
     return () => {
@@ -15,7 +13,7 @@ const useDebounce = (value: string, delay: number) => {
     };
   }, [value, delay]);
 
-  return debounceValue;
+  return debouncedSearchTerm;
 };
 
 export default useDebounce;

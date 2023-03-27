@@ -1,25 +1,19 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { FeedType } from "../../types/type";
-import { FrameGrid } from "@egjs/react-grid";
-import { Spinner } from "../../assets/Spinner";
-import useInfinityScroll from "../../hooks/useInfinityScroll";
-import { UserType } from "../../app/user";
-import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
 import ProfileSkeleton from "../../assets/skeleton/ProfileSkeleton";
 import ColorList from "../../assets/ColorList";
 
 type props = {
   myPost: FeedType[];
-  email: string;
   loading: boolean;
   notInfoText: string;
-  ref: (node?: Element) => void;
+  // ref: (node?: Element) => void;
 };
 
 const ProfilePost = React.forwardRef<HTMLInputElement, props>(
-  ({ myPost, email, loading, notInfoText }, ref) => {
+  ({ myPost, loading, notInfoText }, ref) => {
     const [arrState, setArrState] = useState(myPost?.length);
 
     // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
@@ -75,13 +69,7 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
                     </Card>
                   ))}
                 </CardBox>
-                <div
-                  ref={ref}
-                  // style={{
-                  //   position: "absolute",
-                  //   bottom: "-100px",
-                  // }}
-                />
+                <div ref={ref} />
               </>
             ) : (
               <NotInfoBox>

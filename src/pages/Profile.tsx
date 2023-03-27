@@ -47,7 +47,6 @@ const Profile = () => {
     count: 9,
   });
   const { clickInfo, onCreateChatClick } = useCreateChat();
-  const navigate = useNavigate();
 
   const feedApi = async () => {
     const { data } = await axios.get(
@@ -86,7 +85,6 @@ const Profile = () => {
     }
   }, [id, userObj]);
 
-  //
   useEffect(() => {
     if (type === "post") {
       return setSelectCategory(0);
@@ -295,7 +293,6 @@ const Profile = () => {
               myPost={post}
               loading={isLoading2}
               notInfoText={notInfoText}
-              email={account?.email}
               ref={ref}
             />
           </Container>

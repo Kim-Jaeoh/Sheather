@@ -227,7 +227,6 @@ const Category = styled(Link)<{ select: number; num: number }>`
   gap: 6px;
   flex: 0 0 auto;
   height: 100%;
-  /* color: ${(props) => props.num !== props.select && thirdColor}; */
   font-weight: ${(props) => (props.num === props.select ? 700 : 500)};
   font-size: ${(props) => (props.num === props.select ? "18px" : "16px")};
   cursor: pointer;
@@ -244,7 +243,7 @@ const Category = styled(Link)<{ select: number; num: number }>`
   }
 `;
 
-const SelectName = styled.span`
+const SelectName = styled.h2`
   position: relative;
   line-height: 20px;
 `;

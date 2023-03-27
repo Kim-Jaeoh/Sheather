@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { FiSearch } from "react-icons/fi";
 import { IoIosCloseCircleOutline, IoMdArrowDropup } from "react-icons/io";
@@ -44,7 +38,6 @@ const SearchBox = () => {
   }, [debouncedSearchTerm]);
 
   useEffect(() => {
-    // if (keywords.length) {
     if (localStorage?.getItem("keywords")?.length) {
       // 중복 제거
       const uniqueArr = searched.filter(
@@ -52,9 +45,9 @@ const SearchBox = () => {
           index ===
           self.findIndex((t) => t.type === obj.type && t.search === obj.search)
       );
-      localStorage.setItem("keywords", JSON.stringify(uniqueArr));
+      return localStorage.setItem("keywords", JSON.stringify(uniqueArr));
     } else {
-      return null;
+      return localStorage.setItem("keywords", JSON.stringify([]));
     }
   }, [searched, text]);
 
@@ -88,6 +81,7 @@ const SearchBox = () => {
     setFocus(false);
   };
 
+  // 검색 리스트 노출할 때 애니메이션
   const onListOpen = () => {
     setFocus(true);
     setToggleAnimation(true);
@@ -116,7 +110,6 @@ const SearchBox = () => {
           autoComplete="off"
           maxLength={12}
           value={text}
-          // ref={textRef}
           onChange={onChangeText}
           placeholder="검색어를 입력하세요"
         />
@@ -233,7 +226,6 @@ const SearchedBox = styled.div<{ focus: boolean; toggleAnimation: boolean }>`
   border-radius: 20px;
   position: relative;
   overflow: hidden;
-  /* overflow-y: auto; */
 
   animation: ${(props) =>
     props.toggleAnimation ? `open 0.15s linear` : `close 0.1s linear`};

@@ -1,47 +1,30 @@
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
-import {
-  onSnapshot,
-  doc,
-  collection,
-  addDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { onSnapshot, doc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { BsPersonPlusFill } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { RootState } from "../../../app/store";
 import { CurrentUserType } from "../../../app/user";
 import ColorList from "../../../assets/ColorList";
 import { Spinner } from "../../../assets/Spinner";
 import { dbService } from "../../../fbase";
+import useCreateChat from "../../../hooks/useCreateChat";
 
 type Props = {
   modalOpen: boolean;
-  myAccount: CurrentUserType;
+  userObj: CurrentUserType;
   modalClose: () => void;
-  setClickInfo: React.Dispatch<React.SetStateAction<CurrentUserType>>;
 };
 
-const AddChatUserModal = ({
-  myAccount,
-  modalOpen,
-  modalClose,
-  setClickInfo,
-}: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+const AddChatUserModal = ({ userObj, modalOpen, modalClose }: Props) => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { onCreateChatClick } = useCreateChat();
 
-  // 계정 정보 가져오기
+  // 팔로잉 계정 정보 가져오기
   useEffect(() => {
-    myAccount?.following?.forEach(async (res) => {
+    userObj?.following?.forEach(async (res) => {
       onSnapshot(doc(dbService, "users", res.displayName), (doc) => {
         setUsers((prev: CurrentUserType[]) => {
           // 중복 체크
@@ -55,66 +38,11 @@ const AddChatUserModal = ({
     });
     setIsLoading(true);
     // return () => unsubscribe();
-  }, [myAccount?.following]);
+  }, [userObj?.following]);
 
   // 채팅 생성
-  const onCreateChatClick = async (user: CurrentUserType) => {
-    const filter = myAccount.message.filter(
-      (message) => message.user === user.displayName
-    );
-
-    if (!filter[0]?.id) {
-      // 채팅 새로 만들기
-      await addDoc(collection(dbService, `messages`), {
-        member: [userObj.displayName, user.displayName],
-        message: [],
-      }).then((document) => {
-        // 중복 체크
-        const checkMyInfo = myAccount?.message?.some(
-          (res: { id: string }) => res.id === document?.id
-        );
-        const checkUserInfo = user?.message?.some(
-          (res: { id: string }) => res.id === document?.id
-        );
-
-        if (document.id) {
-          // 채팅 개설 시 본인 계정 message에 id값 추가
-          if (myAccount && !checkMyInfo) {
-            const myAccountPushId = async () => {
-              await updateDoc(doc(dbService, "users", userObj.displayName), {
-                message: [
-                  ...myAccount?.message,
-                  {
-                    user: user?.displayName, // 상대 아이디
-                    id: document?.id,
-                    isRead: true,
-                  },
-                ],
-              });
-            };
-            myAccountPushId();
-          }
-
-          // 채팅 개설 시 상대 계정 message에 id값 추가
-          if (user && !checkUserInfo) {
-            const UserAccountPushId = async () => {
-              await updateDoc(doc(dbService, "users", user.displayName), {
-                message: [
-                  ...user?.message,
-                  {
-                    user: userObj.displayName, // 본인 아이디
-                    id: document?.id,
-                    isRead: true,
-                  },
-                ],
-              });
-            };
-            UserAccountPushId();
-          }
-        }
-      });
-    }
-    setClickInfo(user);
+  const onCreatChat = (user: CurrentUserType) => {
+    onCreateChatClick(user);
     modalClose();
   };
 
@@ -128,7 +56,7 @@ const AddChatUserModal = ({
           </CloseBox>
         </Header>
         <UserListBox>
-          {myAccount?.following?.length !== 0 ? (
+          {userObj?.following?.length !== 0 ? (
             <>
               {isLoading ? (
                 users?.map((res, index) => {
@@ -153,7 +81,7 @@ const AddChatUserModal = ({
                         {res.name && <ProfileName>{res.name}</ProfileName>}
                       </ProfileInfoBox>
                       {res?.email !== userObj.email && (
-                        <FollowBtnBox onClick={() => onCreateChatClick(res)}>
+                        <FollowBtnBox onClick={() => onCreatChat(res)}>
                           <FollowBtn>대화하기</FollowBtn>
                         </FollowBtnBox>
                       )}

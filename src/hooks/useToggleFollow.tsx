@@ -30,7 +30,6 @@ const useToggleFollow = () => {
       userObj.following.filter((res) => res.displayName === resDpName)
         .length !== 0
     ) {
-      // if (userObj.following.filter((res) => res.id === resDpName).length !== 0) {
       // 본인 팔로잉에 상대방 이름 제거
       await updateDoc(doc(dbService, "users", userObj.displayName), {
         following: followingFilter,

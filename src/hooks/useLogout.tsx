@@ -20,6 +20,9 @@ const useLogout = () => {
           name: "",
           displayName: "",
           description: "",
+          bookmark: [],
+          like: [],
+          message: [],
           follower: [],
           following: [],
         })

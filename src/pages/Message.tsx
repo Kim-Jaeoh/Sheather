@@ -1,27 +1,18 @@
 import styled from "@emotion/styled";
-import {
-  collection,
-  doc,
-  onSnapshot,
-  query,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { AiOutlineMessage } from "react-icons/ai";
-import { BiMessageAdd, BiMessageDots } from "react-icons/bi";
-import { BsChatText } from "react-icons/bs";
-import { useDispatch } from "react-redux";
+import { BiMessageAltAdd } from "react-icons/bi";
+import { BsChatDots } from "react-icons/bs";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RootState } from "../app/store";
-import { currentUser, CurrentUserType } from "../app/user";
+import { CurrentUserType } from "../app/user";
 import ColorList from "../assets/ColorList";
 import MessageUserSkeleton from "../assets/skeleton/MessageUserSkeleton";
 import Chat from "../components/message/Chat";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";
 import { dbService } from "../fbase";
 import useCreateChat from "../hooks/useCreateChat";
-import { listType } from "../types/type";
 
 type Props = {};
 
@@ -33,45 +24,30 @@ const Message = (props: Props) => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
-  const [myAccount, setMyAccount] = useState(null);
   const [users, setUsers] = useState([]);
   const [addUserModal, setAddUserMOdal] = useState(false);
-  // const [clickInfo, setClickInfo] = useState<CurrentUserType>(null);
   const { clickInfo, setClickInfo } = useCreateChat();
-
-  // 본인 계정 정보 가져오기
-  useEffect(() => {
-    const unsubscribe = onSnapshot(
-      doc(dbService, "users", userObj?.displayName),
-      (doc) => {
-        setMyAccount(doc.data());
-      }
-    );
-
-    return () => unsubscribe();
-  }, [userObj.displayName]);
+  const { state } = useLocation() as LocationType;
+  const navigate = useNavigate();
 
   // 상대 계정 정보 가져오기
   useEffect(() => {
-    let unsubscribe: any;
-    if (myAccount) {
-      myAccount?.message?.map(async (res: { user: string }) => {
-        unsubscribe = onSnapshot(doc(dbService, "users", res.user), (doc) => {
-          setUsers((prev: CurrentUserType[]) => {
-            // 중복 체크
-            if (!prev.some((user) => user.uid === doc.data().uid)) {
-              return [...prev, doc.data()];
-            } else {
-              return prev;
-            }
-          });
-        });
-      });
-      return () => unsubscribe();
-    }
-  }, [myAccount]);
+    const getList = async (res: { user: string }) => {
+      const docSnap = await getDoc(doc(dbService, "users", res.user));
+      return docSnap.data();
+    };
 
-  const navigate = useNavigate();
+    const promiseList = async () => {
+      const list = await Promise.all(
+        userObj.message.map(async (res) => {
+          return getList(res);
+        })
+      );
+      setUsers(list);
+    };
+
+    promiseList();
+  }, [userObj]);
 
   // 채팅방 클릭
   const onListClick = (user: CurrentUserType) => {
@@ -84,16 +60,13 @@ const Message = (props: Props) => {
     setAddUserMOdal((prev) => !prev);
   };
 
-  const { state } = useLocation() as LocationType;
-
   return (
     <>
       {addUserModal && (
         <AddChatUserModal
-          myAccount={myAccount}
+          userObj={userObj}
           modalOpen={addUserModal}
           modalClose={onAddChatClick}
-          setClickInfo={setClickInfo}
         />
       )}
       <Wrapper>
@@ -102,29 +75,30 @@ const Message = (props: Props) => {
             <Category>
               <CategoryText>메시지</CategoryText>
               <AddChatBtn onClick={onAddChatClick}>
-                <BsChatText />
+                <BiMessageAltAdd />
+                {/* <BsChatText /> */}
               </AddChatBtn>
             </Category>
-            {users.length > 0 ? (
+            {users?.length > 0 ? (
               <ChatRoomBox>
                 {users?.map((res: CurrentUserType, index: number) => {
                   return (
                     <User
                       onClick={() => onListClick(res)}
-                      key={res.displayName}
+                      key={res?.displayName}
                     >
                       <ProfileImageBox>
                         <ProfileImage
-                          src={res.profileURL}
+                          src={res?.profileURL}
                           alt="profile image"
                         />
                       </ProfileImageBox>
                       <ProfileInfoBox>
-                        <ProfileDsName>{res.displayName}</ProfileDsName>
-                        <ProfileName>{res.name}</ProfileName>
+                        <ProfileDsName>{res?.displayName}</ProfileDsName>
+                        <ProfileName>{res?.name}</ProfileName>
                       </ProfileInfoBox>
                       {userObj?.message?.some(
-                        (e) => !e.isRead && e.user === res.displayName
+                        (e) => !e.isRead && e.user === res?.displayName
                       ) && <NoticeBox />}
                     </User>
                   );
@@ -136,12 +110,16 @@ const Message = (props: Props) => {
           </ChatRoomList>
           <ChatRoom>
             {state || clickInfo ? (
-              <Chat myAccount={myAccount} users={state ? state : clickInfo} />
+              <Chat
+                userObj={userObj}
+                users={state ? state : clickInfo}
+                setClickInfo={setClickInfo}
+              />
             ) : (
               <NotInfoBox>
                 <IconBox>
                   <Icon>
-                    <BiMessageDots />
+                    <BsChatDots />
                   </Icon>
                 </IconBox>
                 <NotInfoCategory>메시지</NotInfoCategory>
@@ -218,6 +196,9 @@ const AddChatBtn = styled.button`
   svg {
     width: 100%;
     height: 100%;
+    > path:last-of-type {
+      color: #ff5c1b;
+    }
   }
 `;
 
@@ -342,6 +323,10 @@ const Icon = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+
+    > path:first-of-type {
+      color: #ff5c1b;
+    }
   }
 `;
 

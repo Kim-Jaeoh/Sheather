@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import {
@@ -17,7 +17,6 @@ import { authService, dbService } from "../../../fbase";
 import { currentUser, loginToken } from "../../../app/user";
 import defaultAccount from "../../../assets/account_img_default.png";
 import ColorList from "../../../assets/ColorList";
-import { toast } from "react-hot-toast";
 
 type Props = {
   modalOpen: boolean;
@@ -77,14 +76,14 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
             await setDoc(doc(usersRef, dpName), {
               uid: user.uid,
               createdAt: Date.now(),
-              bookmark: [],
-              like: [],
               profileURL: defaultAccount,
               email: user.email,
               name: "",
               displayName: dpName,
-              message: [],
               description: "",
+              bookmark: [],
+              like: [],
+              message: [],
               follower: [],
               following: [],
             });
@@ -93,14 +92,14 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               currentUser({
                 uid: user.uid,
                 createdAt: Date.now(),
-                like: [],
-                bookmark: [],
                 profileURL: defaultAccount,
                 email: user.email,
                 name: "",
                 displayName: dpName,
-                message: [],
                 description: "",
+                bookmark: [],
+                like: [],
+                message: [],
                 follower: [],
                 following: [],
               })
