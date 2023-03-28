@@ -18,8 +18,10 @@ const Container = styled.footer`
   /* max-width: 1100px; */
   width: 100%;
   height: 80px;
-  border-top: 2px solid #222222;
+  /* border: 2px solid #222222; */
   border-bottom: 2px solid #222222;
+  border-left: 2px solid #222222;
+  border-right: 2px solid #222222;
 `;
 
 const InfoBox = styled.div`
@@ -29,5 +31,3 @@ const InfoBox = styled.div`
   transform: translate(-50%, -50%);
   text-align: center;
 `;
-
-const MenuList = styled.li``;

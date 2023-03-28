@@ -9,7 +9,7 @@ import Slider from "rc-slider";
 import "../../../styles/RangeTimeModalRcSlider.css";
 import { Modal, Backdrop } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
-// import "rc-slider/assets/index.css";
+import useMediaScreen from "../../../hooks/useMediaScreen";
 
 type Props = {
   modalOpen: boolean;
@@ -35,6 +35,8 @@ const RangeTimeModal = (props: Props) => {
   } = props;
 
   const [isCalendar, setIsCalendar] = useState(false);
+  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
+    useMediaScreen();
 
   // 캘린더 토글
   const onClickCalendar = () => setIsCalendar((prev) => !prev);
@@ -50,31 +52,37 @@ const RangeTimeModal = (props: Props) => {
   };
 
   return (
-    <RangeBox>
-      <Header onClick={isCalendar ? onClickCalendar : modalClose}>
-        <IoMdClose />
-      </Header>
-      <Container>
-        <ViewNumberBox>
-          {isCalendar && (
-            <CalendarBox>
-              <Calendar
-                formatDay={(locale, date) => moment(date).format("DD")} // 날'일' 제외하고 숫자만 보이도록 설정
-                showNeighboringMonth={false} //  이전, 이후 달의 날짜는 보이지 않도록 설정
-                onChange={(e: Date) => {
-                  setClickCalendar(e);
-                }}
-                value={changeValue}
-              />
-            </CalendarBox>
-          )}
-          <DateBox onClick={onClickCalendar}>
-            <DateIcon>
-              <BsCalendar3 />
-            </DateIcon>
-            <DateText>{moment(changeValue).format("YYYY-MM-DD")}</DateText>
-          </DateBox>
-          {/* <DateBox onClick={onClickCalendar}>
+    <Modal
+      open={modalOpen}
+      onClose={modalClose}
+      disableScrollLock={false}
+      // BackdropProps={{ style: { backgroundColor: "transparent" } }}
+    >
+      <RangeBox isMobile={isMobile}>
+        <Header onClick={isCalendar ? onClickCalendar : modalClose}>
+          <IoMdClose />
+        </Header>
+        <Container>
+          <ViewNumberBox>
+            {isCalendar && (
+              <CalendarBox>
+                <Calendar
+                  formatDay={(locale, date) => moment(date).format("DD")} // 날'일' 제외하고 숫자만 보이도록 설정
+                  showNeighboringMonth={false} //  이전, 이후 달의 날짜는 보이지 않도록 설정
+                  onChange={(e: Date) => {
+                    setClickCalendar(e);
+                  }}
+                  value={changeValue}
+                />
+              </CalendarBox>
+            )}
+            <DateBox onClick={onClickCalendar}>
+              <DateIcon>
+                <BsCalendar3 />
+              </DateIcon>
+              <DateText>{moment(changeValue).format("YYYY-MM-DD")}</DateText>
+            </DateBox>
+            {/* <DateBox onClick={onClickCalendar}>
             {isCalendar ? (
               <ResetBtn>CANCLE</ResetBtn>
             ) : (
@@ -86,35 +94,36 @@ const RangeTimeModal = (props: Props) => {
               </>
             )}
           </DateBox> */}
-          {rangeTime && (
-            <ViewNumber>
-              {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
-              {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
-            </ViewNumber>
-          )}
-        </ViewNumberBox>
-        <RangeSlideBox>
-          <Slider
-            range
-            min={0}
-            max={23}
-            value={rangeTime}
-            onChange={handleSliderChange}
-            allowCross={false}
-            pushable={1}
-            defaultValue={[0, 23]}
-          />
-        </RangeSlideBox>
-        <RangeNumberBox>
-          <RangeNumber>0시</RangeNumber>
-          <RangeNumber>23시</RangeNumber>
-        </RangeNumberBox>
-        <ButtonBox>
-          <ResetBtn onClick={onReset}>초기화</ResetBtn>
-          <DoneBtn onClick={onDone}>완료</DoneBtn>
-        </ButtonBox>
-      </Container>
-    </RangeBox>
+            {rangeTime && (
+              <ViewNumber>
+                {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
+                {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
+              </ViewNumber>
+            )}
+          </ViewNumberBox>
+          <RangeSlideBox>
+            <Slider
+              range
+              min={0}
+              max={23}
+              value={rangeTime}
+              onChange={handleSliderChange}
+              allowCross={false}
+              pushable={1}
+              defaultValue={[0, 23]}
+            />
+          </RangeSlideBox>
+          <RangeNumberBox>
+            <RangeNumber>0시</RangeNumber>
+            <RangeNumber>23시</RangeNumber>
+          </RangeNumberBox>
+          <ButtonBox>
+            <ResetBtn onClick={onReset}>초기화</ResetBtn>
+            <DoneBtn onClick={onDone}>완료</DoneBtn>
+          </ButtonBox>
+        </Container>
+      </RangeBox>
+    </Modal>
   );
 };
 
@@ -122,33 +131,18 @@ export default RangeTimeModal;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const RangeBox = styled.div`
+const RangeBox = styled.div<{ isMobile: boolean }>`
   position: absolute;
-  top: 46px;
-  /* padding: 20px; */
+  top: 214px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 100;
   border-radius: 20px;
-  border: 2px solid ${secondColor};
+  border: ${(props) => (props.isMobile ? 1 : 2)}px solid ${secondColor};
   width: 300px;
   background: #fff;
-  box-shadow: 8px 8px 0 -2px #ff5673, 8px 8px ${secondColor};
-  /* animation-name: slideDown;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-in-out;
-
-  @keyframes slideDown {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  } */
+  box-shadow: ${(props) =>
+    !props.isMobile && `8px 8px 0 -2px #ff5673, 8px 8px ${secondColor}`};
 `;
 
 const Header = styled.header`

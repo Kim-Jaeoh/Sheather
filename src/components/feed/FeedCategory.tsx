@@ -19,6 +19,8 @@ import FeedProfileDisplayName from "./FeedProfileDisplayName";
 import { FrameGrid, MasonryGrid } from "@egjs/react-grid";
 import { Spinner } from "../../assets/Spinner";
 import AuthFormModal from "../modal/auth/AuthFormModal";
+import { throttle } from "lodash";
+import useMediaScreen from "../../hooks/useMediaScreen";
 
 type Props = {
   feed?: FeedType[];
@@ -26,22 +28,17 @@ type Props = {
 };
 
 const FeedCategory = ({ url, feed }: Props) => {
-  const [isGridRender, setIsGridRender] = useState(false);
-  const [isAuthModal, setIsAuthModal] = useState(false);
-  const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
-  const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
   );
+  const [isGridRender, setIsGridRender] = useState(false);
+  const [isAuthModal, setIsAuthModal] = useState(false);
+  const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
+  const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
   const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
-
-  useEffect(() => {
-    // const checkResize = () => {
-    console.log(window.scroll);
-    // }
-  }, []);
+  const { isDesktop, isTablet, isMobile } = useMediaScreen();
 
   let checkSize: number;
   let checkAspect: number;
@@ -86,13 +83,14 @@ const FeedCategory = ({ url, feed }: Props) => {
       {!isLoading ? (
         <>
           {dataList?.pages?.flat().length !== 0 ? (
-            <CardBox render={isGridRender}>
+            <CardBox isMobile={isMobile} render={isGridRender}>
               <MasonryGrid
                 className="container"
-                gap={30}
+                gap={!isMobile ? 30 : 10}
                 defaultDirection={"end"}
                 align={"stretch"}
                 column={2}
+                // column={isMobile ? 1 : 2}
                 columnSize={0}
                 columnSizeRatio={0}
                 onRenderComplete={({ isResize, mounted, updated }) => {
@@ -105,12 +103,14 @@ const FeedCategory = ({ url, feed }: Props) => {
 
                   return (
                     <CardList
+                      isMobile={isMobile}
                       render={isGridRender}
                       size={checkSize}
                       key={res.id}
                       onClick={onLogState}
                     >
                       <Card
+                        isMobile={isMobile}
                         aspect={checkAspect}
                         to={userLogin && "/feed/detail"}
                         state={{ id: res.id, email: res.email }}
@@ -131,9 +131,10 @@ const FeedCategory = ({ url, feed }: Props) => {
                           />
                         </CardImageBox>
                       </Card>
-                      <UserBox>
+                      <UserBox isMobile={isMobile}>
                         <UserInfoBox>
                           <UserImageBox
+                            isMobile={isMobile}
                             to={userLogin && `/profile/${res.displayName}/post`}
                             state={res.displayName}
                             onContextMenu={(e) => e.preventDefault()}
@@ -141,6 +142,7 @@ const FeedCategory = ({ url, feed }: Props) => {
                             <FeedProfileImage displayName={res.displayName} />
                           </UserImageBox>
                           <UserNameBox
+                            isMobile={isMobile}
                             to={userLogin && `/profile/${res.displayName}/post`}
                             state={res.displayName}
                           >
@@ -150,7 +152,10 @@ const FeedCategory = ({ url, feed }: Props) => {
                           </UserNameBox>
                           <UserReactBox>
                             <UserIconBox>
-                              <UserIcon onClick={() => toggleLike(res)}>
+                              <UserIcon
+                                isMobile={isMobile}
+                                onClick={() => toggleLike(res)}
+                              >
                                 {userObj?.like?.filter((id) => id === res.id)
                                   .length > 0 ? (
                                   <FaHeart style={{ color: "#FF5673" }} />
@@ -159,7 +164,9 @@ const FeedCategory = ({ url, feed }: Props) => {
                                 )}
                               </UserIcon>
                               {res.like.length > 0 && (
-                                <UserReactNum>{res.like.length}</UserReactNum>
+                                <UserReactNum isMobile={isMobile}>
+                                  {res.like.length}
+                                </UserReactNum>
                               )}
                             </UserIconBox>
                             <UserIcon onClick={() => toggleBookmark(res.id)}>
@@ -223,9 +230,9 @@ export default FeedCategory;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const CardBox = styled.ul<{ render?: boolean }>`
+const CardBox = styled.ul<{ render?: boolean; isMobile?: boolean }>`
   width: 100%;
-  padding: 10px 40px 40px;
+  padding: ${(props) => (props.isMobile ? `16px 16px` : `10px 40px 40px`)};
   /* grid-template-columns: ${(props) => props.render && `repeat(2, 1fr)`}; */
   /* padding: 0 10px 10px; */
   /* gap: 20px; */
@@ -233,18 +240,18 @@ const CardBox = styled.ul<{ render?: boolean }>`
   /* grid-auto-rows: 10px; */
 `;
 
-const CardList = styled.li<{ render?: boolean; size?: number }>`
-  /* position: ${(props) => (props.render ? "absolute" : "relative")}; */
-  /* position: absolute; */
+const CardList = styled.li<{
+  render?: boolean;
+  size?: number;
+  isMobile: boolean;
+}>`
   width: 330px;
   border-radius: 20px;
-  border: 2px solid ${secondColor};
+  /* border-radius: ${(props) => !props.isMobile && `20px`}; */
+  /* border: 2px solid ${secondColor}; */
+  border: ${(props) => !props.isMobile && `2px solid ${secondColor}`};
   overflow: hidden;
-  background: #fff;
-  /* box-shadow: 0px 6px 0 -2px #ff5673, 0px 6px ${secondColor}; */
-  /* 4px 4px 0 2px #ff5673; */
-  /* margin: 10px; */
-  /* grid-row-end: span ${(props) => Math.ceil(props.size)}; */
+  background: ${(props) => !props.isMobile && `#fff`};
 
   animation-name: slideUp;
   animation-duration: 0.3s;
@@ -265,13 +272,14 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   }
 `;
 
-const Card = styled(Link)<{ aspect?: number }>`
+const Card = styled(Link)<{ aspect?: number; isMobile: boolean }>`
   display: block;
   position: relative;
   cursor: pointer;
   outline: none;
   overflow: hidden;
-  border-bottom: 2px solid ${secondColor};
+  border-radius: ${(props) => props.isMobile && `20px`};
+  border-bottom: ${(props) => !props.isMobile && `2px solid ${secondColor}`};
   padding-top: ${(props) => `${props.aspect}%`};
 `;
 
@@ -327,8 +335,8 @@ const CardImage = styled.img`
   background: #fff;
 `;
 
-const UserBox = styled.div`
-  padding: 12px 12px;
+const UserBox = styled.div<{ isMobile: boolean }>`
+  padding: ${(props) => (props.isMobile ? `12px 0` : `12px 12px`)};
   flex: 1;
 `;
 
@@ -337,9 +345,11 @@ const UserInfoBox = styled.div`
   align-items: center;
 `;
 
-const UserImageBox = styled(Link)`
-  width: 30px;
-  height: 30px;
+const UserImageBox = styled(Link)<{ isMobile: boolean }>`
+  width: ${(props) => (props.isMobile ? `20px` : `30px`)};
+  height: ${(props) => (props.isMobile ? `20px` : `30px`)};
+  /* width: 30px; */
+  /* height: 30px; */
   border-radius: 50%;
   overflow: hidden;
   border: 1px solid ${fourthColor};
@@ -355,7 +365,7 @@ const UserImage = styled.img`
   image-rendering: auto;
 `;
 
-const UserNameBox = styled(Link)`
+const UserNameBox = styled(Link)<{ isMobile: boolean }>`
   cursor: pointer;
   overflow: hidden;
   position: relative;
@@ -363,7 +373,7 @@ const UserNameBox = styled(Link)`
   flex: 1;
   padding: 8px;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: ${(props) => (props.isMobile ? `12px` : `14px`)};
   font-weight: 500;
   letter-spacing: -0.15px;
 
@@ -383,21 +393,22 @@ const UserIconBox = styled.div`
   align-items: center;
 `;
 
-const UserIcon = styled.div`
+const UserIcon = styled.div<{ isMobile?: boolean }>`
   display: flex;
   align-items: center;
+  justify-content: center;
   width: 20px;
   height: 20px;
   cursor: pointer;
   color: ${thirdColor};
   svg {
-    font-size: 16px;
+    font-size: ${(props) => (props.isMobile ? `14px` : `16px`)};
   }
 `;
 
-const UserReactNum = styled.p`
-  font-size: 14px;
-  margin-left: 4px;
+const UserReactNum = styled.p<{ isMobile: boolean }>`
+  font-size: ${(props) => (props.isMobile ? `12px` : `14px`)};
+  margin-left: 2px;
   color: ${thirdColor};
 `;
 
@@ -411,7 +422,6 @@ const UserText = styled.p`
   -webkit-box-orient: vertical;
   line-height: 20px;
   font-size: 14px;
-  letter-spacing: -0.21px;
 `;
 
 const TagList = styled.div`
@@ -429,7 +439,7 @@ const Tag = styled(Link)`
   align-items: center;
   /* line-height: 16px; */
   border-radius: 64px;
-  background-color: #f7f7f7;
+  background-color: #f5f5f5;
   padding: 8px 10px;
   color: #ff5673;
 

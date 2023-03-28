@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AiOutlineHome } from "react-icons/ai";
 import { BsChatDots, BsPersonCircle, BsSun } from "react-icons/bs";
-import { FiPlusCircle, FiSearch } from "react-icons/fi";
+import { FiCompass, FiPlusCircle, FiSearch } from "react-icons/fi";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import { useDispatch } from "react-redux";
 import { RootState } from "../app/store";
@@ -23,6 +23,10 @@ import {
 } from "firebase/firestore";
 import { currentUser, CurrentUserType } from "../app/user";
 import { dbService } from "../fbase";
+import useMediaScreen from "../hooks/useMediaScreen";
+import ColorList from "../assets/ColorList";
+import { MdOutlineExplore } from "react-icons/md";
+import { IoCompassOutline } from "react-icons/io5";
 
 const LeftBar = () => {
   const [isAuthModal, setIsAuthModal] = useState(false);
@@ -42,6 +46,7 @@ const LeftBar = () => {
     return state.user;
   });
   const { location } = useCurrentLocation();
+  const { isDesktop, isTablet, isMobile, isMobileBefore } = useMediaScreen();
 
   const nowWeatherApi = async () =>
     await axios.get(
@@ -228,7 +233,11 @@ const LeftBar = () => {
       {shareBtn && (
         <ShareWeatherModal shareBtn={shareBtn} setShareBtn={setShareBtn} />
       )}
-      <Container>
+      <Container
+        isDesktop={isDesktop}
+        isMobileBefore={isMobileBefore}
+        isMobile={isMobile}
+      >
         <MenuBox pathname={pathname}>
           <LogoBox>SHEATHER</LogoBox>
           <MenuLink
@@ -265,7 +274,9 @@ const LeftBar = () => {
             <MenuList>
               <BsChatDots />
               <MenuText>메세지</MenuText>
-              {userObj?.message?.some((res) => !res?.isRead) && <NoticeBox />}
+              {isDesktop && userObj?.message?.some((res) => !res?.isRead) && (
+                <NoticeBox />
+              )}
             </MenuList>
           </MenuLink>
           <MenuLink
@@ -276,7 +287,9 @@ const LeftBar = () => {
             to="/explore"
           >
             <MenuList>
-              <FiSearch />
+              <IoCompassOutline />
+              {/* <MdOutlineExplore /> */}
+              {/* <FiSearch /> */}
               <MenuText>탐색</MenuText>
             </MenuList>
           </MenuLink>
@@ -327,17 +340,68 @@ const LeftBar = () => {
 
 export default LeftBar;
 
-const Container = styled.section`
-  position: sticky;
-  top: 0;
-  flex: 0 1 auto;
-  width: 220px;
-  height: 100vh;
+const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+
+const Container = styled.section<{
+  isDesktop: boolean;
+  isMobileBefore: boolean;
+  isMobile: boolean;
+}>`
+  width: ${(props) => (props.isDesktop ? `220px` : `70px`)};
   background: #fff;
   user-select: none;
   padding: 0 30px;
-  border: 2px solid #222222;
+  border: 2px solid ${secondColor};
+  border-right: none;
   border-radius: 40px 0 0 40px;
+
+  & {
+    h2 {
+      display: ${(props) => !props.isDesktop && `none`};
+      text-align: left;
+    }
+
+    a,
+    button {
+      width: ${(props) => !props.isDesktop && `auto`};
+      li {
+        border: ${(props) => props.isMobile && `none`};
+        padding: ${(props) => !props.isDesktop && `10px`};
+        box-shadow: ${(props) => !props.isDesktop && `none`};
+      }
+      &:hover li:hover,
+      &:active li:active {
+        border: ${(props) => props.isMobile && `none`};
+        box-shadow: ${(props) => !props.isDesktop && `none`};
+      }
+    }
+
+    width: ${(props) => props.isMobile && `100%`};
+    position: ${(props) => (props.isMobile ? `fixed` : `sticky`)};
+    top: ${(props) => (props.isMobile ? `none` : `0`)};
+    bottom: ${(props) => props.isMobile && `0`};
+    left: ${(props) => props.isMobile && `0`};
+    right: ${(props) => props.isMobile && `0`};
+    border-radius: ${(props) => props.isMobile && `0`};
+    border-right: ${(props) => props.isMobile && `2px solid ${secondColor}`};
+    z-index: ${(props) => props.isMobile && `100`};
+    height: ${(props) => (props.isMobile ? `60px` : `100vh`)};
+
+    nav {
+      flex-direction: ${(props) => props.isMobile && `row`};
+      justify-content: ${(props) => props.isMobile && `space-evenly`};
+      > div:first-of-type {
+        display: ${(props) => props.isMobile && `none`};
+      }
+    }
+  }
+`;
+
+const MobileContainer = styled(Container)`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
 `;
 
 const MenuBox = styled.nav<{ pathname: string }>`
@@ -376,6 +440,7 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
         ? `0px 6px 0 -2px ${props.color}, 0px 6px #222`
         : "0"};
   }
+
   &:hover li:hover,
   &:active li:active {
     border: 2px solid #222222;
@@ -383,7 +448,7 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
   }
 `;
 
-const MenuBtn = styled.div<{ cat: string; menu: string; color: string }>`
+const MenuBtn = styled.button<{ cat: string; menu: string; color: string }>`
   display: flex;
   align-items: center;
   outline: none;

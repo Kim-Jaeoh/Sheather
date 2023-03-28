@@ -13,6 +13,7 @@ import Chat from "../components/message/Chat";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";
 import { dbService } from "../fbase";
 import useCreateChat from "../hooks/useCreateChat";
+import useMediaScreen from "../hooks/useMediaScreen";
 
 type Props = {};
 
@@ -29,6 +30,7 @@ const Message = (props: Props) => {
   const { clickInfo, setClickInfo } = useCreateChat();
   const { state } = useLocation() as LocationType;
   const navigate = useNavigate();
+  const { isDesktop, isTablet, isMobile, isMobileBefore } = useMediaScreen();
 
   // 상대 계정 정보 가져오기
   useEffect(() => {
@@ -71,12 +73,11 @@ const Message = (props: Props) => {
       )}
       <Wrapper>
         <Container>
-          <ChatRoomList>
+          <ChatRoomList isMobile={isMobile} state={state ? state : clickInfo}>
             <Category>
               <CategoryText>메시지</CategoryText>
               <AddChatBtn onClick={onAddChatClick}>
                 <BiMessageAltAdd />
-                {/* <BsChatText /> */}
               </AddChatBtn>
             </Category>
             {users?.length > 0 ? (
@@ -108,25 +109,27 @@ const Message = (props: Props) => {
               <MessageUserSkeleton />
             )}
           </ChatRoomList>
-          <ChatRoom>
-            {state || clickInfo ? (
-              <Chat
-                userObj={userObj}
-                users={state ? state : clickInfo}
-                setClickInfo={setClickInfo}
-              />
-            ) : (
-              <NotInfoBox>
-                <IconBox>
-                  <Icon>
-                    <BsChatDots />
-                  </Icon>
-                </IconBox>
-                <NotInfoCategory>메시지</NotInfoCategory>
-                <NotInfoText>친구에게 메시지를 보내보세요.</NotInfoText>
-              </NotInfoBox>
-            )}
-          </ChatRoom>
+          {(isTablet || isDesktop || state || clickInfo) && (
+            <ChatRoom>
+              {state || clickInfo ? (
+                <Chat
+                  userObj={userObj}
+                  users={state ? state : clickInfo}
+                  setClickInfo={setClickInfo}
+                />
+              ) : (
+                <NotInfoBox>
+                  <IconBox>
+                    <Icon>
+                      <BsChatDots />
+                    </Icon>
+                  </IconBox>
+                  <NotInfoCategory>메시지</NotInfoCategory>
+                  <NotInfoText>친구에게 메시지를 보내보세요.</NotInfoText>
+                </NotInfoBox>
+              )}
+            </ChatRoom>
+          )}
         </Container>
       </Wrapper>
     </>
@@ -154,6 +157,7 @@ const Container = styled.div`
   bottom: 40px;
   left: 40px;
   border: 2px solid ${secondColor};
+  overflow: hidden;
   border-radius: 20px;
   background: #fff;
   box-shadow: ${(props) => {
@@ -194,24 +198,26 @@ const AddChatBtn = styled.button`
   padding: 0;
   cursor: pointer;
   svg {
-    width: 100%;
-    height: 100%;
+    width: 24px;
+    height: 24px;
     > path:last-of-type {
       color: #ff5c1b;
     }
   }
 `;
 
-const ChatRoomList = styled.div`
-  width: 240px;
+const ChatRoomList = styled.div<{ isMobile: boolean; state: CurrentUserType }>`
+  display: ${(props) => (props.isMobile && props.state ? `none` : `block`)};
+  width: ${(props) => (props.isMobile ? `100%` : `240px`)};
   height: 100%;
+  flex: 0 1 auto;
   border-right: 1px solid ${thirdColor};
 `;
 
 const ChatRoom = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 0 250px;
   height: 100%;
 `;
 

@@ -24,6 +24,7 @@ import { useDispatch } from "react-redux";
 import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import useCreateChat from "../../hooks/useCreateChat";
+import { IoIosArrowBack } from "react-icons/io";
 
 interface Props {
   userObj: CurrentUserType;
@@ -292,6 +293,9 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
   return (
     <>
       <Category>
+        <IconBox onClick={() => setClickInfo(null)}>
+          <IoIosArrowBack />
+        </IconBox>
         <ProfileInfoBox>
           <ProfileImageBox to={`/profile/${users?.displayName}/post`}>
             <ProfileImage src={users?.profileURL} alt="profile image" />
@@ -388,8 +392,19 @@ const Category = styled.header`
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  gap: 12px;
+  gap: 20px;
   border-bottom: 1px solid ${thirdColor};
+`;
+
+const IconBox = styled.button`
+  width: 24px;
+  height: 24px;
+  margin-left: -4px;
+  cursor: pointer;
+  svg {
+    width: 24px;
+    height: 24px;
+  }
 `;
 
 const ProfileImageBox = styled(Link)`
@@ -456,8 +471,8 @@ const DeleteChatBtn = styled.button`
   padding: 0;
   cursor: pointer;
   svg {
-    width: 100%;
-    height: 100%;
+    width: 24px;
+    height: 24px;
   }
 `;
 

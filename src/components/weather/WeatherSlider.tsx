@@ -263,7 +263,7 @@ const WeatherInfoBtn = styled.button`
     }
   }
   svg {
-    font-size: 24px;
+    /* font-size: 24px; */
   }
 `;
 

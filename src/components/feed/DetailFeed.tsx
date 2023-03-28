@@ -33,6 +33,7 @@ import FeedMoreSelectModal from "../modal/feed/FeedMoreSelectModal";
 import { BiCopy } from "react-icons/bi";
 import TempClothes from "../../assets/TempClothes";
 import AuthFormModal from "../modal/auth/AuthFormModal";
+import useMediaScreen from "../../hooks/useMediaScreen";
 
 type ReplyPayload = {
   id?: string;
@@ -74,6 +75,8 @@ const DetailFeed = () => {
   const { ClothesCategory } = TempClothes();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
+    useMediaScreen();
 
   const feedApi = async () => {
     const { data } = await axios.get(
@@ -267,7 +270,7 @@ const DetailFeed = () => {
               { name: "etc", type: "etc", detail: etc },
             ];
             return (
-              <Wrapper key={res.id} bgColor={bgColor}>
+              <Wrapper key={res.id} bgColor={bgColor} isMobile={isMobile}>
                 {isMore && !isFeedEdit ? (
                   <FeedMoreSelectModal
                     bgColor={bgColor}
@@ -563,13 +566,14 @@ const DetailFeed = () => {
 export default DetailFeed;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Wrapper = styled.div<{ bgColor: string }>`
+const Wrapper = styled.div<{ bgColor: string; isMobile: boolean }>`
   position: relative;
   overflow: hidden;
   padding: 40px;
+  height: 100%;
   /* padding: 20px 60px 30px; */
   background: ${(props) => props.bgColor};
-  border-top: 2px solid ${secondColor};
+  border-top: ${(props) => !props.isMobile && `2px solid ${secondColor}`};
 `;
 
 const Container = styled.div<{ shadowColor: string }>`
@@ -888,7 +892,7 @@ const Tag = styled(Link)<{ color?: string }>`
   align-items: center;
   /* line-height: 16px; */
   border-radius: 64px;
-  background-color: #f7f7f7;
+  background-color: #f5f5f5;
   padding: 8px 10px;
   color: ${(props) => props.color};
 

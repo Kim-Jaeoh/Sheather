@@ -6,6 +6,9 @@ import moment from "moment";
 import RangeTimeModal from "../components/modal/feed/RangeTimeModal";
 import FeedCategory from "../components/feed/FeedCategory";
 import FeedWeatherInfo from "../components/feed/FeedWeatherInfo";
+import useMediaScreen from "../hooks/useMediaScreen";
+import SortFeedCategory from "../components/feed/SortFeedCategory";
+import MobileHeader from "../components/MobileHeader";
 
 const Home = () => {
   const [selectCategory, setSelectCategory] = useState(0);
@@ -15,98 +18,94 @@ const Home = () => {
   const [dateCategory, setDateCategory] = useState("recent");
   const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
-  const [isDetailModal, setIsDetailModal] = useState(false);
+  // const [isDetailModal, setIsDetailModal] = useState(false);
   const [isDetailDone, setIsDetailDone] = useState(false);
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
-  const value = useMemo(() => {
-    return moment(changeValue).format("YYYYMMDD");
-  }, [changeValue]);
+  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
+    useMediaScreen();
 
-  useEffect(() => {
-    // 최신
-    if (selectCategory === 0) {
-      return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`);
-    }
-    // 인기
-    if (selectCategory === 1) {
-      return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/popular?`);
-    }
-    // 시간별
-    if (selectCategory === 2) {
-      if (isDetailDone) {
-        navigate(
-          `date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}`
-        );
-        return setUrl(
-          `${process.env.REACT_APP_SERVER_PORT}/api/feed/date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
-        );
-      }
-    }
-  }, [
-    changeValue,
-    dateCategory,
-    isDetailDone,
-    navigate,
-    rangeTime,
-    selectCategory,
-    value,
-  ]);
+  // const value = useMemo(() => {
+  //   return moment(changeValue).format("YYYYMMDD");
+  // }, [changeValue]);
 
-  // 메인 카테고리
-  useEffect(() => {
-    if (pathname.includes("recent")) {
-      return setSelectCategory(0);
-    }
-    if (pathname.includes("popular")) {
-      return setSelectCategory(1);
-    }
-    if (pathname.includes("date")) {
-      return setSelectCategory(2);
-    }
-  }, [pathname, search]);
+  // useEffect(() => {
+  //   // 최신
+  //   if (selectCategory === 0) {
+  //     return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`);
+  //   }
+  //   // 인기
+  //   if (selectCategory === 1) {
+  //     return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/popular?`);
+  //   }
+  //   // 시간별
+  //   if (selectCategory === 2) {
+  //     if (isDetailDone) {
+  //       navigate(
+  //         `date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}`
+  //       );
+  //       return setUrl(
+  //         `${process.env.REACT_APP_SERVER_PORT}/api/feed/date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
+  //       );
+  //     }
+  //   }
+  // }, [dateCategory, isDetailDone, navigate, rangeTime, selectCategory, value]);
 
-  // 세부 카테고리
-  useEffect(() => {
-    if (search.includes("cat=recent")) {
-      return setDateCategory("recent");
-    }
-    if (search.includes("cat=popular")) {
-      return setDateCategory("popular");
-    }
-  }, [search]);
+  // // 메인 카테고리
+  // useEffect(() => {
+  //   if (pathname.includes("recent")) {
+  //     return setSelectCategory(0);
+  //   }
+  //   if (pathname.includes("popular")) {
+  //     return setSelectCategory(1);
+  //   }
+  //   if (pathname.includes("date")) {
+  //     return setSelectCategory(2);
+  //   }
+  // }, [pathname, search]);
 
-  const onSelectCategory2 = () => {
-    setSelectCategory(2);
-    setIsDetailDone(false);
-    setIsDetailModal(true);
-  };
+  // // 세부 카테고리
+  // useEffect(() => {
+  //   if (search.includes("cat=recent")) {
+  //     return setDateCategory("recent");
+  //   }
+  //   if (search.includes("cat=popular")) {
+  //     return setDateCategory("popular");
+  //   }
+  // }, [search]);
 
-  const onReset = () => {
-    setRangeTime([1, 24]);
-    setChangeValue(new Date());
-  };
+  // const onSelectCategory2 = () => {
+  //   setSelectCategory(2);
+  //   setIsDetailDone(false);
+  //   setIsDetailModal(true);
+  // };
 
-  const onDone = () => {
-    setIsDetailDone(true);
-    setIsDetailModal(false);
-  };
+  // const onReset = () => {
+  //   setRangeTime([1, 24]);
+  //   setChangeValue(new Date());
+  // };
 
-  const onModalClose = () => {
-    setIsDetailModal((prev) => !prev);
-    // 취소 시 이전 카테고리로 이동
-    if (url.includes("recent")) {
-      setSelectCategory(0);
-    }
-    if (url.includes("popular")) {
-      setSelectCategory(1);
-    }
-  };
+  // const onDone = () => {
+  //   setIsDetailDone(true);
+  //   setIsDetailModal(false);
+  // };
+
+  // const onModalClose = () => {
+  //   setIsDetailModal((prev) => !prev);
+  //   // 취소 시 이전 카테고리로 이동
+  //   if (url.includes("recent")) {
+  //     setSelectCategory(0);
+  //   }
+  //   if (url.includes("popular")) {
+  //     setSelectCategory(1);
+  //   }
+  // };
 
   return (
-    <Container>
-      <FeedWeatherInfo />
-      <SelectTimeBox select={selectCategory}>
+    <Container isMobile={isMobile}>
+      {!isMobile ? <FeedWeatherInfo /> : <MobileHeader />}
+      <SortFeedCategory url={url} setUrl={setUrl} />
+      {/* <SelectTimeBox select={selectCategory}>
         <SelectCategory>
           <SelectCategoryTextLink
             to="recent"
@@ -146,9 +145,9 @@ const Home = () => {
             onDone={onDone}
           />
         )}
-      </SelectTimeBox>
+      </SelectTimeBox> */}
 
-      {isDetailDone && selectCategory === 2 && (
+      {/* {isDetailDone && selectCategory === 2 && (
         <SelectDetailTimeBox>
           <SelectCategoryBox>
             <SelectCategoryBtn
@@ -175,7 +174,7 @@ const Home = () => {
           </SelectDetailTime>
         </SelectDetailTimeBox>
       )}
-
+ */}
       <FeedCategory url={url} />
     </Container>
   );
@@ -184,20 +183,21 @@ export default Home;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Container = styled.main`
+const Container = styled.div<{ isMobile: boolean }>`
   height: 100%;
-  background-color: #ff5673;
+  background-color: ${(props) => !props.isMobile && `#ff5673`};
+  /* margin-bottom: 60px; */
 `;
 
-const SelectTimeBox = styled.nav<{ select: number }>`
+const SelectTimeBox = styled.div<{ select: number }>`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   margin: 0 auto;
-  margin-top: 30px;
-  margin-bottom: 20px;
+  padding-top: 30px;
+  padding-bottom: 20px;
 `;
 
 const SelectDetailTimeBox = styled.div`

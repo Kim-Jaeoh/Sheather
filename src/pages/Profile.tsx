@@ -18,6 +18,7 @@ import { dbService } from "../fbase";
 import useCreateChat from "../hooks/useCreateChat";
 import useInfinityScroll from "../hooks/useInfinityScroll";
 import useLogout from "../hooks/useLogout";
+import useMediaScreen from "../hooks/useMediaScreen";
 import useToggleFollow from "../hooks/useToggleFollow";
 import { FeedType } from "../types/type";
 
@@ -47,6 +48,8 @@ const Profile = () => {
     count: 9,
   });
   const { clickInfo, onCreateChatClick } = useCreateChat();
+  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
+    useMediaScreen();
 
   const feedApi = async () => {
     const { data } = await axios.get(
@@ -417,6 +420,7 @@ const ProfileActBox = styled.div`
 const ProfileAct = styled.div`
   font-size: 14px;
   color: ${thirdColor};
+  white-space: pre;
   &:not(:first-of-type) {
     cursor: pointer;
   }
@@ -430,6 +434,8 @@ const ProfileAct = styled.div`
 const BtnBox = styled.div`
   display: flex;
   align-items: center;
+  position: absolute;
+  right: 0;
   gap: 10px;
 `;
 
@@ -438,6 +444,7 @@ const ProfileEditBtn = styled.button`
   border: 1px solid #6f4ccf;
   color: #6f4ccf;
   font-weight: bold;
+  white-space: pre;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.1s linear;

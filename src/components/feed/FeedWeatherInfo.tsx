@@ -332,6 +332,7 @@ const InfoText = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
   svg {
     color: ${thirdColor};
     display: flex;

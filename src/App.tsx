@@ -9,7 +9,7 @@ import Message from "./pages/Message";
 import Explore from "./pages/Explore";
 import { Spinner } from "./assets/Spinner";
 import DetailFeed from "./components/feed/DetailFeed";
-import Weather from "./pages/Weather";
+// import Weather from "./pages/Weather";
 import SrollToTop from "./hooks/useScrollToTop";
 import { authService } from "./fbase";
 import Profile from "./pages/Profile";
@@ -19,11 +19,14 @@ import SearchBox from "./components/search/SearchBox";
 import SearchResult from "./components/search/SearchResult";
 import TagCategoryList from "./components/explore/TagCategoryList";
 import FollowCategoryList from "./components/explore/FollowCategoryList";
-// const Weather = lazy(() => import("./pages/Weather"));
+import useMediaScreen from "./hooks/useMediaScreen";
+const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
   const [init, setInit] = useState(false);
   const [userObj, setUserObj] = useState(null);
+  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
+    useMediaScreen();
 
   useEffect(() => {
     console.log(`
@@ -56,11 +59,11 @@ const App = () => {
     <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
       <Background>
-        <Wrapper>
+        <Wrapper isMobile={isMobile}>
           <LeftBar />
-          <Main>
+          <Main isDesktop={isDesktop} isMobile={isMobile}>
             <Toaster position="bottom-center" reverseOrder={false} />
-            <Container>
+            <Container isMobile={isMobile}>
               <Routes>
                 <Route path="/feed/*" element={<Home />} />
                 <Route path="/feed/detail" element={<DetailFeed />} />
@@ -85,9 +88,9 @@ const App = () => {
                 />
               </Routes>
             </Container>
-            <Footer />
+            {!isMobile && <Footer />}
           </Main>
-          <RightBar />
+          {!RightBarNone && <RightBar />}
         </Wrapper>
       </Background>
     </Suspense>
@@ -97,34 +100,34 @@ const App = () => {
 export default App;
 
 const Background = styled.div`
-  background: #fafafa;
+  /* background: #fafafa;
   color: #222;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums; */
 `;
 
-const Wrapper = styled.div`
-  display: flex;
+const Wrapper = styled.div<{ isMobile: boolean }>`
+  display: ${(props) => (props.isMobile ? `block` : `flex`)};
+  position: relative;
   max-width: 1280px;
   min-width: 320px;
   height: 100%;
   margin: 0 auto;
 `;
 
-const Main = styled.main`
-  /* flex: 1 1 auto; */
-  /* width: 700px; */
+const Main = styled.main<{ isDesktop: boolean; isMobile: boolean }>`
   flex: 1;
-  max-width: 760px;
+  max-width: ${(props) => (props.isDesktop ? "760px" : "auto")};
   display: flex;
   flex-direction: column;
-  height: auto;
-  /* padding: 0 20px; */
+  height: ${(props) => (props.isMobile ? "100vh" : "auto")};
 `;
 
-const Container = styled.section`
+const Container = styled.section<{ isMobile: boolean }>`
   flex: 1;
   width: 100%;
   /* border-top: 2px solid #222; */
-  /* border-left: 2px solid #222; */
-  /* border-right: 2px solid #222; */
+  padding-bottom: ${(props) => props.isMobile && `60px`};
+  border-left: ${(props) => !props.isMobile && `2px solid #222`};
+  border-right: ${(props) => !props.isMobile && `2px solid #222`};
+  border-bottom: ${(props) => !props.isMobile && `2px solid #222`};
 `;
