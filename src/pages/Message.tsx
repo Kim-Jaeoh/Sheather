@@ -147,15 +147,22 @@ const Wrapper = styled.div`
   height: 100%;
   border-top: 2px solid ${secondColor};
   background: #ff5c1b;
+
+  @media (max-width: 767px) {
+    padding: 16px;
+    border: none;
+    /* height: calc(100vh - 112px); */
+  }
 `;
 
 const Container = styled.div`
   display: flex;
-  position: absolute;
+  /* position: absolute;
   top: 40px;
   right: 40px;
   bottom: 40px;
-  left: 40px;
+  left: 40px; */
+  height: 100%;
   border: 2px solid ${secondColor};
   overflow: hidden;
   border-radius: 20px;
@@ -168,6 +175,10 @@ const Container = styled.div`
     shadow += `#a84017 63px 63px`;
     return shadow;
   }};
+
+  @media (max-width: 767px) {
+    border: 1px solid ${secondColor};
+  }
 `;
 
 const Category = styled.header`
@@ -181,6 +192,10 @@ const Category = styled.header`
   position: relative;
   font-weight: 500;
   border-bottom: 1px solid ${thirdColor};
+
+  @media (max-width: 767px) {
+    padding: 0 16px;
+  }
 `;
 
 const CategoryText = styled.span`
@@ -204,6 +219,9 @@ const AddChatBtn = styled.button`
       color: #ff5c1b;
     }
   }
+  @media (max-width: 767px) {
+    right: 16px;
+  }
 `;
 
 const ChatRoomList = styled.div<{ isMobile: boolean; state: CurrentUserType }>`
@@ -212,6 +230,10 @@ const ChatRoomList = styled.div<{ isMobile: boolean; state: CurrentUserType }>`
   height: 100%;
   flex: 0 1 auto;
   border-right: 1px solid ${thirdColor};
+
+  @media (max-width: 767px) {
+    border: none;
+  }
 `;
 
 const ChatRoom = styled.div`

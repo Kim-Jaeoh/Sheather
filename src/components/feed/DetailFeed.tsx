@@ -34,6 +34,7 @@ import { BiCopy } from "react-icons/bi";
 import TempClothes from "../../assets/TempClothes";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import useMediaScreen from "../../hooks/useMediaScreen";
+import DetailFeedCategory from "./DetailFeedCategory";
 
 type ReplyPayload = {
   id?: string;
@@ -144,6 +145,7 @@ const DetailFeed = () => {
       ],
     });
     setReplyText("");
+    textRef.current.style.height = "24px";
   };
 
   // 댓글 삭제
@@ -232,14 +234,10 @@ const DetailFeed = () => {
 
   const onWearClick = (cat: string, detail: string) => {
     let number = ClothesCategory[cat].findIndex((res) => res === detail);
-    // // top에만 "없음" 항목이 없어서 index가 부족하기 때문
-    // if (cat === "top") {
-    //   number += 1;
-    // }
     navigate(`/explore/${cat}?detail=${number}`);
   };
 
-  const onLogState = () => {
+  const onLogInState = () => {
     if (!userLogin) {
       setIsAuthModal(true);
     }
@@ -247,6 +245,20 @@ const DetailFeed = () => {
 
   const onAuthModal = () => {
     setIsAuthModal((prev) => !prev);
+  };
+
+  // Enter 전송 / Shift + Enter 줄바꿈
+  const onKeyPress = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
+    res: FeedType
+  ) => {
+    if (replyText !== "" && e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onReply(res);
+    }
+    // else if (e.key === "Enter" && e.shiftKey) {
+    //   setReplyText((value) => value + "\n"); // 줄바꿈 문자열 추가
+    // }
   };
 
   return (
@@ -270,7 +282,7 @@ const DetailFeed = () => {
               { name: "etc", type: "etc", detail: etc },
             ];
             return (
-              <Wrapper key={res.id} bgColor={bgColor} isMobile={isMobile}>
+              <Wrapper key={res.id} bgColor={bgColor}>
                 {isMore && !isFeedEdit ? (
                   <FeedMoreSelectModal
                     bgColor={bgColor}
@@ -328,79 +340,11 @@ const DetailFeed = () => {
                     </UserInfoBox>
                   </Header>
                   <WearDetailBox>
-                    <WearDetail>
-                      <WearInfoBox>
-                        <WearInfoMain>
-                          <BsSun />
-                        </WearInfoMain>
-                        <FlickingCategoryBox>
-                          <Flicking
-                            onChanged={(e) => console.log(e)}
-                            moveType="freeScroll"
-                            bound={true}
-                            align="prev"
-                          >
-                            <WearInfo>
-                              <CategoryTagBox>
-                                <CategoryTag>
-                                  <MdPlace />
-                                  {res.region}
-                                </CategoryTag>
-                                <CategoryTag>
-                                  <WeatherIcon>
-                                    <img
-                                      src={`http://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
-                                      alt="weather icon"
-                                    />
-                                  </WeatherIcon>
-                                  {res.weatherInfo.weather}
-                                </CategoryTag>
-                                <CategoryTag>
-                                  {res.weatherInfo.temp}º
-                                </CategoryTag>
-                                <CategoryTag>
-                                  {res.weatherInfo.wind}
-                                  <span>m/s</span>
-                                </CategoryTag>
-                              </CategoryTagBox>
-                            </WearInfo>
-                          </Flicking>
-                        </FlickingCategoryBox>
-                      </WearInfoBox>
-                    </WearDetail>
-                    <WearDetail>
-                      <WearInfoBox>
-                        <WearInfoMain>
-                          <IoShirtOutline />
-                        </WearInfoMain>
-                        <FlickingCategoryBox>
-                          <Flicking
-                            onChanged={(e) => console.log(e)}
-                            moveType="freeScroll"
-                            bound={true}
-                            align="prev"
-                          >
-                            <WearInfo>
-                              <CategoryTagBox>
-                                <CategoryTag>{res.feel}</CategoryTag>
-                                {categoryTags.map((tag) =>
-                                  tag.detail ? (
-                                    <CategoryTag
-                                      key={tag.name}
-                                      onClick={() =>
-                                        onWearClick(tag.type, tag.detail)
-                                      }
-                                    >
-                                      {tag.detail}
-                                    </CategoryTag>
-                                  ) : null
-                                )}
-                              </CategoryTagBox>
-                            </WearInfo>
-                          </Flicking>
-                        </FlickingCategoryBox>
-                      </WearInfoBox>
-                    </WearDetail>
+                    <DetailFeedCategory
+                      res={res}
+                      categoryTags={categoryTags}
+                      onWearClick={onWearClick}
+                    />
                   </WearDetailBox>
                   {res.url.length > 1 ? (
                     <FlickingImageBox
@@ -509,50 +453,57 @@ const DetailFeed = () => {
                         </TagList>
                       )}
                     </TextBox>
-                    <ReplyBox>
-                      {res.reply.length > 0 && (
-                        <>
-                          <UserReactNum>댓글 {res.reply.length}개</UserReactNum>
-                          {reply.map((reply, index) => {
-                            return (
-                              <DetailFeedReply
-                                key={index}
-                                userObj={userObj.email}
-                                isLogin={userLogin}
-                                reply={reply}
-                                onDelete={onReplyDelete}
-                              />
-                            );
-                          })}
-                        </>
+                  </InfoBox>
+                  <ReplyBox>
+                    {res.reply.length > 0 && (
+                      <>
+                        <UserReactNum>댓글 {res.reply.length}개</UserReactNum>
+                        {reply.map((reply, index) => {
+                          return (
+                            <DetailFeedReply
+                              key={index}
+                              userObj={userObj.email}
+                              isLogin={userLogin}
+                              reply={reply}
+                              onDelete={onReplyDelete}
+                            />
+                          );
+                        })}
+                      </>
+                    )}
+                    <ReplyEditBox
+                      onSubmit={() => onReply(res)}
+                      onClick={onLogInState}
+                    >
+                      <ReplyEditText
+                        spellCheck="false"
+                        maxLength={120}
+                        value={replyText}
+                        ref={textRef}
+                        onChange={onChange}
+                        onKeyDown={(e) => onKeyPress(e, res)}
+                        onInput={handleResizeHeight}
+                        placeholder="댓글 달기..."
+                      />
+                      {replyText.length > 0 && (
+                        <ReplyEditBtn
+                          color={bgColor}
+                          type="button"
+                          onClick={() => onReply(res)}
+                        >
+                          게시
+                        </ReplyEditBtn>
                       )}
-                      <ReplyEditBox onClick={onLogState}>
-                        <ReplyEditText
-                          spellCheck="false"
-                          maxLength={120}
-                          value={replyText}
-                          ref={textRef}
-                          onChange={onChange}
-                          onInput={handleResizeHeight}
-                          placeholder="댓글 달기..."
-                        />
-                        {replyText.length > 0 && (
-                          <ReplyEditBtn
-                            color={shadowColor}
-                            onClick={() => onReply(res)}
-                          >
-                            게시
-                          </ReplyEditBtn>
-                        )}
+                      {!isMobile && (
                         <Emoji
                           setText={setReplyText}
                           textRef={textRef}
                           right={0}
                           bottom={30}
                         />
-                      </ReplyEditBox>
-                    </ReplyBox>
-                  </InfoBox>
+                      )}
+                    </ReplyEditBox>
+                  </ReplyBox>
                 </Container>
               </Wrapper>
             );
@@ -566,19 +517,25 @@ const DetailFeed = () => {
 export default DetailFeed;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Wrapper = styled.div<{ bgColor: string; isMobile: boolean }>`
+const Wrapper = styled.div<{ bgColor: string }>`
   position: relative;
   overflow: hidden;
-  padding: 40px;
   height: 100%;
-  /* padding: 20px 60px 30px; */
   background: ${(props) => props.bgColor};
-  border-top: ${(props) => !props.isMobile && `2px solid ${secondColor}`};
+  border-top: 2px solid ${secondColor};
+  padding: 40px;
+
+  @media (max-width: 767px) {
+    border-top: none;
+    /* background: transparent; */
+    padding: 16px;
+  }
 `;
 
 const Container = styled.div<{ shadowColor: string }>`
   position: relative;
   border: 2px solid ${secondColor};
+  height: 100%;
   border-radius: 20px;
   overflow: hidden;
   background: #fff;
@@ -591,11 +548,21 @@ const Container = styled.div<{ shadowColor: string }>`
     shadow += `${props.shadowColor} 63px 63px`;
     return shadow;
   }};
+
+  @media (max-width: 767px) {
+    border: 1px solid ${secondColor};
+    /* border-radius: 0; */
+    /* box-shadow: none; */
+  }
 `;
 
 const Header = styled.div`
   padding: 20px;
   border-bottom: 1px solid ${thirdColor};
+
+  @media (max-width: 767px) {
+    padding: 16px;
+  }
 `;
 
 const UserInfoBox = styled.div`
@@ -604,8 +571,8 @@ const UserInfoBox = styled.div`
 `;
 
 const UserImageBox = styled(Link)`
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   overflow: hidden;
   border: 1px solid ${fourthColor};
@@ -624,6 +591,9 @@ const UserWriteInfo = styled.div`
 
 const WriteDate = styled.span`
   font-size: 12px;
+  @media (max-width: 767px) {
+    font-size: 10px;
+  }
 `;
 
 const UserNameBox = styled(Link)`
@@ -635,6 +605,9 @@ const UserNameBox = styled(Link)`
   font-weight: 500;
   letter-spacing: -0.15px;
   color: ${secondColor};
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const FollowBtnBox = styled.div`
@@ -681,6 +654,11 @@ const FollowBtn = styled.button`
   &:active {
     background: #000;
   }
+
+  @media (max-width: 767px) {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
 `;
 
 const FollowingBtn = styled(FollowBtn)`
@@ -694,13 +672,6 @@ const FollowingBtn = styled(FollowBtn)`
   }
 `;
 
-const UserImage = styled.img`
-  image-rendering: auto;
-  display: block;
-  width: 100%;
-  height: 100%;
-`;
-
 const Card = styled.div`
   display: block;
   position: relative;
@@ -708,16 +679,9 @@ const Card = styled.div`
   user-select: none;
   outline: none;
   overflow: hidden;
-  /* position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  object-fit: cover;
-  width: 100%; */
 `;
 
 const CardImage = styled.img`
-  /* object-fit: cover; */
   display: block;
   width: 100%;
   height: 100%;
@@ -731,42 +695,7 @@ const WearDetailBox = styled.div`
   border-bottom: 1px solid ${thirdColor};
 `;
 
-const WearDetail = styled.div`
-  padding: 14px 14px;
-  display: flex;
-  flex: 1;
-  align-items: center;
-  &:not(:last-of-type) {
-    border-right: 1px solid ${thirdColor};
-  }
-`;
-
-const WearInfoBox = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-`;
-
-const WearInfoMain = styled.div`
-  flex: 0 0 auto;
-  user-select: text;
-  color: ${secondColor};
-  /* min-width: 55px; */
-  text-align: center;
-  margin-right: 12px;
-  /* padding-right: 8px; */
-  /* border-right: 1px solid ${thirdColor}; */
-  font-size: 14px;
-
-  svg {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-`;
-
 const FlickingCategoryBox = styled.div`
-  position: relative;
   width: 100%;
   cursor: pointer;
   &::after {
@@ -778,6 +707,10 @@ const FlickingCategoryBox = styled.div`
     height: 100%;
     width: 14px;
     content: "";
+  }
+
+  @media (max-width: 767px) {
+    /* width: 136px; */
   }
 `;
 
@@ -822,53 +755,7 @@ const PaginationSpan = styled.span<{ slideIndex: number }>`
   &:nth-of-type(${(props) => props.slideIndex + 1}) {
     span {
       background-color: #222;
-      /* transform: scaleX(30px); */
-      /* width: 6px; */
-      /* height: 6px; */
-      /* border-radius: 3px; */
     }
-  }
-`;
-
-const WearInfo = styled.div`
-  display: flex;
-  align-items: center;
-  /* width: 100%; */
-  gap: 10px;
-`;
-
-const WeatherIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  margin-right: 8px;
-  img {
-    display: block;
-    width: 100%;
-  }
-`;
-
-const CategoryTagBox = styled.div`
-  display: flex;
-  flex: nowrap;
-  gap: 8px;
-`;
-
-const CategoryTag = styled.div`
-  font-size: 12px;
-  padding: 8px 10px;
-  display: flex;
-  align-items: center;
-  border: 1px solid ${thirdColor};
-  border-radius: 8px;
-  /* border-radius: 20px; */
-
-  svg {
-    margin-right: 2px;
-    font-size: 12px;
-    color: ${thirdColor};
   }
 `;
 
@@ -890,7 +777,6 @@ const Tag = styled(Link)<{ color?: string }>`
   position: relative;
   display: flex;
   align-items: center;
-  /* line-height: 16px; */
   border-radius: 64px;
   background-color: #f5f5f5;
   padding: 8px 10px;
@@ -902,6 +788,10 @@ const Tag = styled(Link)<{ color?: string }>`
   }
   span {
     margin-right: 4px;
+  }
+
+  @media (max-width: 767px) {
+    padding: 6px 8px;
   }
 `;
 
@@ -915,22 +805,23 @@ const TextBox = styled.div`
 `;
 
 const ReplyBox = styled.div`
-  margin-top: 30px;
-  /* display: flex; */
-  /* flex-direction: column; */
+  padding: 0 16px 16px;
 `;
 
-const ReplyEditBox = styled.div`
+const ReplyEditBox = styled.form`
   padding-top: 20px;
-  margin-top: 24px;
+  margin-top: 10px;
+  padding-bottom: 8px;
   width: 100%;
   height: 100%;
   border-top: 1px solid ${fourthColor};
-  /* height: 32px; */
-  /* max-height: 80px; */
-  /* position: relative; */
   display: flex;
   align-items: center;
+
+  @media (max-width: 767px) {
+    padding-top: 16px;
+    padding-bottom: 0;
+  }
 `;
 
 const ReplyEditText = styled.textarea`
@@ -942,12 +833,17 @@ const ReplyEditText = styled.textarea`
   border: none;
   outline: none;
   line-height: 24px;
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
-const ReplyEditBtn = styled.div<{ color: string }>`
+const ReplyEditBtn = styled.button<{ color: string }>`
   display: flex;
   flex: 1 0 auto;
   margin: 0 12px;
+  padding: 0;
   align-items: center;
   justify-content: center;
   background: transparent;
@@ -968,7 +864,7 @@ const UserReactBox = styled.div`
 `;
 
 const UserReactNum = styled.p`
-  font-size: 15px;
+  font-size: 14px;
   color: ${thirdColor};
   margin-bottom: 6px;
 `;
@@ -998,27 +894,17 @@ const UserTextBox = styled.div`
   line-height: 30px;
   font-size: 16px;
   letter-spacing: -0.21px;
-`;
-
-const UserId = styled.p`
-  margin-right: 8px;
-  font-size: 14px;
-  font-weight: bold;
-  display: inline-block;
-  cursor: pointer;
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const UserText = styled.span`
   font-size: 16px;
   white-space: pre-wrap;
-`;
-
-const ReplyTextBox = styled(UserTextBox)`
-  line-height: 24px;
-`;
-
-const ReplyText = styled(UserText)`
-  font-size: 14px;
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const Arrow = styled.div`

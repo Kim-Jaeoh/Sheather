@@ -97,6 +97,14 @@ const CardBox = styled.ul`
   flex-wrap: wrap;
   align-items: center;
   gap: 14px;
+
+  @media (max-width: 767px) {
+    gap: 10px;
+  }
+
+  @media (max-width: 600px) {
+    gap: 4px;
+  }
 `;
 
 const Card = styled.li<{ exist?: boolean }>`
@@ -130,6 +138,13 @@ const Card = styled.li<{ exist?: boolean }>`
     position: relative;
     display: block;
     padding-bottom: 100%;
+  }
+
+  @media (max-width: 767px) {
+    border: none;
+    border-radius: 0;
+
+    /* padding: 0 16px; */
   }
 `;
 
@@ -212,6 +227,14 @@ const NotInfoBox = styled.div`
       transform: translateY(0px);
     }
   }
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
-const NotInfo = styled.p``;
+const NotInfo = styled.p`
+  text-align: center;
+  white-space: pre-line;
+  line-height: 22px;
+`;

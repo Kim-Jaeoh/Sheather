@@ -20,6 +20,7 @@ import SearchResult from "./components/search/SearchResult";
 import TagCategoryList from "./components/explore/TagCategoryList";
 import FollowCategoryList from "./components/explore/FollowCategoryList";
 import useMediaScreen from "./hooks/useMediaScreen";
+import MobileHeader from "./components/MobileHeader";
 const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
@@ -53,18 +54,17 @@ const App = () => {
     });
   }, []);
 
-  console.log(init);
-
   return (
     <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
-      <Background>
-        <Wrapper isMobile={isMobile}>
-          <LeftBar />
-          <Main isDesktop={isDesktop} isMobile={isMobile}>
-            <Toaster position="bottom-center" reverseOrder={false} />
-            <Container isMobile={isMobile}>
-              <Routes>
+      <Wrapper isMobile={isMobile}>
+        <LeftBar />
+        {isMobile && <MobileHeader />}
+        <Main isDesktop={isDesktop} isMobile={isMobile}>
+          <Toaster position="bottom-center" reverseOrder={false} />
+          <Container isMobile={isMobile}>
+            <Routes>
+              <>
                 <Route path="/feed/*" element={<Home />} />
                 <Route path="/feed/detail" element={<DetailFeed />} />
                 <Route path="/weather" element={<Weather />} />
@@ -86,24 +86,18 @@ const App = () => {
                   path="/"
                   element={<Navigate replace to="/feed/recent" />}
                 />
-              </Routes>
-            </Container>
-            {!isMobile && <Footer />}
-          </Main>
-          {!RightBarNone && <RightBar />}
-        </Wrapper>
-      </Background>
+              </>
+            </Routes>
+          </Container>
+          {!isMobile && <Footer />}
+        </Main>
+        {!RightBarNone && <RightBar />}
+      </Wrapper>
     </Suspense>
   );
 };
 
 export default App;
-
-const Background = styled.div`
-  /* background: #fafafa;
-  color: #222;
-  font-variant-numeric: tabular-nums; */
-`;
 
 const Wrapper = styled.div<{ isMobile: boolean }>`
   display: ${(props) => (props.isMobile ? `block` : `flex`)};
@@ -116,10 +110,18 @@ const Wrapper = styled.div<{ isMobile: boolean }>`
 
 const Main = styled.main<{ isDesktop: boolean; isMobile: boolean }>`
   flex: 1;
-  max-width: ${(props) => (props.isDesktop ? "760px" : "auto")};
+  max-width: 760px;
   display: flex;
   flex-direction: column;
-  height: ${(props) => (props.isMobile ? "100vh" : "auto")};
+
+  @media (min-width: 768px) and (max-width: 1059px) {
+    max-width: calc(100% - 70px);
+  }
+  @media (max-width: 767px) {
+    margin-top: 52px;
+    /* height: 100vh; */
+    height: calc(100vh - 52px);
+  }
 `;
 
 const Container = styled.section<{ isMobile: boolean }>`

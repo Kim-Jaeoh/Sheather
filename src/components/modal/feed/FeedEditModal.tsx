@@ -103,59 +103,57 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
 
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={false}>
-      <>
-        <Container bgColor={bgColor} onSubmit={onSubmit}>
-          <Header>
-            <IconBox bgColor={bgColor} onClick={onPrevClick}>
-              <BiLeftArrowAlt />
-            </IconBox>
-            <Category>피드 정보 수정</Category>
-            <EditBtn bgColor={bgColor} type="submit">
-              <EditText>수정 완료</EditText>
-            </EditBtn>
-          </Header>
+      <Container bgColor={bgColor} onSubmit={onSubmit}>
+        <Header>
+          <IconBox bgColor={bgColor} onClick={onPrevClick}>
+            <BiLeftArrowAlt />
+          </IconBox>
+          <Category>피드 정보 수정</Category>
+          <EditBtn bgColor={bgColor} type="submit">
+            <EditText>수정 완료</EditText>
+          </EditBtn>
+        </Header>
 
-          <ImageWrapper>
-            <Flicking
-              onChanged={(e) => console.log(e)}
-              moveType="freeScroll"
-              bound={true}
-              align="prev"
-            >
-              <ImageContainerBox>
-                {Array.from({ length: info.url.length })?.map((res, index) => {
-                  return (
-                    <ImageContainer key={index}>
-                      {info.url[index] ? (
-                        <ImageBox length={info.url.length}>
-                          <ImageWrap>
-                            <Images src={info.url[index]} alt="" />
-                          </ImageWrap>
-                        </ImageBox>
-                      ) : (
-                        <ImageBox style={{ background: "#dbdbdb" }} />
-                      )}
-                    </ImageContainer>
-                  );
-                })}
-              </ImageContainerBox>
-            </Flicking>
-          </ImageWrapper>
+        <ImageWrapper>
+          <Flicking
+            onChanged={(e) => console.log(e)}
+            moveType="freeScroll"
+            bound={true}
+            align="prev"
+          >
+            <ImageContainerBox>
+              {Array.from({ length: info.url.length })?.map((res, index) => {
+                return (
+                  <ImageContainer key={index}>
+                    {info.url[index] ? (
+                      <ImageBox length={info.url.length}>
+                        <ImageWrap>
+                          <Images src={info.url[index]} alt="" />
+                        </ImageWrap>
+                      </ImageBox>
+                    ) : (
+                      <ImageBox style={{ background: "#dbdbdb" }} />
+                    )}
+                  </ImageContainer>
+                );
+              })}
+            </ImageContainerBox>
+          </Flicking>
+        </ImageWrapper>
 
-          <ShareWeatherCategory
-            bgColor={bgColor}
-            checkTag={checkTag}
-            setCheckTag={setCheckTag}
-          />
-          <ShareWeatherForm
-            bgColor={bgColor}
-            text={text}
-            tags={tags}
-            setText={setText}
-            setTags={setTags}
-          />
-        </Container>
-      </>
+        <ShareWeatherCategory
+          bgColor={bgColor}
+          checkTag={checkTag}
+          setCheckTag={setCheckTag}
+        />
+        <ShareWeatherForm
+          bgColor={bgColor}
+          text={text}
+          tags={tags}
+          setText={setText}
+          setTags={setTags}
+        />
+      </Container>
     </Modal>
   );
 };
@@ -182,6 +180,19 @@ const Container = styled.form<{ bgColor: string }>`
   box-shadow: 12px 12px 0 -2px ${(props) => props.bgColor},
     12px 12px ${secondColor};
   /* overflow: hidden; */
+
+  @media (max-width: 767px) {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    transform: translate(0, 0);
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
 `;
 
 const Header = styled.header`

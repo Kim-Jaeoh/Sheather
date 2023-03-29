@@ -34,7 +34,7 @@ const Wrapper = styled.div`
   &:not(:last-of-type) {
     margin-bottom: 30px;
   }
-  border-radius: 8px;
+  border-radius: 20px;
   overflow: hidden;
   border: 2px solid #22222222;
 `;

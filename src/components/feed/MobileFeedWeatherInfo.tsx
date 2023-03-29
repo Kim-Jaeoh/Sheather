@@ -17,26 +17,6 @@ import { BsSun } from "react-icons/bs";
 const MobileFeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
   const { pathname } = useLocation();
-  const { ClothesCategory } = TempClothes();
-  const navigate = useNavigate();
-
-  const changeColor = useMemo(() => {
-    if (pathname.includes("feed")) {
-      return "#ff5673";
-    }
-    if (pathname.includes("weather")) {
-      return "#48a3ff";
-    }
-    if (pathname.includes("message")) {
-      return "#ff5c1b";
-    }
-    if (pathname.includes("explore")) {
-      return "#30c56e";
-    }
-    if (pathname.includes("profile")) {
-      return "#6f4ccf";
-    }
-  }, [pathname]);
 
   // 날씨 정보 받아오기
   const weatherApi = async () =>
@@ -94,9 +74,6 @@ const MobileFeedWeatherInfo = () => {
         <WearDetailBox>
           <WearDetail>
             <WearInfoBox>
-              {/* <WearInfoMain>
-                <BsSun />
-              </WearInfoMain> */}
               <FlickingCategoryBox>
                 <Flicking
                   onChanged={(e) => console.log(e)}
@@ -106,8 +83,11 @@ const MobileFeedWeatherInfo = () => {
                 >
                   <WearInfo>
                     <CategoryTagBox>
+                      <WearInfoMain>
+                        <BsSun />
+                      </WearInfoMain>
                       <CategoryTag>
-                        {/* <MdPlace /> */}
+                        <MdPlace />
                         {
                           regionData?.data?.documents[0]?.address
                             ?.region_3depth_name
@@ -130,6 +110,9 @@ const MobileFeedWeatherInfo = () => {
                         {Math.round(weatherData?.data?.wind.speed)}
                         <span>m/s</span>
                       </CategoryTag>
+                      <WearInfoMain style={{ marginLeft: `4px` }}>
+                        <IoShirtOutline />
+                      </WearInfoMain>
                       {filterTempClothes[0].clothes.map((res, index) => {
                         return <CategoryTag key={index}>{res}</CategoryTag>;
                       })}
@@ -155,7 +138,7 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
-  padding-right: 16px;
+  /* padding-right: 16px; */
   overflow: hidden;
   color: ${thirdColor};
 `;
@@ -163,8 +146,11 @@ const Container = styled.div`
 const WearDetailBox = styled.div`
   width: 100%;
   overflow: hidden;
-  display: flex;
+  padding-right: 16px;
+  position: relative;
+  /* display: flex;
   align-items: center;
+  border: 1px solid red; */
 `;
 
 const WearDetail = styled.div`
@@ -179,8 +165,24 @@ const WearInfoBox = styled.div`
   width: 100%;
 `;
 
+const WearInfoMain = styled.div`
+  flex: 0 0 auto;
+  user-select: text;
+  color: ${secondColor};
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    color: ${thirdColor};
+    width: 12px;
+    height: 12px;
+  }
+`;
+
 const FlickingCategoryBox = styled.div`
-  position: relative;
+  /* position: relative; */
   width: 100%;
   cursor: pointer;
   &::after {

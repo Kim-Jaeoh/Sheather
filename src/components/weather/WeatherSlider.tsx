@@ -16,6 +16,7 @@ import Flicking from "@egjs/react-flicking";
 import "../../styles/SlickSliderFlicking.css";
 import useFlickingArrow from "../../hooks/useFlickingArrow";
 import moment from "moment";
+import useMediaScreen from "../../hooks/useMediaScreen";
 
 type PropsType = {
   data: WeathersFiveDataType[];
@@ -35,6 +36,9 @@ interface ResDataType {
 }
 
 const WeatherSlider = ({ data }: PropsType) => {
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [clothesBtn, setClothesBtn] = useState(false);
   const [shareBtn, setShareBtn] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -50,10 +54,8 @@ const WeatherSlider = ({ data }: PropsType) => {
     dataLength: data.length,
     lastLength: data.length < 4 ? data.length : 4,
   });
-
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
+  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
+    useMediaScreen();
 
   // 오늘 날짜인지 boolean 체크, 날짜 입력값
   const day = useMemo(() => {
@@ -99,7 +101,7 @@ const WeatherSlider = ({ data }: PropsType) => {
             <Flicking
               align={"prev"}
               // align={data.length < 4 ? "center" : "prev"}
-              panelsPerView={data.length < 4 ? data.length : 4}
+              panelsPerView={isMobile ? 2 : data.length < 4 ? data.length : 4}
               circular={false}
               ref={flickingRef}
               bound={true}
@@ -216,6 +218,10 @@ const Wrapper = styled.div`
   &:not(:last-of-type) {
     margin-bottom: 30px;
   }
+
+  @media (max-width: 767px) {
+    border: 1px solid ${secondColor};
+  }
 `;
 
 const FlickingBox = styled.ul`
@@ -276,6 +282,11 @@ const WeatherDateBox = styled.div`
   margin-top: -2px;
   border-top: 2px solid ${secondColor};
   border-bottom: 2px solid ${secondColor};
+
+  @media (max-width: 767px) {
+    border: none;
+    border-bottom: 1px solid ${thirdColor};
+  }
 `;
 
 const WeatherDate = styled.span`

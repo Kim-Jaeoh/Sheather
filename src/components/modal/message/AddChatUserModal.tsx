@@ -122,17 +122,30 @@ const Container = styled.div`
   flex-direction: column;
   width: 400px;
   height: 400px;
-  box-sizing: border-box;
   position: absolute;
-  color: ${secondColor};
-  outline: none;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  color: ${secondColor};
+  outline: none;
   background: #fff;
   border-radius: 20px;
   border: 2px solid ${secondColor};
   box-shadow: 12px 12px 0 -2px #ff5c1b, 12px 12px ${secondColor};
+
+  @media (max-width: 767px) {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: translate(0, 0);
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
 `;
 
 const Header = styled.header`

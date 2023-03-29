@@ -371,6 +371,19 @@ const Container = styled.form`
   border: 2px solid ${secondColor};
   box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
   overflow: hidden;
+
+  @media (max-width: 767px) {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    transform: translate(0, 0);
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
 `;
 
 const Header = styled.header`
@@ -435,7 +448,7 @@ const EditBtn = styled.button`
 `;
 
 const EditText = styled.p`
-  font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
+  /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
 `;
 
 const EditTextEng = styled(EditText)`

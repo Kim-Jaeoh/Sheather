@@ -15,15 +15,16 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Header = styled.header`
   width: 100%;
   height: 52px;
-  position: sticky;
+  position: fixed;
   top: 0;
   padding: 0 16px;
-  display: flex;
   background-color: #fff;
   z-index: 99;
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid ${fourthColor};
+  /* border-bottom: 2px solid ${fourthColor}; */
+  border-bottom: 1px solid ${secondColor};
 `;
 
 const LogoBox = styled.div``;

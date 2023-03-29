@@ -5,9 +5,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import ColorList from "../../assets/ColorList";
 import RangeTimeModal from "../modal/feed/RangeTimeModal";
 import moment from "moment";
-import { MdSort } from "react-icons/md";
 import MobileFeedWeatherInfo from "./MobileFeedWeatherInfo";
 import MobileFeedCategoryModal from "../modal/feed/MobileFeedCategoryModal";
+import { RiListSettingsFill } from "react-icons/ri";
+import FeedWeatherInfo from "./FeedWeatherInfo";
 
 type Props = {
   url: string;
@@ -24,8 +25,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
   const [categoryModal, setCategoryModal] = useState(false);
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
-  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
-    useMediaScreen();
+  const { isMobile } = useMediaScreen();
 
   const value = useMemo(() => {
     return moment(changeValue).format("YYYYMMDD");
@@ -123,36 +123,108 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
 
   return (
     <>
+      {categoryModal && (
+        <MobileFeedCategoryModal
+          modalOpen={categoryModal}
+          selectCategory={selectCategory}
+          modalClose={onCategoryModalClose}
+          setSelectCategory={setSelectCategory}
+          onSelectCategory2={onSelectCategory2}
+        />
+      )}
+      {selectCategory === 2 && isDetailModal && (
+        <RangeTimeModal
+          modalOpen={isDetailModal}
+          modalClose={onModalClose}
+          rangeTime={rangeTime}
+          setRangeTime={setRangeTime}
+          changeValue={changeValue}
+          setChangeValue={setChangeValue}
+          onReset={onReset}
+          onDone={onDone}
+        />
+      )}
       {isMobile ? (
         <>
-          {categoryModal && (
-            <MobileFeedCategoryModal
-              modalOpen={categoryModal}
-              modalClose={onCategoryModalClose}
-              setSelectCategory={setSelectCategory}
-              onSelectCategory2={onSelectCategory2}
-            />
-          )}
-          {selectCategory === 2 && isDetailModal && (
-            <RangeTimeModal
-              modalOpen={isDetailModal}
-              modalClose={onModalClose}
-              rangeTime={rangeTime}
-              setRangeTime={setRangeTime}
-              changeValue={changeValue}
-              setChangeValue={setChangeValue}
-              onReset={onReset}
-              onDone={onDone}
-            />
-          )}
           <InfoBox>
             <MobileFeedWeatherInfo />
             <IconBox onClick={onCategoryModalClose}>
-              <MdSort />
+              <RiListSettingsFill />
             </IconBox>
           </InfoBox>
-          <SelectTimeBox isMobile={isMobile} select={selectCategory}>
-            {selectCategory === 2 && isDetailDone && (
+          {selectCategory === 2 && isDetailDone && (
+            <SelectDetailTimeBox>
+              <SelectCategoryBox>
+                <SelectCategoryBtn
+                  select={dateCategory}
+                  category={"recent"}
+                  type="button"
+                  onClick={() => setDateCategory("recent")}
+                >
+                  최신순
+                </SelectCategoryBtn>
+                <SelectCategoryBtn
+                  select={dateCategory}
+                  category={"popular"}
+                  type="button"
+                  onClick={() => setDateCategory("popular")}
+                >
+                  인기순
+                </SelectCategoryBtn>
+              </SelectCategoryBox>
+              <SelectDetailTime>
+                {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
+                {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
+                {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
+              </SelectDetailTime>
+            </SelectDetailTimeBox>
+          )}
+        </>
+      ) : (
+        <>
+          <FeedWeatherInfo />
+          <SelectTimeBox select={selectCategory}>
+            <SelectCategory>
+              <SelectCategoryTextLink
+                to="recent"
+                onClick={() => setSelectCategory(0)}
+                select={selectCategory}
+                num={0}
+              >
+                <SelectCategoryText>최신</SelectCategoryText>
+              </SelectCategoryTextLink>
+              <SelectCategoryTextLink
+                to="popular"
+                onClick={() => setSelectCategory(1)}
+                select={selectCategory}
+                num={1}
+              >
+                <SelectCategoryText>인기</SelectCategoryText>
+              </SelectCategoryTextLink>
+              <SelectCategoryTextLink
+                to="date"
+                onClick={onSelectCategory2}
+                select={selectCategory}
+                num={2}
+              >
+                <SelectCategoryText>날짜별</SelectCategoryText>
+              </SelectCategoryTextLink>
+            </SelectCategory>
+
+            {selectCategory === 2 && isDetailModal && (
+              <RangeTimeModal
+                modalOpen={isDetailModal}
+                modalClose={onModalClose}
+                rangeTime={rangeTime}
+                setRangeTime={setRangeTime}
+                changeValue={changeValue}
+                setChangeValue={setChangeValue}
+                onReset={onReset}
+                onDone={onDone}
+              />
+            )}
+
+            {isDetailDone && selectCategory === 2 && (
               <SelectDetailTimeBox>
                 <SelectCategoryBox>
                   <SelectCategoryBtn
@@ -181,76 +253,6 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
             )}
           </SelectTimeBox>
         </>
-      ) : (
-        <SelectTimeBox select={selectCategory}>
-          <SelectCategory>
-            <SelectCategoryTextLink
-              to="recent"
-              onClick={() => setSelectCategory(0)}
-              select={selectCategory}
-              num={0}
-            >
-              <SelectCategoryText>최신</SelectCategoryText>
-            </SelectCategoryTextLink>
-            <SelectCategoryTextLink
-              to="popular"
-              onClick={() => setSelectCategory(1)}
-              select={selectCategory}
-              num={1}
-            >
-              <SelectCategoryText>인기</SelectCategoryText>
-            </SelectCategoryTextLink>
-            <SelectCategoryTextLink
-              to="date"
-              onClick={onSelectCategory2}
-              select={selectCategory}
-              num={2}
-            >
-              <SelectCategoryText>날짜별</SelectCategoryText>
-            </SelectCategoryTextLink>
-          </SelectCategory>
-
-          {selectCategory === 2 && isDetailModal && (
-            <RangeTimeModal
-              modalOpen={isDetailModal}
-              modalClose={onModalClose}
-              rangeTime={rangeTime}
-              setRangeTime={setRangeTime}
-              changeValue={changeValue}
-              setChangeValue={setChangeValue}
-              onReset={onReset}
-              onDone={onDone}
-            />
-          )}
-
-          {isDetailDone && selectCategory === 2 && (
-            <SelectDetailTimeBox>
-              <SelectCategoryBox>
-                <SelectCategoryBtn
-                  select={dateCategory}
-                  category={"recent"}
-                  type="button"
-                  onClick={() => setDateCategory("recent")}
-                >
-                  최신순
-                </SelectCategoryBtn>
-                <SelectCategoryBtn
-                  select={dateCategory}
-                  category={"popular"}
-                  type="button"
-                  onClick={() => setDateCategory("popular")}
-                >
-                  인기순
-                </SelectCategoryBtn>
-              </SelectCategoryBox>
-              <SelectDetailTime>
-                {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
-                {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
-                {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
-              </SelectDetailTime>
-            </SelectDetailTimeBox>
-          )}
-        </SelectTimeBox>
       )}
     </>
   );
@@ -265,7 +267,7 @@ const InfoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 20px 16px;
 `;
 
 const IconBox = styled.div`
@@ -282,51 +284,23 @@ const IconBox = styled.div`
   }
 `;
 
-const SelectTimeBox = styled.div<{ select: number; isMobile?: boolean }>`
+const SelectTimeBox = styled.div<{ select: number }>`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  margin: 0 auto;
-  padding: ${(props) => (props.isMobile ? `0 16px` : `20px`)};
-  margin-top: ${(props) => props.isMobile && `4px`};
-
-  button,
-  p {
-    font-size: ${(props) => (props.isMobile ? `12px` : `14px`)};
-    border-color: ${(props) => props.isMobile && fourthColor};
-  }
-
-  p {
-    color: ${(props) => props.isMobile && thirdColor};
-  }
-
-  > div {
-    margin: ${(props) => (props.isMobile ? `10px 0` : `20px 0`)};
-  }
+  padding: 40px;
 `;
 
 const SelectDetailTimeBox = styled.div`
   width: 100%;
-  /* margin: 20px 0; */
-  /* animation-name: slideDown;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-in-out;
+  margin: 20px 0;
 
-  @keyframes slideDown {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  } */
+  @media (max-width: 767px) {
+    margin: 10px 0;
+    padding: 0 16px 16px;
+  }
 `;
 
 const SelectCategoryBox = styled.div`
@@ -340,22 +314,31 @@ const SelectCategoryBox = styled.div`
 const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
   padding: 0;
   transition: all 0.15s linear;
-  /* font-size: 14px; */
+  font-size: 14px;
   font-weight: ${(props) =>
     props.select === props.category ? "bold" : "normal"};
   cursor: pointer;
   color: ${secondColor};
+  @media (max-width: 767px) {
+    font-size: 12px;
+    border-color: ${fourthColor};
+  }
 `;
 
 const SelectDetailTime = styled.p`
   width: 100%;
-  /* font-size: 14px; */
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: end;
   color: ${secondColor};
   padding-top: 10px;
   border-top: 1px solid ${secondColor};
+  @media (max-width: 767px) {
+    font-size: 12px;
+    border-color: ${fourthColor};
+    color: ${thirdColor};
+  }
 `;
 
 const SelectCategory = styled.div`

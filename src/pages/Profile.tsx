@@ -3,31 +3,27 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { onSnapshot, doc } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
-import { FaRegHeart } from "react-icons/fa";
-import { FiLogOut } from "react-icons/fi";
+import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
+import {} from "react-icons/fi";
 import { MdGridOn } from "react-icons/md";
 import { useSelector } from "react-redux";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { RootState } from "../app/store";
-import { CurrentUserType } from "../app/user";
 import ColorList from "../assets/ColorList";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
+import DeskProfileActInfo from "../components/profile/DeskProfileActInfo";
+import MobileProfileActInfo from "../components/profile/MobileProfileActInfo";
 import ProfilePost from "../components/profile/ProfilePost";
 import { dbService } from "../fbase";
-import useCreateChat from "../hooks/useCreateChat";
 import useInfinityScroll from "../hooks/useInfinityScroll";
-import useLogout from "../hooks/useLogout";
 import useMediaScreen from "../hooks/useMediaScreen";
-import useToggleFollow from "../hooks/useToggleFollow";
 import { FeedType } from "../types/type";
 
 const Profile = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [selectCategory, setSelectCategory] = useState(0);
   const [post, setPost] = useState(null);
   const [notInfoText, setNotInfoText] = useState("");
@@ -36,8 +32,6 @@ const Profile = () => {
   const [followCategory, setFollowCategory] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const { onLogOutClick } = useLogout();
-  const { toggleFollow } = useToggleFollow();
   const { id, "*": type } = useParams();
   const {
     dataList: feedArray,
@@ -47,9 +41,7 @@ const Profile = () => {
     url: `${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`,
     count: 9,
   });
-  const { clickInfo, onCreateChatClick } = useCreateChat();
-  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
-    useMediaScreen();
+  const { isMobile } = useMediaScreen();
 
   const feedApi = async () => {
     const { data } = await axios.get(
@@ -59,14 +51,10 @@ const Profile = () => {
   };
 
   // 피드 리스트 가져오기
-  const { data: feedData, isLoading } = useQuery<FeedType[]>(
-    ["feed"],
-    feedApi,
-    {
-      refetchOnWindowFocus: false,
-      onError: (e) => console.log(e),
-    }
-  );
+  const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {
+    refetchOnWindowFocus: false,
+    onError: (e) => console.log(e),
+  });
 
   // 게시글 숫자
   const myPost: FeedType[] = useMemo(() => {
@@ -112,7 +100,7 @@ const Profile = () => {
     if (selectCategory === 1) {
       const likeFilter = account?.like
         ?.map((res: string) => {
-          return feedArray?.pages?.flat()?.filter((asd) => asd.id === res);
+          return feedArray?.pages?.flat()?.filter((res) => res.id === res);
         })
         .flat();
 
@@ -122,7 +110,7 @@ const Profile = () => {
     if (selectCategory === 2) {
       const bookmarkFilter = account?.bookmark
         ?.map((res: string) => {
-          return feedArray?.pages?.flat()?.filter((asd) => asd.id === res);
+          return feedArray?.pages?.flat()?.filter((res) => res.id === res);
         })
         .flat();
 
@@ -138,14 +126,14 @@ const Profile = () => {
 
   useEffect(() => {
     if (myPost?.length !== 0) {
-      setNotInfoText("게시물을 공유하면 회원님의 프로필에 표시됩니다.");
+      setNotInfoText("게시물을 공유하면 회원님의 게시글에 표시됩니다.");
     }
     if (selectCategory === 1) {
-      setNotInfoText("사람들의 게시물에 좋아요를 누르면 여기에 표시됩니다.");
+      setNotInfoText("사람들의 게시물에 좋아요를 누르면\n이곳에 표시됩니다.");
     }
 
     if (selectCategory === 2) {
-      setNotInfoText("사람들의 게시물에 북마크를 누르면 여기에 표시됩니다.");
+      setNotInfoText("사람들의 게시물에 북마크를 누르면\n이곳에 표시됩니다.");
     }
   }, [myPost?.length, selectCategory]);
 
@@ -153,16 +141,8 @@ const Profile = () => {
     setModalOpen((prev) => !prev);
   };
 
-  const onClickFollowInfo = (res: []) => {
-    setFollowInfo(res);
-  };
-
   const onEditModalClick = () => {
     setEditModalOpen((prev) => !prev);
-  };
-
-  const onMessageClick = (res: CurrentUserType) => {
-    onCreateChatClick(res);
   };
 
   return (
@@ -190,78 +170,26 @@ const Profile = () => {
             />
           )}
           <Container>
-            <ProfileBox>
-              <ProfileImageBox>
-                <ProfileImage src={account?.profileURL} alt="profile image" />
-              </ProfileImageBox>
-              <ProfileDetailBox>
-                <ProfileDetail>
-                  <ProfileInfoBox>
-                    <ProfileDsName>{account?.displayName}</ProfileDsName>
-                    <ProfileActBox>
-                      <ProfileAct>
-                        게시글 <em>{myPost?.length}</em>
-                      </ProfileAct>
-                      <ProfileAct
-                        onClick={() => {
-                          onModalClick();
-                          onClickFollowInfo(account?.follower);
-                          setFollowCategory("팔로워");
-                        }}
-                      >
-                        팔로워 <em>{account?.follower.length}</em>
-                      </ProfileAct>
-                      <ProfileAct
-                        onClick={() => {
-                          onModalClick();
-                          onClickFollowInfo(account?.following);
-                          setFollowCategory("팔로잉");
-                        }}
-                      >
-                        팔로잉 <em>{account?.following.length}</em>
-                      </ProfileAct>
-                    </ProfileActBox>
-                  </ProfileInfoBox>
-                  {account?.email === userObj.email ? (
-                    <BtnBox>
-                      <ProfileEditBtn onClick={onEditModalClick}>
-                        프로필 수정
-                      </ProfileEditBtn>
-                      <LogoutBtn onClick={onLogOutClick}>
-                        <FiLogOut />
-                      </LogoutBtn>
-                    </BtnBox>
-                  ) : (
-                    <ActBtnBox>
-                      <FollowBtnBox
-                        onClick={() => toggleFollow(account?.displayName)}
-                      >
-                        {userObj?.following.filter((obj) =>
-                          obj.displayName.includes(account.displayName)
-                        ).length !== 0 ? (
-                          <BtnBox>
-                            <FollowingBtn>팔로잉</FollowingBtn>
-                          </BtnBox>
-                        ) : (
-                          <BtnBox>
-                            <FollowBtn>팔로우</FollowBtn>
-                          </BtnBox>
-                        )}
-                      </FollowBtnBox>
-                      <MessageBtnBox onClick={() => onMessageClick(account)}>
-                        <MessageBtn>메시지 보내기</MessageBtn>
-                      </MessageBtnBox>
-                    </ActBtnBox>
-                  )}
-                </ProfileDetail>
-                <ProfileIntroBox>
-                  {account?.name && <ProfileName>{account.name}</ProfileName>}
-                  {account?.description && (
-                    <ProfileDesc>{account.description}</ProfileDesc>
-                  )}
-                </ProfileIntroBox>
-              </ProfileDetailBox>
-            </ProfileBox>
+            {!isMobile ? (
+              <DeskProfileActInfo
+                myPost={myPost?.length}
+                account={account}
+                onModalClick={onModalClick}
+                setFollowInfo={setFollowInfo}
+                setFollowCategory={setFollowCategory}
+                onEditModalClick={onEditModalClick}
+              />
+            ) : (
+              <MobileProfileActInfo
+                myPost={myPost?.length}
+                account={account}
+                onModalClick={onModalClick}
+                setFollowInfo={setFollowInfo}
+                setFollowCategory={setFollowCategory}
+                onEditModalClick={onEditModalClick}
+              />
+            )}
+
             <CategoryBox>
               <Category
                 onClick={() => setSelectCategory(0)}
@@ -270,7 +198,7 @@ const Profile = () => {
                 to={`post`}
               >
                 <MdGridOn />
-                게시물
+                <CategoryText>게시물</CategoryText>
               </Category>
               <Category
                 onClick={() => setSelectCategory(1)}
@@ -279,7 +207,7 @@ const Profile = () => {
                 to={`like`}
               >
                 <FaRegHeart />
-                좋아요
+                <CategoryText>좋아요</CategoryText>
               </Category>
               <Category
                 onClick={() => setSelectCategory(2)}
@@ -288,7 +216,8 @@ const Profile = () => {
                 to={`bookmark`}
                 state={account?.id}
               >
-                북마크
+                <FaRegBookmark />
+                <CategoryText>북마크</CategoryText>
               </Category>
             </CategoryBox>
 
@@ -316,6 +245,12 @@ const Wrapper = styled.div`
   padding: 40px;
   border-top: 2px solid ${secondColor};
   background: #6f4ccf;
+
+  @media (max-width: 767px) {
+    border: none;
+    padding: 16px;
+    /* height: calc(100vh - 112px); */
+  }
 `;
 
 const Container = styled.div`
@@ -336,197 +271,10 @@ const Container = styled.div`
     shadow += `#422a83 63px 63px`;
     return shadow;
   }};
-`;
 
-const ProfileBox = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  position: relative;
-`;
-
-const ProfileImageBox = styled.div`
-  width: 120px;
-  height: 120px;
-  border: 2px solid ${fourthColor};
-  border-radius: 50%;
-  overflow: hidden;
-  flex: 0 0 auto;
-`;
-
-const ProfileImage = styled.img`
-  display: block;
-  width: 100%;
-  object-fit: cover;
-`;
-
-const ProfileDetailBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  flex: 1;
-  height: 108px;
-`;
-
-const ProfileDetail = styled.div`
-  display: flex;
-  align-items: flex-start;
-  position: relative;
-`;
-
-const ProfileInfoBox = styled.div`
-  flex: 1;
-  padding-right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-`;
-
-const ProfileIntroBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const ProfileDsName = styled.p`
-  font-size: 20px;
-  line-height: 34px;
-  font-weight: 500;
-`;
-
-const ProfileName = styled.p`
-  font-size: 14px;
-  /* margin-top: 4px; */
-`;
-
-const ProfileDesc = styled.p`
-  /* margin-top: 8px; */
-  font-size: 14px;
-  white-space: pre-wrap;
-  color: ${thirdColor};
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
-`;
-
-const ProfileActBox = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 30px;
-`;
-
-const ProfileAct = styled.div`
-  font-size: 14px;
-  color: ${thirdColor};
-  white-space: pre;
-  &:not(:first-of-type) {
-    cursor: pointer;
-  }
-  em {
-    margin-left: 4px;
-    color: ${secondColor};
-    font-weight: 500;
-  }
-`;
-
-const BtnBox = styled.div`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  right: 0;
-  gap: 10px;
-`;
-
-const ProfileEditBtn = styled.button`
-  padding: 8px 10px;
-  border: 1px solid #6f4ccf;
-  color: #6f4ccf;
-  font-weight: bold;
-  white-space: pre;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.1s linear;
-
-  &:hover,
-  &:active {
-    background-color: #6f4ccf;
-    color: #fff;
-  }
-`;
-
-const LogoutBtn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 8px;
-  border: 1px solid ${thirdColor};
-  color: ${thirdColor};
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.1s linear;
-
-  &:hover,
-  &:active {
+  @media (max-width: 767px) {
+    padding: 0;
     border: 1px solid ${secondColor};
-    background-color: ${secondColor};
-    color: #fff;
-  }
-`;
-
-const ActBtnBox = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const FollowBtnBox = styled.div``;
-
-const FollowBtn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 14px;
-  padding: 8px 16px;
-  color: #fff;
-  border-radius: 8px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
-  cursor: pointer;
-  transition: all 0.1s linear;
-
-  &:hover,
-  &:active {
-    background: #000;
-  }
-`;
-
-const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
-  background: #fff;
-  color: ${secondColor};
-
-  &:hover,
-  &:active {
-    background: ${fourthColor};
-  }
-`;
-
-const MessageBtnBox = styled.div``;
-
-const MessageBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
-  background: #fff;
-  color: ${secondColor};
-
-  &:hover,
-  &:active {
-    background: ${fourthColor};
   }
 `;
 
@@ -536,7 +284,15 @@ const CategoryBox = styled.div`
   justify-content: center;
   gap: 40px;
   margin-top: 40px;
-  border-top: 1px solid ${thirdColor};
+  border-top: 1px solid ${fourthColor};
+
+  @media (max-width: 767px) {
+    gap: 30px;
+    margin-top: 0;
+    /* margin-bottom: 20px; */
+    justify-content: space-evenly;
+    border-bottom: 1px solid ${fourthColor};
+  }
 `;
 
 const Category = styled(Link)<{ select: number; num: number }>`
@@ -547,6 +303,7 @@ const Category = styled(Link)<{ select: number; num: number }>`
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   position: relative;
 
@@ -561,7 +318,28 @@ const Category = styled(Link)<{ select: number; num: number }>`
   }
 
   svg {
-    max-width: 12px;
-    max-height: 12px;
+    width: 12px;
+    height: 12px;
+  }
+
+  @media (max-width: 767px) {
+    width: 33.33%;
+    padding: 10px 0;
+    color: ${(props) => (props.num === props.select ? `#4e2fa3` : thirdColor)};
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    &::after {
+      display: none;
+    }
+  }
+`;
+
+const CategoryText = styled.span`
+  @media (max-width: 767px) {
+    display: none;
   }
 `;

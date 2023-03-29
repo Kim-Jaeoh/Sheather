@@ -177,9 +177,17 @@ const Container = styled.main`
   height: 100%;
   border-top: 2px solid ${secondColor};
   background: #48a3ff;
+
+  @media (max-width: 767px) {
+    border: none;
+  }
 `;
 
 const WeatherBox = styled.div`
   position: relative;
   padding: 40px;
+
+  @media (max-width: 767px) {
+    padding: 16px;
+  }
 `;

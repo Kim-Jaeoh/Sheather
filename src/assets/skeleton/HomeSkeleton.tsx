@@ -3,12 +3,15 @@ import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
 import ColorList from "../ColorList";
 import { MasonryGrid } from "@egjs/react-grid";
+import useMediaScreen from "../../hooks/useMediaScreen";
 
 const HomeSkeleton = () => {
+  const { isDesktop, isTablet, isMobile } = useMediaScreen();
+
   return (
     <MasonryGrid
       className="container"
-      gap={20}
+      gap={!isMobile ? 30 : 10}
       defaultDirection={"end"}
       align={"stretch"}
       column={2}
@@ -36,8 +39,8 @@ export default HomeSkeleton;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardList = styled.li`
-  width: 318px;
-  height: 404px;
+  width: 330px;
+  height: 400px;
   display: flex;
   flex-direction: column;
   border-radius: 8px;

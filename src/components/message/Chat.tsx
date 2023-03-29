@@ -25,6 +25,9 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import useCreateChat from "../../hooks/useCreateChat";
 import { IoIosArrowBack } from "react-icons/io";
+import useMediaScreen from "../../hooks/useMediaScreen";
+import { TbTrashX } from "react-icons/tb";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 interface Props {
   userObj: CurrentUserType;
@@ -50,6 +53,8 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
   const dispatch = useDispatch();
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const navigate = useNavigate();
+  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
+    useMediaScreen();
 
   const dayArr: { [key: number]: string } = {
     0: `일`,
@@ -195,9 +200,10 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
     if (text !== "" && e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       onSubmit();
-    } else if (e.key === "Enter" && e.shiftKey) {
-      setText((value) => value + "\n"); // 줄바꿈 문자열 추가
     }
+    // else if (e.key === "Enter" && e.shiftKey) {
+    //   setText((value) => value + "\n"); // 줄바꿈 문자열 추가
+    // }
   };
 
   // 메세지 읽음 확인
@@ -290,10 +296,15 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
     }
   };
 
+  const onBackClick = () => {
+    setClickInfo(null);
+    navigate(`/message`);
+  };
+
   return (
     <>
       <Category>
-        <IconBox onClick={() => setClickInfo(null)}>
+        <IconBox onClick={onBackClick}>
           <IoIosArrowBack />
         </IconBox>
         <ProfileInfoBox>
@@ -306,7 +317,8 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
           </ProfileInfo>
         </ProfileInfoBox>
         <DeleteChatBtn type="button" onClick={onChatDelete}>
-          <AiOutlineDelete />
+          {/* <TbTrashX /> */}
+          <RiDeleteBin6Line />
         </DeleteChatBtn>
       </Category>
       <Conatiner ref={containerRef}>
@@ -348,18 +360,20 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
         </MessageBox>
         <ChatBox>
           <TextAreaBox onSubmit={onSubmit}>
-            <Emoji
-              setText={setText}
-              textRef={textRef}
-              right={-270}
-              bottom={40}
-            />
+            {!isMobile && (
+              <Emoji
+                setText={setText}
+                textRef={textRef}
+                right={-270}
+                bottom={40}
+              />
+            )}
             <TextArea
               spellCheck="false"
               maxLength={120}
               value={text}
-              onClick={onReadMessage}
               ref={textRef}
+              onClick={onReadMessage}
               onChange={onChange}
               onKeyDown={onKeyPress}
               onInput={handleResizeHeight}
@@ -394,6 +408,9 @@ const Category = styled.header`
   padding: 0 20px;
   gap: 20px;
   border-bottom: 1px solid ${thirdColor};
+  @media (max-width: 767px) {
+    padding: 0 16px;
+  }
 `;
 
 const IconBox = styled.button`
@@ -463,8 +480,6 @@ const ProfileName = styled.p`
 const DeleteChatBtn = styled.button`
   width: 24px;
   height: 24px;
-  /* position: absolute; */
-  /* right: 20px; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -473,6 +488,10 @@ const DeleteChatBtn = styled.button`
   svg {
     width: 24px;
     height: 24px;
+
+    /* path:last-of-type {
+      color: #ff5c1b;
+    } */
   }
 `;
 
@@ -536,8 +555,8 @@ const SendMessage = styled.p<{ isMine: boolean }>`
   max-width: 230px;
   word-wrap: break-word;
   font-size: 14px;
-  line-height: 16px;
-  white-space: pre;
+  line-height: 20px;
+  white-space: pre-line;
 `;
 
 const SeneMessageAt = styled.span<{ isMine: boolean }>`
@@ -572,6 +591,7 @@ const TextAreaBox = styled.form`
   min-height: 44px;
   width: 100%;
   padding: 0 10px;
+  margin-right: 10px;
   position: relative;
 `;
 

@@ -6,6 +6,7 @@ import getCroppedImg from "../../../assets/CropImage";
 import ColorList from "../../../assets/ColorList";
 import { AspectRatio, ImageType } from "../../../types/type";
 import { FiCrop } from "react-icons/fi";
+import { BiImageAdd } from "react-icons/bi";
 
 type Props = {
   attachments?: ImageType[];
@@ -108,18 +109,20 @@ const ShareImageCropper = ({
     }
   };
 
-  const asd = new Image();
-  asd.src = imageUrl;
+  const getImageSize = new Image();
+  getImageSize.src = imageUrl;
+
   return (
     <Container>
       <CropBox attachments={imageUrl}>
         {imageUrl ? (
           <Cropper
             image={imageUrl}
-            objectFit={
-              // "auto-cover"
-              asd?.width >= asd?.height ? "vertical-cover" : "horizontal-cover"
-            }
+            // objectFit={
+            //   "vertical-cover"
+            //   // "auto-cover"
+            //   // getImageSize?.width >= getImageSize?.height ? "vertical-cover" : "horizontal-cover"
+            // }
             crop={crop}
             zoom={zoom}
             aspect={aspect?.value}
@@ -129,7 +132,15 @@ const ShareImageCropper = ({
             onInteractionEnd={SetImageInfo}
           />
         ) : (
-          <PutImageBox>하단의 이미지 버튼을 눌러 추가해주세요</PutImageBox>
+          <NotInfoBox>
+            <IconBox>
+              <Icon>
+                <BiImageAdd />
+              </Icon>
+            </IconBox>
+            <NotInfoCategory>이미지 추가</NotInfoCategory>
+            <NotInfoText>하단의 이미지 버튼을 눌러 추가해주세요.</NotInfoText>
+          </NotInfoBox>
         )}
       </CropBox>
       {imageUrl && (
@@ -193,6 +204,12 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.div`
   width: 100%;
+
+  @media (max-width: 767px) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
 `;
 
 const CropBox = styled.div<{ attachments?: string }>`
@@ -202,9 +219,13 @@ const CropBox = styled.div<{ attachments?: string }>`
   border-bottom: 1px solid ${thirdColor};
   position: relative;
 
-  div {
+  /* div {
     width: 100%;
     height: 100%;
+  } */
+
+  @media (max-width: 767px) {
+    flex: 1;
   }
 `;
 
@@ -212,6 +233,9 @@ const PutImageBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const Controls = styled.div`
@@ -289,4 +313,56 @@ const CropBtn = styled.div<{ isCrop?: boolean }>`
 const ResetText = styled.p`
   font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
   margin-bottom: -3px;
+`;
+
+const NotInfoBox = styled.div`
+  /* width: 100%; */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 30px;
+`;
+
+const NotInfoCategory = styled.p`
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 10px;
+`;
+
+const IconBox = styled.div`
+  border: 2px solid ${secondColor};
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+`;
+
+const Icon = styled.div`
+  /* width: 100%; */
+  /* height: 100%; */
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6px;
+    margin-left: 4px;
+    > path:last-of-type {
+      /* color: #ff5c1b; */
+      color: #48a3ff;
+    }
+  }
+`;
+
+const NotInfoText = styled.p`
+  font-size: 14px;
 `;

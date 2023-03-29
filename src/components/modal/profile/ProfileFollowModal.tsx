@@ -175,6 +175,19 @@ const Container = styled.div`
   border-radius: 20px;
   border: 2px solid ${secondColor};
   box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
+
+  @media (max-width: 767px) {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    transform: translate(0, 0);
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
 `;
 
 const Header = styled.header`

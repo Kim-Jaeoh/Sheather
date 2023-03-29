@@ -13,10 +13,10 @@ import useMediaScreen from "../../../hooks/useMediaScreen";
 
 type Props = {
   modalOpen: boolean;
-  modalClose: () => void;
   rangeTime: number[];
-  setRangeTime: React.Dispatch<React.SetStateAction<number[]>>;
   changeValue: Date;
+  modalClose: () => void;
+  setRangeTime: React.Dispatch<React.SetStateAction<number[]>>;
   setChangeValue: React.Dispatch<React.SetStateAction<Date>>;
   onReset: () => void;
   onDone: () => void;
@@ -25,10 +25,10 @@ type Props = {
 const RangeTimeModal = (props: Props) => {
   const {
     modalOpen,
-    modalClose,
     changeValue,
-    setChangeValue,
     rangeTime,
+    modalClose,
+    setChangeValue,
     setRangeTime,
     onReset,
     onDone,
@@ -133,16 +133,21 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const RangeBox = styled.div<{ isMobile: boolean }>`
   position: absolute;
-  top: 214px;
+  /* top: 214px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%); */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 100;
   border-radius: 20px;
-  border: ${(props) => (props.isMobile ? 1 : 2)}px solid ${secondColor};
+  border: 2px solid ${secondColor};
   width: 300px;
   background: #fff;
-  box-shadow: ${(props) =>
-    !props.isMobile && `8px 8px 0 -2px #ff5673, 8px 8px ${secondColor}`};
+  box-shadow: 8px 8px 0 -2px #ff5673, 8px 8px ${secondColor};
+
+  @media (max-width: 767px) {
+  }
 `;
 
 const Header = styled.header`

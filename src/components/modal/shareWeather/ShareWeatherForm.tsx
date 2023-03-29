@@ -6,6 +6,7 @@ import useTagCurrentWear from "../../../hooks/useTagCurrentWear";
 import { IoMdClose } from "react-icons/io";
 import { AiOutlineTag } from "react-icons/ai";
 import { BiTag } from "react-icons/bi";
+import useMediaScreen from "../../../hooks/useMediaScreen";
 
 type Props = {
   bgColor?: string;
@@ -17,6 +18,8 @@ type Props = {
 
 const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
   const textRef = useRef<HTMLTextAreaElement>();
+  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
+    useMediaScreen();
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -79,7 +82,9 @@ const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
         </TagList>
       </TagBox>
       <BtnBox>
-        <Emoji setText={setText} textRef={textRef} right={32} bottom={-10} />
+        {!isMobile && (
+          <Emoji setText={setText} textRef={textRef} right={32} bottom={-10} />
+        )}
         <EditInfo>
           <TextAreaLength>
             <TextAreaLengthColor bgColor={bgColor}>
@@ -101,11 +106,15 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const TextFormBox = styled.div`
   width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 const TextArea = styled.textarea`
   display: block;
   width: 100%;
+  flex: 1 0 244px;
   height: 244px;
   font-size: 14px;
   line-height: 24px;

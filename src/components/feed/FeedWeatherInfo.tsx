@@ -120,20 +120,6 @@ const FeedWeatherInfo = () => {
               <sup>º</sup>
             </WeatherTemp>
           </WeatherInfo>
-          {/* <WeatherInfo>
-            <InfoText>최저</InfoText>
-            <WeatherTempSub>
-              {Math.round(weatherData?.data?.main.temp_min)}
-              <sup>º</sup>
-            </WeatherTempSub>
-          </WeatherInfo>
-          <WeatherInfo>
-            <InfoText>최고</InfoText>
-            <WeatherTempSub>
-              {Math.round(weatherData?.data?.main.temp_max)}
-              <sup>º</sup>
-            </WeatherTempSub>
-          </WeatherInfo> */}
           <WeatherClothesInfo>
             <InfoText>추천하는 옷</InfoText>
             <FlickingCategoryBox>

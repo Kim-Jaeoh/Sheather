@@ -83,7 +83,7 @@ const FeedCategory = ({ url, feed }: Props) => {
       {!isLoading ? (
         <>
           {dataList?.pages?.flat().length !== 0 ? (
-            <CardBox isMobile={isMobile} render={isGridRender}>
+            <CardBox render={isGridRender}>
               <MasonryGrid
                 className="container"
                 gap={!isMobile ? 30 : 10}
@@ -103,14 +103,12 @@ const FeedCategory = ({ url, feed }: Props) => {
 
                   return (
                     <CardList
-                      isMobile={isMobile}
                       render={isGridRender}
                       size={checkSize}
                       key={res.id}
                       onClick={onLogState}
                     >
                       <Card
-                        isMobile={isMobile}
                         aspect={checkAspect}
                         to={userLogin && "/feed/detail"}
                         state={{ id: res.id, email: res.email }}
@@ -131,10 +129,9 @@ const FeedCategory = ({ url, feed }: Props) => {
                           />
                         </CardImageBox>
                       </Card>
-                      <UserBox isMobile={isMobile}>
+                      <UserBox>
                         <UserInfoBox>
                           <UserImageBox
-                            isMobile={isMobile}
                             to={userLogin && `/profile/${res.displayName}/post`}
                             state={res.displayName}
                             onContextMenu={(e) => e.preventDefault()}
@@ -142,7 +139,6 @@ const FeedCategory = ({ url, feed }: Props) => {
                             <FeedProfileImage displayName={res.displayName} />
                           </UserImageBox>
                           <UserNameBox
-                            isMobile={isMobile}
                             to={userLogin && `/profile/${res.displayName}/post`}
                             state={res.displayName}
                           >
@@ -152,10 +148,7 @@ const FeedCategory = ({ url, feed }: Props) => {
                           </UserNameBox>
                           <UserReactBox>
                             <UserIconBox>
-                              <UserIcon
-                                isMobile={isMobile}
-                                onClick={() => toggleLike(res)}
-                              >
+                              <UserIcon onClick={() => toggleLike(res)}>
                                 {userObj?.like?.filter((id) => id === res.id)
                                   .length > 0 ? (
                                   <FaHeart style={{ color: "#FF5673" }} />
@@ -164,9 +157,7 @@ const FeedCategory = ({ url, feed }: Props) => {
                                 )}
                               </UserIcon>
                               {res.like.length > 0 && (
-                                <UserReactNum isMobile={isMobile}>
-                                  {res.like.length}
-                                </UserReactNum>
+                                <UserReactNum>{res.like.length}</UserReactNum>
                               )}
                             </UserIconBox>
                             <UserIcon onClick={() => toggleBookmark(res.id)}>
@@ -200,13 +191,7 @@ const FeedCategory = ({ url, feed }: Props) => {
                   );
                 })}
 
-                <div
-                  ref={ref}
-                  // style={{
-                  //   position: "absolute",
-                  //   bottom: "100px",
-                  // }}
-                />
+                <div ref={ref} />
               </MasonryGrid>
             </CardBox>
           ) : (
@@ -232,26 +217,27 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardBox = styled.ul<{ render?: boolean; isMobile?: boolean }>`
   width: 100%;
-  padding: ${(props) => (props.isMobile ? `16px 16px` : `10px 40px 40px`)};
-  /* grid-template-columns: ${(props) => props.render && `repeat(2, 1fr)`}; */
-  /* padding: 0 10px 10px; */
-  /* gap: 20px; */
-  /* grid-auto-rows: auto; */
-  /* grid-auto-rows: 10px; */
+  padding: 10px 40px 40px;
+
+  @media (max-width: 767px) {
+    padding: 0 16px 16px;
+  }
 `;
 
 const CardList = styled.li<{
   render?: boolean;
   size?: number;
-  isMobile: boolean;
+  isMobile?: boolean;
 }>`
   width: 330px;
   border-radius: 20px;
-  /* border-radius: ${(props) => !props.isMobile && `20px`}; */
-  /* border: 2px solid ${secondColor}; */
-  border: ${(props) => !props.isMobile && `2px solid ${secondColor}`};
+  border: 2px solid ${secondColor};
   overflow: hidden;
-  background: ${(props) => !props.isMobile && `#fff`};
+  background: #fff;
+
+  > a {
+    border-bottom: 1px solid ${secondColor};
+  }
 
   animation-name: slideUp;
   animation-duration: 0.3s;
@@ -270,16 +256,24 @@ const CardList = styled.li<{
       transform: translateY(0px);
     }
   }
+
+  @media (max-width: 767px) {
+    border: none;
+    background: transparent;
+
+    > a {
+      border-radius: 20px;
+      border-bottom: none;
+    }
+  }
 `;
 
-const Card = styled(Link)<{ aspect?: number; isMobile: boolean }>`
+const Card = styled(Link)<{ aspect?: number }>`
   display: block;
   position: relative;
   cursor: pointer;
   outline: none;
   overflow: hidden;
-  border-radius: ${(props) => props.isMobile && `20px`};
-  border-bottom: ${(props) => !props.isMobile && `2px solid ${secondColor}`};
   padding-top: ${(props) => `${props.aspect}%`};
 `;
 
@@ -335,9 +329,13 @@ const CardImage = styled.img`
   background: #fff;
 `;
 
-const UserBox = styled.div<{ isMobile: boolean }>`
-  padding: ${(props) => (props.isMobile ? `12px 0` : `12px 12px`)};
+const UserBox = styled.div`
+  padding: 12px;
   flex: 1;
+
+  @media (max-width: 767px) {
+    padding: 12px 0;
+  }
 `;
 
 const UserInfoBox = styled.div`
@@ -345,17 +343,21 @@ const UserInfoBox = styled.div`
   align-items: center;
 `;
 
-const UserImageBox = styled(Link)<{ isMobile: boolean }>`
-  width: ${(props) => (props.isMobile ? `20px` : `30px`)};
-  height: ${(props) => (props.isMobile ? `20px` : `30px`)};
-  /* width: 30px; */
-  /* height: 30px; */
+const UserImageBox = styled(Link)`
+  display: block;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   overflow: hidden;
   border: 1px solid ${fourthColor};
   object-fit: cover;
   cursor: pointer;
   position: relative;
+
+  @media (max-width: 767px) {
+    width: 26px;
+    height: 26px;
+  }
 `;
 
 const UserImage = styled.img`
@@ -365,19 +367,23 @@ const UserImage = styled.img`
   image-rendering: auto;
 `;
 
-const UserNameBox = styled(Link)<{ isMobile: boolean }>`
+const UserNameBox = styled(Link)`
+  display: block;
   cursor: pointer;
   overflow: hidden;
   position: relative;
   text-overflow: ellipsis;
+  font-size: 14px;
   flex: 1;
   padding: 8px;
   white-space: nowrap;
-  font-size: ${(props) => (props.isMobile ? `12px` : `14px`)};
   font-weight: 500;
   letter-spacing: -0.15px;
-
   color: ${secondColor};
+
+  @media (max-width: 767px) {
+    font-size: 12px;
+  }
 `;
 
 const UserReactBox = styled.div`
@@ -385,7 +391,7 @@ const UserReactBox = styled.div`
   margin: 0;
   padding: 0;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 `;
 
 const UserIconBox = styled.div`
@@ -402,14 +408,22 @@ const UserIcon = styled.div<{ isMobile?: boolean }>`
   cursor: pointer;
   color: ${thirdColor};
   svg {
-    font-size: ${(props) => (props.isMobile ? `14px` : `16px`)};
+    font-size: 16px;
+  }
+
+  @media (max-width: 767px) {
+    font-size: 14px;
   }
 `;
 
-const UserReactNum = styled.p<{ isMobile: boolean }>`
-  font-size: ${(props) => (props.isMobile ? `12px` : `14px`)};
-  margin-left: 2px;
+const UserReactNum = styled.p`
+  font-size: 14px;
+  margin-left: 4px;
   color: ${thirdColor};
+
+  @media (max-width: 767px) {
+    font-size: 12px;
+  }
 `;
 
 const UserText = styled.p`
@@ -437,7 +451,6 @@ const Tag = styled(Link)`
   position: relative;
   display: flex;
   align-items: center;
-  /* line-height: 16px; */
   border-radius: 64px;
   background-color: #f5f5f5;
   padding: 8px 10px;
@@ -460,6 +473,8 @@ const NotInfoBox = styled.div`
   width: 100%;
   height: 200px;
   margin: 0 auto;
+  margin-top: -20px;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -481,8 +496,12 @@ const NotInfoBox = styled.div`
       transform: translateY(0px);
     }
   }
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const NotInfo = styled.span`
-  color: #fff;
+  color: ${secondColor};
 `;

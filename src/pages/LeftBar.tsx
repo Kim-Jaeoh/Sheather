@@ -347,7 +347,10 @@ const Container = styled.section<{
   isMobileBefore: boolean;
   isMobile: boolean;
 }>`
-  width: ${(props) => (props.isDesktop ? `220px` : `70px`)};
+  width: 70px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
   background: #fff;
   user-select: none;
   padding: 0 30px;
@@ -355,53 +358,61 @@ const Container = styled.section<{
   border-right: none;
   border-radius: 40px 0 0 40px;
 
-  & {
+  @media (min-width: 1060px) {
+    width: 220px;
+  }
+
+  @media (max-width: 1059px) {
     h2 {
-      display: ${(props) => !props.isDesktop && `none`};
-      text-align: left;
+      display: none;
     }
 
     a,
     button {
-      width: ${(props) => !props.isDesktop && `auto`};
+      width: auto;
       li {
-        border: ${(props) => props.isMobile && `none`};
-        padding: ${(props) => !props.isDesktop && `10px`};
-        box-shadow: ${(props) => !props.isDesktop && `none`};
+        padding: 10px;
+        box-shadow: none;
       }
       &:hover li:hover,
       &:active li:active {
-        border: ${(props) => props.isMobile && `none`};
-        box-shadow: ${(props) => !props.isDesktop && `none`};
-      }
-    }
-
-    width: ${(props) => props.isMobile && `100%`};
-    position: ${(props) => (props.isMobile ? `fixed` : `sticky`)};
-    top: ${(props) => (props.isMobile ? `none` : `0`)};
-    bottom: ${(props) => props.isMobile && `0`};
-    left: ${(props) => props.isMobile && `0`};
-    right: ${(props) => props.isMobile && `0`};
-    border-radius: ${(props) => props.isMobile && `0`};
-    border-right: ${(props) => props.isMobile && `2px solid ${secondColor}`};
-    z-index: ${(props) => props.isMobile && `100`};
-    height: ${(props) => (props.isMobile ? `60px` : `100vh`)};
-
-    nav {
-      flex-direction: ${(props) => props.isMobile && `row`};
-      justify-content: ${(props) => props.isMobile && `space-evenly`};
-      > div:first-of-type {
-        display: ${(props) => props.isMobile && `none`};
+        box-shadow: none;
       }
     }
   }
-`;
 
-const MobileContainer = styled(Container)`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  @media (max-width: 767px) {
+    width: 100%;
+    height: 60px;
+    position: fixed;
+    top: unset;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 0;
+    border: 0;
+    border-top: 1px solid ${secondColor};
+    z-index: 100;
+
+    nav {
+      flex-direction: row;
+      justify-content: space-evenly;
+      > div:first-of-type {
+        display: none;
+      }
+    }
+
+    a,
+    button {
+      li {
+        border: none;
+      }
+      &:hover li:hover,
+      &:active li:active {
+        border: none;
+      }
+    }
+  }
 `;
 
 const MenuBox = styled.nav<{ pathname: string }>`
@@ -493,6 +504,7 @@ const MenuText = styled.h2`
   font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
   margin-bottom: -4px; // 폰트 교체로 인해 여백 제거
   margin-left: 16px;
+  text-align: left;
   font-size: 18px;
   white-space: nowrap;
   flex: 1;

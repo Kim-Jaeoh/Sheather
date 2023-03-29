@@ -8,13 +8,20 @@ import { FeedType, replyType } from "../../../types/type";
 
 type Props = {
   modalOpen: boolean;
+  selectCategory: number;
   modalClose: () => void;
   setSelectCategory: React.Dispatch<React.SetStateAction<number>>;
   onSelectCategory2: () => void;
 };
 
 const MobileFeedCategoryModal = (props: Props) => {
-  const { modalOpen, modalClose, setSelectCategory, onSelectCategory2 } = props;
+  const {
+    modalOpen,
+    selectCategory,
+    modalClose,
+    setSelectCategory,
+    onSelectCategory2,
+  } = props;
 
   return (
     <Modal
@@ -25,9 +32,23 @@ const MobileFeedCategoryModal = (props: Props) => {
     >
       <RangeBox>
         <Container>
-          <ResetBtn onClick={() => setSelectCategory(0)}>최신</ResetBtn>
-          <DoneBtn onClick={() => setSelectCategory(1)}>인기</DoneBtn>
-          <DoneBtn onClick={onSelectCategory2}>날짜별</DoneBtn>
+          <Btn
+            select={selectCategory}
+            num={0}
+            onClick={() => setSelectCategory(0)}
+          >
+            최신
+          </Btn>
+          <Btn
+            select={selectCategory}
+            num={1}
+            onClick={() => setSelectCategory(1)}
+          >
+            인기
+          </Btn>
+          <Btn select={selectCategory} num={2} onClick={onSelectCategory2}>
+            날짜별
+          </Btn>
         </Container>
       </RangeBox>
     </Modal>
@@ -42,7 +63,10 @@ const RangeBox = styled.div`
   position: absolute;
   width: 100px;
   right: 16px;
-  top: 90px;
+  top: 100px;
+  /* top: 50%; */
+  /* left: 50%; */
+  /* transform: translate(-50%, -50%); */
   z-index: 100;
   border-radius: 20px;
   border: 1px solid ${thirdColor};
@@ -58,18 +82,15 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-const ResetBtn = styled.button`
+const Btn = styled.button<{ num: number; select: number }>`
   width: 100%;
   height: 40px;
   padding: 4px 8px;
   font-size: 14px;
+  color: ${secondColor};
+  font-weight: ${(props) => (props.num === props.select ? `700` : `400`)};
   cursor: pointer;
   &:not(:last-of-type) {
     border-bottom: 1px solid ${thirdColor};
   }
-`;
-
-const DoneBtn = styled(ResetBtn)`
-  color: ${secondColor};
-  font-weight: 400;
 `;

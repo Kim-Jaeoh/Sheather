@@ -32,7 +32,7 @@ const useCreateChat = () => {
       (message) => message.user === userObj.displayName
     );
 
-    if (myFilter.length === userFilter.length) {
+    if (!myFilter.length && !userFilter.length) {
       // 채팅 새로 만들기
       await addDoc(collection(dbService, `messages`), {
         member: [userObj.displayName, user.displayName],

@@ -67,8 +67,8 @@ const ReplyBox = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 16px;
-  padding-top: 12px;
-  margin-bottom: 6px;
+  padding: 14px 0;
+  /* padding-bottom: 6px; */
 `;
 
 const UserInfoBox = styled.div`
@@ -115,6 +115,8 @@ const ReplyInfoBox = styled.div`
   display: inline;
   align-items: center;
   color: ${secondColor};
+  padding-right: 40px;
+  /* line-height: 0.6; */
 `;
 
 const ReplyId = styled(Link)`
@@ -128,7 +130,6 @@ const ReplyId = styled(Link)`
 
 const ReplyText = styled.span`
   font-size: 14px;
-  line-height: 18px;
   white-space: pre-wrap;
 `;
 

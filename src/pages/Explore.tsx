@@ -192,8 +192,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
   position: relative;
   background: #30c56e;
+  @media (max-width: 767px) {
+    /* height: calc(100vh - 112px); */
+  }
 `;
 
 const CategoryBox = styled.nav`
@@ -204,6 +208,9 @@ const CategoryBox = styled.nav`
   border-bottom: 2px solid ${secondColor};
   box-sizing: border-box;
   background: #fff;
+  @media (max-width: 767px) {
+    border-top: none;
+  }
 `;
 
 const CategoryList = styled.ul`
