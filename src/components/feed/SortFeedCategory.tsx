@@ -9,6 +9,9 @@ import MobileFeedWeatherInfo from "./MobileFeedWeatherInfo";
 import MobileFeedCategoryModal from "../modal/feed/MobileFeedCategoryModal";
 import { RiListSettingsFill } from "react-icons/ri";
 import FeedWeatherInfo from "./FeedWeatherInfo";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import { IoMdClose } from "react-icons/io";
 
 type Props = {
   url: string;
@@ -16,7 +19,13 @@ type Props = {
 };
 
 const SortFeedCategory = ({ url, setUrl }: Props) => {
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const [selectCategory, setSelectCategory] = useState(0);
+  const [isDate, setIsDate] = useState(false);
   const [dateCategory, setDateCategory] = useState("recent");
   const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
@@ -32,47 +41,78 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
   }, [changeValue]);
 
   useEffect(() => {
-    // 최신
+    // 팔로잉
     if (selectCategory === 0) {
       setCategoryModal(false); // 모바일 카테고리 모달
-
-      return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`);
+      if (dateCategory === "recent") {
+        return setUrl(
+          `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/recent?users=${followArr}&`
+        );
+      } else {
+        return setUrl(
+          `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/popular?users=${followArr}&`
+        );
+      }
     }
-    // 인기
+
+    // 탐색
     if (selectCategory === 1) {
       setCategoryModal(false); // 모바일 카테고리 모달
-
-      return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/popular?`);
+      if (dateCategory === "recent") {
+        return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`);
+      } else {
+        return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/popular?`);
+      }
     }
-    // 시간별
+  }, [dateCategory, selectCategory, setUrl]);
+
+  useEffect(() => {
+    // 날짜별
     if (selectCategory === 2) {
       if (isDetailDone) {
         setCategoryModal(false); // 모바일 카테고리 모달
 
-        navigate(
-          `date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}`
-        );
-        return setUrl(
-          `${process.env.REACT_APP_SERVER_PORT}/api/feed/date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
-        );
+        if (pathname.split("/")[2] === "following") {
+          navigate(
+            `following?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}`
+          );
+          return setUrl(
+            `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/date?users=${followArr}&value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
+          );
+        } else {
+          navigate(
+            `explore?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}`
+          );
+          return setUrl(
+            `${process.env.REACT_APP_SERVER_PORT}/api/feed/date?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
+          );
+        }
       }
     }
   }, [
     dateCategory,
     isDetailDone,
     navigate,
+    pathname,
     rangeTime,
     selectCategory,
     setUrl,
     value,
   ]);
 
+  // 팔로잉 목록 담기
+  const followArr = useMemo(() => {
+    let arr: string[] = [];
+    userObj.following.forEach((res) => arr.push(res.displayName));
+    return arr;
+  }, [userObj.following]);
+
   // 메인 카테고리
   useEffect(() => {
-    if (pathname.includes("recent")) {
+    if (pathname.includes("following")) {
       return setSelectCategory(0);
     }
-    if (pathname.includes("popular")) {
+    if (pathname.includes("explore")) {
       return setSelectCategory(1);
     }
     if (pathname.includes("date")) {
@@ -90,34 +130,49 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
     }
   }, [search]);
 
+  // 메인 카테고리
+  const onSelectCategory = (e: number) => {
+    setSelectCategory(e);
+    setDateCategory(`recent`);
+    setIsDate(false);
+    setIsDetailDone(false);
+    setIsDetailModal(false);
+  };
+
+  // 서브-날짜별 클릭
   const onSelectCategory2 = () => {
-    setSelectCategory(2);
+    setIsDate(true);
     setIsDetailDone(false);
     setIsDetailModal(true);
   };
 
+  // 초기화
   const onReset = () => {
     setRangeTime([0, 23]);
     setChangeValue(new Date());
   };
 
+  // 날짜 설정
   const onDone = () => {
     setIsDetailDone(true);
     setIsDetailModal(false);
   };
 
-  const onModalClose = () => {
+  // 날짜 선택 모달
+  const onDetailModal = () => {
     setIsDetailModal((prev) => !prev);
+    setIsDate(false);
     // 취소 시 이전 카테고리로 이동
-    if (url.includes("recent")) {
+    if (url.includes("following")) {
       setSelectCategory(0);
     }
-    if (url.includes("popular")) {
+    if (url.includes("explore")) {
       setSelectCategory(1);
     }
   };
 
-  const onCategoryModalClose = () => {
+  // 모바일 버전
+  const onCategoryModal = () => {
     setCategoryModal((prev) => !prev);
   };
 
@@ -127,15 +182,16 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
         <MobileFeedCategoryModal
           modalOpen={categoryModal}
           selectCategory={selectCategory}
-          modalClose={onCategoryModalClose}
+          isDate={isDate}
+          modalClose={onCategoryModal}
           setSelectCategory={setSelectCategory}
           onSelectCategory2={onSelectCategory2}
         />
       )}
-      {selectCategory === 2 && isDetailModal && (
+      {isDate && isDetailModal && (
         <RangeTimeModal
           modalOpen={isDetailModal}
-          modalClose={onModalClose}
+          modalClose={onDetailModal}
           rangeTime={rangeTime}
           setRangeTime={setRangeTime}
           changeValue={changeValue}
@@ -148,12 +204,19 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
         <>
           <InfoBox>
             <MobileFeedWeatherInfo />
-            <IconBox onClick={onCategoryModalClose}>
+            <IconBox onClick={onCategoryModal}>
               <RiListSettingsFill />
             </IconBox>
           </InfoBox>
-          {selectCategory === 2 && isDetailDone && (
-            <SelectDetailTimeBox>
+          <SelectDetailTimeBox>
+            <div>
+              {isDate && isDetailDone && (
+                <SelectDetailTime>
+                  {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
+                  {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
+                  {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
+                </SelectDetailTime>
+              )}
               <SelectCategoryBox>
                 <SelectCategoryBtn
                   select={dateCategory}
@@ -171,14 +234,22 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                 >
                   인기순
                 </SelectCategoryBtn>
+                <SelectCategoryDateBtn
+                  select={isDate && isDetailDone ? "date" : null}
+                  category={"date"}
+                  type="button"
+                  onClick={() => onSelectCategory2()}
+                >
+                  날짜별
+                </SelectCategoryDateBtn>
+                {isDate && isDetailDone && (
+                  <SelectDeleteBtn onClick={() => setIsDate(false)}>
+                    <IoMdClose />
+                  </SelectDeleteBtn>
+                )}
               </SelectCategoryBox>
-              <SelectDetailTime>
-                {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
-                {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
-                {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
-              </SelectDetailTime>
-            </SelectDetailTimeBox>
-          )}
+            </div>
+          </SelectDetailTimeBox>
         </>
       ) : (
         <>
@@ -186,35 +257,27 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
           <SelectTimeBox select={selectCategory}>
             <SelectCategory>
               <SelectCategoryTextLink
-                to="recent"
-                onClick={() => setSelectCategory(0)}
+                to="following"
+                onClick={() => onSelectCategory(0)}
                 select={selectCategory}
                 num={0}
               >
-                <SelectCategoryText>최신</SelectCategoryText>
+                <SelectCategoryText>팔로잉</SelectCategoryText>
               </SelectCategoryTextLink>
               <SelectCategoryTextLink
-                to="popular"
-                onClick={() => setSelectCategory(1)}
+                to="explore"
+                onClick={() => onSelectCategory(1)}
                 select={selectCategory}
                 num={1}
               >
-                <SelectCategoryText>인기</SelectCategoryText>
-              </SelectCategoryTextLink>
-              <SelectCategoryTextLink
-                to="date"
-                onClick={onSelectCategory2}
-                select={selectCategory}
-                num={2}
-              >
-                <SelectCategoryText>날짜별</SelectCategoryText>
+                <SelectCategoryText>탐색</SelectCategoryText>
               </SelectCategoryTextLink>
             </SelectCategory>
 
-            {selectCategory === 2 && isDetailModal && (
+            {isDate && isDetailModal && (
               <RangeTimeModal
                 modalOpen={isDetailModal}
-                modalClose={onModalClose}
+                modalClose={onDetailModal}
                 rangeTime={rangeTime}
                 setRangeTime={setRangeTime}
                 changeValue={changeValue}
@@ -224,33 +287,46 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
               />
             )}
 
-            {isDetailDone && selectCategory === 2 && (
-              <SelectDetailTimeBox>
-                <SelectCategoryBox>
-                  <SelectCategoryBtn
-                    select={dateCategory}
-                    category={"recent"}
-                    type="button"
-                    onClick={() => setDateCategory("recent")}
-                  >
-                    최신순
-                  </SelectCategoryBtn>
-                  <SelectCategoryBtn
-                    select={dateCategory}
-                    category={"popular"}
-                    type="button"
-                    onClick={() => setDateCategory("popular")}
-                  >
-                    인기순
-                  </SelectCategoryBtn>
-                </SelectCategoryBox>
+            <SelectDetailTimeBox>
+              {isDate && isDetailDone && (
                 <SelectDetailTime>
                   {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
                   {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
                   {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
                 </SelectDetailTime>
-              </SelectDetailTimeBox>
-            )}
+              )}
+              <SelectCategoryBox>
+                <SelectCategoryBtn
+                  select={dateCategory}
+                  category={"recent"}
+                  type="button"
+                  onClick={() => setDateCategory("recent")}
+                >
+                  최신순
+                </SelectCategoryBtn>
+                <SelectCategoryBtn
+                  select={dateCategory}
+                  category={"popular"}
+                  type="button"
+                  onClick={() => setDateCategory("popular")}
+                >
+                  인기순
+                </SelectCategoryBtn>
+                <SelectCategoryDateBtn
+                  select={isDate && isDetailDone ? "date" : null}
+                  category={"date"}
+                  type="button"
+                  onClick={() => onSelectCategory2()}
+                >
+                  날짜별
+                </SelectCategoryDateBtn>
+                {isDate && isDetailDone && (
+                  <SelectDeleteBtn onClick={() => setIsDate(false)}>
+                    <IoMdClose />
+                  </SelectDeleteBtn>
+                )}
+              </SelectCategoryBox>
+            </SelectDetailTimeBox>
           </SelectTimeBox>
         </>
       )}
@@ -267,7 +343,8 @@ const InfoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 16px;
+  margin-bottom: 16px;
+  /* padding: 20px 16px; */
 `;
 
 const IconBox = styled.div`
@@ -279,8 +356,8 @@ const IconBox = styled.div`
   flex: 0 0 auto;
   svg {
     color: ${thirdColor};
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
   }
 `;
 
@@ -290,16 +367,29 @@ const SelectTimeBox = styled.div<{ select: number }>`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 40px;
+  padding: 40px 40px 0;
 `;
 
 const SelectDetailTimeBox = styled.div`
   width: 100%;
-  margin: 20px 0;
+  margin: 40px 0 10px;
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  border-top: 1px solid ${secondColor};
 
   @media (max-width: 767px) {
-    margin: 10px 0;
-    padding: 0 16px 16px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    /* padding: 0px 16px; */
+    padding: 0;
+    > div {
+      border-top: 1px solid ${fourthColor};
+      padding: 16px 0;
+      width: 100%;
+    }
   }
 `;
 
@@ -307,21 +397,44 @@ const SelectCategoryBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: end;
-  gap: 12px;
-  margin-bottom: 10px;
+  /* gap: 12px; */
 `;
 
 const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
   padding: 0;
+  margin-left: 12px;
   transition: all 0.15s linear;
   font-size: 14px;
   font-weight: ${(props) =>
     props.select === props.category ? "bold" : "normal"};
   cursor: pointer;
   color: ${secondColor};
+  white-space: pre;
   @media (max-width: 767px) {
     font-size: 12px;
-    border-color: ${fourthColor};
+    /* border-color: ${fourthColor}; */
+  }
+`;
+
+const SelectCategoryDateBtn = styled(SelectCategoryBtn)`
+  text-decoration: ${(props) =>
+    props.select === props.category ? `underline` : `none`};
+  text-underline-position: under;
+`;
+
+const SelectDeleteBtn = styled.button`
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0;
+  cursor: pointer;
+  svg {
+    color: ${secondColor};
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -330,12 +443,12 @@ const SelectDetailTime = styled.p`
   font-size: 14px;
   display: flex;
   align-items: center;
-  justify-content: end;
   color: ${secondColor};
-  padding-top: 10px;
-  border-top: 1px solid ${secondColor};
+  white-space: pre;
+
   @media (max-width: 767px) {
     font-size: 12px;
+    font-weight: 300;
     border-color: ${fourthColor};
     color: ${thirdColor};
   }
@@ -360,7 +473,7 @@ const SelectCategoryTextLink = styled(Link)<{ select: number; num: number }>`
   padding: 8px 10px;
   text-align: center;
   white-space: nowrap;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: ${(props) => (props.num === props.select ? "700" : "500")};
   box-shadow: ${(props) =>
     props.num === props.select &&

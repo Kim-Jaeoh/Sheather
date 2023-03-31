@@ -148,21 +148,23 @@ const Weather = () => {
   return (
     <Container>
       <WeatherBox>
-        {!isLoading ? (
-          <>
-            {dayCheck && <WeatherSlider data={filterData1} />}
-            <WeatherSlider data={filterData2} />
-            <WeatherSlider data={filterData3} />
-            <WeatherSlider data={filterData4} />
-            <WeatherSlider data={filterData5} />
-          </>
-        ) : (
-          <>
-            {Array.from({ length: 4 }).map((res, index) => (
-              <WeatherSliderSkeleton key={index} />
-            ))}
-          </>
-        )}
+        <Box>
+          {!isLoading ? (
+            <>
+              {dayCheck && <WeatherSlider data={filterData1} />}
+              <WeatherSlider data={filterData2} />
+              <WeatherSlider data={filterData3} />
+              <WeatherSlider data={filterData4} />
+              <WeatherSlider data={filterData5} />
+            </>
+          ) : (
+            <>
+              {Array.from({ length: 4 }).map((res, index) => (
+                <WeatherSliderSkeleton key={index} />
+              ))}
+            </>
+          )}
+        </Box>
       </WeatherBox>
     </Container>
   );
@@ -186,8 +188,25 @@ const Container = styled.main`
 const WeatherBox = styled.div`
   position: relative;
   padding: 40px;
-
   @media (max-width: 767px) {
     padding: 16px;
   }
+`;
+
+const Box = styled.div`
+  /* @media (max-width: 767px) {
+    overflow: hidden;
+    border: 1px solid ${secondColor};
+    background: #f5f5f5;
+    border-radius: 20px;
+
+    box-shadow: ${(props) => {
+    let shadow = "";
+    for (let i = 1; i < 63; i++) {
+      shadow += `#307ac4 ${i}px ${i}px,`;
+    }
+    shadow += `#307ac4 63px 63px`;
+    return shadow;
+  }};
+  } */
 `;

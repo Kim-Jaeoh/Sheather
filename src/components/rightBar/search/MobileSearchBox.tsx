@@ -1,13 +1,23 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { FiSearch } from "react-icons/fi";
-import { IoIosCloseCircleOutline, IoMdArrowDropup } from "react-icons/io";
-import useDebounce from "../../hooks/useDebounce";
+import {
+  IoIosCloseCircleOutline,
+  IoMdArrowDropup,
+  IoMdClose,
+} from "react-icons/io";
+import useDebounce from "../../../hooks/useDebounce";
+import FollowListBox from "../FollowListBox";
+import TagListBox from "../TagListBox";
 import SearchList, { localType } from "./SearchList";
-import ColorList from "../../assets/ColorList";
 import SearchedShowList from "./SearchedShowList";
+import ColorList from "../../../assets/ColorList";
 
-const SearchBox = () => {
+type Props = {
+  modalClose: () => void;
+};
+
+const MobileSearchBox = ({ modalClose }: Props) => {
   const [focus, setFocus] = useState(false);
   const [text, setText] = useState("");
   const [debounceText, setDebounceText] = useState("");
@@ -60,6 +70,7 @@ const SearchBox = () => {
 
   const onSubmitText = (e: React.FormEvent) => {
     e.preventDefault();
+    return false;
   };
 
   const onDeleteText = useCallback(() => {
@@ -79,6 +90,7 @@ const SearchBox = () => {
       ]);
     }
     setFocus(false);
+    modalClose();
   };
 
   // 검색 리스트 노출할 때 애니메이션
@@ -97,37 +109,41 @@ const SearchBox = () => {
 
   return (
     <Container>
-      <InputTextBox onSubmit={onSubmitText} focus={focus}>
-        <IconBox htmlFor="search" focus={focus}>
-          <FiSearch />
-        </IconBox>
-        <SearchInput
-          spellCheck="false"
-          onFocus={onListOpen}
-          // onBlur={onListClose}
-          type="text"
-          id="search"
-          autoComplete="off"
-          maxLength={12}
-          value={text}
-          onChange={onChangeText}
-          placeholder="검색어를 입력하세요"
-        />
-        {text !== "" && (
-          <Closebox onClick={onDeleteText} type="button">
-            <IoIosCloseCircleOutline />
-          </Closebox>
-        )}
-        {focus && text === "" && (
-          <Closebox onClick={onListClose} type="button">
-            <IoMdArrowDropup />
-          </Closebox>
-        )}
-      </InputTextBox>
-
-      {focus && (
+      <Header>
+        <InputTextBox onSubmit={onSubmitText} focus={focus}>
+          <IconBox htmlFor="search" focus={focus}>
+            <FiSearch />
+          </IconBox>
+          <SearchInput
+            spellCheck="false"
+            onFocus={onListOpen}
+            // onBlur={onListClose}
+            type="text"
+            id="search"
+            autoComplete="off"
+            maxLength={12}
+            value={text}
+            onChange={onChangeText}
+            placeholder="검색어를 입력하세요"
+          />
+          {text !== "" && (
+            <InputCloseBox onClick={onDeleteText} type="button">
+              <IoIosCloseCircleOutline />
+            </InputCloseBox>
+          )}
+          {focus && text === "" && (
+            <InputCloseBox onClick={onListClose} type="button">
+              <IoMdArrowDropup />
+            </InputCloseBox>
+          )}
+        </InputTextBox>
+        <ModalCloseBox type="button" onClick={modalClose}>
+          <IoMdClose />
+        </ModalCloseBox>
+      </Header>
+      {focus ? (
         <SearchedBox focus={focus} toggleAnimation={toggleAnimation}>
-          {text !== "" ? (
+          {debounceText !== "" ? (
             <SearchList
               text={debounceText}
               url={url}
@@ -141,16 +157,34 @@ const SearchBox = () => {
             />
           )}
         </SearchedBox>
+      ) : (
+        <>
+          <TagListBox modalClose={modalClose} />
+          <FollowListBox modalClose={modalClose} />
+        </>
       )}
     </Container>
   );
 };
 
-export default SearchBox;
+export default MobileSearchBox;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Container = styled.article``;
+const Container = styled.article`
+  /* width: 100%; */
+`;
+
+const Header = styled.div`
+  width: 100%;
+  padding: 12px 16px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid ${thirdColor};
+  position: relative;
+`;
 
 const InputTextBox = styled.form<{ focus: boolean }>`
   width: 100%;
@@ -158,7 +192,7 @@ const InputTextBox = styled.form<{ focus: boolean }>`
   display: flex;
   align-items: center;
   overflow: hidden;
-  border: 2px solid ${(props) => (props.focus ? secondColor : fourthColor)};
+  border: 1px solid ${thirdColor};
   border-radius: 20px;
   padding: 10px 40px 10px 10px;
   transition: all 0.15s linear;
@@ -198,7 +232,7 @@ const SearchInput = styled.input`
   }
 `;
 
-const Closebox = styled.button`
+const InputCloseBox = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -217,11 +251,27 @@ const Closebox = styled.button`
   }
 `;
 
+const ModalCloseBox = styled.button`
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-right: -14px;
+  svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+  }
+`;
+
 const SearchedBox = styled.div<{ focus: boolean; toggleAnimation: boolean }>`
-  border: 2px solid
-    ${(props) => (props.toggleAnimation ? secondColor : fourthColor)};
-  margin-top: 14px;
-  height: 300px;
+  /* padding: 4px 20px 16px; */
+  padding: 4px 16px 16px;
 
   border-radius: 20px;
   position: relative;

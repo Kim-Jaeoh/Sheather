@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +22,11 @@ import AuthFormModal from "../modal/auth/AuthFormModal";
 import { cloneDeep } from "lodash";
 import FollowListSkeleton from "../../assets/skeleton/FollowListSkeleton";
 
-const FollowListBox = () => {
+type Props = {
+  modalClose?: () => void;
+};
+
+const FollowListBox = ({ modalClose }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
@@ -32,6 +36,8 @@ const FollowListBox = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthModal, setIsAuthModal] = useState(false);
   const { toggleFollow } = useToggleFollow();
+
+  const usersArr = useRef([]);
 
   // 계정 정보 가져오기
   useEffect(() => {
@@ -58,9 +64,8 @@ const FollowListBox = () => {
 
       // 렌더링이 2번 돼서 cloneDeep으로 해결
       let cloneArr = cloneDeep(notFollowed);
-
-      randomArray(cloneArr); // 배열 랜덤
-
+      usersArr.current.push(...cloneArr);
+      // randomArray(cloneArr); // 배열 랜덤
       setUsers(cloneArr);
       setIsLoading(true);
     });
@@ -84,6 +89,7 @@ const FollowListBox = () => {
     if (!userLogin) {
       setIsAuthModal(true);
     }
+    modalClose();
   };
 
   const onAuthModal = () => {
@@ -104,7 +110,7 @@ const FollowListBox = () => {
         </CategoryBox>
         <UserListBox>
           {isLoading ? (
-            users.map((res, index) => (
+            users.map((res: any, index: number) => (
               <UserList onClick={onLogState} key={index}>
                 {index < 5 && (
                   <>
@@ -162,8 +168,15 @@ const Container = styled.article`
   margin-top: 30px;
   border-radius: 20px;
   overflow: hidden;
-  /* box-shadow: 0px 1px ${secondColor}, 0px 2px ${secondColor},
-    0px 3px ${secondColor}, 0px 4px ${secondColor}; */
+
+  @media (max-width: 767px) {
+    max-height: auto;
+    padding: 20px;
+    margin-top: 0;
+    border: none;
+    border-top: 1px solid ${fourthColor};
+    border-radius: 0;
+  }
 `;
 
 const CategoryBox = styled.div`
@@ -171,6 +184,12 @@ const CategoryBox = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 20px 20px 12px;
+
+  @media (max-width: 767px) {
+    padding: 0;
+    width: 100%;
+    margin-bottom: 12px;
+  }
 `;
 
 const Category = styled.h2`
@@ -212,6 +231,10 @@ const User = styled(Link)`
   &:active {
     background-color: #f5f5f5;
   }
+
+  @media (max-width: 767px) {
+    padding: 12px 0px;
+  }
 `;
 
 const ProfileImageBox = styled.div`
@@ -233,6 +256,9 @@ const ProfileInfoBox = styled.div`
   cursor: pointer;
   flex: 1;
   padding-right: 20px;
+  @media (max-width: 767px) {
+    padding-right: 0;
+  }
 `;
 
 const ProfileDsName = styled.p`

@@ -15,8 +15,8 @@ import { authService } from "./fbase";
 import Profile from "./pages/Profile";
 import { Toaster } from "react-hot-toast";
 import { SuspenseSpinner } from "./assets/SuspenseSpinner";
-import SearchBox from "./components/search/SearchBox";
-import SearchResult from "./components/search/SearchResult";
+import SearchBox from "./components/rightBar/search/SearchBox";
+import SearchResult from "./components/rightBar/search/SearchResult";
 import TagCategoryList from "./components/explore/TagCategoryList";
 import FollowCategoryList from "./components/explore/FollowCategoryList";
 import useMediaScreen from "./hooks/useMediaScreen";
@@ -69,7 +69,7 @@ const App = () => {
                 <Route path="/feed/detail" element={<DetailFeed />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/message/*" element={<Message />} />
-                <Route path="/explore/*" element={<Explore />} />
+                {/* <Route path="/explore/*" element={<Explore />} /> */}
                 <Route path="/explore/search" element={<SearchResult />} />
                 <Route path="/explore/tag" element={<TagCategoryList />} />
                 <Route
@@ -78,12 +78,12 @@ const App = () => {
                 />
                 <Route path="/profile/:id/*" element={<Profile />} />
                 <Route path="/profile/detail" element={<DetailFeed />} />
-                <Route
+                {/* <Route
                   path="/explore"
                   element={<Navigate replace to="/explore/outer?detail=0" />}
-                />
+                /> */}
                 <Route
-                  path="/"
+                  path="*"
                   element={<Navigate replace to="/feed/recent" />}
                 />
               </>

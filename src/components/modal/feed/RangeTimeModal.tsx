@@ -59,8 +59,10 @@ const RangeTimeModal = (props: Props) => {
       // BackdropProps={{ style: { backgroundColor: "transparent" } }}
     >
       <RangeBox isMobile={isMobile}>
-        <Header onClick={isCalendar ? onClickCalendar : modalClose}>
-          <IoMdClose />
+        <Header>
+          <IconBox onClick={isCalendar ? onClickCalendar : modalClose}>
+            <IoMdClose />
+          </IconBox>
         </Header>
         <Container>
           <ViewNumberBox>
@@ -151,13 +153,16 @@ const RangeBox = styled.div<{ isMobile: boolean }>`
 `;
 
 const Header = styled.header`
-  cursor: pointer;
   width: 100%;
   display: flex;
   justify-content: end;
   overflow: hidden;
   border-bottom: 1px solid ${thirdColor};
+`;
+
+const IconBox = styled.div`
   svg {
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;

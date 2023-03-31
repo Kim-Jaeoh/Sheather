@@ -1,17 +1,19 @@
 import { Skeleton, Stack } from "@mui/material";
 import React from "react";
 import styled from "@emotion/styled";
+import useMediaScreen from "../../hooks/useMediaScreen";
 
 type Props = {};
 
 const WeatherSliderSkeleton = (props: Props) => {
+  const { isMobile } = useMediaScreen();
   return (
     <Wrapper>
       <Header>
         <Skeleton height={"50px"} />
       </Header>
       <SliderBox>
-        {Array.from({ length: 4 }).map((res, index) => {
+        {Array.from({ length: isMobile ? 2 : 4 }).map((res, index) => {
           return (
             <Slider key={index}>
               <Skeleton

@@ -10,8 +10,10 @@ const Home = () => {
 
   return (
     <Container>
-      <SortFeedCategory url={url} setUrl={setUrl} />
-      <FeedCategory url={url} />
+      <Box>
+        <SortFeedCategory url={url} setUrl={setUrl} />
+        <FeedCategory url={url} />
+      </Box>
     </Container>
   );
 };
@@ -24,6 +26,25 @@ const Container = styled.div`
   background: #ff5673;
 
   @media (max-width: 767px) {
-    background: transparent;
+    padding: 16px;
+    /* background: transparent; */
+  }
+`;
+
+const Box = styled.div`
+  @media (max-width: 767px) {
+    background: #fff;
+    padding: 16px;
+    border: 1px solid #222;
+    border-radius: 20px;
+
+    box-shadow: ${(props) => {
+      let shadow = "";
+      for (let i = 1; i < 63; i++) {
+        shadow += `#be374e ${i}px ${i}px,`;
+      }
+      shadow += `#be374e 63px 63px`;
+      return shadow;
+    }};
   }
 `;

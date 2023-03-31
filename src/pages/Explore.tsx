@@ -59,11 +59,7 @@ const Explore = () => {
 
   // 카테고리
   useEffect(() => {
-    let cat = pathname?.split("/")[2];
     let number = +searchParams.get("detail");
-    if (cat === "top") {
-      // number += 1;
-    }
 
     const findIndex = categoryArray.findIndex(
       (res) => res.link === pathname?.split("/")[2]

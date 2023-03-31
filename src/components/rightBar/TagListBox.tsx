@@ -14,7 +14,11 @@ interface Count {
   [key: string]: number;
 }
 
-const TagListBox = () => {
+type Props = {
+  modalClose?: () => void;
+};
+
+const TagListBox = ({ modalClose }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
@@ -35,7 +39,7 @@ const TagListBox = () => {
     feedApi,
     {
       refetchOnWindowFocus: false,
-      refetchInterval: 1000 * 60, // 1분
+      refetchInterval: 1000 * 60 * 5, // 5분
       onError: (e) => console.log(e),
     }
   );
@@ -67,6 +71,7 @@ const TagListBox = () => {
     if (!userLogin) {
       setIsAuthModal(true);
     }
+    modalClose();
   };
 
   const onAuthModal = () => {
@@ -116,8 +121,14 @@ const Container = styled.article`
   margin-top: 30px;
   border-radius: 20px;
   overflow: hidden;
-  /* box-shadow: 0px 1px ${secondColor}, 0px 2px ${secondColor},
-    0px 3px ${secondColor}, 0px 4px ${secondColor}; */
+
+  @media (max-width: 767px) {
+    min-height: auto;
+    padding: 20px;
+    margin-top: 0;
+    border: none;
+    border-radius: 0;
+  }
 `;
 
 const CategoryBox = styled.div`
@@ -125,6 +136,11 @@ const CategoryBox = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 20px 20px 12px;
+
+  @media (max-width: 767px) {
+    padding: 0;
+    margin-bottom: 12px;
+  }
 `;
 
 const Category = styled.h2`
@@ -154,6 +170,10 @@ const TagList = styled(Link)`
   &:hover,
   &:active {
     background-color: #f5f5f5;
+  }
+
+  @media (max-width: 767px) {
+    padding: 12px 0px;
   }
 `;
 

@@ -2,7 +2,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AiOutlineHome } from "react-icons/ai";
-import { BsChatDots, BsPersonCircle, BsSun } from "react-icons/bs";
+import {
+  BsChatDots,
+  BsPersonCircle,
+  BsPlusCircle,
+  BsSun,
+} from "react-icons/bs";
 import { FiCompass, FiPlusCircle, FiSearch } from "react-icons/fi";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import { useDispatch } from "react-redux";
@@ -241,11 +246,12 @@ const LeftBar = () => {
         <MenuBox pathname={pathname}>
           <LogoBox>SHEATHER</LogoBox>
           <MenuLink
+            style={{ order: 0 }}
             menu={menu}
             cat="feed"
             onClick={() => setSelectMenu(0)}
             color="#ff5673"
-            to="/feed/recent"
+            to="/feed/following"
           >
             <MenuList>
               <AiOutlineHome />
@@ -253,6 +259,7 @@ const LeftBar = () => {
             </MenuList>
           </MenuLink>
           <MenuLink
+            style={{ order: 1 }}
             menu={menu}
             cat="weather"
             onClick={() => setSelectMenu(1)}
@@ -265,6 +272,7 @@ const LeftBar = () => {
             </MenuList>
           </MenuLink>
           <MenuLink
+            style={{ order: isMobile ? 3 : 2 }}
             menu={menu}
             cat="message"
             onClick={() => setSelectMenu(2)}
@@ -279,7 +287,7 @@ const LeftBar = () => {
               )}
             </MenuList>
           </MenuLink>
-          <MenuLink
+          {/* <MenuLink
             menu={menu}
             cat="explore"
             onClick={() => setSelectMenu(3)}
@@ -288,23 +296,24 @@ const LeftBar = () => {
           >
             <MenuList>
               <IoCompassOutline />
-              {/* <MdOutlineExplore /> */}
-              {/* <FiSearch /> */}
               <MenuText>탐색</MenuText>
             </MenuList>
-          </MenuLink>
+          </MenuLink> */}
           <MenuBtn
+            style={{ order: isMobile ? 2 : 3 }}
             menu={menu}
             cat="write"
             color="#ffe448"
             onClick={onWriteClick}
           >
             <MenuList>
-              <FiPlusCircle />
+              <BsPlusCircle />
+              {/* <FiPlusCircle /> */}
               <MenuText>글쓰기</MenuText>
             </MenuList>
           </MenuBtn>
           <MenuBtn
+            style={{ order: 4 }}
             menu={menu}
             cat="profile"
             onClick={onProfileClick}

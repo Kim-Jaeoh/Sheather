@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../../assets/ColorList";
 import { doc, getDoc } from "firebase/firestore";
-import { dbService } from "../../fbase";
+import { dbService } from "../../../fbase";
 import { HiHashtag } from "react-icons/hi";
-import { Spinner } from "../../assets/Spinner";
+import { Spinner } from "../../../assets/Spinner";
 import { cloneDeep } from "lodash";
 import { IoMdClose } from "react-icons/io";
 import { localType } from "./SearchList";
@@ -175,6 +175,10 @@ const DeleteAllBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media (max-width: 767px) {
+    padding: 12px 0;
+  }
 `;
 
 const Category = styled.p`
@@ -214,6 +218,9 @@ const List = styled(Link)`
   &:hover,
   &:active {
     background-color: #f5f5f5;
+  }
+  @media (max-width: 767px) {
+    padding: 12px 0;
   }
 `;
 
@@ -272,6 +279,9 @@ const Closebox = styled.button`
   svg {
     width: 18px;
     height: 18px;
+  }
+  @media (max-width: 767px) {
+    right: 0px;
   }
 `;
 

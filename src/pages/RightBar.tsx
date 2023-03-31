@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import ColorList from "../assets/ColorList";
 import TagListBox from "../components/rightBar/TagListBox";
-import SearchBox from "../components/search/SearchBox";
+import SearchBox from "../components/rightBar/search/SearchBox";
 import FollowListBox from "../components/rightBar/FollowListBox";
 import useMediaScreen from "../hooks/useMediaScreen";
 

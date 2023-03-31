@@ -1,16 +1,17 @@
 import styled from "@emotion/styled";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
-import ColorList from "../../assets/ColorList";
-import { FeedType } from "../../types/type";
+import ColorList from "../../../assets/ColorList";
+import { FeedType } from "../../../types/type";
 import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
-import useToggleBookmark from "../../hooks/useToggleBookmark";
-import useToggleLike from "../../hooks/useToggleLike";
-import useInfinityScroll from "../../hooks/useInfinityScroll";
+import { RootState } from "../../../app/store";
+import useToggleBookmark from "../../../hooks/useToggleBookmark";
+import useToggleLike from "../../../hooks/useToggleLike";
+import useInfinityScroll from "../../../hooks/useInfinityScroll";
 import { useEffect, useRef, useState } from "react";
 import { FrameGrid } from "@egjs/react-grid";
-import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
+import ExploreSkeleton from "../../../assets/skeleton/ExploreSkeleton";
 import { cloneDeep } from "lodash";
+import useMediaScreen from "../../../hooks/useMediaScreen";
 
 type Props = {
   state?: string;
@@ -26,6 +27,7 @@ const SearchResult = () => {
     }/api/search?keyword=${searchParams.get("keyword")}&`,
     count: 10,
   });
+  const { isMobile } = useMediaScreen();
 
   //  랜덤화
   useEffect(() => {
@@ -62,7 +64,7 @@ const SearchResult = () => {
               <>
                 <FrameGrid
                   className="container"
-                  gap={20}
+                  gap={isMobile ? 10 : 20}
                   defaultDirection={"end"}
                   frame={[
                     [1, 1, 2, 2, 3, 3],
@@ -139,6 +141,11 @@ const TagCategory = styled.div`
   margin-bottom: 40px;
   display: flex;
   justify-content: center;
+
+  @media (max-width: 767px) {
+    padding: 0;
+    margin: 10px 0 30px;
+  }
 `;
 
 const TagCategoryText = styled.h2`
@@ -151,6 +158,11 @@ const TagCategoryText = styled.h2`
   border-radius: 9999px;
   box-shadow: 0px 4px 0 -2px #222, 0px 4px ${secondColor};
   background: #fff;
+
+  @media (max-width: 767px) {
+    border-width: 1px;
+    font-size: 18px;
+  }
 `;
 
 const CardBox = styled.ul`
@@ -163,6 +175,10 @@ const CardBox = styled.ul`
   /* display: grid; */
   /* grid-template-columns: 1fr 1fr 1fr; */
   /* grid-auto-rows: auto; */
+  @media (max-width: 767px) {
+    border: none;
+    padding: 16px;
+  }
 `;
 
 const CardList = styled.li<{ render?: boolean; size?: number }>`
@@ -191,6 +207,11 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
       opacity: 1;
       transform: translateY(0px);
     }
+  }
+
+  @media (max-width: 767px) {
+    animation: none;
+    border-width: 1px;
   }
 `;
 

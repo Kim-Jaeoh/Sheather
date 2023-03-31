@@ -181,7 +181,7 @@ const ProfileIntroBox = styled.div`
 `;
 
 const ProfileDsName = styled.p`
-  font-size: 18px;
+  font-size: 16px;
   line-height: 34px;
   font-weight: 500;
 `;

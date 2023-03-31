@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../../assets/ColorList";
 import { Link, useNavigate } from "react-router-dom";
-import useInfinityScroll from "../../hooks/useInfinityScroll";
+import useInfinityScroll from "../../../hooks/useInfinityScroll";
 import { collection, getDocs, query } from "firebase/firestore";
-import { dbService } from "../../fbase";
-import { CurrentUserType } from "../../app/user";
+import { dbService } from "../../../fbase";
+import { CurrentUserType } from "../../../app/user";
 import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
+import { RootState } from "../../../app/store";
 import { HiHashtag } from "react-icons/hi";
 import SearchedShowList from "./SearchedShowList";
 
@@ -126,6 +126,10 @@ const SearchedListBox = styled.li`
   display: flex;
   align-items: center;
   padding: 12px;
+
+  @media (max-width: 767px) {
+    padding: 12px 0;
+  }
 `;
 
 const SearchedList = styled(Link)`

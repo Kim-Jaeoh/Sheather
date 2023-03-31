@@ -215,12 +215,31 @@ const Wrapper = styled.div`
   overflow: hidden;
   position: relative;
   border: 2px solid ${secondColor};
+
   &:not(:last-of-type) {
     margin-bottom: 30px;
   }
 
   @media (max-width: 767px) {
     border: 1px solid ${secondColor};
+    box-shadow: ${(props) => {
+      let shadow = "";
+      for (let i = 1; i < 63; i++) {
+        shadow += `#307ac4 ${i}px ${i}px,`;
+      }
+      shadow += `#307ac4 63px 63px`;
+      return shadow;
+    }};
+    /* border: none;
+    &:not(:first-of-type) {
+      border-bottom: none;
+    }
+    &:not(:last-of-type) {
+      border-top: none;
+      border-bottom: 1px solid ${secondColor};
+      margin-bottom: 0px;
+    }
+    border-radius: 0; */
   }
 `;
 
@@ -279,13 +298,15 @@ const WeatherDateBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #fff;
   margin-top: -2px;
   border-top: 2px solid ${secondColor};
   border-bottom: 2px solid ${secondColor};
 
   @media (max-width: 767px) {
     border: none;
-    border-bottom: 1px solid ${thirdColor};
+    border-bottom: 1px solid ${secondColor};
+    /* border-bottom: 1px solid ${thirdColor}; */
   }
 `;
 

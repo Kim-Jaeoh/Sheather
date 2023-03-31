@@ -56,12 +56,12 @@ type locationProps = {
 };
 
 const DetailFeed = () => {
-  const textRef = useRef<HTMLTextAreaElement>(null);
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
   );
+  const textRef = useRef<HTMLTextAreaElement>(null);
   const [replyText, setReplyText] = useState("");
   const [onMouse, setOnMouse] = useState(false);
   const [isMore, setIsMore] = useState(false);

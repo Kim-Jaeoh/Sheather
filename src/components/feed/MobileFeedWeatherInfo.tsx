@@ -229,7 +229,6 @@ const CategoryTag = styled.div`
   align-items: center;
   border: 1px solid ${fourthColor};
   border-radius: 8px;
-  /* border-radius: 20px; */
 
   svg {
     margin-right: 2px;

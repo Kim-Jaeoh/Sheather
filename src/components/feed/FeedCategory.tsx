@@ -86,7 +86,7 @@ const FeedCategory = ({ url, feed }: Props) => {
             <CardBox render={isGridRender}>
               <MasonryGrid
                 className="container"
-                gap={!isMobile ? 30 : 10}
+                gap={!isMobile ? 30 : 12}
                 defaultDirection={"end"}
                 align={"stretch"}
                 column={2}
@@ -220,7 +220,8 @@ const CardBox = styled.ul<{ render?: boolean; isMobile?: boolean }>`
   padding: 10px 40px 40px;
 
   @media (max-width: 767px) {
-    padding: 0 16px 16px;
+    padding: 0;
+    /* padding: 0 16px 16px; */
   }
 `;
 
@@ -258,8 +259,10 @@ const CardList = styled.li<{
   }
 
   @media (max-width: 767px) {
+    width: 174px;
     border: none;
     background: transparent;
+    animation: none;
 
     > a {
       border-radius: 20px;

@@ -9,6 +9,7 @@ import { FeedType, replyType } from "../../../types/type";
 type Props = {
   modalOpen: boolean;
   selectCategory: number;
+  isDate: boolean;
   modalClose: () => void;
   setSelectCategory: React.Dispatch<React.SetStateAction<number>>;
   onSelectCategory2: () => void;
@@ -18,6 +19,7 @@ const MobileFeedCategoryModal = (props: Props) => {
   const {
     modalOpen,
     selectCategory,
+    isDate,
     modalClose,
     setSelectCategory,
     onSelectCategory2,
@@ -37,18 +39,18 @@ const MobileFeedCategoryModal = (props: Props) => {
             num={0}
             onClick={() => setSelectCategory(0)}
           >
-            최신
+            팔로잉
           </Btn>
           <Btn
             select={selectCategory}
             num={1}
             onClick={() => setSelectCategory(1)}
           >
-            인기
+            탐색
           </Btn>
-          <Btn select={selectCategory} num={2} onClick={onSelectCategory2}>
+          {/* <Btn select={isDate ? 2 : null} num={2} onClick={onSelectCategory2}>
             날짜별
-          </Btn>
+          </Btn> */}
         </Container>
       </RangeBox>
     </Modal>

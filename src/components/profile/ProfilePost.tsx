@@ -143,8 +143,7 @@ const Card = styled.li<{ exist?: boolean }>`
   @media (max-width: 767px) {
     border: none;
     border-radius: 0;
-
-    /* padding: 0 16px; */
+    animation: none;
   }
 `;
 
