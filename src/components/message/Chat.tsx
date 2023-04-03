@@ -4,11 +4,8 @@ import { dbService } from "../../fbase";
 import {
   addDoc,
   collection,
-  CollectionReference,
   deleteDoc,
   doc,
-  DocumentData,
-  DocumentReference,
   onSnapshot,
   query,
   updateDoc,
@@ -129,7 +126,7 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
             const getDay = dayArr[moment(transDay).day()];
             // 중복 체크
             setDay((prev: string[]) => {
-              if (!prev.some((asd) => asd === getDay)) {
+              if (!prev.some((day) => day === getDay)) {
                 return [...prev, getDay];
               } else {
                 return prev;
@@ -156,7 +153,7 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
 
     // 채팅 새로 만들기
     if (!messageCollection?.id) {
-      await addDoc(collection(dbService, `sections`), {
+      await addDoc(collection(dbService, `messages`), {
         member: [userObj.displayName, users?.displayName],
         message: [
           {
@@ -185,6 +182,18 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
           },
         ],
       });
+
+      // 글 보낼 시 상대가 본인 메시지 안 읽은 것으로 변경
+      const copy = [...users?.message];
+      await updateDoc(doc(dbService, "users", users.displayName), {
+        message: copy.map((res) => {
+          if (userObj.displayName === res.user) {
+            return { ...res, isRead: false };
+          } else {
+            return { ...res };
+          }
+        }),
+      });
     }
 
     setText("");
@@ -201,9 +210,6 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
       e.preventDefault();
       onSubmit();
     }
-    // else if (e.key === "Enter" && e.shiftKey) {
-    //   setText((value) => value + "\n"); // 줄바꿈 문자열 추가
-    // }
   };
 
   // 메세지 읽음 확인

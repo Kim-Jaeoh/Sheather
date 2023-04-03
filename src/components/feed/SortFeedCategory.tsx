@@ -68,7 +68,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
 
   useEffect(() => {
     // 날짜별
-    if (selectCategory === 2) {
+    if (isDate) {
       if (isDetailDone) {
         setCategoryModal(false); // 모바일 카테고리 모달
 
@@ -142,8 +142,8 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
   // 서브-날짜별 클릭
   const onSelectCategory2 = () => {
     setIsDate(true);
-    setIsDetailDone(false);
     setIsDetailModal(true);
+    setIsDetailDone(false);
   };
 
   // 초기화
@@ -462,7 +462,7 @@ const SelectCategory = styled.div`
 `;
 
 const SelectCategoryTextLink = styled(Link)<{ select: number; num: number }>`
-  width: 70px;
+  width: 78px;
   flex: 1;
   color: ${secondColor};
   background: ${(props) =>
@@ -470,10 +470,10 @@ const SelectCategoryTextLink = styled(Link)<{ select: number; num: number }>`
   border-radius: 9999px;
   border: ${(props) =>
     props.num === props.select ? "2px solid #222" : "1px solid #222"};
-  padding: 8px 10px;
+  padding: 8px 14px;
   text-align: center;
   white-space: nowrap;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: ${(props) => (props.num === props.select ? "700" : "500")};
   box-shadow: ${(props) =>
     props.num === props.select &&

@@ -23,7 +23,7 @@ const DetailFeedCategory = ({ res, categoryTags, onWearClick }: Props) => {
   const { isMobile } = useMediaScreen();
 
   return (
-    <>
+    <WearDetailBox>
       {isMobile ? (
         <WearDetail>
           <WearInfoBox>
@@ -150,7 +150,7 @@ const DetailFeedCategory = ({ res, categoryTags, onWearClick }: Props) => {
           </WearDetail>
         </>
       )}
-    </>
+    </WearDetailBox>
   );
 };
 
@@ -158,21 +158,25 @@ export default DetailFeedCategory;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
+const WearDetailBox = styled.div`
+  overflow: hidden;
+  display: flex;
+  border-bottom: 1px solid ${thirdColor};
+`;
+
 const WearDetail = styled.div`
   position: relative;
-  padding: 0px 14px;
+  padding: 10px 14px;
   display: flex;
   flex: 1;
-  width: 50%;
-  height: 60px;
+  /* width: 50%; */
   align-items: center;
   &:not(:last-of-type) {
     border-right: 1px solid ${thirdColor};
   }
 
   @media (max-width: 767px) {
-    padding: 0px 16px;
-    height: 40px;
+    padding: 10px 16px;
     overflow: hidden;
   }
 `;
@@ -218,7 +222,7 @@ const FlickingCategoryBox = styled.div`
   position: relative;
   &::after {
     right: 0px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fafafa);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
     position: absolute;
     top: 0px;
     z-index: 10;
@@ -258,8 +262,8 @@ const CategoryTagBox = styled.div`
 `;
 
 const CategoryTag = styled.div`
-  font-size: 12px;
-  padding: 8px 10px;
+  font-size: 14px;
+  padding: 6px 8px;
   display: flex;
   align-items: center;
   border: 1px solid ${thirdColor};
@@ -272,6 +276,7 @@ const CategoryTag = styled.div`
   }
 
   @media (max-width: 767px) {
+    font-size: 12px;
     padding: 4px 6px;
   }
 `;

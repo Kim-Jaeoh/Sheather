@@ -8,7 +8,6 @@ import {
   BsPlusCircle,
   BsSun,
 } from "react-icons/bs";
-import { FiCompass, FiPlusCircle, FiSearch } from "react-icons/fi";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import { useDispatch } from "react-redux";
 import { RootState } from "../app/store";
@@ -30,8 +29,10 @@ import { currentUser, CurrentUserType } from "../app/user";
 import { dbService } from "../fbase";
 import useMediaScreen from "../hooks/useMediaScreen";
 import ColorList from "../assets/ColorList";
-import { MdOutlineExplore } from "react-icons/md";
-import { IoCompassOutline } from "react-icons/io5";
+import { SlBell } from "react-icons/sl";
+import NoticeModal from "../components/modal/notice/NoticeModal";
+import SearchModal from "../components/modal/search/SearchModal";
+import { FiSearch } from "react-icons/fi";
 
 const LeftBar = () => {
   const [isAuthModal, setIsAuthModal] = useState(false);
@@ -40,18 +41,19 @@ const LeftBar = () => {
   const [users, setUsers] = useState([]);
   const [messageCollection, setMessageCollection] = useState(null);
   const [shareBtn, setShareBtn] = useState(false);
+  const [isSearchModal, setIsSearchModal] = useState(false);
+  const [isNoticeModal, setIsNoticeModal] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {
-    loginToken: userLogin,
-    currentUser: userObj,
-    newMessage: message,
-  } = useSelector((state: RootState) => {
-    return state.user;
-  });
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const { location } = useCurrentLocation();
-  const { isDesktop, isTablet, isMobile, isMobileBefore } = useMediaScreen();
+  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
+    useMediaScreen();
 
   const nowWeatherApi = async () =>
     await axios.get(
@@ -100,7 +102,7 @@ const LeftBar = () => {
     }
   }, [myAccount]);
 
-  // store에 message 정보 저장
+  // redux store에 message 정보 저장
   useEffect(() => {
     if (myAccount) {
       const checkCurrentUserInfo = userObj?.message?.some(
@@ -138,40 +140,40 @@ const LeftBar = () => {
     return () => unsubscribe();
   }, [userObj.displayName, users]);
 
-  // 채팅방 알림 표시
-  useEffect(() => {
-    if (messageCollection) {
-      const filter = messageCollection.map((res: listType) => {
-        return res.message
-          .filter((msg) => msg.displayName !== userObj.displayName) // 1. 상대방 채팅 중
-          .filter((msg: { isRead: boolean }) => msg.isRead === false); // 2. 안 읽은 것 가져오기
-      });
+  // // 채팅방 알림 표시
+  // useEffect(() => {
+  //   if (messageCollection) {
+  //     const filter = messageCollection.map((res: listType) => {
+  //       return res.message
+  //         .filter((msg) => msg.displayName !== userObj.displayName) // 1. 상대방과의 채팅 중
+  //         .filter((msg: { isRead: boolean }) => msg.isRead === false); // 2. 안 읽은 것 가져오기
+  //     });
 
-      //  안 읽은 채팅방 있을 시 알림 표시
-      const notice = filter.flat();
-      if (notice.length > 0) {
-        const checkReadInfo = async () => {
-          const copy = [...myAccount?.message];
-          await updateDoc(doc(dbService, "users", userObj.displayName), {
-            message: copy.map((res) => {
-              if (
-                notice.some(
-                  (chat: { displayName: string }) =>
-                    chat.displayName === res.user
-                )
-              ) {
-                return { ...res, isRead: false };
-              } else {
-                return { ...res };
-              }
-            }),
-          });
-        };
+  //     //  안 읽은 채팅방 있을 시 알림 표시
+  //     const notice = filter.flat();
+  //     if (notice.length > 0) {
+  //       const checkReadInfo = async () => {
+  //         const copy = [...myAccount?.message];
+  //         await updateDoc(doc(dbService, "users", userObj.displayName), {
+  //           message: copy.map((res) => {
+  //             if (
+  //               notice.some(
+  //                 (chat: { displayName: string }) =>
+  //                   chat.displayName === res.user
+  //               )
+  //             ) {
+  //               return { ...res, isRead: false };
+  //             } else {
+  //               return { ...res };
+  //             }
+  //           }),
+  //         });
+  //       };
 
-        checkReadInfo();
-      }
-    }
-  }, [messageCollection, myAccount?.message, userObj.displayName]);
+  //       checkReadInfo();
+  //     }
+  //   }
+  // }, [messageCollection, myAccount?.message, userObj.displayName]);
 
   useEffect(() => {
     if (pathname.includes("feed")) {
@@ -187,9 +189,15 @@ const LeftBar = () => {
       return setSelectMenu(3);
     }
     if (pathname.includes("profile")) {
-      return setSelectMenu(5);
+      return setSelectMenu(4);
     }
   }, [pathname]);
+
+  useEffect(() => {
+    if (!RightBarNone) {
+      setIsSearchModal(false);
+    }
+  }, [RightBarNone]);
 
   const menu = useMemo(() => {
     switch (selectMenu) {
@@ -202,13 +210,26 @@ const LeftBar = () => {
       case 3:
         return "explore";
       case 4:
-        return "write";
-      case 5:
         return "profile";
       default:
         return "feed";
     }
   }, [selectMenu]);
+
+  const onSearchModal = () => {
+    setIsSearchModal((prev) => !prev);
+    setSelectMenu(3);
+  };
+
+  // 알림 모달
+  const onNoticeClick = () => {
+    if (userLogin) {
+      setIsNoticeModal((prev) => !prev);
+      setSelectMenu(3);
+    } else {
+      setIsAuthModal((prev) => !prev);
+    }
+  };
 
   // 글 작성
   const onWriteClick = () => {
@@ -237,6 +258,18 @@ const LeftBar = () => {
     <>
       {shareBtn && (
         <ShareWeatherModal shareBtn={shareBtn} setShareBtn={setShareBtn} />
+      )}
+      {isNoticeModal && (
+        <NoticeModal
+          modalOpen={isNoticeModal}
+          modalClose={() => setIsNoticeModal(false)}
+        />
+      )}
+      {isSearchModal && (
+        <SearchModal
+          modalOpen={isSearchModal}
+          modalClose={() => setIsSearchModal(false)}
+        />
       )}
       <Container
         isDesktop={isDesktop}
@@ -272,7 +305,7 @@ const LeftBar = () => {
             </MenuList>
           </MenuLink>
           <MenuLink
-            style={{ order: isMobile ? 3 : 2 }}
+            style={{ order: isMobile ? 4 : 3 }}
             menu={menu}
             cat="message"
             onClick={() => setSelectMenu(2)}
@@ -282,11 +315,37 @@ const LeftBar = () => {
             <MenuList>
               <BsChatDots />
               <MenuText>메세지</MenuText>
-              {isDesktop && userObj?.message?.some((res) => !res?.isRead) && (
-                <NoticeBox />
-              )}
+              {userObj?.message?.some((res) => !res?.isRead) && <NoticeBox />}
             </MenuList>
           </MenuLink>
+          {RightBarNone && !isMobile && (
+            <MenuBtn
+              style={{ order: 3 }}
+              menu={menu}
+              cat="search"
+              color="#2cbadd"
+              onClick={onSearchModal}
+            >
+              <MenuList>
+                <FiSearch />
+                <MenuText>검색</MenuText>
+              </MenuList>
+            </MenuBtn>
+          )}
+          {!isMobile && (
+            <MenuBtn
+              style={{ order: 4 }}
+              menu={menu}
+              cat="notice"
+              color="#cbdd2c"
+              onClick={onNoticeClick}
+            >
+              <MenuList>
+                <SlBell />
+                <MenuText>알림</MenuText>
+              </MenuList>
+            </MenuBtn>
+          )}
           {/* <MenuLink
             menu={menu}
             cat="explore"
@@ -300,7 +359,7 @@ const LeftBar = () => {
             </MenuList>
           </MenuLink> */}
           <MenuBtn
-            style={{ order: isMobile ? 2 : 3 }}
+            style={{ order: isMobile ? 3 : 5 }}
             menu={menu}
             cat="write"
             color="#ffe448"
@@ -308,12 +367,11 @@ const LeftBar = () => {
           >
             <MenuList>
               <BsPlusCircle />
-              {/* <FiPlusCircle /> */}
               <MenuText>글쓰기</MenuText>
             </MenuList>
           </MenuBtn>
           <MenuBtn
-            style={{ order: 4 }}
+            style={{ order: 6 }}
             menu={menu}
             cat="profile"
             onClick={onProfileClick}
@@ -538,4 +596,14 @@ const NoticeBox = styled.div`
   height: 8px;
   border-radius: 50%;
   background: #ff5c1b;
+
+  @media (max-width: 767px) {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    /* border: 2px solid #fff; */
+  }
 `;

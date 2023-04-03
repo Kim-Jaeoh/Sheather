@@ -14,10 +14,11 @@ import SearchedShowList from "./SearchedShowList";
 import ColorList from "../../../assets/ColorList";
 
 type Props = {
+  modalOpen: boolean;
   modalClose: () => void;
 };
 
-const MobileSearchBox = ({ modalClose }: Props) => {
+const MobileSearchBox = ({ modalOpen, modalClose }: Props) => {
   const [focus, setFocus] = useState(false);
   const [text, setText] = useState("");
   const [debounceText, setDebounceText] = useState("");
@@ -159,8 +160,8 @@ const MobileSearchBox = ({ modalClose }: Props) => {
         </SearchedBox>
       ) : (
         <>
-          <TagListBox modalClose={modalClose} />
-          <FollowListBox modalClose={modalClose} />
+          <TagListBox modalOpen={modalOpen} modalClose={modalClose} />
+          <FollowListBox modalOpen={modalOpen} modalClose={modalClose} />
         </>
       )}
     </Container>

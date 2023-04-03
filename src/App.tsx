@@ -15,12 +15,11 @@ import { authService } from "./fbase";
 import Profile from "./pages/Profile";
 import { Toaster } from "react-hot-toast";
 import { SuspenseSpinner } from "./assets/SuspenseSpinner";
-import SearchBox from "./components/rightBar/search/SearchBox";
-import SearchResult from "./components/rightBar/search/SearchResult";
 import TagCategoryList from "./components/explore/TagCategoryList";
 import FollowCategoryList from "./components/explore/FollowCategoryList";
 import useMediaScreen from "./hooks/useMediaScreen";
 import MobileHeader from "./components/MobileHeader";
+import InfoCategory from "./components/explore/InfoCategory";
 const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
@@ -57,27 +56,29 @@ const App = () => {
   return (
     <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
-      <Wrapper isMobile={isMobile}>
+      <Wrapper>
         <LeftBar />
         {isMobile && <MobileHeader />}
-        <Main isDesktop={isDesktop} isMobile={isMobile}>
+        <Main>
           <Toaster position="bottom-center" reverseOrder={false} />
-          <Container isMobile={isMobile}>
+          <Container>
             <Routes>
               <>
                 <Route path="/feed/*" element={<Home />} />
-                <Route path="/feed/detail" element={<DetailFeed />} />
+                <Route path="/feed/detail/:id" element={<DetailFeed />} />
                 <Route path="/weather" element={<Weather />} />
                 <Route path="/message/*" element={<Message />} />
-                {/* <Route path="/explore/*" element={<Explore />} /> */}
-                <Route path="/explore/search" element={<SearchResult />} />
+                <Route path="/explore/*" element={<InfoCategory />} />
                 <Route path="/explore/tag" element={<TagCategoryList />} />
                 <Route
                   path="/explore/people"
                   element={<FollowCategoryList />}
                 />
                 <Route path="/profile/:id/*" element={<Profile />} />
-                <Route path="/profile/detail" element={<DetailFeed />} />
+                <Route
+                  path="/explore"
+                  element={<Navigate replace to="/feed/recent" />}
+                />
                 {/* <Route
                   path="/explore"
                   element={<Navigate replace to="/explore/outer?detail=0" />}
@@ -99,16 +100,23 @@ const App = () => {
 
 export default App;
 
-const Wrapper = styled.div<{ isMobile: boolean }>`
-  display: ${(props) => (props.isMobile ? `block` : `flex`)};
+const Wrapper = styled.div`
+  display: flex;
   position: relative;
   max-width: 1280px;
   min-width: 320px;
   height: 100%;
   margin: 0 auto;
+
+  @media (max-width: 767px) {
+    display: block;
+    width: 100%;
+    max-width: auto;
+    min-width: auto;
+  }
 `;
 
-const Main = styled.main<{ isDesktop: boolean; isMobile: boolean }>`
+const Main = styled.main`
   flex: 1;
   max-width: 760px;
   display: flex;
@@ -124,12 +132,15 @@ const Main = styled.main<{ isDesktop: boolean; isMobile: boolean }>`
   }
 `;
 
-const Container = styled.section<{ isMobile: boolean }>`
+const Container = styled.section`
   flex: 1;
   width: 100%;
-  /* border-top: 2px solid #222; */
-  padding-bottom: ${(props) => props.isMobile && `60px`};
-  border-left: ${(props) => !props.isMobile && `2px solid #222`};
-  border-right: ${(props) => !props.isMobile && `2px solid #222`};
-  border-bottom: ${(props) => !props.isMobile && `2px solid #222`};
+  border-left: 2px solid #222;
+  border-right: 2px solid #222;
+  border-bottom: 2px solid #222;
+
+  @media (max-width: 767px) {
+    padding-bottom: 60px;
+    border: none;
+  }
 `;

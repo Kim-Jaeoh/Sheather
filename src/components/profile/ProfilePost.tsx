@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FeedType } from "../../types/type";
 import ProfileSkeleton from "../../assets/skeleton/ProfileSkeleton";
 import ColorList from "../../assets/ColorList";
+import useMediaScreen from "../../hooks/useMediaScreen";
 
 type props = {
   myPost: FeedType[];
@@ -15,6 +16,7 @@ type props = {
 const ProfilePost = React.forwardRef<HTMLInputElement, props>(
   ({ myPost, loading, notInfoText }, ref) => {
     const [arrState, setArrState] = useState(myPost?.length);
+    const { isMobile } = useMediaScreen();
 
     // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
     useEffect(() => {
@@ -39,16 +41,12 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
                   {Array.from({ length: arrState })?.map((res, index) => (
                     <Card key={index} exist={Boolean(myPost[index])}>
                       {myPost[index] ? (
-                        <Link
-                          to={"/profile/detail"}
-                          state={{
-                            id: myPost[index].id,
-                            email: myPost[index].email,
-                          }}
-                        >
+                        <Link to={`/feed/detail/${myPost[index].id}`}>
                           <WeatherEmojiBox>
                             <WeatherEmoji>
-                              {myPost[index].feel.split(" ")[0]}
+                              {isMobile
+                                ? myPost[index].feel.split(" ")[0]
+                                : myPost[index].feel}
                             </WeatherEmoji>
                           </WeatherEmojiBox>
                           {myPost[index].url.length > 1 && (

@@ -13,10 +13,20 @@ export interface CurrentUserType {
   follower: {
     displayName: string;
     time: number;
+    isRead?: boolean;
   }[];
   following: {
     displayName: string;
     time: number;
+  }[];
+  notice: {
+    type: string;
+    displayName: string;
+    time: number;
+    postId?: string;
+    text?: string;
+    imgUrl?: string;
+    profileURL?: string;
   }[];
   message?: {
     id: string;
@@ -30,6 +40,7 @@ export interface UserType {
   loginToken?: boolean;
   currentUser: CurrentUserType;
   newMessage?: boolean;
+  newNotice?: boolean;
 }
 
 const initialState: UserType = {
@@ -44,11 +55,13 @@ const initialState: UserType = {
     name: "",
     displayName: "",
     description: "",
+    notice: [],
     message: [],
     follower: [],
     following: [],
   },
   newMessage: false,
+  newNotice: false,
 };
 
 const getCurrentUser = createSlice({

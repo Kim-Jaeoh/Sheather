@@ -123,9 +123,13 @@ const Container = styled.div`
   height: 100%;
   position: relative;
   background: #30c56e;
+
+  @media (max-width: 767px) {
+    padding: 16px;
+  }
 `;
 
-const CategoryBox = styled.nav`
+const CategoryBox = styled.div`
   position: sticky;
   top: 0;
   width: 100%;
@@ -138,11 +142,31 @@ const CategoryBox = styled.nav`
   box-sizing: border-box;
   background: #fff;
   z-index: 20;
+
+  @media (max-width: 767px) {
+    position: relative;
+    font-size: 18px;
+    margin: 0 auto;
+    width: auto;
+    height: auto;
+    text-align: center;
+    font-weight: 700;
+    color: ${secondColor};
+    padding: 8px 14px;
+    border-radius: 9999px;
+    border: 1px solid ${secondColor};
+    box-shadow: 0px 4px ${secondColor};
+    background: #fff;
+  }
 `;
 
 const SelectName = styled.h2`
   font-weight: 700;
   font-size: 18px;
+
+  /* @media (max-width: 767px) { */
+  /* font-size: 16px; */
+  /* } */
 `;
 
 const ListBox = styled.ul`
@@ -152,20 +176,22 @@ const ListBox = styled.ul`
   flex-wrap: wrap;
   width: 100%;
   padding: 40px;
-  gap: 14px;
+  gap: 20px;
+
+  @media (max-width: 767px) {
+    padding: 20px 0 0px;
+  }
 `;
 
 const List = styled.li<{ exist?: boolean }>`
-  /* border: ${(props) =>
-    props?.exist ? `2px solid ${secondColor}` : `none`}; */
   border: 2px solid ${secondColor};
   flex: 1 1 40%;
-  /* flex: 1 1 100%; */
   border-radius: 20px;
   background: #fff;
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
+  height: 90px;
 
   @keyframes slideUp {
     0% {
@@ -183,6 +209,8 @@ const List = styled.li<{ exist?: boolean }>`
 
   @media screen and (max-width: 1050px) {
     flex: 1 1 100%;
+    animation: none;
+    border-width: 1px;
   }
 `;
 
@@ -201,13 +229,17 @@ const Tag = styled(Link)`
 `;
 
 const ListProfileBox = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 90px;
+  height: 90px;
   flex-shrink: 0;
   overflow: hidden;
   box-sizing: border-box;
   background: #fff;
   border-right: 2px solid ${secondColor};
+
+  @media (max-width: 767px) {
+    border-right-width: 1px;
+  }
 `;
 
 const ListProfile = styled.img`
@@ -222,7 +254,7 @@ const TagRank = styled.div`
   align-items: center;
   justify-content: center;
   width: 30px;
-  height: 100px;
+  height: 100%;
   font-size: 12px;
   font-weight: 500;
   border-radius: 16px 0 0 16px;
@@ -236,12 +268,12 @@ const TagInfo = styled.div`
   display: flex;
   justify-content: center;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   height: 100%;
 `;
 
 const TagName = styled.span`
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;

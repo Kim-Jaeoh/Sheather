@@ -56,7 +56,7 @@ const useCreateChat = () => {
                   {
                     user: user?.displayName, // 상대 아이디
                     id: document?.id,
-                    isRead: true,
+                    isRead: false,
                   },
                 ],
               });
@@ -73,7 +73,7 @@ const useCreateChat = () => {
                   {
                     user: userObj.displayName, // 본인 아이디
                     id: document?.id,
-                    isRead: true,
+                    isRead: false,
                   },
                 ],
               });
@@ -84,7 +84,8 @@ const useCreateChat = () => {
       });
     } else {
       // 기존 채팅방 본인 계정 message에 id값 추가
-      if (userObj && myFilter.length === 0) {
+      if (userObj && myFilter.length) {
+        console.log("???");
         const myAccountPushId = async () => {
           await updateDoc(doc(dbService, "users", userObj.displayName), {
             message: [
@@ -92,7 +93,7 @@ const useCreateChat = () => {
               {
                 user: user?.displayName,
                 id: userFilter[0].id,
-                isRead: true,
+                isRead: false,
               },
             ],
           });
@@ -101,7 +102,8 @@ const useCreateChat = () => {
       }
 
       // 기존 채팅방 상대 계정 message에 id값 추가
-      if (user && userFilter.length === 0) {
+      if (user && userFilter.length) {
+        console.log("");
         const UserAccountPushId = async () => {
           await updateDoc(doc(dbService, "users", user.displayName), {
             message: [
@@ -109,7 +111,7 @@ const useCreateChat = () => {
               {
                 user: userObj.displayName,
                 id: myFilter[0]?.id,
-                isRead: true,
+                isRead: false,
               },
             ],
           });

@@ -27,17 +27,19 @@ const Container = styled.div`
 
   @media (max-width: 767px) {
     padding: 16px;
-    /* background: transparent; */
   }
 `;
 
 const Box = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
   @media (max-width: 767px) {
     background: #fff;
     padding: 16px;
     border: 1px solid #222;
     border-radius: 20px;
-
     box-shadow: ${(props) => {
       let shadow = "";
       for (let i = 1; i < 63; i++) {

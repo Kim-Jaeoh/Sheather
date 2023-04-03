@@ -1,19 +1,22 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FaBookmark, FaHeart, FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import Flicking from "@egjs/react-flicking";
 import "../../styles/DetailFlicking.css";
-import { BsSun } from "react-icons/bs";
 import { FiMoreHorizontal } from "react-icons/fi";
-import { IoShirtOutline } from "react-icons/io5";
 import useTimeFormat from "../../hooks/useTimeFormat";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { FeedType, replyType } from "../../types/type";
-import { MdPlace } from "react-icons/md";
 import useToggleLike from "../../hooks/useToggleLike";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -35,24 +38,12 @@ import TempClothes from "../../assets/TempClothes";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import DetailFeedCategory from "./DetailFeedCategory";
+import { updateDoc, doc, onSnapshot } from "firebase/firestore";
+import { dbService } from "../../fbase";
 
 type ReplyPayload = {
   id?: string;
-  reply?: {
-    parentId: string;
-    displayName: string;
-    replyAt: number;
-    email: string;
-    text: string | number;
-  }[];
-};
-
-type locationProps = {
-  state: {
-    id: string;
-    email: string;
-  };
-  pathname: string;
+  reply?: replyType[];
 };
 
 const DetailFeed = () => {
@@ -62,12 +53,13 @@ const DetailFeed = () => {
     }
   );
   const textRef = useRef<HTMLTextAreaElement>(null);
+  const [myAccount, setMyAccount] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [onMouse, setOnMouse] = useState(false);
   const [isMore, setIsMore] = useState(false);
   const [isAuthModal, setIsAuthModal] = useState(false);
   const [isFeedEdit, setIsFeedEdit] = useState(false);
-  const { state, pathname } = useLocation() as locationProps;
+  const { id: postId } = useParams();
   const { toggleLike } = useToggleLike();
   const { toggleBookmark } = useToggleBookmark();
   const { toggleFollow } = useToggleFollow();
@@ -93,8 +85,19 @@ const DetailFeed = () => {
   });
 
   const detailInfo = useMemo(() => {
-    return feedData?.filter((res) => state?.id === res.id);
-  }, [feedData, state]);
+    return feedData?.filter((res) => postId === res.id);
+  }, [feedData, postId]);
+
+  // 계정 정보 가져오기
+  useEffect(() => {
+    const unsubcribe = onSnapshot(
+      doc(dbService, "users", userObj?.displayName),
+      (doc) => {
+        setMyAccount(doc.data());
+      }
+    );
+    return () => unsubcribe();
+  }, [userObj?.displayName]);
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setReplyText(e.target.value);
@@ -105,11 +108,33 @@ const DetailFeed = () => {
     (response: ReplyPayload) =>
       axios.post(`${process.env.REACT_APP_SERVER_PORT}/api/reply`, response),
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         queryClient.invalidateQueries(["feed"]);
       },
     }
   );
+
+  // 댓글 업로드
+  const onReply = (res: FeedType) => {
+    const copy = [...res.reply];
+    mutate({
+      id: res.id,
+      reply: [
+        ...copy,
+        {
+          postId: res.id,
+          replyId: uuid(),
+          email: userObj.email,
+          displayName: userObj.displayName,
+          text: replyText,
+          time: +new Date(),
+          isRead: false,
+        },
+      ],
+    });
+    setReplyText("");
+    textRef.current.style.height = "24px";
+  };
 
   // 댓글 삭제
   const { mutate: mutateReplyDelete } = useMutation(
@@ -127,32 +152,11 @@ const DetailFeed = () => {
     }
   );
 
-  // 댓글 업로드
-  const onReply = (res: FeedType) => {
-    const copy = [...res.reply];
-    mutate({
-      id: res.id,
-      reply: [
-        ...copy,
-        {
-          parentId: res.id,
-          replyId: uuid(),
-          email: userObj.email,
-          displayName: userObj.displayName,
-          text: replyText,
-          replyAt: +new Date(),
-        },
-      ],
-    });
-    setReplyText("");
-    textRef.current.style.height = "24px";
-  };
-
   // 댓글 삭제
   const onReplyDelete = (res: replyType) => {
-    const filter = detailInfo[0].reply.filter((asd) => asd.text !== res.text);
+    const filter = detailInfo[0].reply.filter((info) => info.text !== res.text);
     mutateReplyDelete({
-      id: res.parentId,
+      id: res.postId,
       reply: [...filter],
     });
   };
@@ -160,7 +164,7 @@ const DetailFeed = () => {
   // 피드 삭제
   const { mutate: mutateFeedDelete } = useMutation(
     () =>
-      axios.delete(`${process.env.REACT_APP_SERVER_PORT}/api/feed/${state.id}`),
+      axios.delete(`${process.env.REACT_APP_SERVER_PORT}/api/feed/${postId}`),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
@@ -170,7 +174,7 @@ const DetailFeed = () => {
     }
   );
 
-  // 피드 삭제
+  // 피드 삭제 핸들러
   const onFeedDelete = () => {
     // const filter = feedData?.filter((res) => state.id !== res.id);
     if (isMore) {
@@ -182,6 +186,7 @@ const DetailFeed = () => {
     }
   };
 
+  // 이미지 여러장 캐러셀
   const {
     flickingRef,
     slideIndex,
@@ -194,24 +199,6 @@ const DetailFeed = () => {
     dataLength: detailInfo && detailInfo[0]?.url.length,
     lastLength: 1,
   });
-
-  const bgColor = useMemo(() => {
-    if (pathname.includes("feed")) {
-      return "#ff5673";
-    }
-    if (pathname.includes("profile")) {
-      return "#6f4ccf";
-    }
-  }, [pathname]);
-
-  const shadowColor = useMemo(() => {
-    if (pathname.includes("feed")) {
-      return "#be374e";
-    }
-    if (pathname.includes("profile")) {
-      return "#422a83";
-    }
-  }, [pathname]);
 
   const onMoreClick = () => {
     setIsMore((prev) => !prev);
@@ -233,8 +220,8 @@ const DetailFeed = () => {
   };
 
   const onWearClick = (cat: string, detail: string) => {
-    let number = ClothesCategory[cat].findIndex((res) => res === detail);
-    navigate(`/explore/${cat}?detail=${number}`);
+    // let number = ClothesCategory[cat].findIndex((res) => res === detail);
+    navigate(`/explore?cat=${cat}&detail=${detail}&sort=recent`);
   };
 
   const onLogInState = () => {
@@ -256,9 +243,6 @@ const DetailFeed = () => {
       e.preventDefault();
       onReply(res);
     }
-    // else if (e.key === "Enter" && e.shiftKey) {
-    //   setReplyText((value) => value + "\n"); // 줄바꿈 문자열 추가
-    // }
   };
 
   return (
@@ -270,8 +254,7 @@ const DetailFeed = () => {
         <>
           {detailInfo.map((res) => {
             const reply = res.reply.sort(
-              (a: { replyAt: number }, b: { replyAt: number }) =>
-                b.replyAt - a.replyAt
+              (a: { time: number }, b: { time: number }) => b.time - a.time
             );
             const { outer, top, innerTop, bottom, etc } = res.wearInfo;
             const categoryTags = [
@@ -282,10 +265,9 @@ const DetailFeed = () => {
               { name: "etc", type: "etc", detail: etc },
             ];
             return (
-              <Wrapper key={res.id} bgColor={bgColor}>
+              <Wrapper key={res.id}>
                 {isMore && !isFeedEdit ? (
                   <FeedMoreSelectModal
-                    bgColor={bgColor}
                     modalOpen={isMore}
                     modalClose={onMoreClick}
                     onFeedEditClick={onFeedEditClick}
@@ -298,20 +280,14 @@ const DetailFeed = () => {
                     info={res}
                   />
                 )}
-                <Container shadowColor={shadowColor}>
+                <Container>
                   <Header>
                     <UserInfoBox>
-                      <UserImageBox
-                        to={`/profile/${res.displayName}/post`}
-                        state={res.email}
-                      >
+                      <UserImageBox to={`/profile/${res.displayName}/post`}>
                         <FeedProfileImage displayName={res.displayName} />
                       </UserImageBox>
                       <UserWriteInfo>
-                        <UserNameBox
-                          to={`/profile/${res.displayName}/post`}
-                          state={res.email}
-                        >
+                        <UserNameBox to={`/profile/${res.displayName}/post`}>
                           <FeedProfileDisplayName
                             displayName={res.displayName}
                           />
@@ -339,13 +315,11 @@ const DetailFeed = () => {
                       )}
                     </UserInfoBox>
                   </Header>
-                  <WearDetailBox>
-                    <DetailFeedCategory
-                      res={res}
-                      categoryTags={categoryTags}
-                      onWearClick={onWearClick}
-                    />
-                  </WearDetailBox>
+                  <DetailFeedCategory
+                    res={res}
+                    categoryTags={categoryTags}
+                    onWearClick={onWearClick}
+                  />
                   {res.url.length > 1 ? (
                     <FlickingImageBox
                       onMouseOver={() => setOnMouse(true)}
@@ -356,7 +330,6 @@ const DetailFeed = () => {
                           <PrevArrow
                             onClick={onClickArrowPrev}
                             visible={visible}
-                            bgColor={bgColor}
                           >
                             <ArrowIcon>
                               <IoIosArrowBack />
@@ -365,7 +338,6 @@ const DetailFeed = () => {
                           <NextArrow
                             onClick={onClickArrowNext}
                             visible={visible2}
-                            bgColor={bgColor}
                           >
                             <ArrowIcon>
                               <IoIosArrowForward />
@@ -414,7 +386,7 @@ const DetailFeed = () => {
                           <Icon onClick={() => toggleLike(res)}>
                             {userObj?.like?.filter((id) => id === res.id)
                               .length > 0 ? (
-                              <FaHeart style={{ color: bgColor }} />
+                              <FaHeart style={{ color: `#ff5673` }} />
                             ) : (
                               <FaRegHeart />
                             )}
@@ -422,7 +394,7 @@ const DetailFeed = () => {
                           <Icon onClick={() => toggleBookmark(res.id)}>
                             {userObj?.bookmark?.filter((id) => id === res.id)
                               .length > 0 ? (
-                              <FaBookmark style={{ color: bgColor }} />
+                              <FaBookmark style={{ color: `#ff5673` }} />
                             ) : (
                               <FaRegBookmark />
                             )}
@@ -442,7 +414,6 @@ const DetailFeed = () => {
                             return (
                               <Tag
                                 key={index}
-                                color={bgColor}
                                 to={`/explore/search?keyword=${tag}`}
                               >
                                 <span>#</span>
@@ -487,7 +458,6 @@ const DetailFeed = () => {
                       />
                       {replyText.length > 0 && (
                         <ReplyEditBtn
-                          color={bgColor}
                           type="button"
                           onClick={() => onReply(res)}
                         >
@@ -517,11 +487,11 @@ const DetailFeed = () => {
 export default DetailFeed;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Wrapper = styled.div<{ bgColor: string }>`
+const Wrapper = styled.div`
   position: relative;
   overflow: hidden;
   height: 100%;
-  background: ${(props) => props.bgColor};
+  background: #ff5673;
   border-top: 2px solid ${secondColor};
   padding: 40px;
 
@@ -532,7 +502,7 @@ const Wrapper = styled.div<{ bgColor: string }>`
   }
 `;
 
-const Container = styled.div<{ shadowColor: string }>`
+const Container = styled.div`
   position: relative;
   border: 2px solid ${secondColor};
   height: 100%;
@@ -543,9 +513,9 @@ const Container = styled.div<{ shadowColor: string }>`
   box-shadow: ${(props) => {
     let shadow = "";
     for (let i = 1; i < 63; i++) {
-      shadow += `${props.shadowColor} ${i}px ${i}px,`;
+      shadow += `#be374e ${i}px ${i}px,`;
     }
-    shadow += `${props.shadowColor} 63px 63px`;
+    shadow += `#be374e 63px 63px`;
     return shadow;
   }};
 
@@ -773,14 +743,14 @@ const TagList = styled.div`
   gap: 10px;
 `;
 
-const Tag = styled(Link)<{ color?: string }>`
+const Tag = styled(Link)`
   position: relative;
   display: flex;
   align-items: center;
   border-radius: 64px;
   background-color: #f5f5f5;
   padding: 8px 10px;
-  color: ${(props) => props.color};
+  color: #ff5673;
 
   cursor: pointer;
   &:hover {
@@ -839,7 +809,7 @@ const ReplyEditText = styled.textarea`
   }
 `;
 
-const ReplyEditBtn = styled.button<{ color: string }>`
+const ReplyEditBtn = styled.button`
   display: flex;
   flex: 1 0 auto;
   margin: 0 12px;
@@ -850,7 +820,7 @@ const ReplyEditBtn = styled.button<{ color: string }>`
   border: none;
   outline: none;
   font-weight: 500;
-  color: ${(props) => props.color};
+  color: #ff5673;
   font-size: 14px;
   cursor: pointer;
 `;
@@ -935,10 +905,10 @@ const ArrowIcon = styled.span`
   justify-content: center;
 `;
 
-const NextArrow = styled(Arrow)<{ visible: boolean; bgColor: string }>`
+const NextArrow = styled(Arrow)<{ visible: boolean }>`
   right: 20px;
-  color: ${(props) => (!props.visible ? thirdColor : props.bgColor)};
-  border-color: ${(props) => (!props.visible ? thirdColor : props.bgColor)};
+  color: ${(props) => (!props.visible ? thirdColor : `#ff5673`)};
+  border-color: ${(props) => (!props.visible ? thirdColor : `#ff5673`)};
   cursor: ${(props) => !props.visible && "default"};
   span {
     svg {
@@ -947,10 +917,10 @@ const NextArrow = styled(Arrow)<{ visible: boolean; bgColor: string }>`
   }
 `;
 
-const PrevArrow = styled(Arrow)<{ visible: boolean; bgColor: string }>`
+const PrevArrow = styled(Arrow)<{ visible: boolean }>`
   left: 20px;
-  color: ${(props) => (!props.visible ? thirdColor : props.bgColor)};
-  border-color: ${(props) => (!props.visible ? thirdColor : props.bgColor)};
+  color: ${(props) => (!props.visible ? thirdColor : "#ff5673")};
+  border-color: ${(props) => (!props.visible ? thirdColor : "#ff5673")};
   cursor: ${(props) => !props.visible && "default"};
   span {
     svg {

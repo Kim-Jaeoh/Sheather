@@ -1,26 +1,22 @@
 import styled from "@emotion/styled";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ColorList from "../../assets/ColorList";
 import { FeedType } from "../../types/type";
-import defaultAccount from "../../assets/account_img_default.png";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useToggleBookmark from "../../hooks/useToggleBookmark";
 import useToggleLike from "../../hooks/useToggleLike";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import HomeSkeleton from "../../assets/skeleton/HomeSkeleton";
-import { useEffect, useRef, useState } from "react";
-import { getDoc, doc } from "firebase/firestore";
-import { UserType } from "../../app/user";
-import { dbService } from "../../fbase";
+import { useEffect, useState } from "react";
 import FeedProfileImage from "./FeedProfileImage";
 import FeedProfileDisplayName from "./FeedProfileDisplayName";
-import { FrameGrid, MasonryGrid } from "@egjs/react-grid";
-import { Spinner } from "../../assets/Spinner";
+import { MasonryGrid } from "@egjs/react-grid";
 import AuthFormModal from "../modal/auth/AuthFormModal";
-import { throttle } from "lodash";
 import useMediaScreen from "../../hooks/useMediaScreen";
+import { onSnapshot, doc } from "firebase/firestore";
+import { dbService } from "../../fbase";
 
 type Props = {
   feed?: FeedType[];
@@ -28,6 +24,7 @@ type Props = {
 };
 
 const FeedCategory = ({ url, feed }: Props) => {
+  const [myAccount, setMyAccount] = useState(null);
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
@@ -39,6 +36,17 @@ const FeedCategory = ({ url, feed }: Props) => {
   const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
   const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
   const { isDesktop, isTablet, isMobile } = useMediaScreen();
+
+  // 계정 정보 가져오기
+  useEffect(() => {
+    const unsubcribe = onSnapshot(
+      doc(dbService, "users", userObj?.displayName),
+      (doc) => {
+        setMyAccount(doc.data());
+      }
+    );
+    return () => unsubcribe();
+  }, [userObj?.displayName]);
 
   let checkSize: number;
   let checkAspect: number;
@@ -83,7 +91,7 @@ const FeedCategory = ({ url, feed }: Props) => {
       {!isLoading ? (
         <>
           {dataList?.pages?.flat().length !== 0 ? (
-            <CardBox render={isGridRender}>
+            <CardBox>
               <MasonryGrid
                 className="container"
                 gap={!isMobile ? 30 : 12}
@@ -110,17 +118,18 @@ const FeedCategory = ({ url, feed }: Props) => {
                     >
                       <Card
                         aspect={checkAspect}
-                        to={userLogin && "/feed/detail"}
-                        state={{ id: res.id, email: res.email }}
+                        to={userLogin && `/feed/detail/${res.id}`}
                       >
                         <WeatherEmojiBox>
-                          <WeatherEmoji>{res.feel}</WeatherEmoji>
+                          <WeatherEmoji>
+                            {isMobile ? res.feel.split(" ")[0] : res.feel}
+                          </WeatherEmoji>
                         </WeatherEmojiBox>
-                        <CardLengthBox>
-                          {res.url.length > 1 && (
+                        {res.url.length > 1 && (
+                          <CardLengthBox>
                             <CardLength>+{res.url.length}</CardLength>
-                          )}
-                        </CardLengthBox>
+                          </CardLengthBox>
+                        )}
                         <CardImageBox>
                           <CardImage
                             onContextMenu={(e) => e.preventDefault()}
@@ -140,7 +149,6 @@ const FeedCategory = ({ url, feed }: Props) => {
                           </UserImageBox>
                           <UserNameBox
                             to={userLogin && `/profile/${res.displayName}/post`}
-                            state={res.displayName}
                           >
                             <FeedProfileDisplayName
                               displayName={res.displayName}
@@ -215,13 +223,12 @@ export default FeedCategory;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const CardBox = styled.ul<{ render?: boolean; isMobile?: boolean }>`
+const CardBox = styled.ul`
   width: 100%;
   padding: 10px 40px 40px;
 
   @media (max-width: 767px) {
     padding: 0;
-    /* padding: 0 16px 16px; */
   }
 `;
 
@@ -363,13 +370,6 @@ const UserImageBox = styled(Link)`
   }
 `;
 
-const UserImage = styled.img`
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-  image-rendering: auto;
-`;
-
 const UserNameBox = styled(Link)`
   display: block;
   cursor: pointer;
@@ -474,9 +474,8 @@ const TagName = styled.div`
 
 const NotInfoBox = styled.div`
   width: 100%;
-  height: 200px;
+  height: 100%;
   margin: 0 auto;
-  margin-top: -20px;
   flex: 1;
   display: flex;
   align-items: center;

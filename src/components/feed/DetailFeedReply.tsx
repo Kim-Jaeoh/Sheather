@@ -47,7 +47,7 @@ const DetailFeedReply = ({ userObj, isLogin, reply, onDelete }: Props) => {
             </ReplyId>
             <ReplyText>{reply.text}</ReplyText>
           </ReplyInfoBox>
-          <WriteDate>{timeToString(Number(reply.replyAt))}</WriteDate>
+          <WriteDate>{timeToString(Number(reply.time))}</WriteDate>
         </UserWriteInfo>
         {userObj === reply.email && (
           <CloseBox onClick={() => onDelete(reply)}>

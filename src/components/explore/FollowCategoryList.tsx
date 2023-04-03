@@ -106,9 +106,9 @@ const FollowCategoryList = () => {
                       <ProfileInfoBox>
                         <ProfileDsName>{res.displayName}</ProfileDsName>
                         {res.name && <ProfileName>{res.name}</ProfileName>}
-                        {res.description && (
+                        {/* {res.description && (
                           <ProfileName>{res.description}</ProfileName>
-                        )}
+                        )} */}
                       </ProfileInfoBox>
                     </User>
                     {res?.email !== userObj.email && (
@@ -148,6 +148,10 @@ const Container = styled.div`
   height: 100%;
   position: relative;
   background: #30c56e;
+
+  @media (max-width: 767px) {
+    padding: 16px;
+  }
 `;
 
 const CategoryBox = styled.nav`
@@ -163,6 +167,22 @@ const CategoryBox = styled.nav`
   box-sizing: border-box;
   background: #fff;
   z-index: 20;
+
+  @media (max-width: 767px) {
+    position: relative;
+    font-size: 18px;
+    margin: 0 auto;
+    width: auto;
+    height: auto;
+    text-align: center;
+    font-weight: 700;
+    color: ${secondColor};
+    padding: 8px 14px;
+    border-radius: 9999px;
+    border: 1px solid ${secondColor};
+    box-shadow: 0px 4px ${secondColor};
+    background: #fff;
+  }
 `;
 
 const SelectName = styled.h2`
@@ -178,19 +198,37 @@ const ListBox = styled.ul`
   width: 100%;
   padding: 40px;
   gap: 20px;
+
+  @media (max-width: 767px) {
+    padding: 20px 0 0px;
+  }
 `;
 
 const List = styled.li`
+  flex: 1 0 40%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   position: relative;
+  padding: 12px 16px;
   height: 90px;
   overflow: hidden;
   border: 2px solid ${secondColor};
   border-radius: 20px;
   background: #fff;
+
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
-  flex: 1 0 40%;
+
+  @media screen and (max-width: 1150px) {
+  }
+
+  @media (max-width: 767px) {
+    flex: 1 1 100%;
+    border-width: 1px;
+    animation: none;
+  }
 `;
 
 const NullCard = styled.div`
@@ -202,7 +240,6 @@ const User = styled(Link)`
   align-items: center;
   gap: 12px;
   margin: 0;
-  padding: 12px 16px;
   height: 100%;
   transition: all 0.15s linear;
   cursor: pointer;
@@ -230,19 +267,19 @@ const ProfileImage = styled.img`
 
 const ProfileInfoBox = styled.div`
   cursor: pointer;
-  flex: 1;
+  /* flex: 1; */
   display: flex;
   justify-content: center;
   /* align-items: center; */
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   /* padding-right: 20px; */
 `;
 
 const ProfileDsName = styled.p`
   font-size: 16px;
   font-weight: 500;
-  width: 120px;
+  /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -252,7 +289,7 @@ const ProfileDsName = styled.p`
 const ProfileName = styled.p`
   font-size: 14px;
   color: ${thirdColor};
-  width: 120px;
+  /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -271,10 +308,11 @@ const ProfileDesc = styled.p`
 `;
 
 const FollowBtnBox = styled.div`
-  position: absolute;
+  white-space: pre;
+  /* position: absolute;
   top: 50%;
   right: 12px;
-  transform: translateY(-50%);
+  transform: translateY(-50%); */
 `;
 
 const FollowBtn = styled.button`

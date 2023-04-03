@@ -3,14 +3,10 @@ import ColorList from "../assets/ColorList";
 import TagListBox from "../components/rightBar/TagListBox";
 import SearchBox from "../components/rightBar/search/SearchBox";
 import FollowListBox from "../components/rightBar/FollowListBox";
-import useMediaScreen from "../hooks/useMediaScreen";
 
 const RightBar = () => {
-  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
-    useMediaScreen();
-
   return (
-    <Container isDesktop={isDesktop} RightBarNone={RightBarNone}>
+    <Container>
       <SearchBox />
       <TagListBox />
       <FollowListBox />
@@ -22,13 +18,9 @@ export default RightBar;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Container = styled.section<{
-  isDesktop: boolean;
-  RightBarNone: boolean;
-}>`
+const Container = styled.section`
   flex: 0 1 auto;
-  width: ${(props) => (props.isDesktop ? `300px` : `250px`)};
-  /* width: 300px; */
+  width: 300px;
   height: 100vh;
   background: #fff;
   position: sticky;
@@ -39,5 +31,11 @@ const Container = styled.section<{
   overflow: hidden;
   border-radius: 0 40px 40px 0;
 
-  display: ${(props) => props.RightBarNone && `none`};
+  @media (max-width: 956px) {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    width: 250px;
+  }
 `;

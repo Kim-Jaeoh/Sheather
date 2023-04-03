@@ -82,12 +82,13 @@ export interface ResDataType {
 }
 
 export interface replyType {
-  parentId: string;
+  postId: string;
   replyId: string;
   email: string;
   displayName: string;
   text: string;
-  replyAt: number;
+  time: number;
+  isRead: boolean;
 }
 
 export interface FeedType {
@@ -100,8 +101,10 @@ export interface FeedType {
   createdAt: number;
   like: {
     displayName: string;
-    likedAt: number;
+    time: number;
+    postId: string;
     email?: string;
+    isRead?: boolean;
   }[];
   text: string;
   feel: string;
@@ -152,4 +155,15 @@ export interface listType {
   id: string;
   member?: string;
   message?: MessageType[];
+}
+
+export interface NoticeArrType {
+  type: string;
+  displayName: string;
+  time: number;
+  isRead: boolean;
+  postId?: string;
+  text?: string;
+  imgUrl?: string;
+  profileURL?: string;
 }

@@ -15,10 +15,11 @@ interface Count {
 }
 
 type Props = {
+  modalOpen?: boolean;
   modalClose?: () => void;
 };
 
-const TagListBox = ({ modalClose }: Props) => {
+const TagListBox = ({ modalOpen, modalClose }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
@@ -67,11 +68,13 @@ const TagListBox = ({ modalClose }: Props) => {
       .sort((a, b) => b.count - a.count);
   }, [feedData]);
 
-  const onLogState = () => {
+  const onClick = () => {
     if (!userLogin) {
       setIsAuthModal(true);
     }
-    modalClose();
+    if (modalOpen) {
+      modalClose();
+    }
   };
 
   const onAuthModal = () => {
@@ -85,14 +88,16 @@ const TagListBox = ({ modalClose }: Props) => {
       )}
       <CategoryBox>
         <Category>태그</Category>
-        <AllClick to={`/explore/tag`}>더 보기</AllClick>
+        <AllClick to={`/explore/tag`} onClick={onClick}>
+          더 보기
+        </AllClick>
       </CategoryBox>
       {tagList ? (
         tagList?.map((res: { name: string; count: number }, index) => (
           <div key={res.name}>
             {index < 5 && (
               <TagList
-                onClick={onLogState}
+                onClick={onClick}
                 to={userLogin && `/explore/search?keyword=${res.name}`}
               >
                 <TagRank>{index + 1}</TagRank>
@@ -122,7 +127,7 @@ const Container = styled.article`
   border-radius: 20px;
   overflow: hidden;
 
-  @media (max-width: 767px) {
+  @media (max-width: 956px) {
     min-height: auto;
     padding: 20px;
     margin-top: 0;
@@ -137,7 +142,7 @@ const CategoryBox = styled.div`
   justify-content: space-between;
   padding: 20px 20px 12px;
 
-  @media (max-width: 767px) {
+  @media (max-width: 956px) {
     padding: 0;
     margin-bottom: 12px;
   }
@@ -172,7 +177,7 @@ const TagList = styled(Link)`
     background-color: #f5f5f5;
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 956px) {
     padding: 12px 0px;
   }
 `;

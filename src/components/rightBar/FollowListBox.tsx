@@ -23,10 +23,11 @@ import { cloneDeep } from "lodash";
 import FollowListSkeleton from "../../assets/skeleton/FollowListSkeleton";
 
 type Props = {
+  modalOpen?: boolean;
   modalClose?: () => void;
 };
 
-const FollowListBox = ({ modalClose }: Props) => {
+const FollowListBox = ({ modalOpen, modalClose }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
@@ -85,11 +86,13 @@ const FollowListBox = ({ modalClose }: Props) => {
     }
   };
 
-  const onLogState = () => {
+  const onClick = () => {
     if (!userLogin) {
       setIsAuthModal(true);
     }
-    modalClose();
+    if (modalOpen) {
+      modalClose();
+    }
   };
 
   const onAuthModal = () => {
@@ -105,13 +108,15 @@ const FollowListBox = ({ modalClose }: Props) => {
         <CategoryBox>
           <Category>추천</Category>
           {users.length > 0 && (
-            <AllClick to={`explore/people`}>더 보기</AllClick>
+            <AllClick to={`explore/people`} onClick={onClick}>
+              더 보기
+            </AllClick>
           )}
         </CategoryBox>
         <UserListBox>
           {isLoading ? (
             users.map((res: any, index: number) => (
-              <UserList onClick={onLogState} key={index}>
+              <UserList onClick={onClick} key={index}>
                 {index < 5 && (
                   <>
                     <User
@@ -151,7 +156,9 @@ const FollowListBox = ({ modalClose }: Props) => {
           ) : (
             <FollowListSkeleton />
           )}
-          {users.length === 0 && <NotUser>추천할 유저가 없습니다.</NotUser>}
+          {isLoading && users.length === 0 && (
+            <NotUser>추천할 유저가 없습니다.</NotUser>
+          )}
         </UserListBox>
       </Container>
     </>
@@ -163,13 +170,13 @@ export default FollowListBox;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.article`
-  max-height: 278px;
+  /* max-height: 282px; */
   border: 2px solid ${secondColor};
   margin-top: 30px;
   border-radius: 20px;
   overflow: hidden;
 
-  @media (max-width: 767px) {
+  @media (max-width: 956px) {
     max-height: auto;
     padding: 20px;
     margin-top: 0;
@@ -185,7 +192,7 @@ const CategoryBox = styled.div`
   justify-content: space-between;
   padding: 20px 20px 12px;
 
-  @media (max-width: 767px) {
+  @media (max-width: 956px) {
     padding: 0;
     width: 100%;
     margin-bottom: 12px;
@@ -232,7 +239,7 @@ const User = styled(Link)`
     background-color: #f5f5f5;
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 956px) {
     padding: 12px 0px;
   }
 `;
@@ -256,7 +263,7 @@ const ProfileInfoBox = styled.div`
   cursor: pointer;
   flex: 1;
   padding-right: 20px;
-  @media (max-width: 767px) {
+  @media (max-width: 956px) {
     padding-right: 0;
   }
 `;

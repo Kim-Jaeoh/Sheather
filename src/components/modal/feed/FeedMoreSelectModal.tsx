@@ -1,13 +1,8 @@
-import React, { useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/ColorList";
-import { Modal, Backdrop } from "@mui/material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { FeedType, replyType } from "../../../types/type";
+import { Modal } from "@mui/material";
 
 type Props = {
-  bgColor: string;
   modalOpen: boolean;
   modalClose: () => void;
   onFeedEditClick: () => void;
@@ -15,12 +10,11 @@ type Props = {
 };
 
 const FeedMoreSelectModal = (props: Props) => {
-  const { bgColor, modalOpen, modalClose, onFeedEditClick, onFeedDelete } =
-    props;
+  const { modalOpen, modalClose, onFeedEditClick, onFeedDelete } = props;
 
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={false}>
-      <RangeBox bgColor={bgColor}>
+      <RangeBox>
         <Container>
           <ResetBtn onClick={onFeedDelete}>삭제</ResetBtn>
           <DoneBtn onClick={onFeedEditClick}>수정</DoneBtn>
@@ -34,7 +28,7 @@ export default FeedMoreSelectModal;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const RangeBox = styled.div<{ bgColor: string }>`
+const RangeBox = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -44,10 +38,10 @@ const RangeBox = styled.div<{ bgColor: string }>`
   border: 2px solid ${secondColor};
   width: 300px;
   background: #fff;
-  box-shadow: 8px 8px 0 -2px ${(props) => props.bgColor}, 8px 8px ${secondColor};
+  box-shadow: 8px 8px 0 -2px #ff5673, 8px 8px ${secondColor};
 
   button:first-of-type {
-    color: ${(props) => props.bgColor};
+    color: #ff5673;
   }
 `;
 

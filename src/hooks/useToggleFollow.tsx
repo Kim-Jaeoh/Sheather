@@ -55,7 +55,7 @@ const useToggleFollow = () => {
       // 상대방 팔로워에 본인 이름 추가
       await updateDoc(doc(dbService, "users", resDpName), {
         follower: [
-          { displayName: userObj.displayName, time: +new Date() },
+          { displayName: userObj.displayName, time: +new Date(), isRead: true }, // 알림 뱃지 생성
           ...followerCopy,
         ],
       });
