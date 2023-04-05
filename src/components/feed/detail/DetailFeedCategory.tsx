@@ -1,26 +1,32 @@
-import React from "react";
 import styled from "@emotion/styled";
 import Flicking from "@egjs/react-flicking";
 import { BsSun } from "react-icons/bs";
 import { IoShirtOutline } from "react-icons/io5";
 import { MdPlace } from "react-icons/md";
-import { Link } from "react-router-dom";
-import ColorList from "../../assets/ColorList";
-import { FeedType } from "../../types/type";
-import useMediaScreen from "../../hooks/useMediaScreen";
+import ColorList from "../../../assets/ColorList";
+import useMediaScreen from "../../../hooks/useMediaScreen";
+import { FeedType } from "../../../types/type";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   res: FeedType;
-  categoryTags: {
-    name: string;
-    type: string;
-    detail: string;
-  }[];
-  onWearClick: (cat: string, detail: string) => void;
 };
 
-const DetailFeedCategory = ({ res, categoryTags, onWearClick }: Props) => {
+const DetailFeedCategory = ({ res }: Props) => {
+  const { outer, top, innerTop, bottom, etc } = res.wearInfo;
+  const categoryTags = [
+    { name: "outer", type: "outer", detail: outer },
+    { name: "top", type: "top", detail: top },
+    { name: "innerTop", type: "innerTop", detail: innerTop },
+    { name: "bottom", type: "bottom", detail: bottom },
+    { name: "etc", type: "etc", detail: etc },
+  ];
   const { isMobile } = useMediaScreen();
+  const navigate = useNavigate();
+
+  const onWearClick = (cat: string, detail: string) => {
+    navigate(`/explore?cat=${cat}&detail=${detail}&sort=recent`);
+  };
 
   return (
     <WearDetailBox>

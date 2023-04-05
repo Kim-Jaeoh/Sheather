@@ -149,6 +149,8 @@ const RangeBox = styled.div<{ isMobile: boolean }>`
   box-shadow: 8px 8px 0 -2px #ff5673, 8px 8px ${secondColor};
 
   @media (max-width: 767px) {
+    border-width: 1px;
+    box-shadow: 8px 8px 0 -1px #ff5673, 8px 8px ${secondColor};
   }
 `;
 

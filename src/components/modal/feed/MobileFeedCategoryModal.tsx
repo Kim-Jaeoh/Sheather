@@ -1,10 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/ColorList";
-import { Modal, Backdrop } from "@mui/material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { FeedType, replyType } from "../../../types/type";
+import { Modal } from "@mui/material";
 
 type Props = {
   modalOpen: boolean;
@@ -48,9 +45,6 @@ const MobileFeedCategoryModal = (props: Props) => {
           >
             탐색
           </Btn>
-          {/* <Btn select={isDate ? 2 : null} num={2} onClick={onSelectCategory2}>
-            날짜별
-          </Btn> */}
         </Container>
       </RangeBox>
     </Modal>
@@ -66,15 +60,17 @@ const RangeBox = styled.div`
   width: 100px;
   right: 16px;
   top: 100px;
-  /* top: 50%; */
-  /* left: 50%; */
-  /* transform: translate(-50%, -50%); */
   z-index: 100;
   border-radius: 20px;
   border: 1px solid ${thirdColor};
   background: #fff;
   outline: none;
   filter: drop-shadow(0px 0px 4px #22222222);
+
+  @media (max-width: 767px) {
+    right: 32px;
+    top: 110px;
+  }
 `;
 
 const Container = styled.div`

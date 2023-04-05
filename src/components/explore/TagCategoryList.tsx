@@ -7,6 +7,7 @@ import { RootState } from "../../app/store";
 import { useQuery } from "@tanstack/react-query";
 import { FeedType } from "../../types/type";
 import axios from "axios";
+import useUserAccount from "../../hooks/useUserAccount";
 
 interface Count {
   [key: string]: number;
@@ -19,6 +20,8 @@ const TagCategoryList = () => {
     }
   );
   const [arrState, setArrState] = useState(false);
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
 
   const feedApi = async () => {
     const { data } = await axios.get(
@@ -87,7 +90,11 @@ const TagCategoryList = () => {
               (a, b) => b.like.length - a.like.length
             );
             return (
-              <List key={index} exist={arrState}>
+              <List
+                key={index}
+                exist={arrState}
+                onClick={() => onIsLogin(() => null)}
+              >
                 {index < 20 && (
                   <Tag
                     key={index}

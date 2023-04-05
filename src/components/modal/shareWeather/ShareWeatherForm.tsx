@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/ColorList";
 import Emoji from "../../../assets/Emoji";
-import useTagCurrentWear from "../../../hooks/useTagCurrentWear";
+import useTag from "../../../hooks/useTag";
 import { IoMdClose } from "react-icons/io";
 import { AiOutlineTag } from "react-icons/ai";
 import { BiTag } from "react-icons/bi";
@@ -32,7 +32,7 @@ const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
     onKeyPressCurrent,
     onDeleteCurrentTag,
     onDeleteCurrentText,
-  } = useTagCurrentWear(tags);
+  } = useTag(tags);
 
   useEffect(() => {
     setTags(currentTags);

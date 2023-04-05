@@ -15,7 +15,12 @@ import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import useCurrentLocation from "../hooks/useCurrentLocation";
-import { listType, WeatherDataType } from "../types/type";
+import {
+  listType,
+  MessageType,
+  NoticeArrType,
+  WeatherDataType,
+} from "../types/type";
 import ShareWeatherModal from "../components/modal/shareWeather/ShareWeatherModal";
 import { shareWeather } from "../app/weather";
 import {
@@ -33,10 +38,20 @@ import { SlBell } from "react-icons/sl";
 import NoticeModal from "../components/modal/notice/NoticeModal";
 import SearchModal from "../components/modal/search/SearchModal";
 import { FiSearch } from "react-icons/fi";
+import useNoticeCheck from "../hooks/useNoticeCheck";
+
+type MenuFuncgionType = {
+  [key: string]: () => void;
+};
 
 const LeftBar = () => {
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const [isAuthModal, setIsAuthModal] = useState(false);
-  const [selectMenu, setSelectMenu] = useState(0);
+  const [selectMenu, setSelectMenu] = useState("feed");
   const [myAccount, setMyAccount] = useState(null);
   const [users, setUsers] = useState([]);
   const [messageCollection, setMessageCollection] = useState(null);
@@ -44,16 +59,10 @@ const LeftBar = () => {
   const [isSearchModal, setIsSearchModal] = useState(false);
   const [isNoticeModal, setIsNoticeModal] = useState(false);
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { result: noticeCheck } = useNoticeCheck();
   const { location } = useCurrentLocation();
-  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
-    useMediaScreen();
+  const { isMobile, RightBarNone } = useMediaScreen();
 
   const nowWeatherApi = async () =>
     await axios.get(
@@ -86,8 +95,8 @@ const LeftBar = () => {
 
   // 상대 계정 정보 가져오기
   useEffect(() => {
-    if (myAccount) {
-      myAccount?.message?.map(async (res: { user: string }) => {
+    myAccount?.message?.map(async (res: { user: string }) => {
+      if (res.user) {
         onSnapshot(doc(dbService, "users", res.user), (doc) => {
           setUsers((prev: CurrentUserType[]) => {
             // 중복 체크
@@ -98,8 +107,8 @@ const LeftBar = () => {
             }
           });
         });
-      });
-    }
+      }
+    });
   }, [myAccount]);
 
   // redux store에 message 정보 저장
@@ -140,118 +149,69 @@ const LeftBar = () => {
     return () => unsubscribe();
   }, [userObj.displayName, users]);
 
-  // // 채팅방 알림 표시
-  // useEffect(() => {
-  //   if (messageCollection) {
-  //     const filter = messageCollection.map((res: listType) => {
-  //       return res.message
-  //         .filter((msg) => msg.displayName !== userObj.displayName) // 1. 상대방과의 채팅 중
-  //         .filter((msg: { isRead: boolean }) => msg.isRead === false); // 2. 안 읽은 것 가져오기
-  //     });
-
-  //     //  안 읽은 채팅방 있을 시 알림 표시
-  //     const notice = filter.flat();
-  //     if (notice.length > 0) {
-  //       const checkReadInfo = async () => {
-  //         const copy = [...myAccount?.message];
-  //         await updateDoc(doc(dbService, "users", userObj.displayName), {
-  //           message: copy.map((res) => {
-  //             if (
-  //               notice.some(
-  //                 (chat: { displayName: string }) =>
-  //                   chat.displayName === res.user
-  //               )
-  //             ) {
-  //               return { ...res, isRead: false };
-  //             } else {
-  //               return { ...res };
-  //             }
-  //           }),
-  //         });
-  //       };
-
-  //       checkReadInfo();
-  //     }
-  //   }
-  // }, [messageCollection, myAccount?.message, userObj.displayName]);
-
-  useEffect(() => {
-    if (pathname.includes("feed")) {
-      return setSelectMenu(0);
-    }
-    if (pathname.includes("weather")) {
-      return setSelectMenu(1);
-    }
-    if (pathname.includes("message")) {
-      return setSelectMenu(2);
-    }
-    if (pathname.includes("explore")) {
-      return setSelectMenu(3);
-    }
-    if (pathname.includes("profile")) {
-      return setSelectMenu(4);
-    }
-  }, [pathname]);
-
   useEffect(() => {
     if (!RightBarNone) {
       setIsSearchModal(false);
     }
   }, [RightBarNone]);
 
-  const menu = useMemo(() => {
-    switch (selectMenu) {
-      case 0:
-        return "feed";
-      case 1:
-        return "weather";
-      case 2:
-        return "message";
-      case 3:
-        return "explore";
-      case 4:
-        return "profile";
-      default:
-        return "feed";
-    }
-  }, [selectMenu]);
+  // 메뉴
+  useEffect(() => {
+    setSelectMenu(pathname.split("/")[1]);
+  }, [pathname]);
 
-  const onSearchModal = () => {
-    setIsSearchModal((prev) => !prev);
-    setSelectMenu(3);
-  };
-
-  // 알림 모달
-  const onNoticeClick = () => {
-    if (userLogin) {
-      setIsNoticeModal((prev) => !prev);
-      setSelectMenu(3);
-    } else {
-      setIsAuthModal((prev) => !prev);
-    }
-  };
-
-  // 글 작성
-  const onWriteClick = () => {
-    if (userLogin) {
-      setShareBtn((prev) => !prev);
-      setSelectMenu(4);
-      dispatch(shareWeather(weatherData?.data));
-    } else {
-      setIsAuthModal((prev) => !prev);
-    }
-  };
-
-  // 프로필 이동
-  const onProfileClick = () => {
+  // 로그인 유무
+  const isLogin = (callback: () => void) => {
     if (!userLogin) {
       setIsAuthModal((prev) => !prev);
     } else {
-      navigate(`profile/${userObj?.displayName}/post`, {
-        state: userObj?.displayName,
-      });
-      setSelectMenu(5);
+      callback();
     }
+  };
+
+  // // 방법 1. 버튼 클릭
+  // const onBtnClick = (type: string) => {
+  //   isLogin(() => {
+  //     if (type === "message" || type === "profile") {
+  //       return setSelectMenu(type);
+  //     }
+  //     if (type === "search") {
+  //       return setIsSearchModal((prev) => !prev);
+  //     }
+  //     if (type === "notice") {
+  //       return setIsNoticeModal((prev) => !prev);
+  //     }
+  //     if (type === "write") {
+  //       setShareBtn((prev) => !prev);
+  //       return dispatch(shareWeather(weatherData?.data));
+  //     }
+  //   });
+  // };
+
+  // 방법 2. 버튼 클릭
+  const menuFunctions: MenuFuncgionType = {
+    message: () => {
+      setSelectMenu("message");
+    },
+    profile: () => {
+      setSelectMenu("profile");
+    },
+    search: () => {
+      setIsSearchModal((prev) => !prev);
+    },
+    notice: () => {
+      setIsNoticeModal((prev) => !prev);
+    },
+    write: () => {
+      setShareBtn((prev) => !prev);
+      dispatch(shareWeather(weatherData?.data));
+    },
+  };
+
+  const onBtnClick = (type: string) => {
+    isLogin(() => {
+      menuFunctions[type]();
+    });
   };
 
   return (
@@ -271,18 +231,14 @@ const LeftBar = () => {
           modalClose={() => setIsSearchModal(false)}
         />
       )}
-      <Container
-        isDesktop={isDesktop}
-        isMobileBefore={isMobileBefore}
-        isMobile={isMobile}
-      >
+      <Container>
         <MenuBox pathname={pathname}>
           <LogoBox>SHEATHER</LogoBox>
           <MenuLink
             style={{ order: 0 }}
-            menu={menu}
+            menu={selectMenu}
             cat="feed"
-            onClick={() => setSelectMenu(0)}
+            onClick={() => setSelectMenu("feed")}
             color="#ff5673"
             to="/feed/following"
           >
@@ -293,9 +249,9 @@ const LeftBar = () => {
           </MenuLink>
           <MenuLink
             style={{ order: 1 }}
-            menu={menu}
+            menu={selectMenu}
             cat="weather"
-            onClick={() => setSelectMenu(1)}
+            onClick={() => setSelectMenu("weather")}
             color="#48a3ff"
             to="/weather"
           >
@@ -306,25 +262,27 @@ const LeftBar = () => {
           </MenuLink>
           <MenuLink
             style={{ order: isMobile ? 4 : 3 }}
-            menu={menu}
+            menu={selectMenu}
             cat="message"
-            onClick={() => setSelectMenu(2)}
+            onClick={() => onBtnClick("message")}
             color="#ff5c1b"
-            to="/message"
+            to={userLogin && "/message"}
           >
             <MenuList>
               <BsChatDots />
               <MenuText>메세지</MenuText>
-              {userObj?.message?.some((res) => !res?.isRead) && <NoticeBox />}
+              {myAccount?.message?.some((res: MessageType) => !res?.isRead) && (
+                <NoticeBox />
+              )}
             </MenuList>
           </MenuLink>
           {RightBarNone && !isMobile && (
             <MenuBtn
               style={{ order: 3 }}
-              menu={menu}
+              menu={selectMenu}
               cat="search"
               color="#2cbadd"
-              onClick={onSearchModal}
+              onClick={() => onBtnClick("search")}
             >
               <MenuList>
                 <FiSearch />
@@ -335,19 +293,22 @@ const LeftBar = () => {
           {!isMobile && (
             <MenuBtn
               style={{ order: 4 }}
-              menu={menu}
+              menu={selectMenu}
               cat="notice"
               color="#cbdd2c"
-              onClick={onNoticeClick}
+              onClick={() => onBtnClick("notice")}
             >
               <MenuList>
                 <SlBell />
                 <MenuText>알림</MenuText>
+                {myAccount?.notice?.some(
+                  (res: NoticeArrType) => !res.isRead
+                ) && <NoticeBox />}
               </MenuList>
             </MenuBtn>
           )}
           {/* <MenuLink
-            menu={menu}
+            menu={selectMenu}
             cat="explore"
             onClick={() => setSelectMenu(3)}
             color="#30c56e"
@@ -360,21 +321,22 @@ const LeftBar = () => {
           </MenuLink> */}
           <MenuBtn
             style={{ order: isMobile ? 3 : 5 }}
-            menu={menu}
+            menu={selectMenu}
             cat="write"
             color="#ffe448"
-            onClick={onWriteClick}
+            onClick={() => onBtnClick("write")}
           >
             <MenuList>
               <BsPlusCircle />
               <MenuText>글쓰기</MenuText>
             </MenuList>
           </MenuBtn>
-          <MenuBtn
+          <MenuLink
             style={{ order: 6 }}
-            menu={menu}
+            menu={selectMenu}
             cat="profile"
-            onClick={onProfileClick}
+            onClick={() => onBtnClick("profile")}
+            to={userLogin && `profile/${userObj?.displayName}/post`}
             color="#6f4ccf"
           >
             <MenuList>
@@ -392,11 +354,11 @@ const LeftBar = () => {
                 </>
               )}
             </MenuList>
-          </MenuBtn>
+          </MenuLink>
           {isAuthModal && (
             <AuthFormModal
               modalOpen={isAuthModal}
-              modalClose={onProfileClick}
+              modalClose={() => onBtnClick("profile")}
             />
           )}
         </MenuBox>
@@ -409,11 +371,7 @@ export default LeftBar;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Container = styled.section<{
-  isDesktop: boolean;
-  isMobileBefore: boolean;
-  isMobile: boolean;
-}>`
+const Container = styled.section`
   width: 70px;
   height: 100vh;
   position: sticky;
@@ -597,13 +555,21 @@ const NoticeBox = styled.div`
   border-radius: 50%;
   background: #ff5c1b;
 
-  @media (max-width: 767px) {
+  @media (max-width: 1059px) {
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 6px;
     height: 6px;
-    /* border: 2px solid #fff; */
+  }
+
+  @media (max-width: 767px) {
+    position: absolute;
+    top: 10px;
+    left: 31px;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
   }
 `;

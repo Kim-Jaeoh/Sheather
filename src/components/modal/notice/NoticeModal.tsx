@@ -1,20 +1,17 @@
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
-import { onSnapshot, doc, getDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { doc, updateDoc } from "firebase/firestore";
 import { IoMdClose } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
-import { CurrentUserType } from "../../../app/user";
 import ColorList from "../../../assets/ColorList";
 import { Spinner } from "../../../assets/Spinner";
 import { dbService } from "../../../fbase";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import { FeedType, NoticeArrType } from "../../../types/type";
+import { NoticeArrType } from "../../../types/type";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { SlBell } from "react-icons/sl";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
+import useNoticeCheck from "../../../hooks/useNoticeCheck";
 
 type Props = {
   modalOpen: boolean;
@@ -22,121 +19,14 @@ type Props = {
 };
 
 const NoticeModal = ({ modalOpen, modalClose }: Props) => {
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
-  const [combinedArr, setCombinedArr] = useState<NoticeArrType[]>([]);
-  const [result, setResult] = useState<NoticeArrType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const { timeToString } = useTimeFormat();
   const navigate = useNavigate();
-
-  const feedApi = async () => {
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_PORT}/api/feed`
-    );
-    return data;
-  };
-
-  // 피드 리스트 가져오기
-  const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {
-    refetchOnWindowFocus: false,
-    onError: (e) => console.log(e),
-  });
-
-  useEffect(() => {
-    const filter: FeedType[] = feedData?.filter(
-      (res) => res.displayName === userObj?.displayName
-    );
-
-    const like = filter
-      .flatMap((res) => res.like)
-      .map((arr) => ({
-        type: "like",
-        displayName: arr.displayName,
-        time: arr.time,
-        isRead: arr.isRead,
-        postId: arr.postId,
-        imgUrl: filter.filter((img) => img.id === arr.postId)[0].url[0],
-      }));
-
-    const reply = filter
-      .flatMap((res) => res.reply)
-      .map((arr) => ({
-        type: "reply",
-        displayName: arr.displayName,
-        time: arr.time,
-        isRead: arr.isRead,
-        text: arr.text,
-        postId: arr.postId,
-        imgUrl: filter.filter((img) => img.id === arr.postId)[0].url[0],
-      }));
-
-    const follower = userObj.follower.map((arr) => ({
-      type: "follower",
-      displayName: arr.displayName,
-      time: arr.time,
-      isRead: arr.isRead,
-    }));
-
-    setCombinedArr([...like, ...reply, ...follower]);
-  }, [feedData, userObj?.displayName, userObj.follower]);
-
-  // 계정 정보 가져오기
-  useEffect(() => {
-    const getList = async (res: NoticeArrType) => {
-      const docSnap = await getDoc(doc(dbService, "users", res.displayName));
-      return {
-        isRead: res.isRead ? res.isRead : false,
-        postId: res.postId,
-        type: res.type,
-        time: res.time,
-        text: res.text ? res.text : null,
-        imgUrl: res.imgUrl ? res.imgUrl : null,
-        displayName: docSnap.data().displayName,
-        profileURL: docSnap.data().profileURL,
-      };
-    };
-
-    const promiseList = async () => {
-      const list = await Promise.all(
-        combinedArr?.map(async (res) => {
-          return getList(res);
-        })
-      );
-      setResult(list);
-      setIsLoading(true);
-    };
-    promiseList();
-  }, [combinedArr]);
-
-  // // 계정 정보 가져오기
-  // useEffect(() => {
-  //   combinedArr?.forEach(async (res) => {
-  //     onSnapshot(doc(dbService, "users", res.displayName), (doc) => {
-  //       setResult((prev: ArrType[]) => {
-  //         // 중복 체크
-  //         if (!prev.some((user) => user.time === res.time)) {
-  //           return [
-  //             ...prev,
-  //             {
-  //               postId: res.postId,
-  //               type: res.type,
-  //               time: res.time,
-  //               text: res.text ? res.text : null,
-  //               imgUrl: res.imgUrl ? res.imgUrl : null,
-  //               displayName: doc.data().displayName,
-  //               profileURL: doc.data().profileURL,
-  //             },
-  //           ];
-  //         } else {
-  //           return prev;
-  //         }
-  //       });
-  //     });
-  //   });
-  //   setIsLoading(true);
-  // }, [combinedArr]);
+  const { result, isLoading } = useNoticeCheck();
 
   const onClick = (res: NoticeArrType) => {
     if (res.type === `like`) {
@@ -151,15 +41,26 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
     return modalClose();
   };
 
-  // console.log(result.map((res) => res.isRead === true));
-  console.log(result);
+  // 읽음 처리 후 모달 닫기
+  const onModalClosedAfterRead = async () => {
+    const copy = [...result];
+    await updateDoc(doc(dbService, "users", userObj.displayName), {
+      notice: copy.map((res) => ({ ...res, isRead: true })),
+    }).then((e) => {
+      modalClose();
+    });
+  };
 
   return (
-    <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
+    <Modal
+      open={modalOpen}
+      onClose={onModalClosedAfterRead}
+      disableScrollLock={true}
+    >
       <Container>
         <Header>
           <Category>알림</Category>
-          <CloseBox onClick={modalClose}>
+          <CloseBox onClick={onModalClosedAfterRead}>
             <IoMdClose />
           </CloseBox>
         </Header>

@@ -8,7 +8,7 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-import ExploreFeedCategory from "../components/explore/ExploreFeedCategory";
+import ExploreFeedPost from "../components/explore/ExploreFeedPost";
 import TempClothes from "../assets/TempClothes";
 import Flicking from "@egjs/react-flicking";
 import "../styles/DetailFlicking.css";
@@ -172,7 +172,7 @@ const Explore = () => {
             <Route
               key={index}
               path={res.link}
-              element={<ExploreFeedCategory url={url} />}
+              element={<ExploreFeedPost url={url} />}
             />
           );
         })}

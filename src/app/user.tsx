@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { FollowerType, FollowingType, NoticeArrType } from "../types/type";
 
 export interface CurrentUserType {
   uid: string;
@@ -10,24 +11,9 @@ export interface CurrentUserType {
   description: string;
   bookmark: string[];
   like: string[];
-  follower: {
-    displayName: string;
-    time: number;
-    isRead?: boolean;
-  }[];
-  following: {
-    displayName: string;
-    time: number;
-  }[];
-  notice: {
-    type: string;
-    displayName: string;
-    time: number;
-    postId?: string;
-    text?: string;
-    imgUrl?: string;
-    profileURL?: string;
-  }[];
+  follower: FollowerType[];
+  following: FollowingType[];
+  notice: NoticeArrType[];
   message?: {
     id: string;
     user: string;

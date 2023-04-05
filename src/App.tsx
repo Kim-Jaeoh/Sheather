@@ -8,7 +8,7 @@ import Footer from "./pages/Footer";
 import Message from "./pages/Message";
 import Explore from "./pages/Explore";
 import { Spinner } from "./assets/Spinner";
-import DetailFeed from "./components/feed/DetailFeed";
+import DetailFeed from "./components/feed/detail/DetailFeed";
 // import Weather from "./pages/Weather";
 import SrollToTop from "./hooks/useScrollToTop";
 import { authService } from "./fbase";
@@ -20,13 +20,22 @@ import FollowCategoryList from "./components/explore/FollowCategoryList";
 import useMediaScreen from "./hooks/useMediaScreen";
 import MobileHeader from "./components/MobileHeader";
 import InfoCategory from "./components/explore/InfoCategory";
+import AuthFormModal from "./components/modal/auth/AuthFormModal";
+import useUserAccount from "./hooks/useUserAccount";
 const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
   const [init, setInit] = useState(false);
   const [userObj, setUserObj] = useState(null);
-  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
-    useMediaScreen();
+  const { isMobile, RightBarNone } = useMediaScreen();
+
+  // const {
+  //   isAuthModal,
+  //   setIsAuthModal,
+  //   onAuthModal,
+  //   onLogInState,
+  //   onLogOutClick,
+  // } = useUserAccount();
 
   useEffect(() => {
     console.log(`
@@ -42,15 +51,15 @@ const App = () => {
     　　＼/　　　/
     `);
 
-    // 유저 상태 변화 추적(로그인, 로그아웃, 어플리케이션 초기화 시)
-    authService.onAuthStateChanged(async (user) => {
-      if (user) {
-        setUserObj(user);
-      } else {
-        setUserObj(null);
-      }
-      setInit(true); // 어플리케이션이 언제 시작해도 onAuthStateChanged가 실행돼야 하기 때문에 true
-    });
+    // // 유저 상태 변화 추적(로그인, 로그아웃, 어플리케이션 초기화 시)
+    // authService.onAuthStateChanged(async (user) => {
+    //   if (user) {
+    //     setUserObj(user);
+    //   } else {
+    //     setUserObj(null);
+    //   }
+    //   setInit(true); // 어플리케이션이 언제 시작해도 onAuthStateChanged가 실행돼야 하기 때문에 true
+    // });
   }, []);
 
   return (
@@ -75,10 +84,10 @@ const App = () => {
                   element={<FollowCategoryList />}
                 />
                 <Route path="/profile/:id/*" element={<Profile />} />
-                <Route
+                {/* <Route
                   path="/explore"
                   element={<Navigate replace to="/feed/recent" />}
-                />
+                /> */}
                 {/* <Route
                   path="/explore"
                   element={<Navigate replace to="/explore/outer?detail=0" />}

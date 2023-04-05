@@ -13,8 +13,17 @@ import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { FeedType } from "../../types/type";
+import useUserAccount from "../../hooks/useUserAccount";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import AuthFormModal from "../modal/auth/AuthFormModal";
 
 const InfoCategory = () => {
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const [isGridRender, setIsGridRender] = useState(false);
   const [randomFeed, setRandomFeed] = useState(null);
   const [dateCategory, setDateCategory] = useState("recent");
@@ -22,6 +31,9 @@ const InfoCategory = () => {
   const [searchParams] = useSearchParams();
   const { isMobile } = useMediaScreen();
   const navigate = useNavigate();
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
+
   const url = useMemo(() => {
     if (search.includes("cat")) {
       return `${
@@ -84,95 +96,108 @@ const InfoCategory = () => {
     }
   };
 
+  const onClick = (res: FeedType) => {
+    onIsLogin(() => navigate(`/feed/detail/${res.id}`));
+  };
+
   return (
-    <Container>
-      {!isLoading ? (
-        <Box>
-          <TagCategory>
-            <TagCategoryText>
-              {search?.includes("cat")
-                ? searchParams.get("detail")
-                : `# ${searchParams.get("keyword")}`}
-            </TagCategoryText>
-          </TagCategory>
-          <SelectDetailTimeBox>
-            <SelectCategoryBox>
-              <SelectCategoryBtn
-                select={dateCategory}
-                category={"recent"}
-                type="button"
-                onClick={() => sortClick("recent")}
-              >
-                최신순
-              </SelectCategoryBtn>
-              <SelectCategoryBtn
-                select={dateCategory}
-                category={"popular"}
-                type="button"
-                onClick={() => sortClick("popular")}
-              >
-                인기순
-              </SelectCategoryBtn>
-            </SelectCategoryBox>
-          </SelectDetailTimeBox>
-          {randomFeed?.length !== 0 ? (
-            <CardBox>
-              <FrameGrid
-                className="container"
-                gap={isMobile ? 10 : 20}
-                defaultDirection={"end"}
-                frame={[
-                  [1, 1, 2, 2, 3, 3],
-                  [1, 1, 2, 2, 3, 3],
-                ]}
-                onRenderComplete={() => setIsGridRender(true)}
-              >
-                {randomFeed?.map((res: FeedType, index: number) => {
-                  return (
-                    <CardList render={isGridRender} key={res.id}>
-                      <Card to={`/feed/detail/${res.id}`}>
-                        <WeatherEmojiBox>
-                          <WeatherEmoji>
-                            {isMobile ? res.feel.split(" ")[0] : res.feel}
-                          </WeatherEmoji>
-                        </WeatherEmojiBox>
-                        {res.url.length > 1 && (
-                          <CardLengthBox>
-                            <CardLength>+{res.url.length}</CardLength>
-                          </CardLengthBox>
-                        )}
-                        <CardImageBox>
-                          <CardImage
-                            onContextMenu={(e) => e.preventDefault()}
-                            src={res.url[0]}
-                            alt=""
-                          />
-                        </CardImageBox>
-                      </Card>
-                    </CardList>
-                  );
-                })}
-              </FrameGrid>
-              <div
-                ref={ref}
-                // style={{
-                //   position: "absolute",
-                //   bottom: "-100px",
-                // }}
-              />
-            </CardBox>
-          ) : (
-            <NotInfoBox>
-              <NotInfo>해당 태그에 관한 글이 존재하지 않습니다.</NotInfo>
-            </NotInfoBox>
-          )}
-        </Box>
-      ) : (
-        <CardBox>
-          <ExploreSkeleton />
-        </CardBox>
+    <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
-    </Container>
+      <Container>
+        {!isLoading ? (
+          <Box>
+            <TagCategory>
+              <TagCategoryText>
+                {search?.includes("cat")
+                  ? searchParams.get("detail")
+                  : `# ${searchParams.get("keyword")}`}
+              </TagCategoryText>
+            </TagCategory>
+            <SelectDetailTimeBox>
+              <SelectCategoryBox>
+                <SelectCategoryBtn
+                  select={dateCategory}
+                  category={"recent"}
+                  type="button"
+                  onClick={() => sortClick("recent")}
+                >
+                  최신순
+                </SelectCategoryBtn>
+                <SelectCategoryBtn
+                  select={dateCategory}
+                  category={"popular"}
+                  type="button"
+                  onClick={() => sortClick("popular")}
+                >
+                  인기순
+                </SelectCategoryBtn>
+              </SelectCategoryBox>
+            </SelectDetailTimeBox>
+            {randomFeed?.length !== 0 ? (
+              <CardBox>
+                <FrameGrid
+                  className="container"
+                  gap={isMobile ? 10 : 20}
+                  defaultDirection={"end"}
+                  frame={[
+                    [1, 1, 2, 2, 3, 3],
+                    [1, 1, 2, 2, 3, 3],
+                  ]}
+                  onRenderComplete={() => setIsGridRender(true)}
+                >
+                  {randomFeed?.map((res: FeedType, index: number) => {
+                    return (
+                      <CardList
+                        render={isGridRender}
+                        key={res.id}
+                        onClick={() => onClick(res)}
+                      >
+                        <Card>
+                          <WeatherEmojiBox>
+                            <WeatherEmoji>
+                              {isMobile ? res.feel.split(" ")[0] : res.feel}
+                            </WeatherEmoji>
+                          </WeatherEmojiBox>
+                          {res.url.length > 1 && (
+                            <CardLengthBox>
+                              <CardLength>+{res.url.length}</CardLength>
+                            </CardLengthBox>
+                          )}
+                          <CardImageBox>
+                            <CardImage
+                              onContextMenu={(e) => e.preventDefault()}
+                              src={res.url[0]}
+                              alt=""
+                            />
+                          </CardImageBox>
+                        </Card>
+                      </CardList>
+                    );
+                  })}
+                </FrameGrid>
+                <div
+                  ref={ref}
+                  // style={{
+                  //   position: "absolute",
+                  //   bottom: "-100px",
+                  // }}
+                />
+              </CardBox>
+            ) : (
+              <NotInfoBox>
+                <NotInfo>해당 태그에 관한 글이 존재하지 않습니다.</NotInfo>
+              </NotInfoBox>
+            )}
+          </Box>
+        ) : (
+          <CardBox>
+            <ExploreSkeleton />
+          </CardBox>
+        )}
+      </Container>
+    </>
   );
 };
 
@@ -302,8 +327,8 @@ const CardBox = styled.ul`
 `;
 
 const CardList = styled.li<{ render?: boolean; size?: number }>`
-  display: flex;
-  flex-direction: column;
+  /* display: flex;
+  flex-direction: column; */
   border-radius: 20px;
   border: ${(props) => props.render && `2px solid ${secondColor}`};
   overflow: hidden;
@@ -333,7 +358,7 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   }
 `;
 
-const Card = styled(Link)<{ aspect?: number }>`
+const Card = styled.div<{ aspect?: number }>`
   display: block;
   width: 100%;
   height: 100%;

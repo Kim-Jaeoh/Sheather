@@ -41,7 +41,7 @@ const Message = (props: Props) => {
 
     const promiseList = async () => {
       const list = await Promise.all(
-        userObj.message.map(async (res) => {
+        userObj?.message?.map(async (res) => {
           return getList(res);
         })
       );

@@ -5,6 +5,10 @@ import { FeedType } from "../../types/type";
 import ProfileSkeleton from "../../assets/skeleton/ProfileSkeleton";
 import ColorList from "../../assets/ColorList";
 import useMediaScreen from "../../hooks/useMediaScreen";
+import useUserAccount from "../../hooks/useUserAccount";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import AuthFormModal from "../modal/auth/AuthFormModal";
 
 type props = {
   myPost: FeedType[];
@@ -15,8 +19,18 @@ type props = {
 
 const ProfilePost = React.forwardRef<HTMLInputElement, props>(
   ({ myPost, loading, notInfoText }, ref) => {
+    const { loginToken: userLogin } = useSelector((state: RootState) => {
+      return state.user;
+    });
     const [arrState, setArrState] = useState(myPost?.length);
     const { isMobile } = useMediaScreen();
+    const {
+      isAuthModal,
+      onAuthModal,
+      setIsAuthModal,
+      onIsLogin,
+      onLogOutClick,
+    } = useUserAccount();
 
     // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
     useEffect(() => {
@@ -33,6 +47,9 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
 
     return (
       <>
+        {isAuthModal && (
+          <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+        )}
         {!loading ? (
           <>
             {myPost?.length !== 0 ? (
@@ -41,7 +58,10 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
                   {Array.from({ length: arrState })?.map((res, index) => (
                     <Card key={index} exist={Boolean(myPost[index])}>
                       {myPost[index] ? (
-                        <Link to={`/feed/detail/${myPost[index].id}`}>
+                        <Link
+                          onClick={() => onIsLogin(() => null)}
+                          to={userLogin && `/feed/detail/${myPost[index].id}`}
+                        >
                           <WeatherEmojiBox>
                             <WeatherEmoji>
                               {isMobile

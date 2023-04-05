@@ -40,6 +40,13 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
     return moment(changeValue).format("YYYYMMDD");
   }, [changeValue]);
 
+  // 팔로잉 목록 담기
+  const followArr = useMemo(() => {
+    let arr: string[] = [];
+    userObj.following.forEach((res) => arr.push(res.displayName));
+    return arr;
+  }, [userObj.following]);
+
   useEffect(() => {
     // 팔로잉
     if (selectCategory === 0) {
@@ -99,13 +106,6 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
     setUrl,
     value,
   ]);
-
-  // 팔로잉 목록 담기
-  const followArr = useMemo(() => {
-    let arr: string[] = [];
-    userObj.following.forEach((res) => arr.push(res.displayName));
-    return arr;
-  }, [userObj.following]);
 
   // 메인 카테고리
   useEffect(() => {
@@ -178,7 +178,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
 
   return (
     <>
-      {categoryModal && (
+      {isMobile && categoryModal && (
         <MobileFeedCategoryModal
           modalOpen={categoryModal}
           selectCategory={selectCategory}

@@ -1,56 +1,61 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { onSnapshot, doc } from "firebase/firestore";
-import { dbService } from "../../fbase";
-import useTimeFormat from "../../hooks/useTimeFormat";
-import ColorList from "../../assets/ColorList";
 import { IoMdClose } from "react-icons/io";
-import { replyType } from "../../types/type";
 import { Link } from "react-router-dom";
+import ColorList from "../../../assets/ColorList";
+import { dbService } from "../../../fbase";
+import useTimeFormat from "../../../hooks/useTimeFormat";
+import { replyType } from "../../../types/type";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/store";
 
 type Props = {
-  userObj: string;
-  isLogin: boolean;
-  reply: replyType;
-  onDelete: (text: replyType) => void;
+  replyData: replyType;
+  onReplyDelete: (res: replyType) => void;
 };
 
-const DetailFeedReply = ({ userObj, isLogin, reply, onDelete }: Props) => {
+const DetailFeedReply = ({ replyData, onReplyDelete }: Props) => {
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const [replyCreatorInfo, setReplyCreatorInfo] = useState(null);
-  const { timeToString, timeToString2 } = useTimeFormat();
+  const { timeToString } = useTimeFormat();
 
   //  map 처리 된 유저 정보들
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      doc(dbService, "users", reply.displayName),
+      doc(dbService, "users", replyData.displayName),
       (doc) => {
         setReplyCreatorInfo(doc.data());
       }
     );
     return () => unsubscribe();
-  }, [reply.displayName]);
+  }, [replyData.displayName]);
 
   return (
     <ReplyBox>
       <UserInfoBox>
         <UserImageBox
-          to={isLogin && `/profile/${replyCreatorInfo?.displayName}/post`}
+          to={userLogin && `/profile/${replyCreatorInfo?.displayName}/post`}
         >
           <UserImage src={replyCreatorInfo?.profileURL} alt="" />
         </UserImageBox>
         <UserWriteInfo>
           <ReplyInfoBox>
             <ReplyId
-              to={isLogin && `/profile/${replyCreatorInfo?.displayName}/post`}
+              to={userLogin && `/profile/${replyCreatorInfo?.displayName}/post`}
             >
-              {reply.displayName}
+              {replyData.displayName}
             </ReplyId>
-            <ReplyText>{reply.text}</ReplyText>
+            <ReplyText>{replyData.text}</ReplyText>
           </ReplyInfoBox>
-          <WriteDate>{timeToString(Number(reply.time))}</WriteDate>
+          <WriteDate>{timeToString(Number(replyData.time))}</WriteDate>
         </UserWriteInfo>
-        {userObj === reply.email && (
-          <CloseBox onClick={() => onDelete(reply)}>
+        {userObj.displayName === replyData.displayName && (
+          <CloseBox onClick={() => onReplyDelete(replyData)}>
             <IoMdClose />
           </CloseBox>
         )}
@@ -142,10 +147,12 @@ const CloseBox = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  color: ${thirdColor};
+  transition: all 0.12s linear;
 
   &:hover,
   &:active {
-    color: ${mainColor};
+    color: ${secondColor};
   }
 
   svg {

@@ -2,7 +2,7 @@ import { debounce } from "@mui/material";
 import React, { useState, useCallback } from "react";
 import toast from "react-hot-toast";
 
-const useTagCurrentWear = (tags?: string[]) => {
+const useTag = (tags?: string[]) => {
   const [inputs, setInputs] = useState({
     currentNewTag: "",
     currentTags: tags ? tags : [],
@@ -82,4 +82,4 @@ const useTagCurrentWear = (tags?: string[]) => {
   };
 };
 
-export default useTagCurrentWear;
+export default useTag;

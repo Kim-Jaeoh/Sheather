@@ -1,17 +1,16 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { useQuery } from "@tanstack/react-query";
-import { FeedType } from "../../types/type";
-import axios from "axios";
 import { DocumentData, query, collection, getDocs } from "firebase/firestore";
 import { cloneDeep } from "lodash";
-import { CurrentUserType } from "../../app/user";
 import { dbService } from "../../fbase";
 import useToggleFollow from "../../hooks/useToggleFollow";
+import useUserAccount from "../../hooks/useUserAccount";
+import AuthFormModal from "../modal/auth/AuthFormModal";
 
 interface Count {
   [key: string]: number;
@@ -23,9 +22,12 @@ const FollowCategoryList = () => {
       return state.user;
     }
   );
-  const [users, setUsers] = useState<CurrentUserType[] | DocumentData[]>([]);
+  const [users, setUsers] = useState([]);
   const [arrState, setArrState] = useState(false);
-  const { toggleFollow } = useToggleFollow();
+  const [clickIndex, setClickIndex] = useState(0);
+  const { toggleFollow } = useToggleFollow({ user: users[clickIndex] });
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
 
   // 계정 정보 가져오기
   useEffect(() => {
@@ -80,61 +82,65 @@ const FollowCategoryList = () => {
       array[randomPosition] = temporary;
     }
   };
+
+  const onFollowClick = (dpName: string, index: number) => {
+    onIsLogin(() => {
+      toggleFollow(dpName);
+      setClickIndex(index);
+    });
+  };
+
   return (
-    <Container>
-      <CategoryBox>
-        <SelectName>추천</SelectName>
-      </CategoryBox>
-      <ListBox>
-        <>
-          {users?.map((res, index) => {
-            // 해당 태그가 피드 리스트에 포함되어 있는지 필터링
-            return (
-              <List key={index}>
-                {index < 5 && (
-                  <>
-                    <User
-                      to={userLogin && `/profile/${res.displayName}/post`}
-                      state={res.displayName}
-                    >
-                      <ProfileImageBox>
-                        <ProfileImage
-                          src={res.profileURL}
-                          alt="profile image"
-                        />
-                      </ProfileImageBox>
-                      <ProfileInfoBox>
-                        <ProfileDsName>{res.displayName}</ProfileDsName>
-                        {res.name && <ProfileName>{res.name}</ProfileName>}
-                        {/* {res.description && (
+    <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+      )}
+      <Container>
+        <CategoryBox>
+          <SelectName>추천</SelectName>
+        </CategoryBox>
+        <ListBox>
+          <>
+            {users?.map((res, index) => {
+              // 해당 태그가 피드 리스트에 포함되어 있는지 필터링
+              return (
+                <List key={index} onClick={() => onIsLogin(() => null)}>
+                  <User
+                    to={userLogin && `/profile/${res.displayName}/post`}
+                    state={res.displayName}
+                  >
+                    <ProfileImageBox>
+                      <ProfileImage src={res.profileURL} alt="profile image" />
+                    </ProfileImageBox>
+                    <ProfileInfoBox>
+                      <ProfileDsName>{res.displayName}</ProfileDsName>
+                      {res.name && <ProfileName>{res.name}</ProfileName>}
+                      {/* {res.description && (
                           <ProfileName>{res.description}</ProfileName>
                         )} */}
-                      </ProfileInfoBox>
-                    </User>
-                    {res?.email !== userObj.email && (
-                      <FollowBtnBox
-                        onClick={() =>
-                          userLogin && toggleFollow(res.displayName)
-                        }
-                      >
-                        {userObj.following.filter((obj) =>
-                          obj?.displayName?.includes(res?.displayName)
-                        ).length !== 0 ? (
-                          <FollowingBtn>팔로잉</FollowingBtn>
-                        ) : (
-                          <FollowBtn>팔로우</FollowBtn>
-                        )}
-                      </FollowBtnBox>
-                    )}
-                  </>
-                )}
-              </List>
-            );
-          })}
-          {arrState && <NullCard />}
-        </>
-      </ListBox>
-    </Container>
+                    </ProfileInfoBox>
+                  </User>
+                  {res?.email !== userObj.email && (
+                    <FollowBtnBox
+                      onClick={() => onFollowClick(res.displayName, index)}
+                    >
+                      {userObj.following.filter((obj) =>
+                        obj?.displayName?.includes(res?.displayName)
+                      ).length !== 0 ? (
+                        <FollowingBtn>팔로잉</FollowingBtn>
+                      ) : (
+                        <FollowBtn>팔로우</FollowBtn>
+                      )}
+                    </FollowBtnBox>
+                  )}
+                </List>
+              );
+            })}
+            {arrState && <NullCard />}
+          </>
+        </ListBox>
+      </Container>
+    </>
   );
 };
 
@@ -216,11 +222,16 @@ const List = styled.li`
   border: 2px solid ${secondColor};
   border-radius: 20px;
   background: #fff;
+  transition: all 0.12s linear;
+  cursor: pointer;
+  &:hover,
+  &:active {
+    background-color: #f5f5f5;
+  }
 
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
-
   @media screen and (max-width: 1150px) {
   }
 
@@ -241,13 +252,6 @@ const User = styled(Link)`
   gap: 12px;
   margin: 0;
   height: 100%;
-  transition: all 0.15s linear;
-  cursor: pointer;
-
-  &:hover,
-  &:active {
-    background-color: #f5f5f5;
-  }
 `;
 
 const ProfileImageBox = styled.div`

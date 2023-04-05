@@ -5,17 +5,19 @@ import ColorList from "../../assets/ColorList";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useCreateChat from "../../hooks/useCreateChat";
-import useLogout from "../../hooks/useLogout";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import { FiLogOut } from "react-icons/fi";
+import { FollowerType, FollowingType } from "../../types/type";
 
 type Props = {
   myPost: number;
-  account: any;
+  account: CurrentUserType;
   onModalClick: () => void;
-  setFollowInfo: (value: any) => void;
+  setFollowInfo: (value: FollowerType[] | FollowingType[]) => void;
   setFollowCategory: (value: React.SetStateAction<string>) => void;
   onEditModalClick: () => void;
+  onIsLogin: (callback: () => void) => void;
+  onLogOutClick: () => void;
 };
 
 const DeskProfileActInfo = ({
@@ -25,21 +27,34 @@ const DeskProfileActInfo = ({
   setFollowInfo,
   setFollowCategory,
   onEditModalClick,
+  onIsLogin,
+  onLogOutClick,
 }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
   );
-  const { onLogOutClick } = useLogout();
-  const { toggleFollow } = useToggleFollow();
+  const { toggleFollow } = useToggleFollow({ user: account });
   const { clickInfo, onCreateChatClick } = useCreateChat();
 
   const onMessageClick = (res: CurrentUserType) => {
-    onCreateChatClick(res);
+    onIsLogin(() => onCreateChatClick(res));
   };
-  const onClickFollowInfo = (res: []) => {
-    setFollowInfo(res);
+
+  const onClickFollow = (
+    res: FollowerType[] | FollowingType[],
+    type: string
+  ) => {
+    onIsLogin(() => {
+      onModalClick();
+      setFollowInfo(res);
+      setFollowCategory(type);
+    });
+  };
+
+  const onFollowClick = (dpName: string) => {
+    onIsLogin(() => toggleFollow(dpName));
   };
 
   return (
@@ -58,18 +73,14 @@ const DeskProfileActInfo = ({
                 </ProfileAct>
                 <ProfileAct
                   onClick={() => {
-                    onModalClick();
-                    onClickFollowInfo(account?.follower);
-                    setFollowCategory("팔로워");
+                    onClickFollow(account?.follower, "팔로워");
                   }}
                 >
                   팔로워 <em>{account?.follower.length}</em>
                 </ProfileAct>
                 <ProfileAct
                   onClick={() => {
-                    onModalClick();
-                    onClickFollowInfo(account?.following);
-                    setFollowCategory("팔로잉");
+                    onClickFollow(account?.following, "팔로잉");
                   }}
                 >
                   팔로잉 <em>{account?.following.length}</em>
@@ -88,7 +99,7 @@ const DeskProfileActInfo = ({
             ) : (
               <ActBtnBox>
                 <FollowBtnBox
-                  onClick={() => toggleFollow(account?.displayName)}
+                  onClick={() => onFollowClick(account?.displayName)}
                 >
                   {userObj?.following.filter((obj) =>
                     obj.displayName.includes(account.displayName)

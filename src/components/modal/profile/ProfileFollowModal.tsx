@@ -1,15 +1,13 @@
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
-import imageCompression from "browser-image-compression";
-import { doc, getDoc } from "firebase/firestore";
+import { DocumentData, doc, getDoc } from "firebase/firestore";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Point } from "react-easy-crop";
 import { BsPersonPlusFill } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { RootState } from "../../../app/store";
-import { CurrentUserType, UserType } from "../../../app/user";
+import { CurrentUserType } from "../../../app/user";
 import ColorList from "../../../assets/ColorList";
 import { Spinner } from "../../../assets/Spinner";
 import { dbService } from "../../../fbase";
@@ -44,7 +42,8 @@ const ProfileFollowModal = ({
   );
   const [account, setAccount] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { toggleFollow } = useToggleFollow();
+  const [clickIndex, setClickIndex] = useState(0);
+  const { toggleFollow } = useToggleFollow({ user: account[clickIndex] });
 
   // 계정 정보 가져오기 (병렬 처리 = 한 번에 가져오기 위함)
   useEffect(() => {
@@ -65,6 +64,11 @@ const ProfileFollowModal = ({
 
     promiseList();
   }, [followInfo]);
+
+  const onFollowClick = (dpName: string, index: number) => {
+    toggleFollow(dpName);
+    setClickIndex(index);
+  };
 
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
@@ -104,7 +108,8 @@ const ProfileFollowModal = ({
                       </ProfileInfoBox>
                       {res?.email !== userObj.email && (
                         <FollowBtnBox
-                          onClick={() => toggleFollow(res.displayName)}
+                          // onClick={() => toggleFollow(res.displayName)}
+                          onClick={() => onFollowClick(res.displayName, index)}
                         >
                           {userObj.following.filter((obj) =>
                             obj?.displayName?.includes(res?.displayName)

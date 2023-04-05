@@ -1,52 +1,33 @@
 import styled from "@emotion/styled";
-import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import ColorList from "../../assets/ColorList";
 import { FeedType } from "../../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import useToggleBookmark from "../../hooks/useToggleBookmark";
-import useToggleLike from "../../hooks/useToggleLike";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import HomeSkeleton from "../../assets/skeleton/HomeSkeleton";
-import { useEffect, useState } from "react";
-import FeedProfileImage from "./FeedProfileImage";
-import FeedProfileDisplayName from "./FeedProfileDisplayName";
+import { useState } from "react";
 import { MasonryGrid } from "@egjs/react-grid";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import useMediaScreen from "../../hooks/useMediaScreen";
-import { onSnapshot, doc } from "firebase/firestore";
-import { dbService } from "../../fbase";
+import FeedProfileInfo from "./FeedProfileInfo";
+import useUserAccount from "../../hooks/useUserAccount";
 
 type Props = {
   feed?: FeedType[];
   url?: string;
 };
 
-const FeedCategory = ({ url, feed }: Props) => {
-  const [myAccount, setMyAccount] = useState(null);
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
-  const [isGridRender, setIsGridRender] = useState(false);
-  const [isAuthModal, setIsAuthModal] = useState(false);
-  const { toggleLike } = useToggleLike(); // 좋아요 커스텀 훅
-  const { toggleBookmark } = useToggleBookmark(); // 좋아요 커스텀 훅
-  const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
-  const { isDesktop, isTablet, isMobile } = useMediaScreen();
+const FeedPost = ({ url, feed }: Props) => {
+  const { loginToken: userLogin } = useSelector((state: RootState) => {
+    return state.user;
+  });
 
-  // 계정 정보 가져오기
-  useEffect(() => {
-    const unsubcribe = onSnapshot(
-      doc(dbService, "users", userObj?.displayName),
-      (doc) => {
-        setMyAccount(doc.data());
-      }
-    );
-    return () => unsubcribe();
-  }, [userObj?.displayName]);
+  const [isGridRender, setIsGridRender] = useState(false);
+  const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
+  const { isMobile } = useMediaScreen();
+  const { isAuthModal, onAuthModal, setIsAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
 
   let checkSize: number;
   let checkAspect: number;
@@ -71,16 +52,6 @@ const FeedCategory = ({ url, feed }: Props) => {
     if (aspect === "3/4") {
       return (checkAspect = 132.8);
     }
-  };
-
-  const onLogState = () => {
-    if (!userLogin) {
-      setIsAuthModal(true);
-    }
-  };
-
-  const onAuthModal = () => {
-    setIsAuthModal((prev) => !prev);
   };
 
   return (
@@ -114,7 +85,7 @@ const FeedCategory = ({ url, feed }: Props) => {
                       render={isGridRender}
                       size={checkSize}
                       key={res.id}
-                      onClick={onLogState}
+                      onClick={() => onIsLogin(() => null)}
                     >
                       <Card
                         aspect={checkAspect}
@@ -139,45 +110,7 @@ const FeedCategory = ({ url, feed }: Props) => {
                         </CardImageBox>
                       </Card>
                       <UserBox>
-                        <UserInfoBox>
-                          <UserImageBox
-                            to={userLogin && `/profile/${res.displayName}/post`}
-                            state={res.displayName}
-                            onContextMenu={(e) => e.preventDefault()}
-                          >
-                            <FeedProfileImage displayName={res.displayName} />
-                          </UserImageBox>
-                          <UserNameBox
-                            to={userLogin && `/profile/${res.displayName}/post`}
-                          >
-                            <FeedProfileDisplayName
-                              displayName={res.displayName}
-                            />
-                          </UserNameBox>
-                          <UserReactBox>
-                            <UserIconBox>
-                              <UserIcon onClick={() => toggleLike(res)}>
-                                {userObj?.like?.filter((id) => id === res.id)
-                                  .length > 0 ? (
-                                  <FaHeart style={{ color: "#FF5673" }} />
-                                ) : (
-                                  <FaRegHeart />
-                                )}
-                              </UserIcon>
-                              {res.like.length > 0 && (
-                                <UserReactNum>{res.like.length}</UserReactNum>
-                              )}
-                            </UserIconBox>
-                            <UserIcon onClick={() => toggleBookmark(res.id)}>
-                              {userObj?.bookmark?.filter((id) => id === res.id)
-                                .length > 0 ? (
-                                <FaBookmark style={{ color: "#FF5673" }} />
-                              ) : (
-                                <FaRegBookmark />
-                              )}
-                            </UserIcon>
-                          </UserReactBox>
-                        </UserInfoBox>
+                        <FeedProfileInfo res={res} />
                         <UserText>{res.text}</UserText>
                         {res?.tag?.length !== 0 && (
                           <TagList>
@@ -219,7 +152,7 @@ const FeedCategory = ({ url, feed }: Props) => {
 
 {
 }
-export default FeedCategory;
+export default FeedPost;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 

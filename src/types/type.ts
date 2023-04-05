@@ -88,7 +88,18 @@ export interface replyType {
   displayName: string;
   text: string;
   time: number;
-  isRead: boolean;
+  // isRead: boolean;
+}
+
+export interface FollowerType {
+  displayName: string;
+  time: number;
+  isRead?: boolean;
+}
+
+export interface FollowingType {
+  displayName: string;
+  time: number;
 }
 
 export interface FeedType {
@@ -104,7 +115,7 @@ export interface FeedType {
     time: number;
     postId: string;
     email?: string;
-    isRead?: boolean;
+    // isRead?: boolean;
   }[];
   text: string;
   feel: string;
@@ -163,6 +174,7 @@ export interface NoticeArrType {
   time: number;
   isRead: boolean;
   postId?: string;
+  replyId?: string;
   text?: string;
   imgUrl?: string;
   profileURL?: string;

@@ -18,7 +18,7 @@ type Props = {
   url?: string;
 };
 
-const ExploreFeedCategory = ({ url, feed }: Props) => {
+const ExploreFeedPost = ({ url, feed }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
@@ -145,7 +145,7 @@ const ExploreFeedCategory = ({ url, feed }: Props) => {
 
 {
 }
-export default ExploreFeedCategory;
+export default ExploreFeedPost;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 

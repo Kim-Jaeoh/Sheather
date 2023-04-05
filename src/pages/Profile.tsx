@@ -4,7 +4,6 @@ import axios from "axios";
 import { onSnapshot, doc } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
-import {} from "react-icons/fi";
 import { MdGridOn } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
@@ -19,11 +18,10 @@ import { dbService } from "../fbase";
 import useInfinityScroll from "../hooks/useInfinityScroll";
 import useMediaScreen from "../hooks/useMediaScreen";
 import { FeedType } from "../types/type";
+import AuthFormModal from "../components/modal/auth/AuthFormModal";
+import useUserAccount from "../hooks/useUserAccount";
 
 const Profile = () => {
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
   const [selectCategory, setSelectCategory] = useState(0);
   const [post, setPost] = useState(null);
   const [notInfoText, setNotInfoText] = useState("");
@@ -63,18 +61,16 @@ const Profile = () => {
   }, [feedData, account?.email]);
 
   // 계정 정보 가져오기
-  // 팔로우 모달 -> 상대 프로필 이동 -> 팔로우 버튼을 누를 때마다 렌더링이 되며 본인 프로필과 상대의 프로필이 겹쳐 보였음
-  // => if문을 사용하여 본인 프로필이 아닐 경우에만 Firebase에서 타 계정 정보 받아오기
   useEffect(() => {
-    if (userObj.displayName !== id) {
-      const unsubcribe = onSnapshot(doc(dbService, "users", id), (doc) => {
-        setAccount(doc.data());
-      });
-      return () => unsubcribe();
-    } else {
-      setAccount(userObj);
-    }
-  }, [id, userObj]);
+    // if (userObj.displayName !== id) {
+    const unsubcribe = onSnapshot(doc(dbService, "users", id), (doc) => {
+      setAccount(doc.data());
+    });
+    return () => unsubcribe();
+    // } else {
+    //   setAccount(userObj);
+    // }
+  }, [id]);
 
   useEffect(() => {
     if (type === "post") {
@@ -90,11 +86,11 @@ const Profile = () => {
 
   useEffect(() => {
     if (selectCategory === 0) {
-      const recentFilter = feedArray?.pages
+      const postFilter = feedArray?.pages
         ?.flat()
         ?.filter((res) => res.email === account?.email)
         .sort((a, b) => b.createdAt - a.createdAt);
-      return setPost(recentFilter);
+      return setPost(postFilter);
     }
 
     if (selectCategory === 1) {
@@ -145,8 +141,14 @@ const Profile = () => {
     setEditModalOpen((prev) => !prev);
   };
 
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
+
   return (
     <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+      )}
       {account && (
         <Wrapper>
           {editModalOpen && (
@@ -178,6 +180,8 @@ const Profile = () => {
                 setFollowInfo={setFollowInfo}
                 setFollowCategory={setFollowCategory}
                 onEditModalClick={onEditModalClick}
+                onIsLogin={onIsLogin}
+                onLogOutClick={onLogOutClick}
               />
             ) : (
               <MobileProfileActInfo
@@ -187,6 +191,8 @@ const Profile = () => {
                 setFollowInfo={setFollowInfo}
                 setFollowCategory={setFollowCategory}
                 onEditModalClick={onEditModalClick}
+                onIsLogin={onIsLogin}
+                onLogOutClick={onLogOutClick}
               />
             )}
 

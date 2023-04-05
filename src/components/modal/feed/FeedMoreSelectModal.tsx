@@ -43,6 +43,11 @@ const RangeBox = styled.div`
   button:first-of-type {
     color: #ff5673;
   }
+
+  @media (max-width: 767px) {
+    border-width: 1px;
+    box-shadow: 8px 8px 0 -1px #ff5673, 8px 8px ${secondColor};
+  }
 `;
 
 const Container = styled.div`

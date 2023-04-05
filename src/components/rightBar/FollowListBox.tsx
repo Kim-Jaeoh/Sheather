@@ -21,6 +21,7 @@ import useToggleFollow from "../../hooks/useToggleFollow";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import { cloneDeep } from "lodash";
 import FollowListSkeleton from "../../assets/skeleton/FollowListSkeleton";
+import useUserAccount from "../../hooks/useUserAccount";
 
 type Props = {
   modalOpen?: boolean;
@@ -33,10 +34,12 @@ const FollowListBox = ({ modalOpen, modalClose }: Props) => {
       return state.user;
     }
   );
-  const [users, setUsers] = useState<CurrentUserType[] | DocumentData[]>([]);
+  const [users, setUsers] = useState([]);
+  const [clickIndex, setClickIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isAuthModal, setIsAuthModal] = useState(false);
-  const { toggleFollow } = useToggleFollow();
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
+  const { toggleFollow } = useToggleFollow({ user: users[clickIndex] });
 
   const usersArr = useRef([]);
 
@@ -87,24 +90,24 @@ const FollowListBox = ({ modalOpen, modalClose }: Props) => {
   };
 
   const onClick = () => {
-    if (!userLogin) {
-      setIsAuthModal(true);
-    }
     if (modalOpen) {
       modalClose();
     }
   };
 
-  const onAuthModal = () => {
-    setIsAuthModal((prev) => !prev);
+  const onFollowClick = (dpName: string, index: number) => {
+    onIsLogin(() => {
+      toggleFollow(dpName);
+      setClickIndex(index);
+    });
   };
 
   return (
     <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+      )}
       <Container>
-        {isAuthModal && (
-          <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
-        )}
         <CategoryBox>
           <Category>추천</Category>
           {users.length > 0 && (
@@ -115,12 +118,12 @@ const FollowListBox = ({ modalOpen, modalClose }: Props) => {
         </CategoryBox>
         <UserListBox>
           {isLoading ? (
-            users.map((res: any, index: number) => (
+            users.map((res, index) => (
               <UserList onClick={onClick} key={index}>
                 {index < 5 && (
                   <>
                     <User
-                      to={userLogin && `/profile/${res.displayName}/post`}
+                      to={`/profile/${res.displayName}/post`}
                       state={res.displayName}
                     >
                       <ProfileImageBox>
@@ -136,9 +139,7 @@ const FollowListBox = ({ modalOpen, modalClose }: Props) => {
                     </User>
                     {res?.email !== userObj.email && (
                       <FollowBtnBox
-                        onClick={() =>
-                          userLogin && toggleFollow(res.displayName)
-                        }
+                        onClick={() => onFollowClick(res.displayName, index)}
                       >
                         {userObj?.following?.filter((obj) =>
                           obj?.displayName?.includes(res?.displayName)
@@ -178,8 +179,8 @@ const Container = styled.article`
 
   @media (max-width: 956px) {
     max-height: auto;
-    padding: 20px;
-    margin-top: 0;
+    /* padding: 20px; */
+    margin-top: 0px;
     border: none;
     border-top: 1px solid ${fourthColor};
     border-radius: 0;
@@ -194,8 +195,10 @@ const CategoryBox = styled.div`
 
   @media (max-width: 956px) {
     padding: 0;
+    padding: 20px 20px 12px;
+    /* padding: 20px; */
+    /* margin-bottom: 12px; */
     width: 100%;
-    margin-bottom: 12px;
   }
 `;
 
@@ -230,7 +233,7 @@ const User = styled(Link)`
   gap: 12px;
   margin: 0;
   padding: 12px 16px;
-  height: 56px;
+  /* height: 56px; */
   transition: all 0.15s linear;
   cursor: pointer;
 
@@ -240,7 +243,7 @@ const User = styled(Link)`
   }
 
   @media (max-width: 956px) {
-    padding: 12px 0px;
+    padding: 16px 20px;
   }
 `;
 
@@ -302,7 +305,7 @@ const ProfileDesc = styled.p`
 const FollowBtnBox = styled.div`
   position: absolute;
   top: 50%;
-  right: 12px;
+  right: 20px;
   transform: translateY(-50%);
 `;
 

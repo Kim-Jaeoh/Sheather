@@ -3,14 +3,13 @@ import styled from "@emotion/styled";
 import { IoMdClose } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import ColorList from "../../../assets/ColorList";
 import { useEffect, useRef, useState } from "react";
-import TempClothes from "../../../assets/TempClothes";
 import { BsCheck, BsFillImageFill } from "react-icons/bs";
-import { BiCrop, BiLeftArrowAlt } from "react-icons/bi";
+import { BiLeftArrowAlt } from "react-icons/bi";
 import ShareImageCropper from "./ShareImageCropper";
-import { Area, Point } from "react-easy-crop/types";
+import { Point } from "react-easy-crop/types";
 import imageCompression from "browser-image-compression";
 import ShareWeatherCategory from "./ShareWeatherCategory";
 import axios from "axios";
@@ -19,13 +18,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import uuid from "react-uuid";
 import ShareWeatherForm from "./ShareWeatherForm";
-import { AspectRatio, FeedType, ImageType } from "../../../types/type";
+import { FeedType } from "../../../types/type";
 import Flicking from "@egjs/react-flicking";
-import getCroppedImg from "../../../assets/CropImage";
-import { getInitialCropFromCroppedAreaPercentages } from "react-easy-crop";
-import { cloneDeep } from "lodash";
-import { Spinner } from "../../../assets/Spinner";
-import useTagCurrentWear from "../../../hooks/useTagCurrentWear";
 
 type Props = {
   shareBtn: boolean;
@@ -57,7 +51,6 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   const shareWeatherData = useSelector((state: RootState) => {
     return state.weather;
   });
-  const { currentTags } = useTagCurrentWear();
   const { location } = useCurrentLocation();
   const queryClient = useQueryClient();
 

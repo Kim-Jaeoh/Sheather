@@ -9,6 +9,7 @@ import TagListSkeleton from "../../assets/skeleton/TagListSkeleton";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import AuthFormModal from "../modal/auth/AuthFormModal";
+import useUserAccount from "../../hooks/useUserAccount";
 
 interface Count {
   [key: string]: number;
@@ -25,7 +26,8 @@ const TagListBox = ({ modalOpen, modalClose }: Props) => {
       return state.user;
     }
   );
-  const [isAuthModal, setIsAuthModal] = useState(false);
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
 
   const feedApi = async () => {
     const { data } = await axios.get(
@@ -69,23 +71,13 @@ const TagListBox = ({ modalOpen, modalClose }: Props) => {
   }, [feedData]);
 
   const onClick = () => {
-    if (!userLogin) {
-      setIsAuthModal(true);
-    }
     if (modalOpen) {
       modalClose();
     }
   };
 
-  const onAuthModal = () => {
-    setIsAuthModal((prev) => !prev);
-  };
-
   return (
     <Container>
-      {isAuthModal && (
-        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
-      )}
       <CategoryBox>
         <Category>태그</Category>
         <AllClick to={`/explore/tag`} onClick={onClick}>
@@ -97,8 +89,8 @@ const TagListBox = ({ modalOpen, modalClose }: Props) => {
           <div key={res.name}>
             {index < 5 && (
               <TagList
+                to={`/explore/search?keyword=${res.name}`}
                 onClick={onClick}
-                to={userLogin && `/explore/search?keyword=${res.name}`}
               >
                 <TagRank>{index + 1}</TagRank>
                 <TagInfo>
@@ -129,7 +121,7 @@ const Container = styled.article`
 
   @media (max-width: 956px) {
     min-height: auto;
-    padding: 20px;
+    /* padding: 20px; */
     margin-top: 0;
     border: none;
     border-radius: 0;
@@ -143,8 +135,9 @@ const CategoryBox = styled.div`
   padding: 20px 20px 12px;
 
   @media (max-width: 956px) {
-    padding: 0;
-    margin-bottom: 12px;
+    padding: 20px 20px 12px;
+    /* padding: 20px; */
+    /* margin-bottom: 12px; */
   }
 `;
 
@@ -178,7 +171,8 @@ const TagList = styled(Link)`
   }
 
   @media (max-width: 956px) {
-    padding: 12px 0px;
+    padding: 16px 20px;
+    /* padding: 12px 0px; */
   }
 `;
 

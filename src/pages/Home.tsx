@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styled from "@emotion/styled";
-import FeedCategory from "../components/feed/FeedCategory";
+import FeedPost from "../components/feed/FeedPost";
 import SortFeedCategory from "../components/feed/SortFeedCategory";
 
 const Home = () => {
@@ -12,7 +12,7 @@ const Home = () => {
     <Container>
       <Box>
         <SortFeedCategory url={url} setUrl={setUrl} />
-        <FeedCategory url={url} />
+        <FeedPost url={url} />
       </Box>
     </Container>
   );
