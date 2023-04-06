@@ -60,6 +60,7 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
                       {myPost[index] ? (
                         <Link
                           onClick={() => onIsLogin(() => null)}
+                          onContextMenu={(e) => e.preventDefault()}
                           to={userLogin && `/feed/detail/${myPost[index].id}`}
                         >
                           <WeatherEmojiBox>
@@ -133,6 +134,7 @@ const Card = styled.li<{ exist?: boolean }>`
   position: relative;
   overflow: hidden;
   border: ${(props) => (props?.exist ? `2px solid ${secondColor}` : `none`)};
+  -webkit-user-drag: none;
 
   animation-name: slideUp;
   animation-duration: 0.3s;
@@ -175,6 +177,7 @@ const WeatherEmojiBox = styled.div`
   background-color: rgba(34, 34, 34, 0.4);
   border-radius: 10px;
   backdrop-filter: blur(5px);
+  -webkit-user-drag: none;
 `;
 
 const WeatherEmoji = styled.div`

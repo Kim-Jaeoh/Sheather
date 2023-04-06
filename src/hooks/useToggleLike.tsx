@@ -3,9 +3,9 @@ import axios from "axios";
 import { updateDoc, doc } from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/store";
-import { CurrentUserType, currentUser } from "../app/user";
+import { currentUser } from "../app/user";
 import { dbService } from "../fbase";
-import { FeedType } from "../types/type";
+import { CurrentUserType, FeedType } from "../types/type";
 
 type props = {
   user: CurrentUserType;

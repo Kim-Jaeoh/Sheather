@@ -1,13 +1,12 @@
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
-import { DocumentData, doc, getDoc } from "firebase/firestore";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { BsPersonPlusFill } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { RootState } from "../../../app/store";
-import { CurrentUserType } from "../../../app/user";
 import ColorList from "../../../assets/ColorList";
 import { Spinner } from "../../../assets/Spinner";
 import { dbService } from "../../../fbase";
@@ -94,6 +93,7 @@ const ProfileFollowModal = ({
                         onClick={modalClose}
                       >
                         <ProfileImage
+                          onContextMenu={(e) => e.preventDefault()}
                           src={res.profileURL}
                           alt="profile image"
                         />
@@ -281,17 +281,6 @@ const ProfileName = styled.p`
   font-size: 14px;
   margin-top: 4px;
   color: ${thirdColor};
-`;
-
-const ProfileDesc = styled.p`
-  font-size: 14px;
-  margin-top: 6px;
-  white-space: pre-wrap;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
 `;
 
 const FollowBtnBox = styled.div``;

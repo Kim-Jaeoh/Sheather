@@ -10,6 +10,8 @@ import { onSnapshot, doc } from "firebase/firestore";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import { dbService } from "../fbase";
+import { ReactComponent as SheatherLogo } from "../assets/sheather_logo.svg";
+import { Link } from "react-router-dom";
 
 type Props = {};
 
@@ -55,7 +57,10 @@ const MobileHeader = (props: Props) => {
         <NoticeModal modalOpen={isNoticeModal} modalClose={onNoticeModal} />
       )}
       <Header>
-        <LogoBox>SHEATHER</LogoBox>
+        <LogoBox to="/">
+          {/* SHEATHER */}
+          <SheatherLogo width="100%" height="100%" />
+        </LogoBox>
         <IconBox>
           <Icon type="button" onClick={onSearchModal}>
             <FiSearch />
@@ -91,9 +96,13 @@ const Header = styled.header`
   border-bottom: 1px solid ${secondColor};
 `;
 
-const LogoBox = styled.div``;
-
-const Logo = styled.img``;
+const LogoBox = styled(Link)`
+  display: flex;
+  align-items: center;
+  width: 110px;
+  overflow: hidden;
+  cursor: pointer;
+`;
 
 const IconBox = styled.div`
   display: flex;

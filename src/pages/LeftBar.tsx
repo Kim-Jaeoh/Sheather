@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { AiOutlineHome } from "react-icons/ai";
 import {
   BsChatDots,
@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import useCurrentLocation from "../hooks/useCurrentLocation";
 import {
+  CurrentUserType,
   listType,
   MessageType,
   NoticeArrType,
@@ -23,22 +24,18 @@ import {
 } from "../types/type";
 import ShareWeatherModal from "../components/modal/shareWeather/ShareWeatherModal";
 import { shareWeather } from "../app/weather";
-import {
-  onSnapshot,
-  doc,
-  collection,
-  query,
-  updateDoc,
-} from "firebase/firestore";
-import { currentUser, CurrentUserType } from "../app/user";
+import { onSnapshot, doc, collection, query } from "firebase/firestore";
+import { currentUser } from "../app/user";
 import { dbService } from "../fbase";
 import useMediaScreen from "../hooks/useMediaScreen";
 import ColorList from "../assets/ColorList";
 import { SlBell } from "react-icons/sl";
+import { FiSearch } from "react-icons/fi";
 import NoticeModal from "../components/modal/notice/NoticeModal";
 import SearchModal from "../components/modal/search/SearchModal";
-import { FiSearch } from "react-icons/fi";
-import useNoticeCheck from "../hooks/useNoticeCheck";
+import useUserAccount from "../hooks/useUserAccount";
+import { ReactComponent as SheatherLogo } from "../assets/sheather_logo.svg";
+import { ReactComponent as SheatherLogoSmall } from "../assets/sheather_logo_s.svg";
 
 type MenuFuncgionType = {
   [key: string]: () => void;
@@ -50,7 +47,6 @@ const LeftBar = () => {
       return state.user;
     }
   );
-  const [isAuthModal, setIsAuthModal] = useState(false);
   const [selectMenu, setSelectMenu] = useState("feed");
   const [myAccount, setMyAccount] = useState(null);
   const [users, setUsers] = useState([]);
@@ -60,9 +56,10 @@ const LeftBar = () => {
   const [isNoticeModal, setIsNoticeModal] = useState(false);
   const { pathname } = useLocation();
   const dispatch = useDispatch();
-  const { result: noticeCheck } = useNoticeCheck();
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
   const { location } = useCurrentLocation();
-  const { isMobile, RightBarNone } = useMediaScreen();
+  const { isMobile, isTablet, RightBarNone } = useMediaScreen();
 
   const nowWeatherApi = async () =>
     await axios.get(
@@ -162,11 +159,7 @@ const LeftBar = () => {
 
   // 로그인 유무
   const isLogin = (callback: () => void) => {
-    if (!userLogin) {
-      setIsAuthModal((prev) => !prev);
-    } else {
-      callback();
-    }
+    onIsLogin(() => callback());
   };
 
   // // 방법 1. 버튼 클릭
@@ -233,7 +226,15 @@ const LeftBar = () => {
       )}
       <Container>
         <MenuBox pathname={pathname}>
-          <LogoBox>SHEATHER</LogoBox>
+          {!isMobile && (
+            <LogoBox to="/">
+              {!isTablet ? (
+                <SheatherLogo width="100%" height="100%" />
+              ) : (
+                <SheatherLogoSmall width="100%" height="100%" />
+              )}
+            </LogoBox>
+          )}
           <MenuLink
             style={{ order: 0 }}
             menu={selectMenu}
@@ -378,7 +379,7 @@ const Container = styled.section`
   top: 0;
   background: #fff;
   user-select: none;
-  padding: 0 30px;
+  padding: 30px;
   border: 2px solid ${secondColor};
   border-right: none;
   border-radius: 40px 0 0 40px;
@@ -387,54 +388,38 @@ const Container = styled.section`
     width: 220px;
   }
 
-  @media (max-width: 1059px) {
+  @media (min-width: 768px) and (max-width: 1059px) {
+    padding: 0;
     h2 {
       display: none;
-    }
-
-    a,
-    button {
-      width: auto;
-      li {
-        padding: 10px;
-        box-shadow: none;
-      }
-      &:hover li:hover,
-      &:active li:active {
-        box-shadow: none;
-      }
     }
   }
 
   @media (max-width: 767px) {
     width: 100%;
     height: 60px;
+    display: flex;
+    align-items: center;
     position: fixed;
     top: unset;
     bottom: 0;
     left: 0;
     right: 0;
     border-radius: 0;
+    padding: 0 30px;
     border: 0;
     border-top: 1px solid ${secondColor};
     z-index: 100;
+
+    h2 {
+      display: none;
+    }
 
     nav {
       flex-direction: row;
       justify-content: space-evenly;
       > div:first-of-type {
         display: none;
-      }
-    }
-
-    a,
-    button {
-      li {
-        border: none;
-      }
-      &:hover li:hover,
-      &:active li:active {
-        border: none;
       }
     }
   }
@@ -447,15 +432,21 @@ const MenuBox = styled.nav<{ pathname: string }>`
   align-items: center;
 `;
 
-const LogoBox = styled.div`
+const LogoBox = styled(Link)`
   display: flex;
   align-items: center;
-  line-height: auto;
-  width: 100%;
-  height: 92px;
-  font-size: 24px;
-  font-weight: bold;
-  padding: 20px;
+  width: 150px;
+  /* height: 92px; */
+  margin-bottom: 30px;
+  overflow: hidden;
+  cursor: pointer;
+  /* padding: 20px; */
+
+  @media (min-width: 768px) and (max-width: 1059px) {
+    width: 34px;
+    margin-bottom: 0;
+    padding: 28px 0 14px;
+  }
 `;
 
 const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
@@ -470,7 +461,9 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
   li {
     font-weight: ${(props) => (props.cat === props.menu ? "bold" : "normal")};
     border: ${(props) =>
-      props.cat === props.menu ? "2px solid #222222" : "2px solid transparent"};
+      props.cat === props.menu
+        ? `2px solid ${secondColor}`
+        : "2px solid transparent"};
     box-shadow: ${(props) =>
       props.cat === props.menu
         ? `0px 6px 0 -2px ${props.color}, 0px 6px #222`
@@ -479,8 +472,48 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
 
   &:hover li:hover,
   &:active li:active {
-    border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px #222222;
+    border: 2px solid ${secondColor};
+    box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px ${secondColor};
+  }
+
+  @media (max-width: 1059px) {
+    width: auto;
+    height: 60px;
+
+    li {
+      padding: 10px;
+      position: relative;
+      box-shadow: none;
+      border: none;
+      &::after {
+        display: ${(props) => (props.cat === props.menu ? "block" : "none")};
+        content: "";
+        width: 20px;
+        height: 2px;
+        position: absolute;
+        background: ${secondColor};
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+      }
+    }
+    &:hover li:hover,
+    &:active li:active {
+      border: none;
+      box-shadow: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    li {
+      padding: 16px 10px;
+      margin: 0;
+      border: none;
+    }
+    &:hover li:hover,
+    &:active li:active {
+      border: none;
+    }
   }
 `;
 
@@ -497,16 +530,59 @@ const MenuBtn = styled.button<{ cat: string; menu: string; color: string }>`
   li {
     font-weight: ${(props) => (props.cat === props.menu ? "bold" : "normal")};
     border: ${(props) =>
-      props.cat === props.menu ? "2px solid #222222" : "2px solid transparent"};
+      props.cat === props.menu
+        ? `2px solid ${secondColor}`
+        : "2px solid transparent"};
     box-shadow: ${(props) =>
       props.cat === props.menu
         ? `0px 6px 0 -2px ${props.color}, 0px 6px #222`
         : "0"};
   }
+
   &:hover li:hover,
   &:active li:active {
-    border: 2px solid #222222;
-    box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px #222222;
+    border: 2px solid ${secondColor};
+    box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px ${secondColor};
+  }
+
+  @media (max-width: 1059px) {
+    width: auto;
+    height: 60px;
+
+    li {
+      padding: 10px;
+      position: relative;
+      box-shadow: none;
+      border: none;
+    }
+    &:hover li:hover,
+    &:active li:active {
+      &::after {
+        display: ${(props) => (props.cat === props.menu ? "block" : "none")};
+        content: "";
+        width: 20px;
+        height: 2px;
+        position: absolute;
+        background: ${secondColor};
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+      }
+      border: none;
+      box-shadow: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    li {
+      padding: 16px 10px;
+      margin: 0;
+      border: none;
+    }
+    &:hover li:hover,
+    &:active li:active {
+      border: none;
+    }
   }
 `;
 
@@ -557,7 +633,7 @@ const NoticeBox = styled.div`
 
   @media (max-width: 1059px) {
     position: absolute;
-    top: 0;
+    top: 2px;
     left: 50%;
     transform: translateX(-50%);
     width: 6px;

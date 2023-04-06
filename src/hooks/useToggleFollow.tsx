@@ -1,8 +1,9 @@
 import { updateDoc, doc } from "firebase/firestore";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store";
-import { CurrentUserType, currentUser } from "../app/user";
+import { currentUser } from "../app/user";
 import { dbService } from "../fbase";
+import { CurrentUserType } from "../types/type";
 
 type props = {
   user: CurrentUserType;

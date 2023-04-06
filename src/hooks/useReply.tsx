@@ -1,9 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ReplyPayload } from "../components/feed/detail/DetailFeedReplyBox";
-import { FeedType, replyType } from "../types/type";
-import { CurrentUserType } from "../app/user";
+import { CurrentUserType, FeedType, replyType } from "../types/type";
 import { dbService } from "../fbase";
 import { updateDoc, doc } from "firebase/firestore";
 

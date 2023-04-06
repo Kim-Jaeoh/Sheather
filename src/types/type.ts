@@ -81,6 +81,34 @@ export interface ResDataType {
   wind?: { speed: number };
 }
 
+export interface CurrentUserType {
+  uid: string;
+  createdAt: number;
+  email: string;
+  profileURL: string;
+  displayName: string;
+  name: string;
+  description: string;
+  bookmark: string[];
+  like: string[];
+  follower: FollowerType[];
+  following: FollowingType[];
+  notice: NoticeArrType[];
+  message?: {
+    id: string;
+    user: string;
+    isRead?: boolean;
+  }[];
+  tag?: string[];
+}
+
+export interface UserType {
+  loginToken?: boolean;
+  currentUser: CurrentUserType;
+  newMessage?: boolean;
+  newNotice?: boolean;
+}
+
 export interface replyType {
   postId: string;
   replyId: string;

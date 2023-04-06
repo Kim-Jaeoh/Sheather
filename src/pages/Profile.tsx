@@ -5,9 +5,7 @@ import { onSnapshot, doc } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { MdGridOn } from "react-icons/md";
-import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { RootState } from "../app/store";
 import ColorList from "../assets/ColorList";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
@@ -28,7 +26,7 @@ const Profile = () => {
   const [account, setAccount] = useState(null);
   const [followInfo, setFollowInfo] = useState(null);
   const [followCategory, setFollowCategory] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
+  const [followModalOpen, setFollowModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const { id, "*": type } = useParams();
   const {
@@ -40,6 +38,8 @@ const Profile = () => {
     count: 9,
   });
   const { isMobile } = useMediaScreen();
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
 
   const feedApi = async () => {
     const { data } = await axios.get(
@@ -62,14 +62,10 @@ const Profile = () => {
 
   // 계정 정보 가져오기
   useEffect(() => {
-    // if (userObj.displayName !== id) {
     const unsubcribe = onSnapshot(doc(dbService, "users", id), (doc) => {
       setAccount(doc.data());
     });
     return () => unsubcribe();
-    // } else {
-    //   setAccount(userObj);
-    // }
   }, [id]);
 
   useEffect(() => {
@@ -134,15 +130,12 @@ const Profile = () => {
   }, [myPost?.length, selectCategory]);
 
   const onModalClick = () => {
-    setModalOpen((prev) => !prev);
+    setFollowModalOpen((prev) => !prev);
   };
 
   const onEditModalClick = () => {
     setEditModalOpen((prev) => !prev);
   };
-
-  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
 
   return (
     <>
@@ -157,10 +150,10 @@ const Profile = () => {
               modalClose={onEditModalClick}
             />
           )}
-          {modalOpen && (
+          {followModalOpen && (
             <ProfileFollowModal
               accountName={account?.displayName}
-              modalOpen={modalOpen}
+              modalOpen={followModalOpen}
               followInfo={followInfo}
               followLength={
                 followCategory === "팔로워"

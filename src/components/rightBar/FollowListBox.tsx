@@ -1,22 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { FeedType } from "../../types/type";
-import axios from "axios";
-import TagListSkeleton from "../../assets/skeleton/TagListSkeleton";
-import {
-  query,
-  collection,
-  where,
-  getDocs,
-  DocumentData,
-} from "firebase/firestore";
+import { query, collection, getDocs, DocumentData } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import { CurrentUserType } from "../../app/user";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import { cloneDeep } from "lodash";
@@ -128,6 +117,7 @@ const FollowListBox = ({ modalOpen, modalClose }: Props) => {
                     >
                       <ProfileImageBox>
                         <ProfileImage
+                          onContextMenu={(e) => e.preventDefault()}
                           src={res.profileURL}
                           alt="profile image"
                         />

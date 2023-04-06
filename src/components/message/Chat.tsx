@@ -12,18 +12,15 @@ import {
 } from "firebase/firestore";
 import ColorList from "../../assets/ColorList";
 import moment from "moment";
-import { currentUser, CurrentUserType } from "../../app/user";
+import { currentUser } from "../../app/user";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useHandleResizeTextArea } from "../../hooks/useHandleResizeTextArea";
 import Emoji from "../../assets/Emoji";
-import { listType, MessageType } from "../../types/type";
+import { CurrentUserType, listType, MessageType } from "../../types/type";
 import { useDispatch } from "react-redux";
-import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-hot-toast";
-import useCreateChat from "../../hooks/useCreateChat";
 import { IoIosArrowBack } from "react-icons/io";
 import useMediaScreen from "../../hooks/useMediaScreen";
-import { TbTrashX } from "react-icons/tb";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 interface Props {
@@ -32,16 +29,17 @@ interface Props {
   setClickInfo: React.Dispatch<React.SetStateAction<CurrentUserType>>;
 }
 
-// interface SortMessageType {
-//   [key: string]: MessageType[];
-// }
+interface DayType {
+  createdAt: number;
+  day: string;
+}
 
 const Chat = ({ userObj, users, setClickInfo }: Props) => {
   const [messages, setMessages] = useState(null);
   const [sortMessages, setSortMessages] = useState<
     Array<[string, MessageType[]]>
   >([]);
-  const [day, setDay] = useState([]);
+  const [day, setDay] = useState<DayType[]>([]);
   const [text, setText] = useState("");
   const [messageCollection, setMessageCollection] = useState(null);
   const containerRef = useRef<HTMLDivElement>();
@@ -50,8 +48,7 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
   const dispatch = useDispatch();
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const navigate = useNavigate();
-  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
-    useMediaScreen();
+  const { isMobile } = useMediaScreen();
 
   const dayArr: { [key: number]: string } = {
     0: `일`,
@@ -122,12 +119,12 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
             }
 
             // 요일 구하기
-            const transDay = moment(chat.createdAt).format("YYYY-MM-DD");
-            const getDay = dayArr[moment(transDay).day()];
+            const getDay = dayArr[moment(chat.createdAt).day()];
+
             // 중복 체크
-            setDay((prev: string[]) => {
-              if (!prev.some((day) => day === getDay)) {
-                return [...prev, getDay];
+            setDay((prev) => {
+              if (!prev.some((res) => res.createdAt === chat.createdAt)) {
+                return [...prev, { createdAt: chat.createdAt, day: getDay }];
               } else {
                 return prev;
               }
@@ -315,7 +312,11 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
         </IconBox>
         <ProfileInfoBox>
           <ProfileImageBox to={`/profile/${users?.displayName}/post`}>
-            <ProfileImage src={users?.profileURL} alt="profile image" />
+            <ProfileImage
+              onContextMenu={(e) => e.preventDefault()}
+              src={users?.profileURL}
+              alt="profile image"
+            />
           </ProfileImageBox>
           <ProfileInfo>
             <ProfileDsName>{users?.displayName}</ProfileDsName>
@@ -323,7 +324,6 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
           </ProfileInfo>
         </ProfileInfoBox>
         <DeleteChatBtn type="button" onClick={onChatDelete}>
-          {/* <TbTrashX /> */}
           <RiDeleteBin6Line />
         </DeleteChatBtn>
       </Category>
@@ -333,7 +333,7 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
             return (
               <GroupMessage key={arr[0]}>
                 <GroupDateBox>
-                  <GroupDate>{`${arr[0]} ${day[index]}요일`}</GroupDate>
+                  <GroupDate>{`${arr[0]} ${day[index].day}요일`}</GroupDate>
                 </GroupDateBox>
                 {arr[1]?.map((res: MessageType, index: number) => {
                   const isMine = res?.displayName === userObj.displayName;
@@ -344,6 +344,7 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
                           to={`/profile/${res?.displayName}/post`}
                         >
                           <ProfileImage
+                            onContextMenu={(e) => e.preventDefault()}
                             src={users?.profileURL}
                             alt="profile image"
                           />

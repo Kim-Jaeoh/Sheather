@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import { BsPersonPlusFill } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
 import { Link } from "react-router-dom";
-import { CurrentUserType } from "../../../app/user";
 import ColorList from "../../../assets/ColorList";
 import { Spinner } from "../../../assets/Spinner";
 import { dbService } from "../../../fbase";
 import useCreateChat from "../../../hooks/useCreateChat";
+import { CurrentUserType } from "../../../types/type";
 
 type Props = {
   modalOpen: boolean;

@@ -110,14 +110,15 @@ const FollowCategoryList = () => {
                     state={res.displayName}
                   >
                     <ProfileImageBox>
-                      <ProfileImage src={res.profileURL} alt="profile image" />
+                      <ProfileImage
+                        onContextMenu={(e) => e.preventDefault()}
+                        src={res.profileURL}
+                        alt="profile image"
+                      />
                     </ProfileImageBox>
                     <ProfileInfoBox>
                       <ProfileDsName>{res.displayName}</ProfileDsName>
                       {res.name && <ProfileName>{res.name}</ProfileName>}
-                      {/* {res.description && (
-                          <ProfileName>{res.description}</ProfileName>
-                        )} */}
                     </ProfileInfoBox>
                   </User>
                   {res?.email !== userObj.email && (

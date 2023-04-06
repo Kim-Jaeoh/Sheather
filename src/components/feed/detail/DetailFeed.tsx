@@ -11,7 +11,6 @@ import { RootState } from "../../../app/store";
 import FeedEditModal from "../../modal/feed/FeedEditModal";
 import toast from "react-hot-toast";
 import FeedMoreSelectModal from "../../modal/feed/FeedMoreSelectModal";
-import AuthFormModal from "../../modal/auth/AuthFormModal";
 import DetailFeedCategory from "./DetailFeedCategory";
 import { doc, onSnapshot } from "firebase/firestore";
 import { dbService } from "../../../fbase";
@@ -19,7 +18,6 @@ import DetailFeedHeader from "./DetailFeedHeader";
 import DetailFeedReplyBox from "./DetailFeedReplyBox";
 import DetailFeedImage from "./DetailFeedImage";
 import DetailFeedInfo from "./DetailFeedInfo";
-import { CurrentUserType } from "../../../app/user";
 import useUserAccount from "../../../hooks/useUserAccount";
 
 const DetailFeed = () => {

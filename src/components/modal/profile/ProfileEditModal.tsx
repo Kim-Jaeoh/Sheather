@@ -5,31 +5,23 @@ import { updateProfile } from "firebase/auth";
 import {
   onSnapshot,
   doc,
-  getDoc,
   updateDoc,
   collection,
-  orderBy,
   query,
 } from "firebase/firestore";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Point } from "react-easy-crop/types";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { BiLeftArrowAlt } from "react-icons/bi";
-import { BsCamera, BsPersonPlusFill } from "react-icons/bs";
-import { HiOutlineCamera } from "react-icons/hi";
-import { IoMdClose } from "react-icons/io";
 import { TbCamera } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { text } from "stream/consumers";
+import { useNavigate } from "react-router-dom";
 import { RootState } from "../../../app/store";
-import { currentUser, UserType } from "../../../app/user";
+import { currentUser } from "../../../app/user";
 import ColorList from "../../../assets/ColorList";
 import getCroppedImg from "../../../assets/CropImage";
 import { Spinner } from "../../../assets/Spinner";
 import { authService, dbService } from "../../../fbase";
-import useToggleFollow from "../../../hooks/useToggleFollow";
-import { ImageType } from "../../../types/type";
 import ProfileImageCropper from "./ProfileImageCropper";
 
 type Props = {
@@ -225,127 +217,123 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
 
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={false}>
-      <>
-        <Container onSubmit={onSubmit}>
-          <Header>
-            <IconBox onClick={onPrevClick}>
-              <BiLeftArrowAlt />
-            </IconBox>
-            <Category>내 정보 수정</Category>
-            {isImage ? (
-              <EditBtn type="button" onClick={onCrop}>
-                <EditTextEng>CROP</EditTextEng>
-              </EditBtn>
-            ) : (
-              <EditBtn
-                type="submit"
-                disabled={
-                  userObj.name === name &&
-                  userObj.displayName === displayName &&
-                  userObj.description === description &&
-                  profileURL.croppedImageUrl == null
-                }
-              >
-                <EditText>수정 완료</EditText>
-              </EditBtn>
-            )}
-          </Header>
+      <Container onSubmit={onSubmit}>
+        <Header>
+          <IconBox onClick={onPrevClick}>
+            <BiLeftArrowAlt />
+          </IconBox>
+          <Category>내 정보 수정</Category>
           {isImage ? (
-            <ProfileImageCropper
-              previewImage={previewImage}
-              zoom={zoom}
-              crop={crop}
-              setZoom={setZoom}
-              setCrop={setCrop}
-              setCroppedAreaPixels={setCroppedAreaPixels}
-            />
+            <EditBtn type="button" onClick={onCrop}>
+              <EditTextEng>CROP</EditTextEng>
+            </EditBtn>
           ) : (
-            <UserListBox>
-              {userObj.profileURL ? (
-                <UserList>
-                  <ProfileImagesBox htmlFor="attach-file">
-                    <ProfileImageBox>
-                      <ProfileImage
-                        src={
-                          profileURL.croppedImageUrl
-                            ? profileURL.croppedImageUrl
-                            : profileURL.imageUrl
-                        }
-                        alt="profile image"
-                      />
-                    </ProfileImageBox>
-                    <ProfileImageIcon>
-                      <TbCamera />
-                    </ProfileImageIcon>
-                    <InputImage
-                      id="attach-file"
-                      accept="image/*"
-                      type="file"
-                      onChange={onFileChange}
-                    />
-                  </ProfileImagesBox>
-                  <ProfileInfoBox>
-                    <ProfileInfo>
-                      <ProfileCategory htmlFor="name">이름</ProfileCategory>
-                      <ProfileName
-                        type="text"
-                        id="name"
-                        value={name}
-                        maxLength={20}
-                        onChange={onChangeName}
-                        focus={focusName}
-                        onFocus={() => setFocusName(true)}
-                        onBlur={() => setFocusName(false)}
-                        placeholder="이름"
-                      />
-                    </ProfileInfo>
-                    <ProfileInfo>
-                      <ProfileCategory htmlFor="dpName">
-                        사용자 이름
-                      </ProfileCategory>
-                      <ProfileName
-                        type="text"
-                        id="dpName"
-                        value={displayName}
-                        onChange={onChangeDsName}
-                        focus={focusDsName}
-                        onFocus={() => setFocusDsName(true)}
-                        onBlur={() => setFocusDsName(false)}
-                        placeholder="사용자 이름"
-                      />
-                    </ProfileInfo>
-                    <ProfileInfo>
-                      <ProfileCategory htmlFor="desc">
-                        자기 소개
-                      </ProfileCategory>
-                      <ProfileDesc
-                        spellCheck="false"
-                        id="desc"
-                        maxLength={120}
-                        value={description}
-                        onChange={onChangeDesc}
-                        focus={focusDesc}
-                        onFocus={() => setFocusDesc(true)}
-                        onBlur={() => setFocusDesc(false)}
-                        ref={textRef}
-                        placeholder="자기소개를 입력해 주세요"
-                      />
-                      <TextAreaLength>
-                        <TextAreaLengthColor>
-                          {description.trim().length}
-                        </TextAreaLengthColor>
-                        /120
-                      </TextAreaLength>
-                    </ProfileInfo>
-                  </ProfileInfoBox>
-                </UserList>
-              ) : (
-                <Spinner />
-              )}
-            </UserListBox>
+            <EditBtn
+              type="submit"
+              disabled={
+                userObj.name === name &&
+                userObj.displayName === displayName &&
+                userObj.description === description &&
+                profileURL.croppedImageUrl == null
+              }
+            >
+              <EditText>수정 완료</EditText>
+            </EditBtn>
           )}
-        </Container>
-      </>
+        </Header>
+        {isImage ? (
+          <ProfileImageCropper
+            previewImage={previewImage}
+            zoom={zoom}
+            crop={crop}
+            setZoom={setZoom}
+            setCrop={setCrop}
+            setCroppedAreaPixels={setCroppedAreaPixels}
+          />
+        ) : (
+          <UserListBox>
+            {userObj.profileURL ? (
+              <UserList>
+                <ProfileImagesBox htmlFor="attach-file">
+                  <ProfileImageBox>
+                    <ProfileImage
+                      src={
+                        profileURL.croppedImageUrl
+                          ? profileURL.croppedImageUrl
+                          : profileURL.imageUrl
+                      }
+                      alt="profile image"
+                    />
+                  </ProfileImageBox>
+                  <ProfileImageIcon>
+                    <TbCamera />
+                  </ProfileImageIcon>
+                  <InputImage
+                    id="attach-file"
+                    accept="image/*"
+                    type="file"
+                    onChange={onFileChange}
+                  />
+                </ProfileImagesBox>
+                <ProfileInfoBox>
+                  <ProfileInfo>
+                    <ProfileCategory htmlFor="name">이름</ProfileCategory>
+                    <ProfileName
+                      type="text"
+                      id="name"
+                      value={name}
+                      maxLength={20}
+                      onChange={onChangeName}
+                      focus={focusName}
+                      onFocus={() => setFocusName(true)}
+                      onBlur={() => setFocusName(false)}
+                      placeholder="이름"
+                    />
+                  </ProfileInfo>
+                  <ProfileInfo>
+                    <ProfileCategory htmlFor="dpName">
+                      사용자 이름
+                    </ProfileCategory>
+                    <ProfileName
+                      type="text"
+                      id="dpName"
+                      value={displayName}
+                      onChange={onChangeDsName}
+                      focus={focusDsName}
+                      onFocus={() => setFocusDsName(true)}
+                      onBlur={() => setFocusDsName(false)}
+                      placeholder="사용자 이름"
+                    />
+                  </ProfileInfo>
+                  <ProfileInfo>
+                    <ProfileCategory htmlFor="desc">자기 소개</ProfileCategory>
+                    <ProfileDesc
+                      spellCheck="false"
+                      id="desc"
+                      maxLength={120}
+                      value={description}
+                      onChange={onChangeDesc}
+                      focus={focusDesc}
+                      onFocus={() => setFocusDesc(true)}
+                      onBlur={() => setFocusDesc(false)}
+                      ref={textRef}
+                      placeholder="자기소개를 입력해 주세요"
+                    />
+                    <TextAreaLength>
+                      <TextAreaLengthColor>
+                        {description.trim().length}
+                      </TextAreaLengthColor>
+                      /120
+                    </TextAreaLength>
+                  </ProfileInfo>
+                </ProfileInfoBox>
+              </UserList>
+            ) : (
+              <Spinner />
+            )}
+          </UserListBox>
+        )}
+      </Container>
     </Modal>
   );
 };

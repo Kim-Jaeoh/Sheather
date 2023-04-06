@@ -6,7 +6,6 @@ import { BsChatDots } from "react-icons/bs";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RootState } from "../app/store";
-import { CurrentUserType } from "../app/user";
 import ColorList from "../assets/ColorList";
 import MessageUserSkeleton from "../assets/skeleton/MessageUserSkeleton";
 import Chat from "../components/message/Chat";
@@ -14,6 +13,7 @@ import AddChatUserModal from "../components/modal/message/AddChatUserModal";
 import { dbService } from "../fbase";
 import useCreateChat from "../hooks/useCreateChat";
 import useMediaScreen from "../hooks/useMediaScreen";
+import { CurrentUserType } from "../types/type";
 
 type Props = {};
 
@@ -90,6 +90,7 @@ const Message = (props: Props) => {
                     >
                       <ProfileImageBox>
                         <ProfileImage
+                          onContextMenu={(e) => e.preventDefault()}
                           src={res?.profileURL}
                           alt="profile image"
                         />

@@ -88,6 +88,7 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
                         onClick={modalClose}
                       >
                         <ProfileImage
+                          onContextMenu={(e) => e.preventDefault()}
                           src={res.profileURL}
                           alt="profile image"
                         />
@@ -113,7 +114,10 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
                           state={{ id: res.postId }}
                           onClick={modalClose}
                         >
-                          <NoticeImage src={res.imgUrl} />
+                          <NoticeImage
+                            onContextMenu={(e) => e.preventDefault()}
+                            src={res.imgUrl}
+                          />
                         </NoticeImageBox>
                       )}
                     </UserList>

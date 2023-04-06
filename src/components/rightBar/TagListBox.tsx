@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/ColorList";
 import { useQuery } from "@tanstack/react-query";
@@ -6,10 +6,6 @@ import { Link } from "react-router-dom";
 import { FeedType } from "../../types/type";
 import axios from "axios";
 import TagListSkeleton from "../../assets/skeleton/TagListSkeleton";
-import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
-import AuthFormModal from "../modal/auth/AuthFormModal";
-import useUserAccount from "../../hooks/useUserAccount";
 
 interface Count {
   [key: string]: number;
@@ -21,14 +17,6 @@ type Props = {
 };
 
 const TagListBox = ({ modalOpen, modalClose }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
-  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
-
   const feedApi = async () => {
     const { data } = await axios.get(
       `${process.env.REACT_APP_SERVER_PORT}/api/feed`

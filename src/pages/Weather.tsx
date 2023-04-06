@@ -178,6 +178,7 @@ const Container = styled.main`
   overflow: hidden;
   height: 100%;
   border-top: 2px solid ${secondColor};
+  border-bottom: 2px solid ${secondColor};
   background: #48a3ff;
 
   @media (max-width: 767px) {

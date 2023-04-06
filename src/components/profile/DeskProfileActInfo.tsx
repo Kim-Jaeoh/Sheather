@@ -1,13 +1,12 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { CurrentUserType } from "../../app/user";
 import ColorList from "../../assets/ColorList";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useCreateChat from "../../hooks/useCreateChat";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import { FiLogOut } from "react-icons/fi";
-import { FollowerType, FollowingType } from "../../types/type";
+import { CurrentUserType, FollowerType, FollowingType } from "../../types/type";
 
 type Props = {
   myPost: number;
@@ -61,7 +60,11 @@ const DeskProfileActInfo = ({
     <>
       <ProfileBox>
         <ProfileImageBox>
-          <ProfileImage src={account?.profileURL} alt="profile image" />
+          <ProfileImage
+            onContextMenu={(e) => e.preventDefault()}
+            src={account?.profileURL}
+            alt="profile image"
+          />
         </ProfileImageBox>
         <ProfileDetailBox>
           <ProfileDetail>

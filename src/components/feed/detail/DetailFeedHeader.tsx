@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/ColorList";
 import { onSnapshot, doc } from "firebase/firestore";
-import { CurrentUserType } from "../../../app/user";
 import { dbService } from "../../../fbase";
-import { FeedType } from "../../../types/type";
+import { CurrentUserType, FeedType } from "../../../types/type";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import useToggleFollow from "../../../hooks/useToggleFollow";
@@ -36,7 +35,11 @@ const DetailFeedHeader = ({ userObj, res, onMoreClick }: Props) => {
       <UserInfoBox>
         <UserImageBox to={`/profile/${res.displayName}/post`}>
           {userAccount ? (
-            <UserImage src={userAccount?.profileURL} alt="" />
+            <UserImage
+              onContextMenu={(e) => e.preventDefault()}
+              src={userAccount?.profileURL}
+              alt=""
+            />
           ) : (
             <Skeleton
               variant="rounded"

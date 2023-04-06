@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
-import { FeedType } from "../../../types/type";
-import { CurrentUserType } from "../../../app/user";
+import { CurrentUserType, FeedType } from "../../../types/type";
 import { BiCopy } from "react-icons/bi";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { Link } from "react-router-dom";

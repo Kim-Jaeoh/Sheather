@@ -1,21 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/ColorList";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import useInfinityScroll from "../../../hooks/useInfinityScroll";
 import { collection, getDocs, query } from "firebase/firestore";
 import { dbService } from "../../../fbase";
-import { CurrentUserType } from "../../../app/user";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import { HiHashtag } from "react-icons/hi";
-import SearchedShowList from "./SearchedShowList";
+import { CurrentUserType } from "../../../types/type";
 
 type Props = {
   url: string;
   text: string;
   onListClick: (type: string, word: string, name: string) => void;
-  // setFocus: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export interface localType {

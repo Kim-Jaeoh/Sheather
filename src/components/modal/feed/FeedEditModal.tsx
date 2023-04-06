@@ -3,28 +3,13 @@ import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import imageCompression from "browser-image-compression";
-import { onSnapshot, doc, getDoc, updateDoc } from "firebase/firestore";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Point } from "react-easy-crop/types";
-import toast, { Toaster } from "react-hot-toast";
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { BiLeftArrowAlt } from "react-icons/bi";
-import { BsCamera, BsPersonPlusFill } from "react-icons/bs";
-import { HiOutlineCamera } from "react-icons/hi";
-import { IoMdClose } from "react-icons/io";
-import { TbCamera } from "react-icons/tb";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import uuid from "react-uuid";
-import { text } from "stream/consumers";
-import { RootState } from "../../../app/store";
-import { currentUser, UserType } from "../../../app/user";
+import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
 import ColorList from "../../../assets/ColorList";
-import getCroppedImg from "../../../assets/CropImage";
-import { Spinner } from "../../../assets/Spinner";
-import { dbService } from "../../../fbase";
-import useToggleFollow from "../../../hooks/useToggleFollow";
-import { FeedType, ImageType } from "../../../types/type";
+import { FeedType } from "../../../types/type";
 import ShareWeatherCategory from "../shareWeather/ShareWeatherCategory";
 import ShareWeatherForm from "../shareWeather/ShareWeatherForm";
 
@@ -35,11 +20,6 @@ type Props = {
 };
 
 const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
   const [checkTag, setCheckTag] = useState({
     feel: info.feel,
     outer: info.wearInfo.outer,
@@ -50,7 +30,6 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
   });
   const [text, setText] = useState(info.text);
   const [tags, setTags] = useState(info.tag);
-  const dispatch = useDispatch();
   const { pathname } = useLocation();
   const queryClient = useQueryClient();
 
@@ -211,8 +190,6 @@ const ImageWrapper = styled.div<{ length?: number }>`
   gap: 12px;
   padding: 12px;
   align-items: center;
-  /* justify-content: center; */
-  /* justify-content: space-evenly; */
   overflow: hidden;
   position: relative;
   &::after {
@@ -262,42 +239,6 @@ const ImageWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const CropBtn = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  bottom: 6px;
-  user-select: none;
-  cursor: pointer;
-  padding: 6px 8px;
-  font-size: 12px;
-  background: rgb(34, 34, 34, 0.9);
-  color: #fff;
-  border-radius: 9999px;
-  transition: all 0.2s;
-  z-index: 99;
-  svg {
-    margin-right: 4px;
-  }
-`;
-
-const ImageRemove = styled.div`
-  align-items: center;
-  background-color: ${secondColor};
-  border-radius: 50%;
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  font-size: 16px;
-  justify-content: center;
-  position: absolute;
-  right: 4px;
-  top: 4px;
-  padding: 2px;
-  z-index: 10;
 `;
 
 const Images = styled.img`
@@ -367,10 +308,6 @@ const EditText = styled.p`
   font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
 `;
 
-const EditTextEng = styled(EditText)`
-  margin-bottom: -4px;
-`;
-
 const Category = styled.div`
   position: absolute;
   top: 50%;
@@ -378,211 +315,4 @@ const Category = styled.div`
   transform: translate(-50%, -50%);
   font-weight: bold;
   font-size: 14px;
-`;
-
-const CloseBox = styled.button`
-  cursor: pointer;
-  padding: 0;
-  position: absolute;
-  right: 0;
-  svg {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    padding: 8px;
-  }
-`;
-
-const UserListBox = styled.div`
-  /* display: flex; */
-  /* align-items: center; */
-  /* justify-content: center; */
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  padding: 20px;
-`;
-
-const UserList = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  /* align-items: center; */
-`;
-
-const ProfileImagesBox = styled.label`
-  width: 100px;
-  height: 100px;
-  position: relative;
-  margin: 0 auto;
-  margin-bottom: 20px;
-  cursor: pointer;
-`;
-
-const ProfileImageBox = styled.div`
-  width: 100%;
-  height: 100%;
-  border: 1px solid ${thirdColor};
-  border-radius: 50%;
-  overflow: hidden;
-`;
-
-const ProfileImage = styled.img`
-  display: block;
-  width: 100%;
-  object-fit: cover;
-`;
-
-const ProfileImageIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #6f4ccf;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  svg {
-    font-size: 20px;
-    color: #fff;
-  }
-`;
-
-const InputImage = styled.input`
-  display: none;
-  opacity: 0;
-`;
-
-const ProfileInfoBox = styled.div`
-  overflow: hidden;
-  padding: 0 30px;
-`;
-
-const ProfileInfo = styled.div`
-  &:not(:last-of-type) {
-    margin-bottom: 20px;
-  }
-`;
-
-const ProfileCategory = styled.p`
-  font-size: 14px;
-  margin-bottom: 8px;
-`;
-
-const ProfileName = styled.input<{ focus: boolean }>`
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 20px;
-  padding: 12px;
-  border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
-  transition: all 0.1s linear;
-  outline: none;
-`;
-
-const ProfileDesc = styled.textarea<{ focus: boolean }>`
-  display: block;
-  width: 100%;
-  height: 170px;
-  font-size: 14px;
-  line-height: 24px;
-  resize: none;
-  outline: none;
-  border: none;
-  padding: 12px;
-  font-weight: 500;
-  border-radius: 20px;
-  transition: all 0.1s linear;
-  border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
-  &::placeholder {
-    font-size: 14px;
-  }
-  &:focus::placeholder {
-    opacity: 0.4;
-    color: ${thirdColor};
-    transition: all 0.2s;
-  }
-  /* font-size: 14px;
-  margin-top: 6px;
-  white-space: pre-wrap;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis; */
-`;
-
-const TextAreaLength = styled.p`
-  margin-top: 8px;
-  font-size: 14px;
-  float: right;
-`;
-
-const TextAreaLengthColor = styled.span<{ bgColor: string }>`
-  color: ${(props) => props.bgColor};
-`;
-
-const FollowBtnBox = styled.div``;
-
-const FollowBtn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 14px;
-  padding: 8px 16px;
-  color: #fff;
-  border-radius: 20px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
-  cursor: pointer;
-  transition: all 0.1s linear;
-  &:hover,
-  &:active {
-    background: #000;
-  }
-`;
-
-const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
-  background: #fff;
-  color: ${secondColor};
-
-  &:hover,
-  &:active {
-    background: ${fourthColor};
-  }
-`;
-
-const NotInfoBox = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 30px;
-
-  /* animation-name: slideDown;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-in-out; */
-
-  /* @keyframes slideDown {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  } */
 `;

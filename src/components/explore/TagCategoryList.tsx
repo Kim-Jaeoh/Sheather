@@ -102,7 +102,11 @@ const TagCategoryList = () => {
                   >
                     <TagRank>{index + 1}</TagRank>
                     <ListProfileBox>
-                      <ListProfile src={sortArr[0].url[0]} alt="Feed Image" />
+                      <ListProfile
+                        onContextMenu={(e) => e.preventDefault()}
+                        src={sortArr[0].url[0]}
+                        alt="Feed Image"
+                      />
                     </ListProfileBox>
                     <TagInfo>
                       <TagName>#{res.name}</TagName>

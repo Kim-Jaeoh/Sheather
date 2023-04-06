@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/ColorList";
-import { FeedType, replyType } from "../../../types/type";
+import { CurrentUserType, FeedType, replyType } from "../../../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import DetailFeedReply from "./DetailFeedReply";
@@ -9,7 +9,6 @@ import { useHandleResizeTextArea } from "../../../hooks/useHandleResizeTextArea"
 import Emoji from "../../../assets/Emoji";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 import useReply from "../../../hooks/useReply";
-import { CurrentUserType } from "../../../app/user";
 
 type Props = {
   userAccount: CurrentUserType;

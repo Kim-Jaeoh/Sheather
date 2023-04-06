@@ -1,16 +1,10 @@
-import React, { useEffect, useState } from "react";
-import {
-  onSnapshot,
-  doc,
-  addDoc,
-  collection,
-  updateDoc,
-} from "firebase/firestore";
-import { CurrentUserType } from "../app/user";
+import { useState } from "react";
+import { doc, addDoc, collection, updateDoc } from "firebase/firestore";
 import { dbService } from "../fbase";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import { useNavigate } from "react-router-dom";
+import { CurrentUserType } from "../types/type";
 
 type Props = {};
 
