@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import { Modal } from "@mui/material";
 
 type Props = {

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/ColorList";
-import TempClothes from "../../../assets/TempClothes";
+import ColorList from "../../../assets/data/ColorList";
+import TempClothes from "../../../assets/data/TempClothes";
 import Flicking from "@egjs/react-flicking";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";

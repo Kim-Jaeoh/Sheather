@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import styled from "@emotion/styled";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../assets/data/ColorList";
 import RangeTimeModal from "../modal/feed/RangeTimeModal";
 import moment from "moment";
 import MobileFeedWeatherInfo from "./MobileFeedWeatherInfo";

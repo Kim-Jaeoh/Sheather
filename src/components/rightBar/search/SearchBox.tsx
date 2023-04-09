@@ -4,7 +4,7 @@ import { FiSearch } from "react-icons/fi";
 import { IoIosCloseCircleOutline, IoMdArrowDropup } from "react-icons/io";
 import useDebounce from "../../../hooks/useDebounce";
 import SearchList, { localType } from "./SearchList";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import SearchedShowList from "./SearchedShowList";
 
 const SearchBox = () => {

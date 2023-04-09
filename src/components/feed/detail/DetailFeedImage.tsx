@@ -3,7 +3,7 @@ import "../../../styles/DetailFlicking.css";
 import styled from "@emotion/styled";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { Link } from "react-router-dom";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import { FeedType } from "../../../types/type";
 import { useState } from "react";
 import useFlickingArrow from "../../../hooks/useFlickingArrow";

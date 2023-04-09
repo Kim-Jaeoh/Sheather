@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { onSnapshot, doc } from "firebase/firestore";
 import { IoMdClose } from "react-icons/io";
 import { Link } from "react-router-dom";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import { dbService } from "../../../fbase";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { replyType } from "../../../types/type";

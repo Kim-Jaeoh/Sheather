@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import Cropper from "react-easy-crop";
 import { Area, Point } from "react-easy-crop/types";
-import getCroppedImg from "../../../assets/CropImage";
-import ColorList from "../../../assets/ColorList";
+import getCroppedImg from "../../ImageCropper/CropImage";
+import ColorList from "../../../assets/data/ColorList";
 import { AspectRatio, ImageType } from "../../../types/type";
 
 type Props = {

@@ -6,11 +6,11 @@ import { WeatherDataType } from "../../types/type";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
-import { Spinner } from "../../assets/Spinner";
+import { Spinner } from "../../assets/spinner/Spinner";
 import Flicking from "@egjs/react-flicking";
 import "../../styles/DetailFlicking.css";
-import TempClothes from "../../assets/TempClothes";
-import ColorList from "../../assets/ColorList";
+import TempClothes from "../../assets/data/TempClothes";
+import ColorList from "../../assets/data/ColorList";
 
 const FeedWeatherInfo = () => {
   const { location } = useCurrentLocation();

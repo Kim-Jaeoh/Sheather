@@ -3,7 +3,7 @@ import Flicking from "@egjs/react-flicking";
 import { BsSun } from "react-icons/bs";
 import { IoShirtOutline } from "react-icons/io5";
 import { MdPlace } from "react-icons/md";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 import { FeedType } from "../../../types/type";
 import { useNavigate } from "react-router-dom";

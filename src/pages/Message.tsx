@@ -6,7 +6,7 @@ import { BsChatDots } from "react-icons/bs";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { RootState } from "../app/store";
-import ColorList from "../assets/ColorList";
+import ColorList from "../assets/data/ColorList";
 import MessageUserSkeleton from "../assets/skeleton/MessageUserSkeleton";
 import Chat from "../components/message/Chat";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";

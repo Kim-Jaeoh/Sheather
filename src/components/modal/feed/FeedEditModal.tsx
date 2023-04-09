@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { BiLeftArrowAlt } from "react-icons/bi";
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import { FeedType } from "../../../types/type";
 import ShareWeatherCategory from "../shareWeather/ShareWeatherCategory";
 import ShareWeatherForm from "../shareWeather/ShareWeatherForm";

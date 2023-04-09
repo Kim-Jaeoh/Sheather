@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Link, useLocation } from "react-router-dom";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../assets/data/ColorList";
 import { FeedType } from "../../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";

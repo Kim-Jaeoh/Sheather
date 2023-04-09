@@ -10,7 +10,7 @@ import {
 } from "../types/type";
 import moment from "moment";
 import WeatherSliderSkeleton from "../assets/skeleton/WeatherSliderSkeleton";
-import ColorList from "../assets/ColorList";
+import ColorList from "../assets/data/ColorList";
 const WeatherSlider = lazy(() => import("../components/weather/WeatherSlider"));
 
 const Weather = () => {

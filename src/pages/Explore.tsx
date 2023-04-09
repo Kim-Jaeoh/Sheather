@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../assets/ColorList";
+import ColorList from "../assets/data/ColorList";
 import {
   Link,
   Route,
@@ -9,7 +9,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import ExploreFeedPost from "../components/explore/ExploreFeedPost";
-import TempClothes from "../assets/TempClothes";
+import TempClothes from "../assets/data/TempClothes";
 import Flicking from "@egjs/react-flicking";
 import "../styles/DetailFlicking.css";
 

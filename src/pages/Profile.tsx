@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { MdGridOn } from "react-icons/md";
 import { Link, useParams } from "react-router-dom";
-import ColorList from "../assets/ColorList";
+import ColorList from "../assets/data/ColorList";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
 import DeskProfileActInfo from "../components/profile/DeskProfileActInfo";

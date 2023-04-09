@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import moment from "moment";
 import Calendar from "react-calendar";
 import "../../../styles/Calendar.css"; // css import

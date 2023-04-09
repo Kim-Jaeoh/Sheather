@@ -15,8 +15,8 @@ import {
 } from "react-icons/io5";
 import { authService, dbService } from "../../../fbase";
 import { currentUser, loginToken } from "../../../app/user";
-import defaultAccount from "../../../assets/account_img_default.png";
-import ColorList from "../../../assets/ColorList";
+import defaultAccount from "../../../assets/image/account_img_default.png";
+import ColorList from "../../../assets/data/ColorList";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 
 type Props = {

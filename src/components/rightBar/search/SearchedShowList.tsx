@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import { doc, getDoc } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import { HiHashtag } from "react-icons/hi";
-import { Spinner } from "../../../assets/Spinner";
+import { Spinner } from "../../../assets/spinner/Spinner";
 import { cloneDeep } from "lodash";
 import { IoMdClose } from "react-icons/io";
 import { localType } from "./SearchList";

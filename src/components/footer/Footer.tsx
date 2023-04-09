@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { ReactComponent as SheatherLogoWhite } from "../assets/sheather_logo_w.svg";
-import VelogLogo from "../assets/velog_logo.png";
+import { ReactComponent as SheatherLogoWhite } from "../../assets/image/sheather_logo_w.svg";
+import VelogLogo from "../../assets/image/velog_logo.png";
 import { AiOutlineGithub } from "react-icons/ai";
 
 type Props = {};

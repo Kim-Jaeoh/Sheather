@@ -7,8 +7,8 @@ import { IoMdClose } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { RootState } from "../../../app/store";
-import ColorList from "../../../assets/ColorList";
-import { Spinner } from "../../../assets/Spinner";
+import ColorList from "../../../assets/data/ColorList";
+import { Spinner } from "../../../assets/spinner/Spinner";
 import { dbService } from "../../../fbase";
 import useToggleFollow from "../../../hooks/useToggleFollow";
 

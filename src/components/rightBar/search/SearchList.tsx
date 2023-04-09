@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import { Link } from "react-router-dom";
 import useInfinityScroll from "../../../hooks/useInfinityScroll";
 import { collection, getDocs, query } from "firebase/firestore";

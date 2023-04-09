@@ -8,34 +8,34 @@ import {
   BsPlusCircle,
   BsSun,
 } from "react-icons/bs";
-import AuthFormModal from "../components/modal/auth/AuthFormModal";
-import { useDispatch } from "react-redux";
-import { RootState } from "../app/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosResponse, AxiosError } from "axios";
-import useCurrentLocation from "../hooks/useCurrentLocation";
+import { onSnapshot, doc, collection, query } from "firebase/firestore";
+import { SlBell } from "react-icons/sl";
+import { FiSearch } from "react-icons/fi";
+import { ReactComponent as SheatherLogo } from "../../assets/image/sheather_logo.svg";
+import { ReactComponent as SheatherLogoSmall } from "../../assets/image/sheather_logo_s.svg";
+import { RootState } from "../../app/store";
+import { currentUser } from "../../app/user";
+import { shareWeather } from "../../app/weather";
+import ColorList from "../../assets/data/ColorList";
+import { dbService } from "../../fbase";
+import useCurrentLocation from "../../hooks/useCurrentLocation";
+import useMediaScreen from "../../hooks/useMediaScreen";
+import useUserAccount from "../../hooks/useUserAccount";
 import {
+  WeatherDataType,
   CurrentUserType,
   listType,
   MessageType,
   NoticeArrType,
-  WeatherDataType,
-} from "../types/type";
-import ShareWeatherModal from "../components/modal/shareWeather/ShareWeatherModal";
-import { shareWeather } from "../app/weather";
-import { onSnapshot, doc, collection, query } from "firebase/firestore";
-import { currentUser } from "../app/user";
-import { dbService } from "../fbase";
-import useMediaScreen from "../hooks/useMediaScreen";
-import ColorList from "../assets/ColorList";
-import { SlBell } from "react-icons/sl";
-import { FiSearch } from "react-icons/fi";
-import NoticeModal from "../components/modal/notice/NoticeModal";
-import SearchModal from "../components/modal/search/SearchModal";
-import useUserAccount from "../hooks/useUserAccount";
-import { ReactComponent as SheatherLogo } from "../assets/sheather_logo.svg";
-import { ReactComponent as SheatherLogoSmall } from "../assets/sheather_logo_s.svg";
+} from "../../types/type";
+import AuthFormModal from "../modal/auth/AuthFormModal";
+import NoticeModal from "../modal/notice/NoticeModal";
+import SearchModal from "../modal/search/SearchModal";
+import ShareWeatherModal from "../modal/shareWeather/ShareWeatherModal";
+import Deco from "./Deco";
 
 type MenuFuncgionType = {
   [key: string]: () => void;
@@ -59,7 +59,7 @@ const LeftBar = () => {
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
   const { location } = useCurrentLocation();
-  const { isMobile, isTablet, RightBarNone } = useMediaScreen();
+  const { isMobile, isTablet, isDesktop, RightBarNone } = useMediaScreen();
 
   const nowWeatherApi = async () =>
     await axios.get(
@@ -225,6 +225,7 @@ const LeftBar = () => {
         />
       )}
       <Container>
+        {isDesktop && <Deco />}
         <MenuBox pathname={pathname}>
           {!isMobile && (
             <LogoBox to="/">
@@ -324,7 +325,7 @@ const LeftBar = () => {
             style={{ order: isMobile ? 3 : 5 }}
             menu={selectMenu}
             cat="write"
-            color="#ffe448"
+            color="#fff048"
             onClick={() => onBtnClick("write")}
           >
             <MenuList>
@@ -427,12 +428,14 @@ const Container = styled.section`
 
 const MenuBox = styled.nav<{ pathname: string }>`
   width: 100%;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
 `;
 
 const LogoBox = styled(Link)`
+  position: relative;
   display: flex;
   align-items: center;
   width: 150px;

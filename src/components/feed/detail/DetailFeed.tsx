@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -177,6 +177,8 @@ const Container = styled.div`
   border-radius: 20px;
   overflow: hidden;
   background: #fff;
+
+  /* box-shadow: 12px 12px 0 -2px #be374e, 12px 12px #be374e; */
 
   box-shadow: ${(props) => {
     let shadow = "";

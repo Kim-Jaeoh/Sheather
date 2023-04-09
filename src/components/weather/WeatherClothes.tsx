@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useMemo } from "react";
 import styled from "@emotion/styled";
 import { IoMdArrowBack } from "react-icons/io";
-import TempClothes from "../../assets/TempClothes";
+import TempClothes from "../../assets/data/TempClothes";
 
 type Props = {
   index: number;

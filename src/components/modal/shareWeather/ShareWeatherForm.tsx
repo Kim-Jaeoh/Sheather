@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/ColorList";
-import Emoji from "../../../assets/Emoji";
+import ColorList from "../../../assets/data/ColorList";
+import Emoji from "../../emoji/Emoji";
 import useTag from "../../../hooks/useTag";
 import { IoMdClose } from "react-icons/io";
 import { AiOutlineTag } from "react-icons/ai";

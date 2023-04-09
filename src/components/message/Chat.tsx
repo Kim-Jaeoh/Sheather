@@ -10,12 +10,12 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../assets/data/ColorList";
 import moment from "moment";
 import { currentUser } from "../../app/user";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useHandleResizeTextArea } from "../../hooks/useHandleResizeTextArea";
-import Emoji from "../../assets/Emoji";
+import Emoji from "../emoji/Emoji";
 import { CurrentUserType, listType, MessageType } from "../../types/type";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";

@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo, useRef } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import { CurrentUserType, FeedType, replyType } from "../../../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import DetailFeedReply from "./DetailFeedReply";
 import { useHandleResizeTextArea } from "../../../hooks/useHandleResizeTextArea";
-import Emoji from "../../../assets/Emoji";
+import Emoji from "../../emoji/Emoji";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 import useReply from "../../../hooks/useReply";
 

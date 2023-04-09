@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
-import ColorList from "../ColorList";
+import ColorList from "../data/ColorList";
 import { FrameGrid } from "@egjs/react-grid";
 
 const ProfileSkeleton = () => {

@@ -2,40 +2,27 @@ import React, { Suspense, lazy, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import LeftBar from "./pages/LeftBar";
-import RightBar from "./pages/RightBar";
-import Footer from "./pages/Footer";
+import Footer from "./components/footer/Footer";
 import Message from "./pages/Message";
-import Explore from "./pages/Explore";
-import { Spinner } from "./assets/Spinner";
 import DetailFeed from "./components/feed/detail/DetailFeed";
-// import Weather from "./pages/Weather";
 import SrollToTop from "./hooks/useScrollToTop";
-import { authService } from "./fbase";
 import Profile from "./pages/Profile";
 import { Toaster } from "react-hot-toast";
-import { SuspenseSpinner } from "./assets/SuspenseSpinner";
 import TagCategoryList from "./components/explore/TagCategoryList";
 import FollowCategoryList from "./components/explore/FollowCategoryList";
 import useMediaScreen from "./hooks/useMediaScreen";
 import MobileHeader from "./components/MobileHeader";
 import InfoCategory from "./components/explore/InfoCategory";
-import AuthFormModal from "./components/modal/auth/AuthFormModal";
-import useUserAccount from "./hooks/useUserAccount";
+import AppDeco from "./components/AppDeco";
+import LeftBar from "./components/leftBar/LeftBar";
+import RightBar from "./components/rightBar/RightBar";
+import { SuspenseSpinner } from "./assets/spinner/SuspenseSpinner";
 const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
   const [init, setInit] = useState(false);
   const [userObj, setUserObj] = useState(null);
-  const { isMobile, RightBarNone } = useMediaScreen();
-
-  // const {
-  //   isAuthModal,
-  //   setIsAuthModal,
-  //   onAuthModal,
-  //   onLogInState,
-  //   onLogOutClick,
-  // } = useUserAccount();
+  const { isMobile, isDesktop, RightBarNone } = useMediaScreen();
 
   useEffect(() => {
     console.log(`
@@ -65,14 +52,15 @@ const App = () => {
   return (
     <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
-      <Wrapper>
-        <LeftBar />
-        {isMobile && <MobileHeader />}
-        <Main>
-          <Toaster position="bottom-center" reverseOrder={false} />
-          <Container>
-            <Routes>
-              <>
+      <Body>
+        {isDesktop && <AppDeco />}
+        <Wrapper>
+          <LeftBar />
+          {isMobile && <MobileHeader />}
+          <Main>
+            <Toaster position="bottom-center" reverseOrder={false} />
+            <Container>
+              <Routes>
                 <Route path="/feed/*" element={<Home />} />
                 <Route path="/feed/detail/:id" element={<DetailFeed />} />
                 <Route path="/weather" element={<Weather />} />
@@ -84,30 +72,34 @@ const App = () => {
                   element={<FollowCategoryList />}
                 />
                 <Route path="/profile/:id/*" element={<Profile />} />
-                {/* <Route
-                  path="/explore"
-                  element={<Navigate replace to="/feed/recent" />}
-                /> */}
-                {/* <Route
-                  path="/explore"
-                  element={<Navigate replace to="/explore/outer?detail=0" />}
-                /> */}
                 <Route
                   path="*"
                   element={<Navigate replace to="/feed/recent" />}
                 />
-              </>
-            </Routes>
-          </Container>
-          {!isMobile && <Footer />}
-        </Main>
-        {!RightBarNone && <RightBar />}
-      </Wrapper>
+              </Routes>
+            </Container>
+            {!isMobile && <Footer />}
+          </Main>
+          {!RightBarNone && <RightBar />}
+        </Wrapper>
+      </Body>
     </Suspense>
   );
 };
 
 export default App;
+
+const Body = styled.div`
+  position: relative;
+  /* background-color: #222222;
+  background-image: url("https://www.transparenttextures.com/patterns/ps-neutral.png"); */
+
+  /* background-color: #fafafa;
+  background-image: url("https://www.transparenttextures.com/patterns/az-subtle.png"); */
+
+  /* background-color: #888888;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cg fill='%23222222' fill-opacity='0.4'%3E%3Cpath fill-rule='evenodd' d='M0 0h4v4H0V0zm4 4h4v4H4V4z'/%3E%3C/g%3E%3C/svg%3E"); */
+`;
 
 const Wrapper = styled.div`
   display: flex;

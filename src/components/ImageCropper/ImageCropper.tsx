@@ -1,19 +1,11 @@
-import React, {
-  MouseEventHandler,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { MouseEventHandler, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import Cropper from "react-easy-crop";
 import { Area, Point } from "react-easy-crop/types";
 import getCroppedImg from "./CropImage";
 import { Modal } from "@mui/material";
-import ColorList from "./ColorList";
-import { IoMdArrowBack, IoMdClose } from "react-icons/io";
-import { IoArrowBack } from "react-icons/io5";
 import { BiLeftArrowAlt } from "react-icons/bi";
-import { MdOutlineRotateLeft } from "react-icons/md";
+import ColorList from "../../assets/data/ColorList";
 
 interface AspectRatio {
   value: number;

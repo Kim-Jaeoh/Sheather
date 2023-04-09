@@ -2,7 +2,7 @@ import React, { MutableRefObject, useRef } from "react";
 import styled from "@emotion/styled";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { GrEmoji } from "react-icons/gr";
-import { useEmojiModalOutClick } from "../hooks/useEmojiModalOutClick";
+import { useEmojiModalOutClick } from "../../hooks/useEmojiModalOutClick";
 
 type Props = {
   textRef?: React.MutableRefObject<HTMLTextAreaElement>;

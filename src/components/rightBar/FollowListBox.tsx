@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../assets/data/ColorList";
 import { Link } from "react-router-dom";
 import { query, collection, getDocs, DocumentData } from "firebase/firestore";
 import { dbService } from "../../fbase";

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../assets/data/ColorList";
 import useToggleLike from "../../hooks/useToggleLike";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";

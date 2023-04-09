@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../assets/data/ColorList";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { FeedType } from "../../types/type";

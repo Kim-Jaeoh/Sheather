@@ -3,7 +3,7 @@ import { CurrentUserType, FeedType } from "../../../types/type";
 import { BiCopy } from "react-icons/bi";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import toast from "react-hot-toast";
 import useToggleBookmark from "../../../hooks/useToggleBookmark";
 

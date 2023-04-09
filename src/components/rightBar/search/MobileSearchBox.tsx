@@ -11,7 +11,7 @@ import FollowListBox from "../FollowListBox";
 import TagListBox from "../TagListBox";
 import SearchList, { localType } from "./SearchList";
 import SearchedShowList from "./SearchedShowList";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 
 type Props = {
   modalOpen: boolean;

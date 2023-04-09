@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../assets/data/ColorList";
 import { FiLogOut } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";

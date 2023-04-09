@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../assets/ColorList";
+import ColorList from "../assets/data/ColorList";
 import { FiSearch } from "react-icons/fi";
 import SearchModal from "./modal/search/SearchModal";
 import { SlBell } from "react-icons/sl";
@@ -10,7 +10,7 @@ import { onSnapshot, doc } from "firebase/firestore";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import { dbService } from "../fbase";
-import { ReactComponent as SheatherLogo } from "../assets/sheather_logo.svg";
+import { ReactComponent as SheatherLogo } from "../assets/image/sheather_logo.svg";
 import { Link } from "react-router-dom";
 
 type Props = {};

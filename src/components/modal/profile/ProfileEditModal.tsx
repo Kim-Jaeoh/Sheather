@@ -18,9 +18,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../../app/store";
 import { currentUser } from "../../../app/user";
-import ColorList from "../../../assets/ColorList";
-import getCroppedImg from "../../../assets/CropImage";
-import { Spinner } from "../../../assets/Spinner";
+import ColorList from "../../../assets/data/ColorList";
+import getCroppedImg from "../../ImageCropper/CropImage";
+import { Spinner } from "../../../assets/spinner/Spinner";
 import { authService, dbService } from "../../../fbase";
 import ProfileImageCropper from "./ProfileImageCropper";
 

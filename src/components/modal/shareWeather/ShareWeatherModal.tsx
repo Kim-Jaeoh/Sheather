@@ -4,7 +4,7 @@ import { IoMdClose } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import toast from "react-hot-toast";
-import ColorList from "../../../assets/ColorList";
+import ColorList from "../../../assets/data/ColorList";
 import { useEffect, useRef, useState } from "react";
 import { BsCheck, BsFillImageFill } from "react-icons/bs";
 import { BiLeftArrowAlt } from "react-icons/bi";

@@ -8,7 +8,7 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
-import ColorList from "../../assets/ColorList";
+import ColorList from "../../assets/data/ColorList";
 import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import useMediaScreen from "../../hooks/useMediaScreen";
