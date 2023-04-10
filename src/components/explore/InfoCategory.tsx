@@ -2,28 +2,16 @@ import { FrameGrid } from "@egjs/react-grid";
 import styled from "@emotion/styled";
 import { cloneDeep } from "lodash";
 import { useState, useEffect, useMemo } from "react";
-import {
-  useSearchParams,
-  Link,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import ColorList from "../../assets/data/ColorList";
 import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { FeedType } from "../../types/type";
 import useUserAccount from "../../hooks/useUserAccount";
-import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 
 const InfoCategory = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
   const [isGridRender, setIsGridRender] = useState(false);
   const [randomFeed, setRandomFeed] = useState(null);
   const [dateCategory, setDateCategory] = useState("recent");
@@ -36,9 +24,9 @@ const InfoCategory = () => {
 
   const url = useMemo(() => {
     if (search.includes("cat")) {
-      return `${
-        process.env.REACT_APP_SERVER_PORT
-      }/api/explore?cat=${searchParams.get("cat")}&detail=${encodeURIComponent(
+      return `${process.env.REACT_APP_SERVER_PORT}/api/${searchParams.get(
+        "q"
+      )}?cat=${searchParams.get("cat")}&detail=${encodeURIComponent(
         searchParams.get(`detail`)
       )}&`;
     } else {
@@ -72,6 +60,7 @@ const InfoCategory = () => {
     // };
 
     // randomArray(arr);
+
     if (dateCategory === "recent") {
       const sort = arr?.sort((a, b) => b.createdAt - a.createdAt);
       return setRandomFeed(sort);

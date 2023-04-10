@@ -1,41 +1,13 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { getDoc, doc, onSnapshot } from "firebase/firestore";
-import { useSelector } from "react-redux";
-import { RootState } from "../app/store";
+import { useEffect, useState } from "react";
+import { getDoc, doc } from "firebase/firestore";
 import { dbService } from "../fbase";
 import { NoticeArrType } from "../types/type";
+import useGetMyAccount from "./useGetMyAccount";
 
 const useNoticeCheck = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
-  const [myAccount, setMyAccount] = useState(null);
   const [result, setResult] = useState<NoticeArrType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const feedApi = async () => {
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_PORT}/api/feed`
-    );
-    return data;
-  };
-
-  // 계정 정보 가져오기
-  useEffect(() => {
-    if (userLogin) {
-      const unsubscribe = onSnapshot(
-        doc(dbService, "users", userObj?.displayName),
-        (doc) => {
-          setMyAccount(doc.data());
-        }
-      );
-
-      return () => unsubscribe();
-    }
-  }, [userLogin, userObj?.displayName]);
+  const { userLogin, userObj, myAccount } = useGetMyAccount();
 
   // 정보 + 프로필 이미지 담기
   useEffect(() => {

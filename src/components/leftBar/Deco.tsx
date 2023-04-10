@@ -3,9 +3,7 @@ import { css } from "@emotion/react";
 import { ReactComponent as DecoTwinkle } from "../../assets/image/deco_twinkle.svg";
 import { ReactComponent as DecoWeather } from "../../assets/image/deco_weather.svg";
 
-type Props = {};
-
-const Deco = (props: Props) => {
+const Deco = () => {
   return (
     <>
       <DecoTwinkle
@@ -14,6 +12,10 @@ const Deco = (props: Props) => {
           top: 16px;
           left: 18px;
           transform: rotate(20deg);
+          @media (max-width: 767px) {
+            top: 55px;
+            left: 72px;
+          }
         `}
         width="20px"
         height="20px"
@@ -24,6 +26,10 @@ const Deco = (props: Props) => {
           top: 55px;
           right: 15px;
           transform: rotate(-20deg);
+          @media (max-width: 767px) {
+            top: 123px;
+            right: 76px;
+          }
         `}
         width="16px"
         height="16px"
@@ -35,6 +41,9 @@ const Deco = (props: Props) => {
           left: -100px;
           width: 140px;
           transform: rotate(20deg);
+          @media (max-width: 767px) {
+            display: none;
+          }
         `}
       />
     </>

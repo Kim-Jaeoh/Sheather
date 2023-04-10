@@ -20,6 +20,7 @@ import uuid from "react-uuid";
 import ShareWeatherForm from "./ShareWeatherForm";
 import { FeedType } from "../../../types/type";
 import Flicking from "@egjs/react-flicking";
+import { regionApi } from "../../../apis/api";
 
 type Props = {
   shareBtn: boolean;
@@ -55,21 +56,9 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   const queryClient = useQueryClient();
 
   // 현재 주소 받아오기
-  const regionApi = async () => {
-    return await axios.get(
-      `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${location?.coordinates.lon}&y=${location?.coordinates.lat}&input_coord=WGS84`,
-      {
-        headers: {
-          Authorization: `KakaoAK ${process.env.REACT_APP_KAKAO_API_KEY}`,
-        },
-      }
-    );
-  };
-
-  // 현재 주소 받아오기
   const { data: regionData, isLoading: isLoading2 } = useQuery(
     ["RegionApi", location],
-    regionApi,
+    () => regionApi(location),
     {
       refetchOnWindowFocus: false,
       onError: (e) => console.log(e),

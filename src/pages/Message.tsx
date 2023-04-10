@@ -1,19 +1,19 @@
 import styled from "@emotion/styled";
-import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { BiMessageAltAdd } from "react-icons/bi";
 import { BsChatDots } from "react-icons/bs";
-import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { RootState } from "../app/store";
 import ColorList from "../assets/data/ColorList";
 import MessageUserSkeleton from "../assets/skeleton/MessageUserSkeleton";
 import Chat from "../components/message/Chat";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";
-import { dbService } from "../fbase";
 import useCreateChat from "../hooks/useCreateChat";
 import useMediaScreen from "../hooks/useMediaScreen";
-import { CurrentUserType } from "../types/type";
+import { CurrentUserType, MessageReadType } from "../types/type";
+import useGetMyAccount from "../hooks/useGetMyAccount";
+import ChatList from "../components/message/ChatList";
+import { onSnapshot, doc } from "firebase/firestore";
+import { dbService } from "../fbase";
 
 type Props = {};
 
@@ -22,44 +22,37 @@ interface LocationType {
 }
 
 const Message = (props: Props) => {
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
-  const [users, setUsers] = useState([]);
   const [addUserModal, setAddUserMOdal] = useState(false);
+  const [users, setUsers] = useState(null);
   const { clickInfo, setClickInfo } = useCreateChat();
   const { state } = useLocation() as LocationType;
-  const navigate = useNavigate();
+  const { userLogin, userObj, myAccount } = useGetMyAccount();
   const { isDesktop, isTablet, isMobile, isMobileBefore } = useMediaScreen();
+  const navigate = useNavigate();
 
   // 상대 계정 정보 가져오기
   useEffect(() => {
-    const getList = async (res: { user: string }) => {
-      const docSnap = await getDoc(doc(dbService, "users", res.user));
-      return docSnap.data();
-    };
-
-    const promiseList = async () => {
-      const list = await Promise.all(
-        userObj?.message?.map(async (res) => {
-          return getList(res);
-        })
+    if (myAccount && (state || clickInfo)) {
+      const unsubscribe = onSnapshot(
+        doc(dbService, "users", state ? state : clickInfo),
+        (doc) => {
+          setUsers(doc.data());
+        }
       );
-      setUsers(list);
-    };
 
-    promiseList();
-  }, [userObj]);
-
-  // 채팅방 클릭
-  const onListClick = (user: CurrentUserType) => {
-    setClickInfo(user);
-    navigate(`/message/${user.displayName}`);
-  };
+      return () => unsubscribe();
+    }
+  }, [clickInfo, myAccount, state]);
 
   // 채팅방 생성
   const onAddChatClick = () => {
     setAddUserMOdal((prev) => !prev);
+  };
+
+  // 채팅방 클릭
+  const onListClick = (userName: string) => {
+    setClickInfo(userName);
+    navigate(`/message/${userName}`);
   };
 
   return (
@@ -80,31 +73,19 @@ const Message = (props: Props) => {
                 <BiMessageAltAdd />
               </AddChatBtn>
             </Category>
-            {users?.length > 0 ? (
+            {myAccount?.message?.length > 0 ? (
               <ChatRoomBox>
-                {users?.map((res: CurrentUserType, index: number) => {
-                  return (
-                    <User
-                      onClick={() => onListClick(res)}
-                      key={res?.displayName}
-                    >
-                      <ProfileImageBox>
-                        <ProfileImage
-                          onContextMenu={(e) => e.preventDefault()}
-                          src={res?.profileURL}
-                          alt="profile image"
-                        />
-                      </ProfileImageBox>
-                      <ProfileInfoBox>
-                        <ProfileDsName>{res?.displayName}</ProfileDsName>
-                        <ProfileName>{res?.name}</ProfileName>
-                      </ProfileInfoBox>
-                      {userObj?.message?.some(
-                        (e) => !e.isRead && e.user === res?.displayName
-                      ) && <NoticeBox />}
-                    </User>
-                  );
-                })}
+                {myAccount?.message.map(
+                  (data: MessageReadType, index: number) => {
+                    return (
+                      <ChatList
+                        key={data.user}
+                        data={data}
+                        onListClick={onListClick}
+                      />
+                    );
+                  }
+                )}
               </ChatRoomBox>
             ) : (
               <MessageUserSkeleton />
@@ -114,8 +95,8 @@ const Message = (props: Props) => {
             <ChatRoom>
               {state || clickInfo ? (
                 <Chat
-                  userObj={userObj}
-                  users={state ? state : clickInfo}
+                  users={users}
+                  myAccount={myAccount}
                   setClickInfo={setClickInfo}
                 />
               ) : (
@@ -152,17 +133,12 @@ const Wrapper = styled.div`
   @media (max-width: 767px) {
     padding: 16px;
     border: none;
-    /* height: calc(100vh - 112px); */
   }
 `;
 
 const Container = styled.div`
   display: flex;
-  /* position: absolute;
-  top: 40px;
-  right: 40px;
-  bottom: 40px;
-  left: 40px; */
+
   height: 100%;
   border: 2px solid ${secondColor};
   overflow: hidden;
@@ -245,73 +221,6 @@ const ChatRoom = styled.div`
 `;
 
 const ChatRoomBox = styled.div``;
-
-const User = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  padding: 14px 16px;
-  height: 100%;
-  transition: all 0.15s linear;
-  cursor: pointer;
-
-  &:hover,
-  &:active {
-    background-color: #f5f5f5;
-  }
-`;
-
-const ProfileImageBox = styled.div`
-  width: 42px;
-  height: 42px;
-  border: 1px solid ${fourthColor};
-  border-radius: 50%;
-  overflow: hidden;
-  flex: 0 0 auto;
-`;
-
-const ProfileImage = styled.img`
-  display: block;
-  width: 100%;
-  object-fit: cover;
-`;
-
-const ProfileInfoBox = styled.div`
-  cursor: pointer;
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  gap: 2px;
-`;
-
-const ProfileDsName = styled.p`
-  font-size: 14px;
-  font-weight: 500;
-  width: 120px;
-  line-height: 18px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const ProfileName = styled.p`
-  font-size: 12px;
-  color: ${thirdColor};
-  width: 120px;
-  line-height: 18px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const NoticeBox = styled.div`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ff5c1b;
-`;
 
 const NotInfoBox = styled.div`
   width: 100%;

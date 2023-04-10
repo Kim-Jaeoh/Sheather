@@ -1,9 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import styled from "@emotion/styled";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
-import { WeatherDataType } from "../../types/type";
-import axios, { AxiosError, AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import { Spinner } from "../../assets/spinner/Spinner";
@@ -11,53 +8,16 @@ import Flicking from "@egjs/react-flicking";
 import "../../styles/DetailFlicking.css";
 import TempClothes from "../../assets/data/TempClothes";
 import ColorList from "../../assets/data/ColorList";
+import { nowWeatherApi, regionApi } from "../../apis/api";
 
 const FeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
-  const { pathname } = useLocation();
-  const { ClothesCategory } = TempClothes();
-  const navigate = useNavigate();
-
-  const changeColor = useMemo(() => {
-    if (pathname.includes("feed")) {
-      return "#ff5673";
-    }
-    if (pathname.includes("weather")) {
-      return "#48a3ff";
-    }
-    if (pathname.includes("message")) {
-      return "#ff5c1b";
-    }
-    if (pathname.includes("explore")) {
-      return "#30c56e";
-    }
-    if (pathname.includes("profile")) {
-      return "#6f4ccf";
-    }
-  }, [pathname]);
-
-  // 날씨 정보 받아오기
-  const weatherApi = async () =>
-    await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${location?.coordinates?.lat}&lon=${location?.coordinates?.lon}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric&lang=kr`
-    );
-
-  // 현재 주소 받아오기
-  const regionApi = async () => {
-    return await axios.get(
-      `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${location?.coordinates.lon}&y=${location?.coordinates.lat}&input_coord=WGS84`,
-      {
-        headers: {
-          Authorization: `KakaoAK ${process.env.REACT_APP_KAKAO_API_KEY}`,
-        },
-      }
-    );
-  };
+  const { tempClothes } = TempClothes(); // 옷 정보
 
   // 날씨 정보 받아오기
   const { data: weatherData, isLoading } = useQuery(
     ["Weather", location],
-    weatherApi,
+    () => nowWeatherApi(location),
     {
       refetchOnWindowFocus: false,
       onError: (e) => console.log(e),
@@ -68,15 +28,13 @@ const FeedWeatherInfo = () => {
   // 현재 주소 받아오기
   const { data: regionData, isLoading: isLoading2 } = useQuery(
     ["Region", weatherData?.data],
-    regionApi,
+    () => regionApi(location),
     {
       refetchOnWindowFocus: false,
       onError: (e) => console.log(e),
       enabled: Boolean(weatherData?.data),
     }
   );
-
-  const { tempClothes } = TempClothes(); // 옷 정보
 
   const filterTempClothes = useMemo(() => {
     const temp = weatherData?.data?.main.temp;
@@ -90,7 +48,7 @@ const FeedWeatherInfo = () => {
     <Container>
       {!isLoading2 ? (
         <WeatherBox>
-          <NowBox changeColor={changeColor}>
+          <NowBox>
             <p>NOW</p>
           </NowBox>
           <WeatherInfo>
@@ -115,7 +73,7 @@ const FeedWeatherInfo = () => {
           </WeatherInfo>
           <WeatherInfo>
             <InfoText>현재</InfoText>
-            <WeatherTemp changeColor={changeColor}>
+            <WeatherTemp>
               {Math.round(weatherData?.data?.main.temp)}
               <sup>º</sup>
             </WeatherTemp>
@@ -177,11 +135,10 @@ const WeatherBox = styled.div`
   }
 `;
 
-const NowBox = styled.div<{ changeColor: string }>`
+const NowBox = styled.div`
   width: 22px;
   height: 100%;
-  /* padding: 6px 14px; */
-  background-color: ${(props) => props.changeColor};
+  background-color: #ff5673;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -257,19 +214,6 @@ const FlickingCategoryBox = styled.div`
   }
 `;
 
-const FlickingImageBox = styled(FlickingCategoryBox)`
-  position: relative;
-  &::after {
-    display: none;
-  }
-`;
-
-const WearInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
 const TagBox = styled.div`
   display: flex;
   flex: nowrap;
@@ -327,13 +271,10 @@ const InfoText = styled.span`
   }
 `;
 
-const WeatherTemp = styled.p<{ changeColor?: string }>`
+const WeatherTemp = styled.p`
   font-size: 18px;
-  /* height: 50px; */
   flex: 1;
   font-weight: 500;
-  /* color: ${secondColor}; */
-  /* color: ${(props) => props.changeColor}; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -344,17 +285,12 @@ const WeatherTemp = styled.p<{ changeColor?: string }>`
   }
 `;
 
-const WeatherTempSub = styled(WeatherTemp)`
-  color: #8b8b8b;
-`;
-
 const WeatherDesc = styled.span`
   font-size: 14px;
   word-break: keep-all;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* height: 50px; */
   flex: 1;
   font-weight: bold;
 `;

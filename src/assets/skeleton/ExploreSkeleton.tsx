@@ -1,28 +1,20 @@
 import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
 import { FrameGrid } from "@egjs/react-grid";
+import useMediaScreen from "../../hooks/useMediaScreen";
 
 const ExploreSkeleton = () => {
+  const { isMobile } = useMediaScreen();
+
   return (
     <FrameGrid
       className="container"
-      gap={10}
+      gap={isMobile ? 10 : 20}
       defaultDirection={"end"}
-      isConstantSize={true}
-      preserveUIOnDestroy={true}
-      observeChildren={true}
       frame={[
         [1, 1, 2, 2, 3, 3],
         [1, 1, 2, 2, 3, 3],
-        [4, 4, 5, 5, 3, 3],
-        [4, 4, 5, 5, 3, 3],
-        [6, 6, 7, 7, 8, 8],
-        [6, 6, 7, 7, 8, 8],
-        [6, 6, 9, 9, 10, 10],
-        [6, 6, 9, 9, 10, 10],
       ]}
-      rectSize={0}
-      useFrameFill={true}
     >
       {Array.from({ length: 10 }).map((res, index) => {
         return (

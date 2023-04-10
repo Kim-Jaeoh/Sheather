@@ -7,7 +7,7 @@ import "../../../styles/Calendar.css"; // css import
 import { BsCalendar3 } from "react-icons/bs";
 import Slider from "rc-slider";
 import "../../../styles/RangeTimeModalRcSlider.css";
-import { Modal, Backdrop } from "@mui/material";
+import { Modal } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 
@@ -35,8 +35,7 @@ const RangeTimeModal = (props: Props) => {
   } = props;
 
   const [isCalendar, setIsCalendar] = useState(false);
-  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
-    useMediaScreen();
+  const { isMobile } = useMediaScreen();
 
   // 캘린더 토글
   const onClickCalendar = () => setIsCalendar((prev) => !prev);

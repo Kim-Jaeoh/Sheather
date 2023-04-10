@@ -1,7 +1,7 @@
-import React, { useEffect, useState, lazy, useMemo } from "react";
+import { useEffect, useState, lazy, useMemo } from "react";
 import useCurrentLocation from "../hooks/useCurrentLocation";
 import styled from "@emotion/styled";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import {
   WeatherDataType,
@@ -11,6 +11,7 @@ import {
 import moment from "moment";
 import WeatherSliderSkeleton from "../assets/skeleton/WeatherSliderSkeleton";
 import ColorList from "../assets/data/ColorList";
+import { nowWeatherApi, weatherApi } from "../apis/api";
 const WeatherSlider = lazy(() => import("../components/weather/WeatherSlider"));
 
 const Weather = () => {
@@ -25,21 +26,11 @@ const Weather = () => {
   const [filterData5, setFilterData5] = useState<WeathersFiveDataType[]>([]);
   const { location } = useCurrentLocation();
 
-  const weatherApi = async () =>
-    await axios.get(
-      `https://api.openweathermap.org/data/2.5/forecast?lat=${location?.coordinates?.lat}&lon=${location?.coordinates?.lon}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric&lang=kr`
-    );
-
-  const nowWeatherApi = async () =>
-    await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${location?.coordinates?.lat}&lon=${location?.coordinates?.lon}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric&lang=kr`
-    );
-
   // 단기 예보 정보 가져오기
   const { data: weathersData, isLoading } = useQuery<
     AxiosResponse<WeatherMapDataType>,
     AxiosError
-  >(["Weathers", location], weatherApi, {
+  >(["Weathers", location], () => weatherApi(location), {
     refetchOnWindowFocus: false,
     onError: (e) => console.log(e),
     enabled: Boolean(location),
@@ -49,7 +40,7 @@ const Weather = () => {
   const { data: weatherData } = useQuery<
     AxiosResponse<WeatherDataType>,
     AxiosError
-  >(["Weather", location], nowWeatherApi, {
+  >(["Weather", location], () => nowWeatherApi(location), {
     refetchOnWindowFocus: false,
     onError: (e) => console.log(e),
     enabled: Boolean(location),
@@ -114,22 +105,6 @@ const Weather = () => {
       return time.getDate() === Number(checkPlusDate); // 오늘 날짜와 day+1 날짜가 다르면 false
     }
   }, [date2]);
-
-  // // 현재 날씨 - 시간에 맞게 안내 위치 이동 (32400(초 단위) = 9시간)
-  // // ( ex. 1시간 = 3600초(60*60*1000) )
-  // const timeCheck = useMemo(() => {
-  //   if (dayCheck) {
-  //     const check = filterData1.sort((a, b) => a?.dt - b?.dt);
-  //     return dayCheck ? check : null;
-  //   }
-  // }, [dayCheck, filterData1]);
-
-  // const timePlusCheck = useMemo(() => {
-  //   if (dayPlusCheck) {
-  //     const check = filterData2.sort((a, b) => a?.dt - b?.dt);
-  //     return dayPlusCheck ? check : null;
-  //   }
-  // }, [dayPlusCheck, filterData2]);
 
   useEffect(() => {
     if (weather && date1 && date2 && date3 && date4 && date5) {

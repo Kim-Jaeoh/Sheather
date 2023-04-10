@@ -3,10 +3,17 @@ import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import {
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+} from "firebase/firestore";
 import { useDispatch } from "react-redux";
 import {
   IoCheckmarkCircleOutline,
@@ -18,11 +25,20 @@ import { currentUser, loginToken } from "../../../app/user";
 import defaultAccount from "../../../assets/image/account_img_default.png";
 import ColorList from "../../../assets/data/ColorList";
 import useMediaScreen from "../../../hooks/useMediaScreen";
+import { ReactComponent as SheatherLogo } from "../../../assets/image/sheather_logo.svg";
+import Deco from "../../leftBar/Deco";
+import { FirebaseError } from "firebase/app";
+import FindPassword from "./FindPassword";
+import { BiLeftArrowAlt } from "react-icons/bi";
 
 type Props = {
   modalOpen: boolean;
   modalClose: () => void;
 };
+
+interface ErrorType {
+  [key: string]: string;
+}
 
 const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
   const [email, setEmail] = useState("");
@@ -37,10 +53,92 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
     dpName: false,
   });
   const [isExistAccount, setIsExistAccount] = useState(true);
+  const [isDuplication, setIsDuplication] = useState(false);
+  const [isFindPassword, setIsFindPassword] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useDispatch();
   const { isMobile } = useMediaScreen();
   const toggleAccount = () => setIsExistAccount(!isExistAccount);
+
+  const errorMessages: ErrorType = {
+    "(auth/email-already-in-use).": "이미 가입이 되어있는 이메일입니다.",
+    "(auth/invalid-email).": "올바르지 않은 이메일 형식입니다.",
+    "(auth/weak-password)": "비밀번호를 최소 6글자 이상 입력해주세요.",
+    "(auth/wrong-password).": "이메일이나 비밀번호가 틀립니다.",
+    "(auth/too-many-requests)":
+      "로그인 시도가 여러 번 실패하여 이 계정에 대한 액세스가 일시적으로 비활성화되었습니다. 비밀번호를 재설정하여 즉시 복원하거나 나중에 다시 시도할 수 있습니다.",
+    "(auth/user-not-found)": "가입된 아이디를 찾을 수 없습니다.",
+  };
+
+  // 닉네임 중복 체크
+  useEffect(() => {
+    const myCollectionRef = collection(dbService, "users");
+    const unsubscribe = onSnapshot(myCollectionRef, (querySnapshot) => {
+      const filter = querySnapshot.docs.some((doc) => {
+        return doc.data().displayName === dpName;
+      });
+      setIsDuplication(filter);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [dpName]);
+
+  // 정규식 체크
+  useEffect(() => {
+    const emailRegex =
+      /([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-z]{2,4}|[0-9]{1,3})(\]?)$/;
+    const passwordRegex =
+      /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/;
+    const dpNameRegex = /^[a-zA-Z0-9_.]+$/;
+
+    if (!emailRegex.test(email)) {
+      setEmailMessage(false);
+    } else {
+      setEmailMessage(true);
+    }
+    // if (!passwordRegex.test(password)) {
+    //   setPasswordMessage(false);
+    // } else {
+    //   setPasswordMessage(true);
+    // }
+    if (!dpNameRegex.test(dpName)) {
+      setDpNameMessage(false);
+    } else {
+      setDpNameMessage(true);
+    }
+  }, [dpName, email, password]);
+
+  // 인풋 에러
+  useMemo(() => {
+    if (email.length > 0 && select.email && !emailMessage) {
+      return setError("사용할 수 없는 이메일 주소입니다.");
+    }
+    if (password.length > 0 && select.password && !passwordMessage) {
+      return setError("숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요.");
+    }
+    if (dpName.length > 0 && select.dpName && !dpNameMessage) {
+      return setError(
+        "사용자 이름에는 문자, 숫자, 밑줄 및 마침표만 사용할 수 있습니다."
+      );
+    }
+    if (isDuplication) {
+      return setError("닉네임이 중복입니다.");
+    }
+    return setError("");
+  }, [
+    dpName.length,
+    dpNameMessage,
+    email.length,
+    emailMessage,
+    isDuplication,
+    password.length,
+    passwordMessage,
+    select.dpName,
+    select.email,
+    select.password,
+  ]);
 
   const SignUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,54 +216,29 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
         );
       }
     } catch (error: any) {
-      if (error.message.includes("(auth/email-already-in-use).")) {
-        return setError(
-          error.message.replace(
-            "Firebase: Error (auth/email-already-in-use).",
-            "이미 가입이 되어있는 이메일입니다."
-          )
-        );
-      } else if (error.message.includes("(auth/invalid-email).")) {
-        return setError(
-          error.message.replace(
-            "Firebase: Error (auth/invalid-email).",
-            "올바르지 않은 이메일 형식입니다."
-          )
-        );
-      } else if (error.message.includes("(auth/weak-password)")) {
-        return setError(
-          error.message.replace(
-            "Firebase: Password should be at least 6 characters (auth/weak-password).",
-            "비밀번호를 최소 6글자 이상 입력해주세요."
-          )
-        );
-      } else if (error.message.includes("(auth/wrong-password).")) {
-        return setError(
-          error.message.replace(
-            "Firebase: Error (auth/wrong-password).",
-            "이메일이나 비밀번호가 틀립니다."
-          )
-        );
-      } else if (error.message.includes("(auth/too-many-requests)")) {
-        return setError(
-          error.message.replace(
-            "Firebase: Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later. (auth/too-many-requests).",
-            "로그인 시도가 여러 번 실패하여 이 계정에 대한 액세스가 일시적으로 비활성화되었습니다. 비밀번호를 재설정하여 즉시 복원하거나 나중에 다시 시도할 수 있습니다."
-          )
-        );
-      } else if (error.message.includes("(auth/user-not-found)")) {
-        return setError(
-          error.message.replace(
-            "Firebase: Error (auth/user-not-found).",
-            "가입된 아이디를 찾을 수 없습니다."
-          )
-        );
-      } else {
-        return setError(error.message);
-      }
+      const errorKey = Object.keys(errorMessages).find((key) =>
+        error.message.includes(key)
+      );
+      const errorMessage = errorKey ? errorMessages[errorKey] : error.message;
+      return setError(errorMessage);
     }
     // }
   };
+
+  // const findUserByEmail = async (email: string) => {
+  //   try {
+  //     const user = await getUserByEmail(authService, email);
+  //     // 주어진 이메일에 해당하는 사용자 정보 반환
+  //     return user;
+  //   } catch (error) {
+  //     // 에러 처리, 특정 에러 코드 확인
+  //     if (error instanceof FirebaseError && error.code === "auth/user-not-found") {
+  //       throw new Error("해당 이메일로 등록된 계정이 없습니다.");
+  //     }
+  //     // 다른 에러 처리
+  //     throw error;
+  //   }
+  // };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -183,186 +256,166 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
     }
   };
 
-  // 정규식 체크
-  useEffect(() => {
-    const emailRegex =
-      /([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-z]{2,4}|[0-9]{1,3})(\]?)$/;
-    const passwordRegex =
-      /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/;
-    const dpNameRegex = /^[a-zA-Z0-9_.]+$/;
+  const onFindPassword = () => {
+    setIsFindPassword((prev) => !prev);
+  };
 
-    if (!emailRegex.test(email)) {
-      setEmailMessage(false);
-    } else {
-      setEmailMessage(true);
-    }
-    // if (!passwordRegex.test(password)) {
-    //   setPasswordMessage(false);
-    // } else {
-    // setPasswordMessage(true);
-    // }
-    if (!dpNameRegex.test(dpName)) {
-      setDpNameMessage(false);
-    } else {
-      setDpNameMessage(true);
-    }
-  }, [dpName, email, password]);
-
-  // 인풋 에러
-  useMemo(() => {
-    if (email.length > 0 && select.email && !emailMessage) {
-      return setError("사용할 수 없는 이메일 주소입니다.");
-    }
-    if (password.length > 0 && select.password && !passwordMessage) {
-      return setError("숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요.");
-    }
-    if (dpName.length > 0 && select.dpName && !dpName) {
-      return setError(
-        "사용자 이름에는 문자, 숫자, 밑줄 및 마침표만 사용할 수 있습니다."
-      );
-    }
-  }, [
-    dpName,
-    email.length,
-    emailMessage,
-    password.length,
-    passwordMessage,
-    select.dpName,
-    select.email,
-    select.password,
-  ]);
-
-  // // 인풋 에러
-  // const inputError = useMemo(() => {
-  //   if (email.length > 0 && select.email && !emailMessage) {
-  //     return "사용할 수 없는 이메일 주소입니다.";
-  //   }
-  //   if (password.length > 0 && select.password && !passwordMessage) {
-  //     return "숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요.";
-  //   }
-  //   if (dpName.length > 0 && select.dpName && !dpName) {
-  //     return "사용자 이름에는 문자, 숫자, 밑줄 및 마침표만 사용할 수 있습니다.";
-  //   }
-  // }, [
-  //   dpName,
-  //   email.length,
-  //   emailMessage,
-  //   password.length,
-  //   passwordMessage,
-  //   select.dpName,
-  //   select.email,
-  //   select.password,
-  // ]);
+  // 이전 버튼
+  const onPrevClick = () => {
+    setIsFindPassword((prev) => !prev);
+  };
 
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
       <Container>
         <Header>
-          <LogoBox>SHEATHER</LogoBox>
-          <Category>{isExistAccount ? "로그인" : "회원가입"}</Category>
+          {!isFindPassword ? (
+            <>
+              <IconBox onClick={onPrevClick}>
+                <BiLeftArrowAlt />
+              </IconBox>
+              <Category>비밀번호 찾기</Category>
+            </>
+          ) : (
+            <Category>{isExistAccount ? "로그인" : "회원가입"}</Category>
+          )}
           <IconBox onClick={modalClose}>
             <IoCloseOutline />
           </IconBox>
         </Header>
         <Box>
-          <Form onSubmit={SignUser} method="post">
-            <EmailBox>
-              <Input
-                name="email"
-                type="email"
-                placeholder="이메일 주소"
-                // required
-                value={email}
-                onChange={onChange}
-                autoComplete="off"
-                onFocus={() => setSelect((prev) => ({ ...prev, email: false }))}
-                onBlur={() => setSelect((prev) => ({ ...prev, email: true }))}
-              />
-              {email.length > 0 && select.email && (
-                <InputCheckBox check={emailMessage}>
-                  {emailMessage ? (
-                    <IoCheckmarkCircleOutline />
-                  ) : (
-                    <IoCloseCircleOutline />
-                  )}
-                </InputCheckBox>
+          {isFindPassword ? (
+            <>
+              {isMobile && (
+                <LogoBox>
+                  <Deco />
+                  <SheatherLogo width="230px" height="100px" />
+                </LogoBox>
               )}
-            </EmailBox>
-            {!isExistAccount && (
-              <EmailBox>
-                <Input
-                  name="dpName"
-                  type="dpName"
-                  placeholder="사용자 이름"
-                  // required
-                  value={dpName}
-                  onChange={onChange}
-                  autoComplete="off"
-                  onFocus={() =>
-                    setSelect((prev) => ({ ...prev, dpName: false }))
-                  }
-                  onBlur={() =>
-                    setSelect((prev) => ({ ...prev, dpName: true }))
-                  }
-                />
-                {dpName.length > 0 && select.dpName && (
-                  <InputCheckBox check={dpNameMessage}>
-                    {dpNameMessage ? (
-                      <IoCheckmarkCircleOutline />
-                    ) : (
-                      <IoCloseCircleOutline />
+              <FormBox>
+                <Form onSubmit={SignUser} method="post">
+                  <EmailBox>
+                    <Input
+                      name="email"
+                      type="email"
+                      placeholder="이메일 주소"
+                      // required
+                      value={email}
+                      onChange={onChange}
+                      autoComplete="off"
+                      onFocus={() =>
+                        setSelect((prev) => ({ ...prev, email: false }))
+                      }
+                      onBlur={() =>
+                        setSelect((prev) => ({ ...prev, email: true }))
+                      }
+                    />
+                    {email.length > 0 && (
+                      <InputCheckBox check={emailMessage}>
+                        {emailMessage ? (
+                          <IoCheckmarkCircleOutline />
+                        ) : (
+                          <IoCloseCircleOutline />
+                        )}
+                      </InputCheckBox>
                     )}
-                  </InputCheckBox>
-                )}
-              </EmailBox>
-            )}
-            <PasswordBox>
-              <Input
-                name="password"
-                type="password"
-                placeholder="비밀번호"
-                // required
-                value={password}
-                onChange={onChange}
-                autoComplete="off"
-                autoCapitalize="off"
-                onFocus={() =>
-                  setSelect((prev) => ({ ...prev, password: false }))
-                }
-                onBlur={() =>
-                  setSelect((prev) => ({ ...prev, password: true }))
-                }
-              />
-              {password.length > 0 && select.password && (
-                <InputCheckBox check={passwordMessage}>
-                  {passwordMessage ? (
-                    <IoCheckmarkCircleOutline />
-                  ) : (
-                    <IoCloseCircleOutline />
+                  </EmailBox>
+                  {!isExistAccount && (
+                    <EmailBox>
+                      <Input
+                        name="dpName"
+                        type="dpName"
+                        placeholder="사용자 이름"
+                        // required
+                        value={dpName}
+                        onChange={onChange}
+                        autoComplete="off"
+                        onFocus={() =>
+                          setSelect((prev) => ({ ...prev, dpName: false }))
+                        }
+                        onBlur={() =>
+                          setSelect((prev) => ({ ...prev, dpName: true }))
+                        }
+                      />
+                      {dpName.length > 0 && (
+                        <InputCheckBox check={dpNameMessage && !isDuplication}>
+                          {dpNameMessage && !isDuplication ? (
+                            <IoCheckmarkCircleOutline />
+                          ) : (
+                            <IoCloseCircleOutline />
+                          )}
+                        </InputCheckBox>
+                      )}
+                    </EmailBox>
                   )}
-                </InputCheckBox>
-              )}
-            </PasswordBox>
-            <SignBtnBox>
-              <SignBtn>{isExistAccount ? "로그인" : "회원가입"}</SignBtn>
-            </SignBtnBox>
-            {/* {error !== "" && (
-              <>
-                <ErrorText>{error}</ErrorText>
-                {inputError && <ErrorText>{inputError}</ErrorText>}
-              </>
-            )} */}
-            {error !== "" && <ErrorText>{error}</ErrorText>}
-          </Form>
-          <SignInfo>
-            <SignUp onClick={toggleAccount}>
-              {isExistAccount ? "회원가입" : "로그인"}
-            </SignUp>
-            <AccountBox>
-              <AccountFind>계정 찾기</AccountFind>
-              <AccountFind>비밀번호 찾기</AccountFind>
-            </AccountBox>
-          </SignInfo>
+                  <PasswordBox>
+                    <Input
+                      name="password"
+                      type="password"
+                      placeholder="비밀번호"
+                      // required
+                      value={password}
+                      onChange={onChange}
+                      autoComplete="off"
+                      autoCapitalize="off"
+                      onFocus={() =>
+                        setSelect((prev) => ({ ...prev, password: false }))
+                      }
+                      onBlur={() =>
+                        setSelect((prev) => ({ ...prev, password: true }))
+                      }
+                    />
+                    {password.length > 0 && (
+                      <InputCheckBox check={passwordMessage}>
+                        {passwordMessage ? (
+                          <IoCheckmarkCircleOutline />
+                        ) : (
+                          <IoCloseCircleOutline />
+                        )}
+                      </InputCheckBox>
+                    )}
+                  </PasswordBox>
+                  <SignBtnBox>
+                    <SignBtn
+                      type="submit"
+                      // disabled={
+                      //   isExistAccount
+                      //     ? email === "" ||
+                      //       password === "" ||
+                      //       !emailMessage ||
+                      //       !passwordMessage
+                      //     : email === "" ||
+                      //       dpName === "" ||
+                      //       password === "" ||
+                      //       !emailMessage ||
+                      //       !dpNameMessage ||
+                      //       !passwordMessage ||
+                      //       isDuplication
+                      // }
+                    >
+                      {isExistAccount ? "로그인" : "회원가입"}
+                    </SignBtn>
+                  </SignBtnBox>
+                  {/* {(!emailMessage || !passwordMessage || !dpNameMessage) &&
+                    (email !== "" || dpName !== "" || password !== "") &&
+                    error !== "" && <ErrorText>{error}</ErrorText>} */}
+                </Form>
+                <SignInfo>
+                  <SignUp onClick={toggleAccount}>
+                    {isExistAccount ? "회원가입" : "로그인"}
+                  </SignUp>
+                  <AccountBox>
+                    <AccountFind>계정 찾기</AccountFind>
+                    <AccountFind onClick={onFindPassword}>
+                      비밀번호 찾기
+                    </AccountFind>
+                  </AccountBox>
+                </SignInfo>
+              </FormBox>
+            </>
+          ) : (
+            <FindPassword />
+          )}
         </Box>
       </Container>
     </Modal>
@@ -416,6 +469,15 @@ const Header = styled.header`
   overflow: hidden;
   border-bottom: 1px solid ${thirdColor};
   position: relative;
+
+  > div:first-of-type {
+    margin-left: -14px;
+    margin-right: auto;
+  }
+  > div:last-of-type {
+    margin-right: -14px;
+    margin-left: auto;
+  }
 `;
 
 const Category = styled.div`
@@ -430,10 +492,6 @@ const Category = styled.div`
 const IconBox = styled.div`
   width: 48px;
   height: 48px;
-  /* position: absolute; */
-  /* right: 0; */
-  margin-right: -14px;
-  margin-left: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -449,10 +507,11 @@ const IconBox = styled.div`
   }
 `;
 
-const LogoBox = styled.p`
-  /* width: 70px; */
-  /* margin-left: 12px; */
-  font-weight: bold;
+const LogoBox = styled.div`
+  /* position: absolute;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%); */
 `;
 
 const Logo = styled.img`
@@ -463,8 +522,10 @@ const Logo = styled.img`
 const Box = styled.div`
   flex: 1;
   display: flex;
+  position: relative;
   /* align-items: center; */
-  justify-content: center;
+  gap: 52px;
+  /* justify-content: space-between; */
   flex-direction: column;
   padding: 50px;
 `;
@@ -540,6 +601,12 @@ const SignBtn = styled.button`
   padding: 0;
   font-size: 16px;
   color: #fff;
+  transition: all 0.12s linear;
+
+  &:disabled {
+    background: red;
+    cursor: default;
+  }
 `;
 
 const SignInfo = styled.div`

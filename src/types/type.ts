@@ -81,6 +81,12 @@ export interface ResDataType {
   wind?: { speed: number };
 }
 
+export interface MessageReadType {
+  id: string;
+  user: string;
+  isRead?: boolean;
+}
+
 export interface CurrentUserType {
   uid: string;
   createdAt: number;
@@ -94,11 +100,7 @@ export interface CurrentUserType {
   follower: FollowerType[];
   following: FollowingType[];
   notice: NoticeArrType[];
-  message?: {
-    id: string;
-    user: string;
-    isRead?: boolean;
-  }[];
+  message?: MessageReadType[];
   tag?: string[];
 }
 

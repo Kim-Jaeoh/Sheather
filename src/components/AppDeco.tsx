@@ -1,49 +1,50 @@
 /** @jsxImportSource @emotion/react */
 import styled from "@emotion/styled";
-import { css } from "@emotion/react";
-import { ReactComponent as DecoTwinkle } from "../../assets/deco_twinkle.svg";
-import { ReactComponent as DecoWeather } from "../assets/deco_weather.svg";
-// import { ReactComponent as DecoHalfCicle } from "../assets/deco_half_DecoCircle.svg";
-import { ReactComponent as DecoHalfCicle } from "../assets/deco_half_circle_2.svg";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import DecoCircleType from "circletype";
+import { useLocation } from "react-router-dom";
 
-type Props = {};
+type BgColor = {
+  [key: string]: string;
+};
 
-const AppDeco = (props: Props) => {
+const AppDeco = () => {
   const circleInstance = useRef();
+  const { pathname } = useLocation();
   useEffect(() => {
     new DecoCircleType(circleInstance.current);
-    // const DecoCircleType = new DecoCircleType(DecoCircleInstance.current);
-    // DecoCircleType.refresh();
   }, []);
 
+  const bgColor = useMemo(() => {
+    const bgArr: BgColor = {
+      feed: `#ffd5dc`,
+      weather: `#d4e9ff`,
+      message: `#ffd8c8`,
+      profile: `#ebe4ff`,
+      explore: `#e8fff2`,
+    };
+
+    const key = pathname.split("/")[1];
+    return bgArr[key];
+  }, [pathname]);
+
   return (
-    <Container>
+    <Container bgColor={bgColor}>
       <DecoDecoCircleBox>
         <DecoCircle>
           <Text ref={circleInstance}>
             · SHEATHER · SHEATHER · SHEATHER · SHEATHER ·
           </Text>
-          <EmptyDecoCircle />
+          <EmptyDecoCircle bgColor={bgColor} />
         </DecoCircle>
       </DecoDecoCircleBox>
-      {/* <DecoHalfCicle
-        css={css`
-          width: 180px;
-          position: absolute;
-          top: 48px;
-          left: 38px;
-          transform: rotate(-20deg);
-        `}
-      /> */}
     </Container>
   );
 };
 
 export default AppDeco;
 
-const Container = styled.div`
+const Container = styled.div<{ bgColor: string }>`
   position: fixed;
   width: 100%;
   height: 100%;
@@ -52,22 +53,10 @@ const Container = styled.div`
   bottom: 0;
   top: 0;
   overflow: hidden;
-  background-color: #fafafa;
+  background-color: ${(props) => props.bgColor};
   /* background-image: url("/bg.svg"),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath fill-rule='evenodd' d='M0 0h4v4H0V0zm4 4h4v4H4V4z'/%3E%3C/g%3E%3C/svg%3E"); */
   background-image: url("/image/bg.png");
-`;
-
-const Circle = styled.div`
-  position: absolute;
-  border: 2px solid #222;
-  border-radius: 50%;
-`;
-
-const Rectangle = styled.div`
-  position: absolute;
-  border: 2px solid #222;
-  border-radius: 4px;
 `;
 
 const DecoDecoCircleBox = styled.div`
@@ -90,12 +79,12 @@ const DecoCircle = styled.div`
   justify-content: center;
 `;
 
-const EmptyDecoCircle = styled.div`
+const EmptyDecoCircle = styled.div<{ bgColor: string }>`
   position: absolute;
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  background-color: #fafafa;
+  background-color: ${(props) => props.bgColor};
   /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath fill-rule='evenodd' d='M0 0h4v4H0V0zm4 4h4v4H4V4z'/%3E%3C/g%3E%3C/svg%3E"); */
 `;
 

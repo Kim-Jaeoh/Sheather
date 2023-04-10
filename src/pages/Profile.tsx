@@ -18,8 +18,17 @@ import useMediaScreen from "../hooks/useMediaScreen";
 import { FeedType } from "../types/type";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import useUserAccount from "../hooks/useUserAccount";
+import { Spinner } from "../assets/spinner/Spinner";
+import { useSelector } from "react-redux";
+import { RootState } from "../app/store";
+import { feedApi } from "../apis/api";
 
 const Profile = () => {
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
+  );
   const [selectCategory, setSelectCategory] = useState(0);
   const [post, setPost] = useState(null);
   const [notInfoText, setNotInfoText] = useState("");
@@ -40,13 +49,6 @@ const Profile = () => {
   const { isMobile } = useMediaScreen();
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
-
-  const feedApi = async () => {
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_PORT}/api/feed`
-    );
-    return data;
-  };
 
   // 피드 리스트 가져오기
   const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {
@@ -142,93 +144,102 @@ const Profile = () => {
       {isAuthModal && (
         <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
-      {account && (
-        <Wrapper>
-          {editModalOpen && (
-            <ProfileEditModal
-              modalOpen={editModalOpen}
-              modalClose={onEditModalClick}
-            />
-          )}
-          {followModalOpen && (
-            <ProfileFollowModal
-              accountName={account?.displayName}
-              modalOpen={followModalOpen}
-              followInfo={followInfo}
-              followLength={
-                followCategory === "팔로워"
-                  ? account?.follower.length
-                  : account?.following.length
-              }
-              followCategory={followCategory}
-              modalClose={onModalClick}
-            />
-          )}
-          <Container>
-            {!isMobile ? (
-              <DeskProfileActInfo
-                myPost={myPost?.length}
-                account={account}
-                onModalClick={onModalClick}
-                setFollowInfo={setFollowInfo}
-                setFollowCategory={setFollowCategory}
-                onEditModalClick={onEditModalClick}
-                onIsLogin={onIsLogin}
-                onLogOutClick={onLogOutClick}
-              />
-            ) : (
-              <MobileProfileActInfo
-                myPost={myPost?.length}
-                account={account}
-                onModalClick={onModalClick}
-                setFollowInfo={setFollowInfo}
-                setFollowCategory={setFollowCategory}
-                onEditModalClick={onEditModalClick}
-                onIsLogin={onIsLogin}
-                onLogOutClick={onLogOutClick}
+      <Wrapper>
+        {account ? (
+          <>
+            {editModalOpen && (
+              <ProfileEditModal
+                modalOpen={editModalOpen}
+                modalClose={onEditModalClick}
               />
             )}
+            {followModalOpen && (
+              <ProfileFollowModal
+                accountName={account?.displayName}
+                modalOpen={followModalOpen}
+                followInfo={followInfo}
+                followLength={
+                  followCategory === "팔로워"
+                    ? account?.follower.length
+                    : account?.following.length
+                }
+                followCategory={followCategory}
+                modalClose={onModalClick}
+              />
+            )}
+            <Container>
+              {!isMobile ? (
+                <DeskProfileActInfo
+                  myPost={myPost?.length}
+                  account={account}
+                  onModalClick={onModalClick}
+                  setFollowInfo={setFollowInfo}
+                  setFollowCategory={setFollowCategory}
+                  onEditModalClick={onEditModalClick}
+                  onIsLogin={onIsLogin}
+                  onLogOutClick={onLogOutClick}
+                />
+              ) : (
+                <MobileProfileActInfo
+                  myPost={myPost?.length}
+                  account={account}
+                  onModalClick={onModalClick}
+                  setFollowInfo={setFollowInfo}
+                  setFollowCategory={setFollowCategory}
+                  onEditModalClick={onEditModalClick}
+                  onIsLogin={onIsLogin}
+                  onLogOutClick={onLogOutClick}
+                />
+              )}
 
-            <CategoryBox>
-              <Category
-                onClick={() => setSelectCategory(0)}
-                select={selectCategory}
-                num={0}
-                to={`post`}
-              >
-                <MdGridOn />
-                <CategoryText>게시물</CategoryText>
-              </Category>
-              <Category
-                onClick={() => setSelectCategory(1)}
-                select={selectCategory}
-                num={1}
-                to={`like`}
-              >
-                <FaRegHeart />
-                <CategoryText>좋아요</CategoryText>
-              </Category>
-              <Category
-                onClick={() => setSelectCategory(2)}
-                select={selectCategory}
-                num={2}
-                to={`bookmark`}
-                state={account?.id}
-              >
-                <FaRegBookmark />
-                <CategoryText>북마크</CategoryText>
-              </Category>
-            </CategoryBox>
+              <CategoryBox>
+                <Category
+                  onClick={() => setSelectCategory(0)}
+                  select={selectCategory}
+                  num={0}
+                  to={`post`}
+                >
+                  <MdGridOn />
+                  <CategoryText>게시물</CategoryText>
+                </Category>
+                {userObj.displayName === account.displayName && (
+                  <>
+                    <Category
+                      onClick={() => setSelectCategory(1)}
+                      select={selectCategory}
+                      num={1}
+                      to={`like`}
+                    >
+                      <FaRegHeart />
+                      <CategoryText>좋아요</CategoryText>
+                    </Category>
+                    <Category
+                      onClick={() => setSelectCategory(2)}
+                      select={selectCategory}
+                      num={2}
+                      to={`bookmark`}
+                      state={account?.id}
+                    >
+                      <FaRegBookmark />
+                      <CategoryText>북마크</CategoryText>
+                    </Category>
+                  </>
+                )}
+              </CategoryBox>
 
-            <ProfilePost
-              myPost={post}
-              loading={isLoading2}
-              notInfoText={notInfoText}
-              ref={ref}
-            />
-          </Container>
-        </Wrapper>
-      )}
+              <ProfilePost
+                myPost={post}
+                loading={isLoading2}
+                notInfoText={notInfoText}
+                onIsLogin={onIsLogin}
+                ref={ref}
+              />
+            </Container>
+          </>
+        ) : (
+          <Spinner />
+        )}
+      </Wrapper>
     </>
   );
 };

@@ -12,6 +12,8 @@ import TagListBox from "../TagListBox";
 import SearchList, { localType } from "./SearchList";
 import SearchedShowList from "./SearchedShowList";
 import ColorList from "../../../assets/data/ColorList";
+import useUserAccount from "../../../hooks/useUserAccount";
+import AuthFormModal from "../../modal/auth/AuthFormModal";
 
 type Props = {
   modalOpen: boolean;
@@ -28,6 +30,8 @@ const MobileSearchBox = ({ modalOpen, modalClose }: Props) => {
     JSON.parse(localStorage.getItem("keywords")) || []
   );
   const debouncedSearchTerm = useDebounce(text, 200);
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
 
   // 검색 목록 api
   useEffect(() => {
@@ -109,62 +113,71 @@ const MobileSearchBox = ({ modalOpen, modalClose }: Props) => {
   };
 
   return (
-    <Container>
-      <Header>
-        <InputTextBox onSubmit={onSubmitText} focus={focus}>
-          <IconBox htmlFor="search" focus={focus}>
-            <FiSearch />
-          </IconBox>
-          <SearchInput
-            spellCheck="false"
-            onFocus={onListOpen}
-            // onBlur={onListClose}
-            type="text"
-            id="search"
-            autoComplete="off"
-            maxLength={12}
-            value={text}
-            onChange={onChangeText}
-            placeholder="검색어를 입력하세요"
-          />
-          {text !== "" && (
-            <InputCloseBox onClick={onDeleteText} type="button">
-              <IoIosCloseCircleOutline />
-            </InputCloseBox>
-          )}
-          {focus && text === "" && (
-            <InputCloseBox onClick={onListClose} type="button">
-              <IoMdArrowDropup />
-            </InputCloseBox>
-          )}
-        </InputTextBox>
-        <ModalCloseBox type="button" onClick={modalClose}>
-          <IoMdClose />
-        </ModalCloseBox>
-      </Header>
-      {focus ? (
-        <SearchedBox focus={focus} toggleAnimation={toggleAnimation}>
-          {debounceText !== "" ? (
-            <SearchList
-              text={debounceText}
-              url={url}
-              onListClick={onListClick}
-            />
-          ) : (
-            <SearchedShowList
-              searched={searched}
-              setSearched={setSearched}
-              onListClick={onListClick}
-            />
-          )}
-        </SearchedBox>
-      ) : (
-        <>
-          <TagListBox modalOpen={modalOpen} modalClose={modalClose} />
-          <FollowListBox modalOpen={modalOpen} modalClose={modalClose} />
-        </>
+    <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
-    </Container>
+      <Container>
+        <Header>
+          <InputTextBox onSubmit={onSubmitText} focus={focus}>
+            <IconBox htmlFor="search" focus={focus}>
+              <FiSearch />
+            </IconBox>
+            <SearchInput
+              spellCheck="false"
+              onFocus={onListOpen}
+              // onBlur={onListClose}
+              type="text"
+              id="search"
+              autoComplete="off"
+              maxLength={12}
+              value={text}
+              onChange={onChangeText}
+              placeholder="검색어를 입력하세요"
+            />
+            {text !== "" && (
+              <InputCloseBox onClick={onDeleteText} type="button">
+                <IoIosCloseCircleOutline />
+              </InputCloseBox>
+            )}
+            {focus && text === "" && (
+              <InputCloseBox onClick={onListClose} type="button">
+                <IoMdArrowDropup />
+              </InputCloseBox>
+            )}
+          </InputTextBox>
+          <ModalCloseBox type="button" onClick={modalClose}>
+            <IoMdClose />
+          </ModalCloseBox>
+        </Header>
+        {focus ? (
+          <SearchedBox focus={focus} toggleAnimation={toggleAnimation}>
+            {debounceText !== "" ? (
+              <SearchList
+                text={debounceText}
+                url={url}
+                onListClick={onListClick}
+              />
+            ) : (
+              <SearchedShowList
+                searched={searched}
+                setSearched={setSearched}
+                onListClick={onListClick}
+              />
+            )}
+          </SearchedBox>
+        ) : (
+          <>
+            <TagListBox modalOpen={modalOpen} modalClose={modalClose} />
+            <FollowListBox
+              modalOpen={modalOpen}
+              modalClose={modalClose}
+              onIsLogin={onIsLogin}
+            />
+          </>
+        )}
+      </Container>
+    </>
   );
 };
 

@@ -5,9 +5,13 @@ import ColorList from "../../assets/data/ColorList";
 import FollowListBox from "./FollowListBox";
 import TagListBox from "./TagListBox";
 import SearchBox from "./search/SearchBox";
+import AuthFormModal from "../modal/auth/AuthFormModal";
+import useUserAccount from "../../hooks/useUserAccount";
 
 const RightBar = () => {
   const circleInstance = useRef();
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
 
   useEffect(() => {
     if (circleInstance.current) {
@@ -16,11 +20,16 @@ const RightBar = () => {
   }, []);
 
   return (
-    <Container>
-      <SearchBox />
-      <TagListBox />
-      <FollowListBox />
-    </Container>
+    <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+      )}
+      <Container>
+        <SearchBox />
+        <TagListBox />
+        <FollowListBox onIsLogin={onIsLogin} />
+      </Container>
+    </>
   );
 };
 

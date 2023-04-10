@@ -8,17 +8,15 @@ import useInfinityScroll from "../../hooks/useInfinityScroll";
 import HomeSkeleton from "../../assets/skeleton/HomeSkeleton";
 import { useState } from "react";
 import { MasonryGrid } from "@egjs/react-grid";
-import AuthFormModal from "../modal/auth/AuthFormModal";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import FeedProfileInfo from "./FeedProfileInfo";
-import useUserAccount from "../../hooks/useUserAccount";
 
 type Props = {
-  feed?: FeedType[];
   url?: string;
+  onIsLogin?: (callback: () => void) => void;
 };
 
-const FeedPost = ({ url, feed }: Props) => {
+const FeedPost = ({ url, onIsLogin }: Props) => {
   const { loginToken: userLogin } = useSelector((state: RootState) => {
     return state.user;
   });
@@ -26,8 +24,6 @@ const FeedPost = ({ url, feed }: Props) => {
   const [isGridRender, setIsGridRender] = useState(false);
   const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
   const { isMobile } = useMediaScreen();
-  const { isAuthModal, onAuthModal, setIsAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
 
   let checkSize: number;
   let checkAspect: number;
@@ -56,9 +52,6 @@ const FeedPost = ({ url, feed }: Props) => {
 
   return (
     <>
-      {isAuthModal && (
-        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
-      )}
       {!isLoading ? (
         <>
           {dataList?.pages?.flat().length !== 0 ? (

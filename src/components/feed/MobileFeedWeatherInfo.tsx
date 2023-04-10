@@ -1,9 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import styled from "@emotion/styled";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
-import { WeatherDataType } from "../../types/type";
-import axios, { AxiosError, AxiosResponse } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import { Spinner } from "../../assets/spinner/Spinner";
@@ -13,33 +10,16 @@ import TempClothes from "../../assets/data/TempClothes";
 import ColorList from "../../assets/data/ColorList";
 import { IoShirtOutline } from "react-icons/io5";
 import { BsSun } from "react-icons/bs";
+import { nowWeatherApi, regionApi } from "../../apis/api";
 
 const MobileFeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
-  const { pathname } = useLocation();
-
-  // 날씨 정보 받아오기
-  const weatherApi = async () =>
-    await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${location?.coordinates?.lat}&lon=${location?.coordinates?.lon}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric&lang=kr`
-    );
-
-  // 현재 주소 받아오기
-  const regionApi = async () => {
-    return await axios.get(
-      `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${location?.coordinates.lon}&y=${location?.coordinates.lat}&input_coord=WGS84`,
-      {
-        headers: {
-          Authorization: `KakaoAK ${process.env.REACT_APP_KAKAO_API_KEY}`,
-        },
-      }
-    );
-  };
+  const { tempClothes } = TempClothes(); // 옷 정보
 
   // 날씨 정보 받아오기
   const { data: weatherData, isLoading } = useQuery(
     ["Weather", location],
-    weatherApi,
+    () => nowWeatherApi(location),
     {
       refetchOnWindowFocus: false,
       onError: (e) => console.log(e),
@@ -50,15 +30,13 @@ const MobileFeedWeatherInfo = () => {
   // 현재 주소 받아오기
   const { data: regionData, isLoading: isLoading2 } = useQuery(
     ["Region", weatherData?.data],
-    regionApi,
+    () => regionApi(location),
     {
       refetchOnWindowFocus: false,
       onError: (e) => console.log(e),
       enabled: Boolean(weatherData?.data),
     }
   );
-
-  const { tempClothes } = TempClothes(); // 옷 정보
 
   const filterTempClothes = useMemo(() => {
     const temp = weatherData?.data?.main.temp;

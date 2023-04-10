@@ -76,5 +76,6 @@
     "@types/react-calendar": "^3.9.0",
     "@types/react-slick": "^0.23.10",
     "@types/redux-persist": "^4.3.1"
-  }
+  },
+  "type": "module"
 }

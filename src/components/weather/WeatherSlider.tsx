@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiShare } from "react-icons/fi";
@@ -9,7 +9,6 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { WeathersFiveDataType } from "../../types/type";
-import WeatherSliderSkeleton from "../../assets/skeleton/WeatherSliderSkeleton";
 import ColorList from "../../assets/data/ColorList";
 import ShareWeatherModal from "../modal/shareWeather/ShareWeatherModal";
 import Flicking from "@egjs/react-flicking";

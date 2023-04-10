@@ -35,25 +35,7 @@ const SearchedShowList = ({ searched, setSearched, onListClick }: Props) => {
       };
     };
 
-    // 1. for of 방식 (순차 처리)
-    // const listResult = async () => {
-    //   let arr: localType[] = [];
-    //   // 중복 제거
-    //   const uniqueArr = searched.filter(
-    //     (obj, index, self) =>
-    //       index ===
-    //       self.findIndex((t) => t.type === obj.type && t.search === obj.search)
-    //   );
-
-    //   for (const res of uniqueArr) {
-    //     let result = await getList(res);
-    //     arr.push(result);
-    //   }
-    //   setCombineArray(arr);
-    // };
-    // listResult();
-
-    // 2. map에서 Promise 방식 (병렬 처리)
+    // map에서 Promise 방식 (병렬 처리)
     const showList = async () => {
       const uniqueArr = searched.filter(
         (obj, index, self) =>

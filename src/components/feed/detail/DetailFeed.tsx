@@ -19,6 +19,7 @@ import DetailFeedReplyBox from "./DetailFeedReplyBox";
 import DetailFeedImage from "./DetailFeedImage";
 import DetailFeedInfo from "./DetailFeedInfo";
 import useUserAccount from "../../../hooks/useUserAccount";
+import { feedApi } from "../../../apis/api";
 
 const DetailFeed = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -28,23 +29,13 @@ const DetailFeed = () => {
   );
   const [userAccount, setUserAccount] = useState(null);
   const [isMore, setIsMore] = useState(false);
-
   const { isAuthModal, onAuthModal, setIsAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
-
-  // const [isAuthModal, setIsAuthModal] = useState(false);
   const [isFeedEdit, setIsFeedEdit] = useState(false);
   const { id: postId } = useParams();
   const { toggleLike } = useToggleLike({ user: userAccount });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  const feedApi = async () => {
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_PORT}/api/feed`
-    );
-    return data;
-  };
 
   // 피드 리스트 가져오기
   const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {

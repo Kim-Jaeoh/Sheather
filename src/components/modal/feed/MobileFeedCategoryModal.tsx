@@ -6,21 +6,13 @@ import { Modal } from "@mui/material";
 type Props = {
   modalOpen: boolean;
   selectCategory: number;
-  isDate: boolean;
   modalClose: () => void;
   setSelectCategory: React.Dispatch<React.SetStateAction<number>>;
   onSelectCategory2: () => void;
 };
 
 const MobileFeedCategoryModal = (props: Props) => {
-  const {
-    modalOpen,
-    selectCategory,
-    isDate,
-    modalClose,
-    setSelectCategory,
-    onSelectCategory2,
-  } = props;
+  const { modalOpen, selectCategory, modalClose, setSelectCategory } = props;
 
   return (
     <Modal

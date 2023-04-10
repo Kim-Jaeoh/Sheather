@@ -41,7 +41,7 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
     return modalClose();
   };
 
-  // 읽음 처리 후 모달 닫기
+  // 모달 닫기 전 읽음 처리
   const onModalClosedAfterRead = async () => {
     const copy = [...result];
     await updateDoc(doc(dbService, "users", userObj.displayName), {
@@ -64,7 +64,7 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
             <IoMdClose />
           </CloseBox>
         </Header>
-        {isLoading || result?.length ? (
+        {result?.length ? (
           <UserListBox>
             {isLoading ? (
               result

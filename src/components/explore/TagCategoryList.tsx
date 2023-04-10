@@ -6,8 +6,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { useQuery } from "@tanstack/react-query";
 import { FeedType } from "../../types/type";
-import axios from "axios";
 import useUserAccount from "../../hooks/useUserAccount";
+import AuthFormModal from "../modal/auth/AuthFormModal";
+import { feedApi } from "../../apis/api";
 
 interface Count {
   [key: string]: number;
@@ -22,13 +23,6 @@ const TagCategoryList = () => {
   const [arrState, setArrState] = useState(false);
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
-
-  const feedApi = async () => {
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_PORT}/api/feed`
-    );
-    return data;
-  };
 
   // 피드 리스트 가져오기
   const { data: feedData, isLoading } = useQuery<FeedType[]>(
@@ -74,53 +68,58 @@ const TagCategoryList = () => {
   }, [tagList?.length]);
 
   return (
-    <Container>
-      <CategoryBox>
-        <SelectName>태그</SelectName>
-      </CategoryBox>
-      <ListBox>
-        <>
-          {tagList?.map((res, index) => {
-            // 해당 태그가 피드 리스트에 포함되어 있는지 필터링
-            const filterUser = feedData?.filter((feed) =>
-              feed.tag.includes(res.name)
-            );
-            // 필터링 된 피드들 인기순으로 정렬
-            const sortArr = filterUser?.sort(
-              (a, b) => b.like.length - a.like.length
-            );
-            return (
-              <List
-                key={index}
-                exist={arrState}
-                onClick={() => onIsLogin(() => null)}
-              >
-                {index < 20 && (
-                  <Tag
-                    key={index}
-                    to={userLogin && `/explore/search?keyword=${res.name}`}
-                  >
-                    <TagRank>{index + 1}</TagRank>
-                    <ListProfileBox>
-                      <ListProfile
-                        onContextMenu={(e) => e.preventDefault()}
-                        src={sortArr[0].url[0]}
-                        alt="Feed Image"
-                      />
-                    </ListProfileBox>
-                    <TagInfo>
-                      <TagName>#{res.name}</TagName>
-                      <TagCount>{res.count} 피드</TagCount>
-                    </TagInfo>
-                  </Tag>
-                )}
-              </List>
-            );
-          })}
-          {arrState && <NullCard />}
-        </>
-      </ListBox>
-    </Container>
+    <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+      )}
+      <Container>
+        <CategoryBox>
+          <SelectName>태그</SelectName>
+        </CategoryBox>
+        <ListBox>
+          <>
+            {tagList?.map((res, index) => {
+              // 해당 태그가 피드 리스트에 포함되어 있는지 필터링
+              const filterUser = feedData?.filter((feed) =>
+                feed.tag.includes(res.name)
+              );
+              // 필터링 된 피드들 인기순으로 정렬
+              const sortArr = filterUser?.sort(
+                (a, b) => b.like.length - a.like.length
+              );
+              return (
+                <List
+                  key={index}
+                  exist={arrState}
+                  onClick={() => onIsLogin(() => null)}
+                >
+                  {index < 20 && (
+                    <Tag
+                      key={index}
+                      to={userLogin && `/explore/search?keyword=${res.name}`}
+                    >
+                      <TagRank>{index + 1}</TagRank>
+                      <ListProfileBox>
+                        <ListProfile
+                          onContextMenu={(e) => e.preventDefault()}
+                          src={sortArr[0].url[0]}
+                          alt="Feed Image"
+                        />
+                      </ListProfileBox>
+                      <TagInfo>
+                        <TagName>#{res.name}</TagName>
+                        <TagCount>{res.count} 피드</TagCount>
+                      </TagInfo>
+                    </Tag>
+                  )}
+                </List>
+              );
+            })}
+            {arrState && <NullCard />}
+          </>
+        </ListBox>
+      </Container>
+    </>
   );
 };
 

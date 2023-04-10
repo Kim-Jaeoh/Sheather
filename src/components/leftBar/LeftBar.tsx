@@ -8,143 +8,55 @@ import {
   BsPlusCircle,
   BsSun,
 } from "react-icons/bs";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosResponse, AxiosError } from "axios";
-import { onSnapshot, doc, collection, query } from "firebase/firestore";
 import { SlBell } from "react-icons/sl";
 import { FiSearch } from "react-icons/fi";
 import { ReactComponent as SheatherLogo } from "../../assets/image/sheather_logo.svg";
 import { ReactComponent as SheatherLogoSmall } from "../../assets/image/sheather_logo_s.svg";
-import { RootState } from "../../app/store";
-import { currentUser } from "../../app/user";
 import { shareWeather } from "../../app/weather";
 import ColorList from "../../assets/data/ColorList";
-import { dbService } from "../../fbase";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import useUserAccount from "../../hooks/useUserAccount";
-import {
-  WeatherDataType,
-  CurrentUserType,
-  listType,
-  MessageType,
-  NoticeArrType,
-} from "../../types/type";
+import { WeatherDataType, MessageType, NoticeArrType } from "../../types/type";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import NoticeModal from "../modal/notice/NoticeModal";
 import SearchModal from "../modal/search/SearchModal";
 import ShareWeatherModal from "../modal/shareWeather/ShareWeatherModal";
 import Deco from "./Deco";
+import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
+import useGetMyAccount from "../../hooks/useGetMyAccount";
+import { nowWeatherApi } from "../../apis/api";
 
 type MenuFuncgionType = {
   [key: string]: () => void;
 };
 
 const LeftBar = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
   const [selectMenu, setSelectMenu] = useState("feed");
-  const [myAccount, setMyAccount] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [messageCollection, setMessageCollection] = useState(null);
   const [shareBtn, setShareBtn] = useState(false);
   const [isSearchModal, setIsSearchModal] = useState(false);
   const [isNoticeModal, setIsNoticeModal] = useState(false);
-  const { pathname } = useLocation();
-  const dispatch = useDispatch();
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
   const { location } = useCurrentLocation();
+  const { userLogin, userObj, myAccount } = useGetMyAccount();
   const { isMobile, isTablet, isDesktop, RightBarNone } = useMediaScreen();
-
-  const nowWeatherApi = async () =>
-    await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${location?.coordinates?.lat}&lon=${location?.coordinates?.lon}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&units=metric&lang=kr`
-    );
+  // const { setNoticeMessage } = useSendNoticeMessage();
+  const { pathname } = useLocation();
+  const dispatch = useDispatch();
 
   // 현재 날씨 정보 가져오기
   const { data: weatherData } = useQuery<
     AxiosResponse<WeatherDataType>,
     AxiosError
-  >(["Weather", location], nowWeatherApi, {
+  >(["Weather", location], () => nowWeatherApi(location), {
     refetchOnWindowFocus: false,
     onError: (e) => console.log(e),
     enabled: Boolean(location),
   });
-
-  // 본인 계정 정보 가져오기
-  useEffect(() => {
-    if (userLogin) {
-      const unsubscribe = onSnapshot(
-        doc(dbService, "users", userObj?.displayName),
-        (doc) => {
-          setMyAccount(doc.data());
-        }
-      );
-
-      return () => unsubscribe();
-    }
-  }, [userLogin, userObj?.displayName]);
-
-  // 상대 계정 정보 가져오기
-  useEffect(() => {
-    myAccount?.message?.map(async (res: { user: string }) => {
-      if (res.user) {
-        onSnapshot(doc(dbService, "users", res.user), (doc) => {
-          setUsers((prev: CurrentUserType[]) => {
-            // 중복 체크
-            if (!prev.some((user) => user.uid === doc.data().uid)) {
-              return [...prev, doc.data()];
-            } else {
-              return prev;
-            }
-          });
-        });
-      }
-    });
-  }, [myAccount]);
-
-  // redux store에 message 정보 저장
-  useEffect(() => {
-    if (myAccount) {
-      const checkCurrentUserInfo = userObj?.message?.some(
-        (res: { id: string }) => res.id === messageCollection?.id
-      );
-
-      if (messageCollection && !checkCurrentUserInfo) {
-        dispatch(
-          currentUser({
-            ...userObj,
-            message: myAccount?.message.flat(),
-          })
-        );
-      }
-    }
-  }, [dispatch, messageCollection, myAccount?.message]);
-
-  // 채팅방 정보 불러오기
-  useEffect(() => {
-    const q = query(collection(dbService, `messages`));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const list: listType[] = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      const getInfo = users?.map((user) => {
-        return list?.filter(
-          (doc) =>
-            doc.member.includes(userObj.displayName) &&
-            doc.member.includes(user?.displayName)
-        );
-      });
-      setMessageCollection(getInfo.flat());
-    });
-    return () => unsubscribe();
-  }, [userObj.displayName, users]);
 
   useEffect(() => {
     if (!RightBarNone) {
@@ -156,11 +68,6 @@ const LeftBar = () => {
   useEffect(() => {
     setSelectMenu(pathname.split("/")[1]);
   }, [pathname]);
-
-  // 로그인 유무
-  const isLogin = (callback: () => void) => {
-    onIsLogin(() => callback());
-  };
 
   // // 방법 1. 버튼 클릭
   // const onBtnClick = (type: string) => {
@@ -202,7 +109,7 @@ const LeftBar = () => {
   };
 
   const onBtnClick = (type: string) => {
-    isLogin(() => {
+    onIsLogin(() => {
       menuFunctions[type]();
     });
   };
@@ -223,6 +130,9 @@ const LeftBar = () => {
           modalOpen={isSearchModal}
           modalClose={() => setIsSearchModal(false)}
         />
+      )}
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
       <Container>
         {isDesktop && <Deco />}
@@ -357,12 +267,6 @@ const LeftBar = () => {
               )}
             </MenuList>
           </MenuLink>
-          {isAuthModal && (
-            <AuthFormModal
-              modalOpen={isAuthModal}
-              modalClose={() => onBtnClick("profile")}
-            />
-          )}
         </MenuBox>
       </Container>
     </>
@@ -645,7 +549,7 @@ const NoticeBox = styled.div`
 
   @media (max-width: 767px) {
     position: absolute;
-    top: 10px;
+    top: 14px;
     left: 31px;
     width: 12px;
     height: 12px;

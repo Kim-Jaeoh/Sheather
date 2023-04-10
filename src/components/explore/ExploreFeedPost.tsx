@@ -63,9 +63,9 @@ const ExploreFeedPost = ({ url, feed }: Props) => {
 
   return (
     <>
-      {isAuthModal && (
+      {/* {isAuthModal && (
         <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
-      )}
+      )} */}
       {!isLoading ? (
         <>
           {randomFeed?.length !== 0 ? (

@@ -5,32 +5,24 @@ import { FeedType } from "../../types/type";
 import ProfileSkeleton from "../../assets/skeleton/ProfileSkeleton";
 import ColorList from "../../assets/data/ColorList";
 import useMediaScreen from "../../hooks/useMediaScreen";
-import useUserAccount from "../../hooks/useUserAccount";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import AuthFormModal from "../modal/auth/AuthFormModal";
 
 type props = {
   myPost: FeedType[];
   loading: boolean;
   notInfoText: string;
+  onIsLogin: (callback: () => void) => void;
   // ref: (node?: Element) => void;
 };
 
 const ProfilePost = React.forwardRef<HTMLInputElement, props>(
-  ({ myPost, loading, notInfoText }, ref) => {
+  ({ myPost, loading, notInfoText, onIsLogin }, ref) => {
     const { loginToken: userLogin } = useSelector((state: RootState) => {
       return state.user;
     });
     const [arrState, setArrState] = useState(myPost?.length);
     const { isMobile } = useMediaScreen();
-    const {
-      isAuthModal,
-      onAuthModal,
-      setIsAuthModal,
-      onIsLogin,
-      onLogOutClick,
-    } = useUserAccount();
 
     // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
     useEffect(() => {
@@ -47,9 +39,6 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
 
     return (
       <>
-        {isAuthModal && (
-          <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
-        )}
         {!loading ? (
           <>
             {myPost?.length !== 0 ? (

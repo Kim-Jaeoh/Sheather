@@ -11,12 +11,6 @@ const useUserAccount = () => {
   const [isAuthModal, setIsAuthModal] = useState(false);
   const dispatch = useDispatch();
 
-  const onLogInState = () => {
-    if (!userLogin) {
-      setIsAuthModal(true);
-    }
-  };
-
   // 로그인 유무
   const onIsLogin = (callback: () => void) => {
     if (!userLogin) {

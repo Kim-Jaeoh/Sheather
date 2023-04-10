@@ -4,8 +4,8 @@ import ColorList from "../../assets/data/ColorList";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { FeedType } from "../../types/type";
-import axios from "axios";
 import TagListSkeleton from "../../assets/skeleton/TagListSkeleton";
+import { feedApi } from "../../apis/api";
 
 interface Count {
   [key: string]: number;
@@ -17,13 +17,6 @@ type Props = {
 };
 
 const TagListBox = ({ modalOpen, modalClose }: Props) => {
-  const feedApi = async () => {
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_PORT}/api/feed`
-    );
-    return data;
-  };
-
   // 피드 리스트 가져오기
   const { data: feedData, isLoading } = useQuery<FeedType[]>(
     ["feed"],

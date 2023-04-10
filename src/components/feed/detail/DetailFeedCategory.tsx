@@ -25,7 +25,15 @@ const DetailFeedCategory = ({ res }: Props) => {
   const navigate = useNavigate();
 
   const onWearClick = (cat: string, detail: string) => {
-    navigate(`/explore?cat=${cat}&detail=${detail}&sort=recent`);
+    navigate(`/explore?q=clothes&cat=${cat}&detail=${detail}&sort=recent`);
+  };
+
+  const onWeatherClick = (cat: string, detail: string | number) => {
+    navigate(`/explore?q=weather&cat=${cat}&detail=${detail}&sort=recent`);
+  };
+
+  const onRegionClick = (cat: string, detail: string) => {
+    navigate(`/explore?q=region&cat=${cat}&detail=${detail}&sort=recent`);
   };
 
   return (
@@ -45,11 +53,17 @@ const DetailFeedCategory = ({ res }: Props) => {
                     <WearInfoMain>
                       <BsSun />
                     </WearInfoMain>
-                    <CategoryTag>
+                    <CategoryTag
+                      onClick={() => onRegionClick("region", res.region)}
+                    >
                       <MdPlace />
                       {res.region}
                     </CategoryTag>
-                    <CategoryTag>
+                    <CategoryTag
+                      onClick={() =>
+                        onWeatherClick("weather", res.weatherInfo.weather)
+                      }
+                    >
                       <WeatherIcon>
                         <img
                           src={`http://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
@@ -58,8 +72,18 @@ const DetailFeedCategory = ({ res }: Props) => {
                       </WeatherIcon>
                       {res.weatherInfo.weather}
                     </CategoryTag>
-                    <CategoryTag>{res.weatherInfo.temp}º</CategoryTag>
-                    <CategoryTag>
+                    <CategoryTag
+                      onClick={() =>
+                        onWeatherClick("temp", res.weatherInfo.temp)
+                      }
+                    >
+                      {res.weatherInfo.temp}º
+                    </CategoryTag>
+                    <CategoryTag
+                      onClick={() =>
+                        onWeatherClick("wind", res.weatherInfo.wind)
+                      }
+                    >
                       {res.weatherInfo.wind}
                       <span>m/s</span>
                     </CategoryTag>
@@ -99,11 +123,17 @@ const DetailFeedCategory = ({ res }: Props) => {
                 >
                   <WearInfo>
                     <CategoryTagBox>
-                      <CategoryTag>
+                      <CategoryTag
+                        onClick={() => onRegionClick("region", res.region)}
+                      >
                         <MdPlace />
                         {res.region}
                       </CategoryTag>
-                      <CategoryTag>
+                      <CategoryTag
+                        onClick={() =>
+                          onWeatherClick("weather", res.weatherInfo.weather)
+                        }
+                      >
                         <WeatherIcon>
                           <img
                             src={`http://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
@@ -112,8 +142,18 @@ const DetailFeedCategory = ({ res }: Props) => {
                         </WeatherIcon>
                         {res.weatherInfo.weather}
                       </CategoryTag>
-                      <CategoryTag>{res.weatherInfo.temp}º</CategoryTag>
-                      <CategoryTag>
+                      <CategoryTag
+                        onClick={() =>
+                          onWeatherClick("temp", res.weatherInfo.temp)
+                        }
+                      >
+                        {res.weatherInfo.temp}º
+                      </CategoryTag>
+                      <CategoryTag
+                        onClick={() =>
+                          onWeatherClick("wind", res.weatherInfo.wind)
+                        }
+                      >
                         {res.weatherInfo.wind}
                         <span>m/s</span>
                       </CategoryTag>

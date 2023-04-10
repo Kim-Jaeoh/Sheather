@@ -2,19 +2,28 @@ import { useState } from "react";
 import styled from "@emotion/styled";
 import FeedPost from "../components/feed/FeedPost";
 import SortFeedCategory from "../components/feed/SortFeedCategory";
+import AuthFormModal from "../components/modal/auth/AuthFormModal";
+import useUserAccount from "../hooks/useUserAccount";
 
 const Home = () => {
   const [url, setUrl] = useState(
     `${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`
   );
+  const { isAuthModal, onAuthModal, setIsAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
 
   return (
-    <Container>
-      <Box>
-        <SortFeedCategory url={url} setUrl={setUrl} />
-        <FeedPost url={url} />
-      </Box>
-    </Container>
+    <>
+      {isAuthModal && (
+        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+      )}
+      <Container>
+        <Box>
+          <SortFeedCategory url={url} setUrl={setUrl} />
+          <FeedPost url={url} onIsLogin={onIsLogin} />
+        </Box>
+      </Container>
+    </>
   );
 };
 export default Home;

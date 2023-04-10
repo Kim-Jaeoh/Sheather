@@ -12,20 +12,24 @@ import {
 } from "firebase/firestore";
 import ColorList from "../../assets/data/ColorList";
 import moment from "moment";
-import { currentUser } from "../../app/user";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useHandleResizeTextArea } from "../../hooks/useHandleResizeTextArea";
 import Emoji from "../emoji/Emoji";
-import { CurrentUserType, listType, MessageType } from "../../types/type";
-import { useDispatch } from "react-redux";
+import {
+  CurrentUserType,
+  listType,
+  MessageReadType,
+  MessageType,
+} from "../../types/type";
 import { toast } from "react-hot-toast";
 import { IoIosArrowBack } from "react-icons/io";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import useThrottle from "../../hooks/useThrottle";
 
 interface Props {
-  userObj: CurrentUserType;
   users: CurrentUserType;
+  myAccount: CurrentUserType;
   setClickInfo: React.Dispatch<React.SetStateAction<CurrentUserType>>;
 }
 
@@ -34,7 +38,7 @@ interface DayType {
   day: string;
 }
 
-const Chat = ({ userObj, users, setClickInfo }: Props) => {
+const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   const [messages, setMessages] = useState(null);
   const [sortMessages, setSortMessages] = useState<
     Array<[string, MessageType[]]>
@@ -45,10 +49,11 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
   const containerRef = useRef<HTMLDivElement>();
   const textRef = useRef<HTMLTextAreaElement>();
   const bottomListRef = useRef(null);
-  const dispatch = useDispatch();
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
+  const { takeThrottle } = useThrottle();
+  // const [users, setUsers] = useState(null);
 
   const dayArr: { [key: number]: string } = {
     0: `일`,
@@ -62,52 +67,43 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
 
   // 화면 하단 스크롤
   useEffect(() => {
-    bottomListRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (users) {
+      bottomListRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, users]);
 
   // 1. 채팅방 목록 및 정보 불러오기
   useEffect(() => {
-    // 채팅방 입장 시 대화 내역 초기화 (렌더링 하는 순간에 다른 채팅방 유저 프로필이 보이기 때문)
-    setMessages(null);
+    if (users) {
+      // 채팅방 입장 시 대화 내역 초기화 (렌더링 하는 순간에 다른 채팅방 유저 프로필이 보이기 때문)
+      setMessages(null);
 
-    const q = query(collection(dbService, `messages`));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const list: listType[] = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      const getInfo = list?.filter(
-        (res) =>
-          res.member.includes(userObj.displayName) &&
-          res.member.includes(users?.displayName)
-      );
-      setMessageCollection(getInfo[0]);
-    });
-    return () => unsubscribe();
-  }, [userObj.displayName, users]);
+      const q = query(collection(dbService, `messages`));
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const list: listType[] = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        const getInfo = list?.filter(
+          (res) =>
+            res.member.includes(myAccount?.displayName) &&
+            res.member.includes(users?.displayName)
+        );
+        setMessageCollection(getInfo[0]);
+      });
+      return () => unsubscribe();
+    }
+  }, [myAccount?.displayName, users]);
 
   // 2. 채팅 내역 불러오기
   useEffect(() => {
-    if (messageCollection?.id) {
+    if (messageCollection?.id && users) {
       const unsubscribe = onSnapshot(
         doc(dbService, "messages", messageCollection?.id),
         (doc) => {
           setMessages(doc.data()); // 메세지 통으로 정리
 
-          // 메세지 날짜별로 정리
-          // 1. 객체로 생성 방법
-          // const sections: { [key: string]: MessageType[] } = {};
-          // doc.data().message?.forEach((chat: MessageType) => {
-          //   const monthDate = moment(chat.createdAt).format("YYYY-MM-DD");
-          //   if (Array.isArray(sections[monthDate])) {
-          //     sections[monthDate].push(chat);
-          //   } else {
-          //     sections[monthDate] = [chat];
-          //   }
-          // });
-          // setSortMessages(sections);
-
-          // 2. Map으로 생성 방법
+          // Map으로 생성 방법
           const sections = new Map<string, MessageType[]>();
           doc?.data()?.message?.forEach((chat: MessageType) => {
             const monthDate = moment(chat.createdAt).format("YYYY년 M월 D일");
@@ -136,7 +132,7 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
       );
       return () => unsubscribe();
     }
-  }, [messageCollection?.id]);
+  }, [messageCollection?.id, users]);
 
   // 텍스트 입력
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -151,13 +147,13 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
     // 채팅 새로 만들기
     if (!messageCollection?.id) {
       await addDoc(collection(dbService, `messages`), {
-        member: [userObj.displayName, users?.displayName],
+        member: [myAccount?.displayName, users?.displayName],
         message: [
           {
             text: trimmedMessage,
             createdAt: +Date.now(),
-            uid: userObj.uid,
-            displayName: userObj.displayName,
+            uid: myAccount?.uid,
+            displayName: myAccount?.displayName,
             isRead: false,
           },
         ],
@@ -173,8 +169,8 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
           {
             text: trimmedMessage,
             createdAt: +Date.now(),
-            uid: userObj.uid,
-            displayName: userObj.displayName,
+            uid: myAccount?.uid,
+            displayName: myAccount?.displayName,
             isRead: false,
           },
         ],
@@ -182,16 +178,39 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
 
       // 글 보낼 시 상대가 본인 메시지 안 읽은 것으로 변경
       const copy = [...users?.message];
-      await updateDoc(doc(dbService, "users", users.displayName), {
+      await updateDoc(doc(dbService, "users", users?.displayName), {
         message: copy.map((res) => {
-          if (userObj.displayName === res.user) {
+          if (myAccount?.displayName === res.user) {
             return { ...res, isRead: false };
           } else {
-            return { ...res };
+            return res;
           }
         }),
       });
     }
+
+    // const setNoticeMessage = (noticeText: string) => {
+    //   const title = "SHEATHER";
+    //   const body = noticeText;
+    //   const icon = "./sheather_logo_s_svg";
+    //   const options = { body, icon };
+
+    //   new Notification(title, options);
+    // };
+
+    // const onSendMessage = async () => {
+    //   const result = await Notification.requestPermission();
+    //   if (result === "granted") {
+    //     setNoticeMessage(`${myAccount?.displayName}님이 메시지를 보냈습니다.`);
+    //   }
+    // };
+
+    // const setNotificationTimer = (timeout: number) => {
+    //   takeThrottle(() => {
+    //     onSendMessage();
+    //   }, timeout);
+    // };
+    // setNotificationTimer(3000);
 
     setText("");
     textRef.current.style.height = "24px";
@@ -211,7 +230,7 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
 
   // 메세지 읽음 확인
   const onReadMessage = useCallback(async () => {
-    if (messages) {
+    if (myAccount.message.some((res) => !res.isRead)) {
       // 채팅 정보 값 변경
       const messageCopy = [...messages?.message];
       await updateDoc(doc(dbService, "messages", messageCollection?.id), {
@@ -225,49 +244,28 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
       });
 
       // 계정 메시지 정보 값 변경
-      const copy = [...userObj?.message];
-      await updateDoc(doc(dbService, "users", userObj.displayName), {
+      const copy = [...myAccount?.message];
+      await updateDoc(doc(dbService, "users", myAccount?.displayName), {
         message: copy.map((res) => {
-          if (users.displayName === res.user) {
+          if (users?.displayName === res.user) {
             return { ...res, isRead: true };
           } else {
             return { ...res };
           }
         }),
       });
-
-      // store 메시지 정보 값 변경
-      dispatch(
-        currentUser({
-          ...userObj,
-          message: copy.map((res) => {
-            if (users.displayName === res.user) {
-              return { ...res, isRead: true };
-            } else {
-              return { ...res };
-            }
-          }),
-        })
-      );
     }
-  }, [dispatch, messageCollection?.id, messages, userObj, users.displayName]);
+  }, [messageCollection?.id, messages, myAccount, users?.displayName]);
 
   // 채팅방 나가기
   const onChatDelete = async () => {
-    const filter = userObj?.message.filter(
-      (res) => res.user !== users.displayName
+    const filter = myAccount?.message.filter(
+      (res) => res.user !== users?.displayName
     );
 
     navigate(`/message`);
 
-    dispatch(
-      currentUser({
-        ...userObj,
-        message: filter,
-      })
-    );
-
-    await updateDoc(doc(dbService, "users", userObj.displayName), {
+    await updateDoc(doc(dbService, "users", myAccount?.displayName), {
       message: filter,
     }).then(() => {
       setClickInfo(null);
@@ -279,11 +277,11 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
 
   // 본인, 상대방 둘 다 채팅방 없을 때 문서 삭제
   const deleteDocument = async () => {
-    const myFilter = userObj?.message.filter(
-      (res) => res.user === users.displayName
+    const myFilter = myAccount?.message.filter(
+      (res) => res.user === users?.displayName
     );
     const userFilter = users?.message.filter(
-      (res) => res.user === userObj.displayName
+      (res: MessageReadType) => res.user === myAccount?.displayName
     );
     const collectionRef = doc(dbService, "messages", myFilter[0].id);
 
@@ -306,98 +304,107 @@ const Chat = ({ userObj, users, setClickInfo }: Props) => {
 
   return (
     <>
-      <Category>
-        <IconBox onClick={onBackClick}>
-          <IoIosArrowBack />
-        </IconBox>
-        <ProfileInfoBox>
-          <ProfileImageBox to={`/profile/${users?.displayName}/post`}>
-            <ProfileImage
-              onContextMenu={(e) => e.preventDefault()}
-              src={users?.profileURL}
-              alt="profile image"
-            />
-          </ProfileImageBox>
-          <ProfileInfo>
-            <ProfileDsName>{users?.displayName}</ProfileDsName>
-            <ProfileName>{users?.name}</ProfileName>
-          </ProfileInfo>
-        </ProfileInfoBox>
-        <DeleteChatBtn type="button" onClick={onChatDelete}>
-          <RiDeleteBin6Line />
-        </DeleteChatBtn>
-      </Category>
-      <Conatiner ref={containerRef}>
-        <MessageBox>
-          {sortMessages?.map((arr: [string, MessageType[]], index: number) => {
-            return (
-              <GroupMessage key={arr[0]}>
-                <GroupDateBox>
-                  <GroupDate>{`${arr[0]} ${day[index].day}요일`}</GroupDate>
-                </GroupDateBox>
-                {arr[1]?.map((res: MessageType, index: number) => {
-                  const isMine = res?.displayName === userObj.displayName;
+      {users && (
+        <>
+          <Category>
+            <IconBox onClick={onBackClick}>
+              <IoIosArrowBack />
+            </IconBox>
+            <ProfileInfoBox>
+              <ProfileImageBox to={`/profile/${users?.displayName}/post`}>
+                <ProfileImage
+                  onContextMenu={(e) => e.preventDefault()}
+                  src={users?.profileURL}
+                  alt="profile image"
+                />
+              </ProfileImageBox>
+              <ProfileInfo>
+                <ProfileDsName>{users?.displayName}</ProfileDsName>
+                <ProfileName>{users?.name}</ProfileName>
+              </ProfileInfo>
+            </ProfileInfoBox>
+            <DeleteChatBtn type="button" onClick={onChatDelete}>
+              <RiDeleteBin6Line />
+            </DeleteChatBtn>
+          </Category>
+          <Conatiner ref={containerRef}>
+            <MessageBox>
+              {sortMessages?.map(
+                (arr: [string, MessageType[]], index: number) => {
                   return (
-                    <User key={res.createdAt} isMine={isMine}>
-                      {!isMine && users && (
-                        <ProfileImageBox
-                          to={`/profile/${res?.displayName}/post`}
-                        >
-                          <ProfileImage
-                            onContextMenu={(e) => e.preventDefault()}
-                            src={users?.profileURL}
-                            alt="profile image"
-                          />
-                        </ProfileImageBox>
-                      )}
-                      <SendMessageBox>
-                        <SendMessage isMine={isMine}>{res?.text}</SendMessage>
-                      </SendMessageBox>
-                      <SeneMessageAt isMine={isMine}>
-                        <Read>{res?.isRead ? null : 1}</Read>
-                        {moment(res?.createdAt).format(`HH:mm`)}
-                      </SeneMessageAt>
-                    </User>
+                    <GroupMessage key={arr[0]}>
+                      <GroupDateBox>
+                        <GroupDate>{`${arr[0]} ${day[index].day}요일`}</GroupDate>
+                      </GroupDateBox>
+                      {arr[1]?.map((res: MessageType, index: number) => {
+                        const isMine =
+                          res?.displayName === myAccount?.displayName;
+                        return (
+                          <User key={res.createdAt} isMine={isMine}>
+                            {!isMine && users && (
+                              <ProfileImageBox
+                                to={`/profile/${res?.displayName}/post`}
+                              >
+                                <ProfileImage
+                                  onContextMenu={(e) => e.preventDefault()}
+                                  src={users?.profileURL}
+                                  alt="profile image"
+                                />
+                              </ProfileImageBox>
+                            )}
+                            <SendMessageBox>
+                              <SendMessage isMine={isMine}>
+                                {res?.text}
+                              </SendMessage>
+                            </SendMessageBox>
+                            <SeneMessageAt isMine={isMine}>
+                              <Read>{res?.isRead ? null : 1}</Read>
+                              {moment(res?.createdAt).format(`HH:mm`)}
+                            </SeneMessageAt>
+                          </User>
+                        );
+                      })}
+                    </GroupMessage>
                   );
-                })}
-              </GroupMessage>
-            );
-          })}
-          <div ref={bottomListRef} />
-        </MessageBox>
-        <ChatBox>
-          <TextAreaBox onSubmit={onSubmit}>
-            {!isMobile && (
-              <Emoji
-                setText={setText}
-                textRef={textRef}
-                right={-270}
-                bottom={40}
-              />
-            )}
-            <TextArea
-              spellCheck="false"
-              maxLength={120}
-              value={text}
-              ref={textRef}
-              onClick={onReadMessage}
-              onChange={onChange}
-              onKeyDown={onKeyPress}
-              onInput={handleResizeHeight}
-              placeholder="메시지 입력..."
-            />
-            {text.length > 0 && (
-              <SendBtn
-                type="button"
-                onClick={onClickSendMessage}
-                disabled={!text}
-              >
-                보내기
-              </SendBtn>
-            )}
-          </TextAreaBox>
-        </ChatBox>
-      </Conatiner>
+                }
+              )}
+              <div ref={bottomListRef} />
+            </MessageBox>
+            <ChatBox>
+              <TextAreaBox onSubmit={onSubmit}>
+                {!isMobile && (
+                  <Emoji
+                    setText={setText}
+                    textRef={textRef}
+                    right={-270}
+                    bottom={40}
+                  />
+                )}
+                <TextArea
+                  spellCheck="false"
+                  maxLength={120}
+                  value={text}
+                  ref={textRef}
+                  onClick={onReadMessage}
+                  onChange={onChange}
+                  onKeyDown={onKeyPress}
+                  onInput={handleResizeHeight}
+                  placeholder="메시지 입력..."
+                />
+                {text.length > 0 && (
+                  <SendBtn
+                    type="button"
+                    onClick={onClickSendMessage}
+                    disabled={!text}
+                  >
+                    보내기
+                  </SendBtn>
+                )}
+              </TextAreaBox>
+            </ChatBox>
+          </Conatiner>
+        </>
+      )}
     </>
   );
 };

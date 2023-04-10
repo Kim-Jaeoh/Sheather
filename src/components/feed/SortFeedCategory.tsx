@@ -182,7 +182,6 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
         <MobileFeedCategoryModal
           modalOpen={categoryModal}
           selectCategory={selectCategory}
-          isDate={isDate}
           modalClose={onCategoryModal}
           setSelectCategory={setSelectCategory}
           onSelectCategory2={onSelectCategory2}

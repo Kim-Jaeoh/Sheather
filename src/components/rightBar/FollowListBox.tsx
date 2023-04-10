@@ -7,17 +7,16 @@ import { dbService } from "../../fbase";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useToggleFollow from "../../hooks/useToggleFollow";
-import AuthFormModal from "../modal/auth/AuthFormModal";
 import { cloneDeep } from "lodash";
 import FollowListSkeleton from "../../assets/skeleton/FollowListSkeleton";
-import useUserAccount from "../../hooks/useUserAccount";
 
 type Props = {
   modalOpen?: boolean;
   modalClose?: () => void;
+  onIsLogin?: (callback: () => void) => void;
 };
 
-const FollowListBox = ({ modalOpen, modalClose }: Props) => {
+const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
@@ -26,10 +25,7 @@ const FollowListBox = ({ modalOpen, modalClose }: Props) => {
   const [users, setUsers] = useState([]);
   const [clickIndex, setClickIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
   const { toggleFollow } = useToggleFollow({ user: users[clickIndex] });
-
   const usersArr = useRef([]);
 
   // 계정 정보 가져오기
@@ -50,15 +46,15 @@ const FollowListBox = ({ modalOpen, modalClose }: Props) => {
       const notFollowed = filter.filter(
         (res) =>
           !res.follower.some(
-            (asd: { displayName: string }) =>
-              asd.displayName === userObj.displayName
+            (follower: { displayName: string }) =>
+              follower.displayName === userObj.displayName
           )
       );
 
       // 렌더링이 2번 돼서 cloneDeep으로 해결
       let cloneArr = cloneDeep(notFollowed);
       usersArr.current.push(...cloneArr);
-      // randomArray(cloneArr); // 배열 랜덤
+      randomArray(cloneArr); // 배열 랜덤
       setUsers(cloneArr);
       setIsLoading(true);
     });
@@ -79,6 +75,8 @@ const FollowListBox = ({ modalOpen, modalClose }: Props) => {
   };
 
   const onClick = () => {
+    // onIsLogin(() => {
+    // });
     if (modalOpen) {
       modalClose();
     }
@@ -93,9 +91,6 @@ const FollowListBox = ({ modalOpen, modalClose }: Props) => {
 
   return (
     <>
-      {isAuthModal && (
-        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
-      )}
       <Container>
         <CategoryBox>
           <Category>추천</Category>

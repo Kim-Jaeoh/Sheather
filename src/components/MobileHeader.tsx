@@ -58,7 +58,6 @@ const MobileHeader = (props: Props) => {
       )}
       <Header>
         <LogoBox to="/">
-          {/* SHEATHER */}
           <SheatherLogo width="100%" height="100%" />
         </LogoBox>
         <IconBox>
