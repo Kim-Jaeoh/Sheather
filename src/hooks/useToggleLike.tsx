@@ -30,18 +30,17 @@ const useToggleLike = ({ user }: props) => {
     );
 
     if (!userLogin) {
-      return alert("로그인하기~~");
+      return alert("로그인을 해주세요");
     }
 
     if (userObj.like?.includes(res.id)) {
-      await updateDoc(doc(dbService, "users", userObj.displayName), {
+      await updateDoc(doc(dbService, "users", userObj.email), {
         like: likeFilter,
       });
 
       // 상대 알림에서 제거
       if (userObj.displayName !== res.displayName) {
-        console.log("제거");
-        await updateDoc(doc(dbService, "users", res.displayName), {
+        await updateDoc(doc(dbService, "users", user.email), {
           notice: noticeFilter,
         });
       }
@@ -53,14 +52,13 @@ const useToggleLike = ({ user }: props) => {
         })
       );
     } else {
-      await updateDoc(doc(dbService, "users", userObj.displayName), {
+      await updateDoc(doc(dbService, "users", userObj.email), {
         like: [...likeCopy, res.id],
       });
 
       // 상대 알림에 추가
       if (userObj.displayName !== res.displayName) {
-        console.log("?");
-        await updateDoc(doc(dbService, "users", res.displayName), {
+        await updateDoc(doc(dbService, "users", user.email), {
           notice: [
             ...noticeCopy,
             {
@@ -107,7 +105,7 @@ const useToggleLike = ({ user }: props) => {
       (res) => res.displayName !== userObj.displayName
     );
     if (!userObj.displayName) {
-      return alert("로그인하기~~");
+      return alert("로그인을 해주세요.");
     }
     if (findEmail.length === 0) {
       mutate({

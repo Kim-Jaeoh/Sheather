@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/data/ColorList";
 import { onSnapshot, doc } from "firebase/firestore";
@@ -23,11 +23,13 @@ const DetailFeedHeader = ({ userObj, res, onMoreClick }: Props) => {
 
   // 계정 정보 가져오기
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      doc(dbService, "users", res.displayName),
-      (doc) => setUserAccount(doc.data())
+    onSnapshot(doc(dbService, "users", res.email), (doc) =>
+      setUserAccount(doc.data())
     );
-    return () => unsubscribe();
+    // const unsubscribe = onSnapshot(doc(dbService, "users", res.email), (doc) =>
+    //   setUserAccount(doc.data())
+    // );
+    // return () => unsubscribe();
   }, [res]);
 
   return (
@@ -50,7 +52,10 @@ const DetailFeedHeader = ({ userObj, res, onMoreClick }: Props) => {
           )}
         </UserImageBox>
         <UserWriteInfo>
-          <UserNameBox to={`/profile/${res.displayName}/post`}>
+          <UserNameBox
+            to={`/profile/${res.displayName}/post`}
+            state={res.email}
+          >
             {userAccount ? (
               <UserName>{userAccount?.displayName}</UserName>
             ) : (

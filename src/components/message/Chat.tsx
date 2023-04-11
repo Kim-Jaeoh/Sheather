@@ -52,8 +52,6 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
-  const { takeThrottle } = useThrottle();
-  // const [users, setUsers] = useState(null);
 
   const dayArr: { [key: number]: string } = {
     0: `일`,
@@ -178,7 +176,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
 
       // 글 보낼 시 상대가 본인 메시지 안 읽은 것으로 변경
       const copy = [...users?.message];
-      await updateDoc(doc(dbService, "users", users?.displayName), {
+      await updateDoc(doc(dbService, "users", users?.email), {
         message: copy.map((res) => {
           if (myAccount?.displayName === res.user) {
             return { ...res, isRead: false };
@@ -188,29 +186,6 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
         }),
       });
     }
-
-    // const setNoticeMessage = (noticeText: string) => {
-    //   const title = "SHEATHER";
-    //   const body = noticeText;
-    //   const icon = "./sheather_logo_s_svg";
-    //   const options = { body, icon };
-
-    //   new Notification(title, options);
-    // };
-
-    // const onSendMessage = async () => {
-    //   const result = await Notification.requestPermission();
-    //   if (result === "granted") {
-    //     setNoticeMessage(`${myAccount?.displayName}님이 메시지를 보냈습니다.`);
-    //   }
-    // };
-
-    // const setNotificationTimer = (timeout: number) => {
-    //   takeThrottle(() => {
-    //     onSendMessage();
-    //   }, timeout);
-    // };
-    // setNotificationTimer(3000);
 
     setText("");
     textRef.current.style.height = "24px";
@@ -230,7 +205,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
 
   // 메세지 읽음 확인
   const onReadMessage = useCallback(async () => {
-    if (myAccount.message.some((res) => !res.isRead)) {
+    if (myAccount?.message?.some((res) => !res.isRead)) {
       // 채팅 정보 값 변경
       const messageCopy = [...messages?.message];
       await updateDoc(doc(dbService, "messages", messageCollection?.id), {
@@ -245,7 +220,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
 
       // 계정 메시지 정보 값 변경
       const copy = [...myAccount?.message];
-      await updateDoc(doc(dbService, "users", myAccount?.displayName), {
+      await updateDoc(doc(dbService, "users", myAccount?.email), {
         message: copy.map((res) => {
           if (users?.displayName === res.user) {
             return { ...res, isRead: true };
@@ -265,7 +240,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
 
     navigate(`/message`);
 
-    await updateDoc(doc(dbService, "users", myAccount?.displayName), {
+    await updateDoc(doc(dbService, "users", myAccount?.email), {
       message: filter,
     }).then(() => {
       setClickInfo(null);

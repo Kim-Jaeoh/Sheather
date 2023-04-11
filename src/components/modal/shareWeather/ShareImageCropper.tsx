@@ -28,175 +28,180 @@ const aspectRatios = [
   { value: 4 / 3, text: "4/3", paddingTop: 74.8 },
 ];
 
-const ShareImageCropper = ({
-  attachments,
-  selectedImage,
-  setCroppedImageFor,
-}: Props) => {
-  const imageUrl = selectedImage?.imageUrl;
-  const zoomInit = selectedImage?.zoom;
-  const cropInit = selectedImage?.crop;
-  const aspectInit = selectedImage?.aspect;
-  const [zoom, setZoom] = useState(zoomInit);
-  const [crop, setCrop] = useState<Point>(cropInit);
-  const [aspect, setAspect] = useState<AspectRatio>(aspectInit);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-  });
-  const [num, setNum] = useState(0);
+const ShareImageCropper = React.forwardRef<HTMLButtonElement, Props>(
+  ({ attachments, selectedImage, setCroppedImageFor }, ref) => {
+    const imageUrl = selectedImage?.imageUrl;
+    const zoomInit = selectedImage?.zoom;
+    const cropInit = selectedImage?.crop;
+    const aspectInit = selectedImage?.aspect;
+    const [zoom, setZoom] = useState(zoomInit);
+    const [crop, setCrop] = useState<Point>(cropInit);
+    const [aspect, setAspect] = useState<AspectRatio>(aspectInit);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+    });
+    const [num, setNum] = useState(0);
 
-  useEffect(() => {
-    // 비율 통일
-    if (attachments) {
-      attachments?.map((res) => {
-        return (res.aspect = aspect);
-        // res.crop = crop;
-        // res.zoom = zoom;
-        // return (res.aspect = aspect);
-      });
-    }
-  }, [aspect, attachments]);
+    useEffect(() => {
+      // 비율 통일
+      if (attachments) {
+        attachments?.map((res) => {
+          return (res.aspect = aspect);
+          // res.crop = crop;
+          // res.zoom = zoom;
+          // return (res.aspect = aspect);
+        });
+      }
+    }, [aspect, attachments]);
 
-  useEffect(() => {
-    if (!zoomInit) {
-      setZoom(1);
-    } else {
-      setZoom(zoomInit);
-    }
-    if (!cropInit) {
-      setCrop({ x: 0, y: 0 });
-    } else {
-      setCrop(cropInit);
-    }
-    if (!aspectInit) {
-      setAspect(aspectRatios[0]);
-    } else {
-      setAspect(aspectInit);
-    }
-  }, [aspectInit, cropInit, zoomInit]);
+    useEffect(() => {
+      if (!zoomInit) {
+        setZoom(1);
+      } else {
+        setZoom(zoomInit);
+      }
+      if (!cropInit) {
+        setCrop({ x: 0, y: 0 });
+      } else {
+        setCrop(cropInit);
+      }
+      if (!aspectInit) {
+        setAspect(aspectRatios[0]);
+      } else {
+        setAspect(aspectInit);
+      }
+    }, [aspectInit, cropInit, zoomInit]);
 
-  useEffect(() => {
-    if (aspect?.value === aspectRatios[0].value) {
-      setNum(0);
-    } else if (aspect?.value === aspectRatios[1].value) {
-      setNum(1);
-    } else if (aspect?.value === aspectRatios[2].value) {
-      setNum(2);
-    }
-  }, [aspect?.value, aspectInit?.value]);
+    useEffect(() => {
+      if (aspect?.value === aspectRatios[0].value) {
+        setNum(0);
+      } else if (aspect?.value === aspectRatios[1].value) {
+        setNum(1);
+      } else if (aspect?.value === aspectRatios[2].value) {
+        setNum(2);
+      }
+    }, [aspect?.value, aspectInit?.value]);
 
-  const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  };
+    const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    };
 
-  const onCrop = async () => {
-    const croppedImageUrl = await getCroppedImg(imageUrl, croppedAreaPixels);
-    setCroppedImageFor(selectedImage.name, crop, zoom, aspect, croppedImageUrl);
-  };
-
-  // 선택된 이미지 정보 저장
-  const SetImageInfo = () => {
-    if (selectedImage) {
-      const attachmentIndex = attachments.findIndex(
-        (x) => x?.name === selectedImage.name
+    const onCrop = async () => {
+      const croppedImageUrl = await getCroppedImg(imageUrl, croppedAreaPixels);
+      setCroppedImageFor(
+        selectedImage.name,
+        crop,
+        zoom,
+        aspect,
+        croppedImageUrl
       );
-      attachments[attachmentIndex].crop = crop;
-      attachments[attachmentIndex].zoom = zoom;
-      attachments[attachmentIndex].aspect = aspect;
-    }
-  };
+    };
 
-  const getImageSize = new Image();
-  getImageSize.src = imageUrl;
+    // 선택된 이미지 정보 저장
+    const SetImageInfo = () => {
+      if (selectedImage) {
+        const attachmentIndex = attachments.findIndex(
+          (x) => x?.name === selectedImage.name
+        );
+        attachments[attachmentIndex].crop = crop;
+        attachments[attachmentIndex].zoom = zoom;
+        attachments[attachmentIndex].aspect = aspect;
+      }
+    };
 
-  return (
-    <Container>
-      <CropBox attachments={imageUrl}>
-        {imageUrl ? (
-          <Cropper
-            image={imageUrl}
-            // objectFit={
-            //   "vertical-cover"
-            //   // "auto-cover"
-            //   // getImageSize?.width >= getImageSize?.height ? "vertical-cover" : "horizontal-cover"
-            // }
-            crop={crop}
-            zoom={zoom}
-            aspect={aspect?.value}
-            onCropChange={setCrop}
-            onZoomChange={setZoom}
-            onCropComplete={onCropComplete}
-            onInteractionEnd={SetImageInfo}
-          />
-        ) : (
-          <NotInfoBox>
-            <IconBox>
-              <Icon>
-                <BiImageAdd />
-              </Icon>
-            </IconBox>
-            <NotInfoCategory>이미지 추가</NotInfoCategory>
-            <NotInfoText>하단의 이미지 버튼을 눌러 추가해주세요.</NotInfoText>
-          </NotInfoBox>
-        )}
-      </CropBox>
-      {imageUrl && (
-        <Controls>
-          <AspectBox>
-            {/* <ResetBtn onClick={onResetImage}>
+    const getImageSize = new Image();
+    getImageSize.src = imageUrl;
+
+    return (
+      <Container>
+        <CropBox attachments={imageUrl}>
+          {imageUrl ? (
+            <Cropper
+              image={imageUrl}
+              // objectFit={
+              //   "vertical-cover"
+              //   // "auto-cover"
+              //   // getImageSize?.width >= getImageSize?.height ? "vertical-cover" : "horizontal-cover"
+              // }
+              crop={crop}
+              zoom={zoom}
+              aspect={aspect?.value}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+              onInteractionEnd={SetImageInfo}
+            />
+          ) : (
+            <NotInfoBox>
+              <IconBox>
+                <Icon>
+                  <BiImageAdd />
+                </Icon>
+              </IconBox>
+              <NotInfoCategory>이미지 추가</NotInfoCategory>
+              <NotInfoText>하단의 이미지 버튼을 눌러 추가해주세요.</NotInfoText>
+            </NotInfoBox>
+          )}
+        </CropBox>
+        {imageUrl && (
+          <Controls>
+            <AspectBox>
+              {/* <ResetBtn onClick={onResetImage}>
               <ResetText>RESET</ResetText>
             </ResetBtn> */}
-            <AspectValue
-              onClick={() => setAspect(aspectRatios[0])}
-              num={num}
-              select={0}
-              style={{
-                padding: "12px",
-                width: "24px",
-                height: "24px",
-              }}
+              <AspectValue
+                onClick={() => setAspect(aspectRatios[0])}
+                num={num}
+                select={0}
+                style={{
+                  padding: "12px",
+                  width: "24px",
+                  height: "24px",
+                }}
+              >
+                1:1
+              </AspectValue>
+              <AspectValue
+                onClick={() => setAspect(aspectRatios[1])}
+                num={num}
+                select={1}
+                style={{
+                  padding: "16px 12px",
+                  width: "24px",
+                  height: "32px",
+                }}
+              >
+                3:4
+              </AspectValue>
+              <AspectValue
+                onClick={() => setAspect(aspectRatios[2])}
+                num={num}
+                select={2}
+                style={{
+                  padding: "12px 16px",
+                  width: "32px",
+                  height: "24px",
+                }}
+              >
+                4:3
+              </AspectValue>
+            </AspectBox>
+            <CropBtn
+              isCrop={Boolean(selectedImage.croppedImageUrl)}
+              onClick={onCrop}
+              ref={ref}
             >
-              1:1
-            </AspectValue>
-            <AspectValue
-              onClick={() => setAspect(aspectRatios[1])}
-              num={num}
-              select={1}
-              style={{
-                padding: "16px 12px",
-                width: "24px",
-                height: "32px",
-              }}
-            >
-              3:4
-            </AspectValue>
-            <AspectValue
-              onClick={() => setAspect(aspectRatios[2])}
-              num={num}
-              select={2}
-              style={{
-                padding: "12px 16px",
-                width: "32px",
-                height: "24px",
-              }}
-            >
-              4:3
-            </AspectValue>
-          </AspectBox>
-          <CropBtn
-            isCrop={Boolean(selectedImage.croppedImageUrl)}
-            onClick={onCrop}
-          >
-            <FiCrop />
-          </CropBtn>
-        </Controls>
-      )}
-    </Container>
-  );
-};
+              <FiCrop />
+            </CropBtn>
+          </Controls>
+        )}
+      </Container>
+    );
+  }
+);
 
 export default ShareImageCropper;
 
@@ -290,7 +295,7 @@ const ResetBtn = styled.div`
   }
 `;
 
-const CropBtn = styled.div<{ isCrop?: boolean }>`
+const CropBtn = styled.button<{ isCrop?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -304,9 +309,15 @@ const CropBtn = styled.div<{ isCrop?: boolean }>`
   border-radius: 9999px;
   transition: all 0.2s;
   z-index: 99;
+  outline: auto;
 
   &:hover,
   &:active {
+    background-color: ${mainColor};
+  }
+
+  &:focus {
+    background: red;
   }
 `;
 

@@ -13,12 +13,13 @@ const useNoticeCheck = () => {
   useEffect(() => {
     if (myAccount) {
       const getList = async (res: NoticeArrType) => {
-        const docSnap = await getDoc(doc(dbService, "users", res.displayName));
+        const docSnap = await getDoc(doc(dbService, "users", res.email));
         return {
           type: res.type,
           time: res.time,
           displayName: res.displayName,
           postId: res.postId,
+          email: res.email,
           text: res.text,
           imgUrl: res.imgUrl,
           isRead: res.isRead,

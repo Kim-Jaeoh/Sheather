@@ -40,17 +40,17 @@ const useToggleFollow = ({ user }: props) => {
         .length !== 0
     ) {
       // 본인 팔로잉에 상대방 이름 제거
-      await updateDoc(doc(dbService, "users", userObj.displayName), {
+      await updateDoc(doc(dbService, "users", userObj.email), {
         following: followingFilter,
       });
 
       // 상대방 팔로워에 본인 이름 제거
-      await updateDoc(doc(dbService, "users", resDpName), {
+      await updateDoc(doc(dbService, "users", user.email), {
         follower: followerFilter,
       });
 
       // 상대 알림에서 제거
-      await updateDoc(doc(dbService, "users", resDpName), {
+      await updateDoc(doc(dbService, "users", user.email), {
         notice: noticeFilter,
       });
 
@@ -62,25 +62,26 @@ const useToggleFollow = ({ user }: props) => {
       );
     } else {
       // 본인 팔로잉에 상대방 이름 추가
-      await updateDoc(doc(dbService, "users", userObj.displayName), {
+      await updateDoc(doc(dbService, "users", userObj.email), {
         following: [
           ...followingCopy,
-          { displayName: resDpName, time: +new Date() },
+          { displayName: resDpName, email: user.email, time: +new Date() },
         ],
       });
 
       // 상대방 팔로워에 본인 이름 추가
-      await updateDoc(doc(dbService, "users", resDpName), {
+      await updateDoc(doc(dbService, "users", user.email), {
         follower: [
           {
             displayName: userObj.displayName,
+            email: userObj.email,
             time: +new Date(),
           },
         ],
       });
 
       // 상대 알림에 추가
-      await updateDoc(doc(dbService, "users", resDpName), {
+      await updateDoc(doc(dbService, "users", user.email), {
         notice: [
           ...noticeCopy,
           {
@@ -89,6 +90,7 @@ const useToggleFollow = ({ user }: props) => {
             imgUrl: null,
             text: null,
             displayName: userObj.displayName,
+            email: userObj.email,
             time: +new Date(),
             isRead: false,
           },
@@ -99,7 +101,7 @@ const useToggleFollow = ({ user }: props) => {
         currentUser({
           ...userObj,
           following: [
-            { displayName: resDpName, time: +new Date() },
+            { displayName: resDpName, time: +new Date(), email: user.email },
             ...followingCopy,
           ],
         })

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import {
@@ -11,6 +11,7 @@ import {
   collection,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   setDoc,
 } from "firebase/firestore";
@@ -29,38 +30,46 @@ import { ReactComponent as SheatherLogo } from "../../../assets/image/sheather_l
 import Deco from "../../leftBar/Deco";
 import { FirebaseError } from "firebase/app";
 import FindPassword from "./FindPassword";
-import { BiLeftArrowAlt } from "react-icons/bi";
+import { BsArrowLeftShort } from "react-icons/bs";
 
 type Props = {
   modalOpen: boolean;
   modalClose: () => void;
 };
 
-interface ErrorType {
+interface ArrType {
   [key: string]: string;
 }
 
 const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [dpName, setDpName] = useState("");
-  const [emailMessage, setEmailMessage] = useState(false);
-  const [passwordMessage, setPasswordMessage] = useState(false);
-  const [dpNameMessage, setDpNameMessage] = useState(false);
+  const [inputs, setInputs] = useState<ArrType>({
+    email: "",
+    dpName: "",
+    password: "",
+  });
+  const [checkMessage, setCheckMessage] = useState({
+    email: false,
+    dpName: false,
+    password: false,
+  });
   const [select, setSelect] = useState({
     email: false,
     password: false,
     dpName: false,
   });
   const [isExistAccount, setIsExistAccount] = useState(true);
-  const [isDuplication, setIsDuplication] = useState(false);
+  const [isDuplication, setIsDuplication] = useState({
+    email: false,
+    dpName: false,
+  });
   const [isFindPassword, setIsFindPassword] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useDispatch();
   const { isMobile } = useMediaScreen();
   const toggleAccount = () => setIsExistAccount(!isExistAccount);
+  const emailRef = useRef(null);
 
-  const errorMessages: ErrorType = {
+  const errorMessages: ArrType = {
     "(auth/email-already-in-use).": "이미 가입이 되어있는 이메일입니다.",
     "(auth/invalid-email).": "올바르지 않은 이메일 형식입니다.",
     "(auth/weak-password)": "비밀번호를 최소 6글자 이상 입력해주세요.",
@@ -72,18 +81,21 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
 
   // 닉네임 중복 체크
   useEffect(() => {
-    const myCollectionRef = collection(dbService, "users");
-    const unsubscribe = onSnapshot(myCollectionRef, (querySnapshot) => {
-      const filter = querySnapshot.docs.some((doc) => {
-        return doc.data().displayName === dpName;
-      });
-      setIsDuplication(filter);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [dpName]);
+    if (inputs.dpName !== "") {
+      const myCollectionRef = collection(dbService, "users");
+      const checkDuplication = async () => {
+        const querySnapshot = await getDocs(myCollectionRef);
+        const emailFilter = querySnapshot.docs.some(
+          (doc) => doc.id === inputs.email
+        );
+        const dpNameFilter = querySnapshot.docs.some(
+          (doc) => doc.data().displayName === inputs.dpName
+        );
+        setIsDuplication({ email: emailFilter, dpName: dpNameFilter });
+      };
+      checkDuplication();
+    }
+  }, [inputs.dpName, inputs.email]);
 
   // 정규식 체크
   useEffect(() => {
@@ -93,127 +105,130 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
       /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/;
     const dpNameRegex = /^[a-zA-Z0-9_.]+$/;
 
-    if (!emailRegex.test(email)) {
-      setEmailMessage(false);
-    } else {
-      setEmailMessage(true);
-    }
-    // if (!passwordRegex.test(password)) {
-    //   setPasswordMessage(false);
-    // } else {
-    //   setPasswordMessage(true);
-    // }
-    if (!dpNameRegex.test(dpName)) {
-      setDpNameMessage(false);
-    } else {
-      setDpNameMessage(true);
-    }
-  }, [dpName, email, password]);
+    const checkRegex = (key: string, regex: RegExp) => {
+      setCheckMessage((prev) => ({ ...prev, [key]: regex.test(inputs[key]) }));
+    };
+
+    checkRegex("email", emailRegex);
+    checkRegex("password", passwordRegex);
+    checkRegex("dpName", dpNameRegex);
+  }, [inputs]);
 
   // 인풋 에러
   useMemo(() => {
-    if (email.length > 0 && select.email && !emailMessage) {
+    if (inputs.email !== "" && !checkMessage.email) {
       return setError("사용할 수 없는 이메일 주소입니다.");
     }
-    if (password.length > 0 && select.password && !passwordMessage) {
+    if (inputs.email !== "" && isDuplication.email) {
+      return setError("중복된 이메일입니다.");
+    }
+    if (inputs.password !== "" && !checkMessage.password) {
       return setError("숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요.");
     }
-    if (dpName.length > 0 && select.dpName && !dpNameMessage) {
+    if (inputs.dpName !== "" && !checkMessage.dpName) {
       return setError(
         "사용자 이름에는 문자, 숫자, 밑줄 및 마침표만 사용할 수 있습니다."
       );
     }
-    if (isDuplication) {
-      return setError("닉네임이 중복입니다.");
+    if (
+      (inputs.dpName !== "" && isDuplication.dpName) ||
+      (inputs.email !== "" && isDuplication.email)
+    ) {
+      return setError("중복된 닉네임입니다.");
     }
     return setError("");
   }, [
-    dpName.length,
-    dpNameMessage,
-    email.length,
-    emailMessage,
+    checkMessage.dpName,
+    checkMessage.email,
+    checkMessage.password,
+    inputs.dpName,
+    inputs.email,
+    inputs.password,
     isDuplication,
-    password.length,
-    passwordMessage,
-    select.dpName,
-    select.email,
-    select.password,
   ]);
 
   const SignUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    // if (emailMessage && passwordMessage && dpNameMessage) {
     try {
       let user;
       if (isExistAccount) {
-        await signInWithEmailAndPassword(authService, email, password).then(
-          async (result) => {
-            let SignUser = result.user;
-            const docRef = doc(dbService, "users", SignUser.displayName);
-            const docSnap = await getDoc(docRef);
+        await signInWithEmailAndPassword(
+          authService,
+          inputs.email,
+          inputs.password
+        ).then(async (result) => {
+          let SignUser = result.user;
+          const docRef = doc(dbService, "users", SignUser.email);
+          const docSnap = await getDoc(docRef);
 
-            if (docSnap.exists()) {
-              dispatch(loginToken(true));
-              dispatch(
-                currentUser({
-                  ...docSnap.data(),
-                })
-              );
-            }
+          if (docSnap.exists()) {
+            dispatch(loginToken(true));
+            dispatch(
+              currentUser({
+                ...docSnap.data(),
+              })
+            );
           }
-        );
+        });
         alert("로그인 되었습니다.");
         modalClose();
         window.location.reload();
       } else {
-        await createUserWithEmailAndPassword(authService, email, password).then(
-          async (result) => {
-            user = result.user;
-            updateProfile(authService.currentUser, {
-              displayName: dpName,
-            });
-            const usersRef = collection(dbService, "users");
-            await setDoc(doc(usersRef, dpName), {
+        await createUserWithEmailAndPassword(
+          authService,
+          inputs.email,
+          inputs.password
+        ).then(async (result) => {
+          user = result.user;
+          updateProfile(authService.currentUser, {
+            displayName: inputs.dpName,
+          });
+          const usersRef = collection(dbService, "users");
+          await setDoc(doc(usersRef, inputs.email), {
+            uid: user.uid,
+            createdAt: Date.now(),
+            profileURL: defaultAccount,
+            email: user.email,
+            name: "",
+            displayName: inputs.dpName,
+            description: "",
+            bookmark: [],
+            like: [],
+            message: [],
+            notice: [],
+            follower: [],
+            following: [],
+          });
+
+          dispatch(
+            currentUser({
               uid: user.uid,
               createdAt: Date.now(),
               profileURL: defaultAccount,
               email: user.email,
               name: "",
-              displayName: dpName,
+              displayName: inputs.dpName,
               description: "",
               bookmark: [],
               like: [],
-              message: [],
               notice: [],
+              message: [],
               follower: [],
               following: [],
-            });
+            })
+          );
 
-            dispatch(
-              currentUser({
-                uid: user.uid,
-                createdAt: Date.now(),
-                profileURL: defaultAccount,
-                email: user.email,
-                name: "",
-                displayName: dpName,
-                description: "",
-                bookmark: [],
-                like: [],
-                notice: [],
-                message: [],
-                follower: [],
-                following: [],
-              })
-            );
-
-            alert("회원가입 되었습니다.");
-            setIsExistAccount(true);
-            setEmail("");
-            setPassword("");
-            setError("");
-          }
-        );
+          setIsExistAccount(true);
+          setInputs({
+            email: "",
+            dpName: "",
+            password: "",
+          });
+          setIsDuplication({ email: false, dpName: false });
+          setError("");
+          emailRef.current.focus();
+          alert("회원가입 되었습니다.");
+        });
       }
     } catch (error: any) {
       const errorKey = Object.keys(errorMessages).find((key) =>
@@ -222,38 +237,13 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
       const errorMessage = errorKey ? errorMessages[errorKey] : error.message;
       return setError(errorMessage);
     }
-    // }
   };
-
-  // const findUserByEmail = async (email: string) => {
-  //   try {
-  //     const user = await getUserByEmail(authService, email);
-  //     // 주어진 이메일에 해당하는 사용자 정보 반환
-  //     return user;
-  //   } catch (error) {
-  //     // 에러 처리, 특정 에러 코드 확인
-  //     if (error instanceof FirebaseError && error.code === "auth/user-not-found") {
-  //       throw new Error("해당 이메일로 등록된 계정이 없습니다.");
-  //     }
-  //     // 다른 에러 처리
-  //     throw error;
-  //   }
-  // };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { name, value },
     } = e;
-
-    if (name === "email") {
-      setEmail(value);
-    }
-    if (name === "password") {
-      setPassword(value);
-    }
-    if (name === "dpName") {
-      setDpName(value);
-    }
+    setInputs((prev) => ({ ...prev, [name]: value }));
   };
 
   const onFindPassword = () => {
@@ -269,10 +259,10 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
       <Container>
         <Header>
-          {!isFindPassword ? (
+          {isFindPassword ? (
             <>
               <IconBox onClick={onPrevClick}>
-                <BiLeftArrowAlt />
+                <BsArrowLeftShort />
               </IconBox>
               <Category>비밀번호 찾기</Category>
             </>
@@ -284,23 +274,31 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
           </IconBox>
         </Header>
         <Box>
-          {isFindPassword ? (
+          {!isFindPassword ? (
             <>
               {isMobile && (
                 <LogoBox>
-                  <Deco />
-                  <SheatherLogo width="230px" height="100px" />
+                  <Logo>
+                    <LogoImage
+                      src="/image/sheather_logo.png"
+                      alt="shather logo"
+                    />
+                  </Logo>
+                  {/* <Deco /> */}
+                  {/* <SheatherLogo width="230px" height="100px" /> */}
                 </LogoBox>
               )}
               <FormBox>
                 <Form onSubmit={SignUser} method="post">
                   <EmailBox>
                     <Input
+                      spellCheck="false"
                       name="email"
                       type="email"
+                      ref={emailRef}
                       placeholder="이메일 주소"
                       // required
-                      value={email}
+                      value={inputs.email}
                       onChange={onChange}
                       autoComplete="off"
                       onFocus={() =>
@@ -310,9 +308,11 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                         setSelect((prev) => ({ ...prev, email: true }))
                       }
                     />
-                    {email.length > 0 && (
-                      <InputCheckBox check={emailMessage}>
-                        {emailMessage ? (
+                    {inputs.email !== "" && (
+                      <InputCheckBox
+                        check={checkMessage.email && !isDuplication.email}
+                      >
+                        {checkMessage.email && !isDuplication.email ? (
                           <IoCheckmarkCircleOutline />
                         ) : (
                           <IoCloseCircleOutline />
@@ -323,11 +323,12 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                   {!isExistAccount && (
                     <EmailBox>
                       <Input
+                        spellCheck="false"
                         name="dpName"
                         type="dpName"
                         placeholder="사용자 이름"
                         // required
-                        value={dpName}
+                        value={inputs.dpName}
                         onChange={onChange}
                         autoComplete="off"
                         onFocus={() =>
@@ -337,9 +338,11 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                           setSelect((prev) => ({ ...prev, dpName: true }))
                         }
                       />
-                      {dpName.length > 0 && (
-                        <InputCheckBox check={dpNameMessage && !isDuplication}>
-                          {dpNameMessage && !isDuplication ? (
+                      {inputs.dpName !== "" && (
+                        <InputCheckBox
+                          check={checkMessage.dpName && !isDuplication.dpName}
+                        >
+                          {checkMessage.dpName && !isDuplication.dpName ? (
                             <IoCheckmarkCircleOutline />
                           ) : (
                             <IoCloseCircleOutline />
@@ -350,11 +353,12 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                   )}
                   <PasswordBox>
                     <Input
+                      spellCheck="false"
                       name="password"
                       type="password"
                       placeholder="비밀번호"
                       // required
-                      value={password}
+                      value={inputs.password}
                       onChange={onChange}
                       autoComplete="off"
                       autoCapitalize="off"
@@ -365,9 +369,9 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                         setSelect((prev) => ({ ...prev, password: true }))
                       }
                     />
-                    {password.length > 0 && (
-                      <InputCheckBox check={passwordMessage}>
-                        {passwordMessage ? (
+                    {inputs.password !== "" && (
+                      <InputCheckBox check={checkMessage.password}>
+                        {checkMessage.password ? (
                           <IoCheckmarkCircleOutline />
                         ) : (
                           <IoCloseCircleOutline />
@@ -378,34 +382,40 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                   <SignBtnBox>
                     <SignBtn
                       type="submit"
-                      // disabled={
-                      //   isExistAccount
-                      //     ? email === "" ||
-                      //       password === "" ||
-                      //       !emailMessage ||
-                      //       !passwordMessage
-                      //     : email === "" ||
-                      //       dpName === "" ||
-                      //       password === "" ||
-                      //       !emailMessage ||
-                      //       !dpNameMessage ||
-                      //       !passwordMessage ||
-                      //       isDuplication
-                      // }
+                      disabled={
+                        isExistAccount
+                          ? inputs.email === "" ||
+                            inputs.password === "" ||
+                            !checkMessage.email ||
+                            !checkMessage.password
+                          : inputs.email === "" ||
+                            inputs.dpName === "" ||
+                            inputs.password === "" ||
+                            !checkMessage.email ||
+                            !checkMessage.dpName ||
+                            !checkMessage.password ||
+                            isDuplication.dpName ||
+                            isDuplication.email
+                      }
                     >
                       {isExistAccount ? "로그인" : "회원가입"}
                     </SignBtn>
                   </SignBtnBox>
-                  {/* {(!emailMessage || !passwordMessage || !dpNameMessage) &&
-                    (email !== "" || dpName !== "" || password !== "") &&
+                  {/* {(!checkMessage.email ||
+                    !checkMessage.password ||
+                    !checkMessage.dpName) &&
+                    (inputs.email !== "" ||
+                      inputs.dpName !== "" ||
+                      inputs.password !== "") &&
                     error !== "" && <ErrorText>{error}</ErrorText>} */}
+                  {error !== "" && <ErrorText>{error}</ErrorText>}
                 </Form>
                 <SignInfo>
                   <SignUp onClick={toggleAccount}>
                     {isExistAccount ? "회원가입" : "로그인"}
                   </SignUp>
                   <AccountBox>
-                    <AccountFind>계정 찾기</AccountFind>
+                    {/* <AccountFind>계정 찾기</AccountFind> */}
                     <AccountFind onClick={onFindPassword}>
                       비밀번호 찾기
                     </AccountFind>
@@ -414,7 +424,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               </FormBox>
             </>
           ) : (
-            <FindPassword />
+            <FindPassword isMobile={isMobile} />
           )}
         </Box>
       </Container>
@@ -508,13 +518,18 @@ const IconBox = styled.div`
 `;
 
 const LogoBox = styled.div`
-  /* position: absolute;
-  top: 64px;
-  left: 50%;
-  transform: translateX(-50%); */
+  /* width: 300px; */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
-const Logo = styled.img`
+const Logo = styled.div`
+  width: 300px;
+`;
+
+const LogoImage = styled.img`
   display: block;
   width: 100%;
 `;
@@ -604,7 +619,7 @@ const SignBtn = styled.button`
   transition: all 0.12s linear;
 
   &:disabled {
-    background: red;
+    background: #9489b3;
     cursor: default;
   }
 `;
@@ -627,18 +642,10 @@ const AccountBox = styled.ul`
 
 const AccountFind = styled.li`
   cursor: pointer;
-  &:first-of-type {
+  /* &:first-of-type {
     padding-right: 10px;
     border-right: 1px solid ${fourthColor};
-    /* ::after {
-      content: "";
-      float: right;
-      width: 1px;
-      height: 10px;
-      margin: 4px 10px;
-      background-color: rgba(34, 34, 34, 0.078);
-    } */
-  }
+  } */
 `;
 
 const ErrorText = styled.p`

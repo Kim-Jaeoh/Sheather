@@ -7,6 +7,7 @@ import ColorList from "../../assets/data/ColorList";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
+import { BsQuestionCircle, BsQuestionLg } from "react-icons/bs";
 
 type props = {
   myPost: FeedType[];
@@ -81,6 +82,11 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
               </>
             ) : (
               <NotInfoBox>
+                <IconBox>
+                  <Icon>
+                    <BsQuestionLg />
+                  </Icon>
+                </IconBox>
                 <NotInfo>{notInfoText}</NotInfo>
               </NotInfoBox>
             )}
@@ -213,15 +219,15 @@ const CardImage = styled.img`
 const NotInfoBox = styled.div`
   flex: 1;
   width: 100%;
-  /* height: 200px; */
-  /* margin: 0 auto; */
   display: flex;
   align-items: center;
   justify-content: center;
-
+  flex-direction: column;
+  font-size: 14px;
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
+  padding-bottom: 40px;
 
   @keyframes slideUp {
     0% {
@@ -238,7 +244,37 @@ const NotInfoBox = styled.div`
   }
 
   @media (max-width: 767px) {
-    font-size: 14px;
+  }
+`;
+
+const IconBox = styled.div`
+  border: 2px solid ${secondColor};
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+`;
+
+const Icon = styled.div`
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    /* width: 100%; */
+    /* height: 100%; */
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6f4ccf;
+
+    path:not(:first-of-type) {
+    }
   }
 `;
 

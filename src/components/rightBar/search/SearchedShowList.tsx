@@ -2,7 +2,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import ColorList from "../../../assets/data/ColorList";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import { HiHashtag } from "react-icons/hi";
 import { Spinner } from "../../../assets/spinner/Spinner";
@@ -23,16 +30,27 @@ const SearchedShowList = ({ searched, setSearched, onListClick }: Props) => {
   useEffect(() => {
     const getList = async (res: localType) => {
       const user = res.type === "user";
-      const docRef = doc(dbService, "users", String(user && res.search));
-      const docSnap = await getDoc(docRef);
-      return {
-        at: res.at,
-        type: res.type,
-        search: res.search,
-        displayName: user ? docSnap?.data()?.displayName : "",
-        profileURL: user ? docSnap?.data()?.profileURL : "",
-        name: user ? docSnap?.data()?.name : "",
-      };
+      if (user) {
+        const q = query(
+          collection(dbService, "users"),
+          where(`displayName`, "==", res.search)
+        );
+
+        const docSnap = await getDocs(q);
+        const data = docSnap.docs.map((doc) => {
+          return {
+            at: res.at,
+            type: res.type,
+            search: res.search,
+            email: doc.data().email,
+            displayName: user ? doc.data().displayName : "",
+            profileURL: user ? doc.data().profileURL : "",
+            name: user ? doc.data().name : "",
+          };
+        });
+        return data;
+      }
+      return [];
     };
 
     // map에서 Promise 방식 (병렬 처리)
@@ -48,7 +66,8 @@ const SearchedShowList = ({ searched, setSearched, onListClick }: Props) => {
           return getList(res);
         })
       );
-      setCombineArray(list);
+      const spreadList = list.flat();
+      setCombineArray(spreadList);
     };
 
     showList();

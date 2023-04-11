@@ -6,15 +6,15 @@ import { ReactComponent as DecoWeather } from "../../assets/image/deco_weather.s
 const Deco = () => {
   return (
     <>
-      <DecoTwinkle
+      {/* <DecoTwinkle
         css={css`
           position: absolute;
           top: 16px;
           left: 18px;
           transform: rotate(20deg);
           @media (max-width: 767px) {
-            top: 55px;
-            left: 72px;
+            top: 5px;
+            left: 152px;
           }
         `}
         width="20px"
@@ -27,13 +27,13 @@ const Deco = () => {
           right: 15px;
           transform: rotate(-20deg);
           @media (max-width: 767px) {
-            top: 123px;
-            right: 76px;
+            top: 74px;
+            right: 152px;
           }
         `}
         width="16px"
         height="16px"
-      />
+      /> */}
       <DecoWeather
         css={css`
           position: absolute;

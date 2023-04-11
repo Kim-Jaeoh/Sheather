@@ -39,11 +39,12 @@ const useCreateChat = () => {
           // 채팅 개설 시 본인 계정 message에 id값 추가
           if (myAccount && !checkMyInfo) {
             const myAccountPushId = async () => {
-              await updateDoc(doc(dbService, "users", myAccount?.displayName), {
+              await updateDoc(doc(dbService, "users", myAccount?.email), {
                 message: [
                   ...myAccount?.message,
                   {
                     user: user?.displayName, // 상대 아이디
+                    email: user?.email,
                     id: document?.id,
                     isRead: true, // true인 이유는 본인 것엔 채팅방 생성 알림 노출 안 하기 위함
                   },
@@ -55,11 +56,12 @@ const useCreateChat = () => {
           // 채팅 개설 시 상대 계정 message에 id값 추가
           if (user && !checkUserInfo) {
             const userAccountPushId = async () => {
-              await updateDoc(doc(dbService, "users", user.displayName), {
+              await updateDoc(doc(dbService, "users", user.email), {
                 message: [
                   ...user?.message,
                   {
                     user: myAccount?.displayName, // 본인 아이디
+                    email: myAccount?.email,
                     id: document?.id,
                     isRead: false,
                   },
@@ -75,11 +77,12 @@ const useCreateChat = () => {
       if (myAccount && myFilter.length) {
         console.log("???");
         const myAccountPushId = async () => {
-          await updateDoc(doc(dbService, "users", myAccount?.displayName), {
+          await updateDoc(doc(dbService, "users", myAccount?.email), {
             message: [
               ...myAccount?.message,
               {
                 user: user?.displayName,
+                email: user?.email,
                 id: userFilter[0].id,
                 isRead: false,
               },
@@ -92,11 +95,12 @@ const useCreateChat = () => {
       // 기존 채팅방 상대 계정 message에 id값 추가
       if (user && userFilter.length) {
         const UserAccountPushId = async () => {
-          await updateDoc(doc(dbService, "users", user.displayName), {
+          await updateDoc(doc(dbService, "users", user.email), {
             message: [
               ...user?.message,
               {
                 user: myAccount?.displayName,
+                email: myAccount?.email,
                 id: myFilter[0]?.id,
                 isRead: false,
               },
@@ -106,8 +110,8 @@ const useCreateChat = () => {
         UserAccountPushId();
       }
     }
-    setClickInfo(user.displayName);
-    navigate(`/message/${user.displayName}`, { state: user.displayName });
+    setClickInfo(user.email);
+    navigate(`/message/${user.displayName}`, { state: user.email });
   };
 
   return { clickInfo, setClickInfo, onCreateChatClick };

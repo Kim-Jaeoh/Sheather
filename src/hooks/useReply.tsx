@@ -55,7 +55,7 @@ const useReply = ({ res, userObj, userAccount, textRef }: Props) => {
     });
 
     if (userObj.displayName !== res.displayName) {
-      await updateDoc(doc(dbService, "users", res.displayName), {
+      await updateDoc(doc(dbService, "users", userAccount.email), {
         notice: [
           ...noticeCopy,
           {
@@ -108,7 +108,7 @@ const useReply = ({ res, userObj, userAccount, textRef }: Props) => {
     // 상대 알림에서 제거
     if (userObj.displayName !== res.displayName) {
       console.log("제거");
-      await updateDoc(doc(dbService, "users", res.displayName), {
+      await updateDoc(doc(dbService, "users", userAccount.email), {
         notice: noticeFilter,
       });
     }

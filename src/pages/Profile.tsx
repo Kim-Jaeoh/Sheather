@@ -1,11 +1,18 @@
 import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { onSnapshot, doc } from "firebase/firestore";
+import {
+  onSnapshot,
+  doc,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { MdGridOn } from "react-icons/md";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import ColorList from "../assets/data/ColorList";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
@@ -37,7 +44,7 @@ const Profile = () => {
   const [followCategory, setFollowCategory] = useState("");
   const [followModalOpen, setFollowModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const { id, "*": type } = useParams();
+  const { id: userDpName, "*": type } = useParams();
   const {
     dataList: feedArray,
     isLoading: isLoading2,
@@ -64,11 +71,25 @@ const Profile = () => {
 
   // 계정 정보 가져오기
   useEffect(() => {
-    const unsubcribe = onSnapshot(doc(dbService, "users", id), (doc) => {
-      setAccount(doc.data());
-    });
-    return () => unsubcribe();
-  }, [id]);
+    const q = query(
+      collection(dbService, "users"),
+      where(`displayName`, "==", userDpName)
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        querySnapshot.forEach((doc) => setAccount(doc.data()));
+      },
+      (error) => {
+        console.error("Error getting documents: ", error);
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [userDpName]);
 
   useEffect(() => {
     if (type === "post") {
@@ -86,15 +107,15 @@ const Profile = () => {
     if (selectCategory === 0) {
       const postFilter = feedArray?.pages
         ?.flat()
-        ?.filter((res) => res.email === account?.email)
-        .sort((a, b) => b.createdAt - a.createdAt);
+        ?.filter((res) => res.email === account?.email);
+      // .sort((a, b) => b.createdAt - a.createdAt);
       return setPost(postFilter);
     }
 
     if (selectCategory === 1) {
       const likeFilter = account?.like
-        ?.map((res: string) => {
-          return feedArray?.pages?.flat()?.filter((res) => res.id === res);
+        ?.map((likeId: string) => {
+          return feedArray?.pages?.flat()?.filter((res) => res.id === likeId);
         })
         .flat();
 
@@ -103,8 +124,10 @@ const Profile = () => {
 
     if (selectCategory === 2) {
       const bookmarkFilter = account?.bookmark
-        ?.map((res: string) => {
-          return feedArray?.pages?.flat()?.filter((res) => res.id === res);
+        ?.map((bookmarkId: string) => {
+          return feedArray?.pages
+            ?.flat()
+            ?.filter((res) => res.id === bookmarkId);
         })
         .flat();
 
@@ -119,8 +142,8 @@ const Profile = () => {
   ]);
 
   useEffect(() => {
-    if (myPost?.length !== 0) {
-      setNotInfoText("게시물을 공유하면 회원님의 게시글에 표시됩니다.");
+    if (myPost?.length === 0) {
+      setNotInfoText("회원님이 공유한 게시물이 없습니다.");
     }
     if (selectCategory === 1) {
       setNotInfoText("사람들의 게시물에 좋아요를 누르면\n이곳에 표시됩니다.");

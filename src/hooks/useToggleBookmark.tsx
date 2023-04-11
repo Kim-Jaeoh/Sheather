@@ -21,7 +21,7 @@ const useToggleBookmark = () => {
     if (userObj.bookmark?.includes(resId)) {
       const copy = [...userObj.bookmark];
       const filter = copy.filter((id) => id !== resId);
-      await updateDoc(doc(dbService, "users", userObj.displayName), {
+      await updateDoc(doc(dbService, "users", userObj.email), {
         bookmark: filter,
       });
       dispatch(
@@ -32,7 +32,7 @@ const useToggleBookmark = () => {
       );
     } else {
       const copy = [resId, ...userObj.bookmark];
-      await updateDoc(doc(dbService, "users", userObj.displayName), {
+      await updateDoc(doc(dbService, "users", userObj.email), {
         bookmark: copy,
       });
       dispatch(

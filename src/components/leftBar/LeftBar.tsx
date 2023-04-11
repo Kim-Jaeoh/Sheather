@@ -10,23 +10,19 @@ import {
 } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
-import axios, { AxiosResponse, AxiosError } from "axios";
+import { AxiosResponse, AxiosError } from "axios";
 import { SlBell } from "react-icons/sl";
 import { FiSearch } from "react-icons/fi";
-import { ReactComponent as SheatherLogo } from "../../assets/image/sheather_logo.svg";
 import { ReactComponent as SheatherLogoSmall } from "../../assets/image/sheather_logo_s.svg";
 import { shareWeather } from "../../app/weather";
 import ColorList from "../../assets/data/ColorList";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
 import useMediaScreen from "../../hooks/useMediaScreen";
-import useUserAccount from "../../hooks/useUserAccount";
 import { WeatherDataType, MessageType, NoticeArrType } from "../../types/type";
-import AuthFormModal from "../modal/auth/AuthFormModal";
 import NoticeModal from "../modal/notice/NoticeModal";
 import SearchModal from "../modal/search/SearchModal";
 import ShareWeatherModal from "../modal/shareWeather/ShareWeatherModal";
 import Deco from "./Deco";
-import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
 import useGetMyAccount from "../../hooks/useGetMyAccount";
 import { nowWeatherApi } from "../../apis/api";
 
@@ -34,17 +30,19 @@ type MenuFuncgionType = {
   [key: string]: () => void;
 };
 
-const LeftBar = () => {
+type props = {
+  onIsLogin: (callback: () => void) => void;
+};
+
+const LeftBar = ({ onIsLogin }: props) => {
   const [selectMenu, setSelectMenu] = useState("feed");
   const [shareBtn, setShareBtn] = useState(false);
   const [isSearchModal, setIsSearchModal] = useState(false);
   const [isNoticeModal, setIsNoticeModal] = useState(false);
-  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
   const { location } = useCurrentLocation();
   const { userLogin, userObj, myAccount } = useGetMyAccount();
   const { isMobile, isTablet, isDesktop, RightBarNone } = useMediaScreen();
-  // const { setNoticeMessage } = useSendNoticeMessage();
+
   const { pathname } = useLocation();
   const dispatch = useDispatch();
 
@@ -131,17 +129,20 @@ const LeftBar = () => {
           modalClose={() => setIsSearchModal(false)}
         />
       )}
-      {isAuthModal && (
-        <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
-      )}
       <Container>
         {isDesktop && <Deco />}
         <MenuBox pathname={pathname}>
           {!isMobile && (
             <LogoBox to="/">
               {!isTablet ? (
-                <SheatherLogo width="100%" height="100%" />
+                <Logo>
+                  <LogoImage
+                    src="/image/sheather_logo.png"
+                    alt="shather logo"
+                  />
+                </Logo>
               ) : (
+                // <SheatherLogo width="100%" height="100%" />
                 <SheatherLogoSmall width="100%" height="100%" />
               )}
             </LogoBox>
@@ -342,7 +343,7 @@ const LogoBox = styled(Link)`
   position: relative;
   display: flex;
   align-items: center;
-  width: 150px;
+  /* width: 150px; */
   /* height: 92px; */
   margin-bottom: 30px;
   overflow: hidden;
@@ -354,6 +355,15 @@ const LogoBox = styled(Link)`
     margin-bottom: 0;
     padding: 28px 0 14px;
   }
+`;
+
+const Logo = styled.div`
+  width: 170px;
+`;
+
+const LogoImage = styled.img`
+  display: block;
+  width: 100%;
 `;
 
 const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`

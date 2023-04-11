@@ -27,13 +27,13 @@ const DetailFeedReply = ({ replyData, onReplyDelete }: Props) => {
   //  map 처리 된 유저 정보들
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      doc(dbService, "users", replyData.displayName),
+      doc(dbService, "users", replyData.email),
       (doc) => {
         setReplyCreatorInfo(doc.data());
       }
     );
     return () => unsubscribe();
-  }, [replyData.displayName]);
+  }, [replyData.email]);
 
   return (
     <ReplyBox>

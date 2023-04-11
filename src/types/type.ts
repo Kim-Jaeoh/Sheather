@@ -84,7 +84,8 @@ export interface ResDataType {
 export interface MessageReadType {
   id: string;
   user: string;
-  isRead?: boolean;
+  email: string;
+  isRead: boolean;
 }
 
 export interface CurrentUserType {
@@ -101,7 +102,6 @@ export interface CurrentUserType {
   following: FollowingType[];
   notice: NoticeArrType[];
   message?: MessageReadType[];
-  tag?: string[];
 }
 
 export interface UserType {
@@ -123,12 +123,14 @@ export interface replyType {
 
 export interface FollowerType {
   displayName: string;
+  email: string;
   time: number;
   isRead?: boolean;
 }
 
 export interface FollowingType {
   displayName: string;
+  email: string;
   time: number;
 }
 
@@ -145,7 +147,6 @@ export interface FeedType {
     time: number;
     postId: string;
     email?: string;
-    // isRead?: boolean;
   }[];
   text: string;
   feel: string;
@@ -188,6 +189,7 @@ export interface MessageType {
   createdAt: number;
   uid: string;
   displayName: string;
+  email: string;
   profileURL: string;
   isRead: boolean;
 }
@@ -201,6 +203,7 @@ export interface listType {
 export interface NoticeArrType {
   type: string;
   displayName: string;
+  email: string;
   time: number;
   isRead: boolean;
   postId?: string;

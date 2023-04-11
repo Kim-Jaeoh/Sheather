@@ -11,17 +11,18 @@ import ColorList from "../../../assets/data/ColorList";
 import { Spinner } from "../../../assets/spinner/Spinner";
 import { dbService } from "../../../fbase";
 import useToggleFollow from "../../../hooks/useToggleFollow";
+import { FollowerType, FollowingType } from "../../../types/type";
 
-interface followInfoType {
-  displayName: string;
-  time: number;
-}
+// interface followInfoType {
+//   displayName: string;
+//   time: number;
+// }
 
 type Props = {
   accountName: string;
   modalOpen: boolean;
   followCategory: string;
-  followInfo: followInfoType[];
+  followInfo: FollowerType[] | FollowingType[];
   followLength: number;
   modalClose: () => void;
 };
@@ -46,8 +47,8 @@ const ProfileFollowModal = ({
 
   // 계정 정보 가져오기 (병렬 처리 = 한 번에 가져오기 위함)
   useEffect(() => {
-    const getList = async (res: followInfoType) => {
-      const docSnap = await getDoc(doc(dbService, "users", res.displayName));
+    const getList = async (res: FollowerType | FollowingType) => {
+      const docSnap = await getDoc(doc(dbService, "users", res.email));
       return docSnap.data();
     };
 
@@ -89,7 +90,6 @@ const ProfileFollowModal = ({
                     <UserList key={index}>
                       <ProfileImageBox
                         to={`/profile/${res.displayName}/post`}
-                        state={res.displayName}
                         onClick={modalClose}
                       >
                         <ProfileImage
@@ -139,17 +139,25 @@ const ProfileFollowModal = ({
                   {followCategory === "팔로워" ? "팔로워" : "팔로잉"}
                 </NotInfoCategory>
                 <NotInfoText>
-                  {followCategory === "팔로워"
-                    ? `${
-                        accountName !== userObj.displayName
+                  {followCategory === "팔로워" ? (
+                    <>
+                      <em>
+                        {accountName !== userObj.displayName
                           ? accountName
-                          : "회원"
-                      }님을 팔로우하는 모든 사람이 여기에 표시됩니다.`
-                    : `${
-                        accountName !== userObj.displayName
+                          : "회원"}
+                      </em>
+                      님을 팔로우하는 모든 사람이 여기에 표시됩니다.
+                    </>
+                  ) : (
+                    <>
+                      <em>
+                        {accountName !== userObj.displayName
                           ? accountName
-                          : "회원"
-                      }님이 팔로우하는 모든 사람이 여기에 표시됩니다.`}
+                          : "회원"}
+                      </em>
+                      님이 팔로우하는 모든 사람이 여기에 표시됩니다.
+                    </>
+                  )}
                 </NotInfoText>
               </NotInfo>
             </NotInfoBox>
@@ -367,4 +375,8 @@ const Icon = styled.div`
 
 const NotInfoText = styled.p`
   font-size: 14px;
+
+  em {
+    font-weight: 500;
+  }
 `;

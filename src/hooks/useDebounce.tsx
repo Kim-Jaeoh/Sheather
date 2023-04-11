@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const useDebounce = (value: string, delay: number) => {
-  const [debouncedSearchTerm, setDebounceSearchTerm] = useState(value);
+  const [debouncedSearchTerm, setDebounceSearchTerm] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {

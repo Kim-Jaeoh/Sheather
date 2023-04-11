@@ -29,9 +29,8 @@ const FeedProfileInfo = ({ res }: Props) => {
 
   // 계정 정보 가져오기
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      doc(dbService, "users", res.displayName),
-      (doc) => setAccount(doc.data())
+    const unsubscribe = onSnapshot(doc(dbService, "users", res.email), (doc) =>
+      setAccount(doc.data())
     );
     return () => unsubscribe();
   }, [res]);

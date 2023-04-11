@@ -8,8 +8,9 @@ import {
   updateDoc,
   collection,
   query,
+  where,
 } from "firebase/firestore";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Point } from "react-easy-crop/types";
 import toast from "react-hot-toast";
 import { BiLeftArrowAlt } from "react-icons/bi";
@@ -23,10 +24,22 @@ import getCroppedImg from "../../ImageCropper/CropImage";
 import { Spinner } from "../../../assets/spinner/Spinner";
 import { authService, dbService } from "../../../fbase";
 import ProfileImageCropper from "./ProfileImageCropper";
+import {
+  IoCheckmarkCircleOutline,
+  IoCloseCircleOutline,
+} from "react-icons/io5";
 
 type Props = {
   modalOpen: boolean;
   modalClose: () => void;
+};
+
+type ArrStringType = {
+  [key: string]: string;
+};
+
+type ArrBooleanType = {
+  [key: string]: boolean;
 };
 
 const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
@@ -41,13 +54,18 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     crop: null,
     zoom: null,
   });
-  const [name, setName] = useState(userObj.name);
-  const [displayName, setDisplayName] = useState(userObj.displayName);
-  const [checkDisplayName, setCheckDisplayName] = useState(false);
-  const [description, setDescription] = useState(userObj.description);
-  const [focusName, setFocusName] = useState(false);
-  const [focusDsName, setFocusDsName] = useState(false);
-  const [focusDesc, setFocusDesc] = useState(false);
+  const [inputs, setInputs] = useState<ArrStringType>({
+    name: userObj.name,
+    dpName: userObj.displayName,
+    desc: userObj.description,
+  });
+  const [duplicationName, setDulicationName] = useState(false);
+  const [focus, setFocus] = useState<ArrBooleanType>({
+    name: false,
+    dpName: false,
+    desc: false,
+  });
+  const [error, setError] = useState("");
   const [zoom, setZoom] = useState(1);
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
@@ -77,62 +95,65 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     return modalClose();
   };
 
-  const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-
-  const onChangeDsName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDisplayName(e.target.value);
-  };
-
-  const onChangeDesc = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setDescription(e.target.value);
-    },
-    []
-  );
-
+  // 닉네임 중복 체크
   useEffect(() => {
-    const q = query(collection(dbService, "users"));
+    const q = query(
+      collection(dbService, "users"),
+      where(`displayName`, `!=`, userObj.displayName)
+    );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const usersArray = snapshot.docs.map((doc) => ({
         ...doc.data(),
       }));
 
-      //  본인 제외 노출
-      const exceptArray = usersArray.filter(
-        (obj) => obj.displayName !== userObj.displayName
+      const checkFilter = usersArray.some(
+        (res) => res.displayName === inputs.dpName
       );
-      const checkFilter = exceptArray.filter(
-        (asd) => asd.displayName === displayName
-      );
-      setCheckDisplayName(checkFilter.length === 0);
+      setDulicationName(checkFilter);
     });
 
     return () => unsubscribe();
-  }, [displayName, userObj.displayName]);
+  }, [inputs.dpName, userObj.displayName]);
 
+  useEffect(() => {
+    // 정규식 체크
+    if (inputs.dpName !== "") {
+      const dpNameRegex = /^[a-zA-Z0-9_.]+$/;
+      const check = dpNameRegex.test(inputs.dpName);
+      if (!check) {
+        return setError(
+          "사용자 이름에는 문자, 숫자, 밑줄 및 마침표만 사용할 수 있습니다."
+        );
+      }
+      if (duplicationName) {
+        return setError("중복된 닉네임입니다.");
+      }
+      return setError("");
+    }
+  }, [duplicationName, inputs.dpName]);
+
+  // 수정 완료
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (checkDisplayName) {
-      await updateDoc(doc(dbService, "users", userObj.displayName), {
-        name: name,
-        displayName: displayName,
-        description: description,
+    if (!duplicationName) {
+      await updateDoc(doc(dbService, "users", userObj.email), {
+        name: inputs.name,
+        displayName: inputs.dpName,
+        description: inputs.desc,
         profileURL: profileURL.croppedImageUrl
           ? profileURL.croppedImageUrl
           : profileURL.imageUrl,
       });
       await updateProfile(authService.currentUser, {
-        displayName: displayName,
+        displayName: inputs.dpName,
       });
       dispatch(
         currentUser({
           ...userObj,
-          name: name,
-          displayName: displayName,
-          description: description,
+          name: inputs.name,
+          displayName: inputs.dpName,
+          description: inputs.desc,
           profileURL: profileURL.croppedImageUrl
             ? profileURL.croppedImageUrl
             : profileURL.imageUrl,
@@ -140,12 +161,14 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
       );
       toast.success("수정이 완료 되었습니다.");
       modalClose();
-      return navigate(`${displayName}/post`, { state: userObj.email });
+      return navigate(`${inputs.dpName}/post`, { state: userObj.email });
     } else {
-      alert("사용자 이름이 중복입니다.");
+      // alert("사용자 이름이 중복입니다.");
+      toast.error("사용자 이름이 중복입니다.");
     }
   };
 
+  // 이미지 변경
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       currentTarget: { files },
@@ -170,6 +193,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     setIsImage(true);
   };
 
+  // 이미지 리사이징 변환
   const setCroppedImageFor = async (
     imageUrl: string,
     crop?: Point,
@@ -206,6 +230,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     });
   };
 
+  // 자르기
   const onCrop = async () => {
     const croppedImageUrl = await getCroppedImg(
       previewImage,
@@ -213,6 +238,32 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     );
     setCroppedImageFor(profileURL.imageUrl, crop, zoom, croppedImageUrl);
     setIsImage(false);
+  };
+
+  const onChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const {
+      target: { name, value },
+    } = e;
+
+    setInputs((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const onFocus = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+    value: boolean
+  ) => {
+    const {
+      target: { name },
+    } = e;
+    setFocus((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
@@ -225,16 +276,17 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
           <Category>내 정보 수정</Category>
           {isImage ? (
             <EditBtn type="button" onClick={onCrop}>
-              <EditTextEng>CROP</EditTextEng>
+              <EditText>자르기</EditText>
             </EditBtn>
           ) : (
             <EditBtn
               type="submit"
               disabled={
-                userObj.name === name &&
-                userObj.displayName === displayName &&
-                userObj.description === description &&
-                profileURL.croppedImageUrl == null
+                (userObj.name === inputs.name &&
+                  userObj.displayName === inputs.dpName &&
+                  userObj.description === inputs.desc &&
+                  profileURL.croppedImageUrl == null) ||
+                duplicationName
               }
             >
               <EditText>수정 완료</EditText>
@@ -281,12 +333,13 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                     <ProfileName
                       type="text"
                       id="name"
-                      value={name}
+                      name="name"
+                      value={inputs.name}
                       maxLength={20}
-                      onChange={onChangeName}
-                      focus={focusName}
-                      onFocus={() => setFocusName(true)}
-                      onBlur={() => setFocusName(false)}
+                      onChange={onChange}
+                      focus={focus.name}
+                      onFocus={(e) => onFocus(e, true)}
+                      onBlur={(e) => onFocus(e, false)}
                       placeholder="이름"
                     />
                   </ProfileInfo>
@@ -294,34 +347,47 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                     <ProfileCategory htmlFor="dpName">
                       사용자 이름
                     </ProfileCategory>
-                    <ProfileName
-                      type="text"
-                      id="dpName"
-                      value={displayName}
-                      onChange={onChangeDsName}
-                      focus={focusDsName}
-                      onFocus={() => setFocusDsName(true)}
-                      onBlur={() => setFocusDsName(false)}
-                      placeholder="사용자 이름"
-                    />
+                    <InputBox focus={focus.dpName}>
+                      <ProfileDpName
+                        type="text"
+                        id="dpName"
+                        name="dpName"
+                        value={inputs.dpName}
+                        onChange={onChange}
+                        onFocus={(e) => onFocus(e, true)}
+                        onBlur={(e) => onFocus(e, false)}
+                        placeholder="사용자 이름"
+                      />
+                      {inputs.dpName !== "" && (
+                        <InputCheckBox check={error}>
+                          {error === "" ? (
+                            <IoCheckmarkCircleOutline />
+                          ) : (
+                            <IoCloseCircleOutline />
+                          )}
+                        </InputCheckBox>
+                      )}
+                    </InputBox>
+                    {error !== "" && <ErrorText>{error}</ErrorText>}
                   </ProfileInfo>
                   <ProfileInfo>
                     <ProfileCategory htmlFor="desc">자기 소개</ProfileCategory>
                     <ProfileDesc
                       spellCheck="false"
                       id="desc"
+                      name="desc"
                       maxLength={120}
-                      value={description}
-                      onChange={onChangeDesc}
-                      focus={focusDesc}
-                      onFocus={() => setFocusDesc(true)}
-                      onBlur={() => setFocusDesc(false)}
+                      value={inputs.desc}
+                      onChange={onChange}
+                      focus={focus.desc}
+                      onFocus={(e) => onFocus(e, true)}
+                      onBlur={(e) => onFocus(e, false)}
                       ref={textRef}
                       placeholder="자기소개를 입력해 주세요"
                     />
                     <TextAreaLength>
                       <TextAreaLengthColor>
-                        {description.trim().length}
+                        {inputs.desc.trim().length}
                       </TextAreaLengthColor>
                       /120
                     </TextAreaLength>
@@ -346,7 +412,7 @@ const Container = styled.form`
   display: flex;
   flex-direction: column;
   width: 480px;
-  height: 600px;
+  min-height: 600px;
   box-sizing: border-box;
   position: absolute;
   color: ${secondColor};
@@ -387,8 +453,6 @@ const Header = styled.header`
 const IconBox = styled.div`
   width: 48px;
   height: 48px;
-  /* position: absolute; */
-  /* right: 0; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -435,13 +499,9 @@ const EditBtn = styled.button`
   }
 `;
 
-const EditText = styled.p`
-  /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
-`;
+const EditText = styled.p``;
 
-const EditTextEng = styled(EditText)`
-  margin-bottom: -4px;
-`;
+const EditTextEng = styled(EditText)``;
 
 const Category = styled.div`
   position: absolute;
@@ -468,9 +528,6 @@ const CloseBox = styled.button`
 `;
 
 const UserListBox = styled.div`
-  /* display: flex; */
-  /* align-items: center; */
-  /* justify-content: center; */
   width: 100%;
   height: 100%;
   overflow-y: auto;
@@ -481,7 +538,6 @@ const UserList = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* align-items: center; */
 `;
 
 const ProfileImagesBox = styled.label`
@@ -489,7 +545,7 @@ const ProfileImagesBox = styled.label`
   height: 100px;
   position: relative;
   margin: 0 auto;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   cursor: pointer;
 `;
 
@@ -536,6 +592,7 @@ const ProfileInfoBox = styled.div`
 `;
 
 const ProfileInfo = styled.div`
+  position: relative;
   &:not(:last-of-type) {
     margin-bottom: 20px;
   }
@@ -548,15 +605,48 @@ const ProfileCategory = styled.label`
   margin-bottom: 8px;
 `;
 
+const InputCheckBox = styled.div<{ check?: string }>`
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${(props) =>
+    props.check === "" ? `rgb(111, 76, 207,0.8)` : `rgba(255, 0, 0, 0.8)`};
+  svg {
+    font-size: 24px;
+  }
+`;
+
 const ProfileName = styled.input<{ focus: boolean }>`
   width: 100%;
   box-sizing: border-box;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   border-radius: 8px;
   padding: 12px;
   border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
   transition: all 0.1s linear;
+  outline: none;
+`;
+
+const InputBox = styled.div<{ focus: boolean }>`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
+  transition: all 0.1s linear;
+  overflow: hidden;
+`;
+
+const ProfileDpName = styled.input`
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 12px;
+  border: none;
   outline: none;
 `;
 
@@ -570,7 +660,7 @@ const ProfileDesc = styled.textarea<{ focus: boolean }>`
   outline: none;
   border: none;
   padding: 12px;
-  font-weight: 500;
+  font-weight: 400;
   border-radius: 8px;
   transition: all 0.1s linear;
   border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
@@ -582,14 +672,6 @@ const ProfileDesc = styled.textarea<{ focus: boolean }>`
     color: ${thirdColor};
     transition: all 0.2s;
   }
-  /* font-size: 14px;
-  margin-top: 6px;
-  white-space: pre-wrap;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis; */
 `;
 
 const TextAreaLength = styled.p`
@@ -602,61 +684,11 @@ const TextAreaLengthColor = styled.span`
   color: #6f4ccf;
 `;
 
-const FollowBtnBox = styled.div``;
-
-const FollowBtn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 14px;
-  padding: 8px 16px;
-  color: #fff;
-  border-radius: 20px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
-  cursor: pointer;
-  transition: all 0.1s linear;
-  &:hover,
-  &:active {
-    background: #000;
-  }
-`;
-
-const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
-  background: #fff;
-  color: ${secondColor};
-
-  &:hover,
-  &:active {
-    background: ${fourthColor};
-  }
-`;
-
-const NotInfoBox = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 30px;
-
-  /* animation-name: slideDown;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-in-out; */
-
-  /* @keyframes slideDown {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  } */
+const ErrorText = styled.p`
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  color: rgb(235, 0, 0);
+  letter-spacing: -0.5px;
+  margin: 12px 0 24px;
 `;

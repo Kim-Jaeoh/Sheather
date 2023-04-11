@@ -51,7 +51,7 @@ const DetailFeed = () => {
   useEffect(() => {
     if (detailInfo) {
       const unsubcribe = onSnapshot(
-        doc(dbService, "users", detailInfo[0]?.displayName),
+        doc(dbService, "users", detailInfo[0]?.email),
         (doc) => {
           setUserAccount(doc.data());
         }

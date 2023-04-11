@@ -9,9 +9,9 @@ import { dbService } from "../../../fbase";
 import { NoticeArrType } from "../../../types/type";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { SlBell } from "react-icons/sl";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../app/store";
 import useNoticeCheck from "../../../hooks/useNoticeCheck";
+import { useEffect } from "react";
+import useGetMyAccount from "../../../hooks/useGetMyAccount";
 
 type Props = {
   modalOpen: boolean;
@@ -19,14 +19,25 @@ type Props = {
 };
 
 const NoticeModal = ({ modalOpen, modalClose }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
   const { timeToString } = useTimeFormat();
   const navigate = useNavigate();
   const { result, isLoading } = useNoticeCheck();
+  const { userLogin, userObj, myAccount } = useGetMyAccount();
+
+  // 읽음 처리
+  useEffect(() => {
+    if (myAccount) {
+      const checkNotice = async () => {
+        await updateDoc(doc(dbService, "users", userObj.email), {
+          notice: myAccount?.notice?.map((res: NoticeArrType) => {
+            return { ...res, isRead: true };
+          }),
+        });
+      };
+
+      checkNotice();
+    }
+  }, [myAccount, userObj.email]);
 
   const onClick = (res: NoticeArrType) => {
     if (res.type === `like`) {
@@ -41,14 +52,8 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
     return modalClose();
   };
 
-  // 모달 닫기 전 읽음 처리
   const onModalClosedAfterRead = async () => {
-    const copy = [...result];
-    await updateDoc(doc(dbService, "users", userObj.displayName), {
-      notice: copy.map((res) => ({ ...res, isRead: true })),
-    }).then((e) => {
-      modalClose();
-    });
+    modalClose();
   };
 
   return (
@@ -64,7 +69,7 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
             <IoMdClose />
           </CloseBox>
         </Header>
-        {result?.length ? (
+        {myAccount?.notice.length ? (
           <UserListBox>
             {isLoading ? (
               result

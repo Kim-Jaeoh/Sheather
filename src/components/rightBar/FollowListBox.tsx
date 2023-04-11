@@ -108,7 +108,7 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
                   <>
                     <User
                       to={`/profile/${res.displayName}/post`}
-                      state={res.displayName}
+                      state={res.email}
                     >
                       <ProfileImageBox>
                         <ProfileImage

@@ -50,9 +50,9 @@ const Message = (props: Props) => {
   };
 
   // 채팅방 클릭
-  const onListClick = (userName: string) => {
-    setClickInfo(userName);
-    navigate(`/message/${userName}`);
+  const onListClick = (userEmail: string, userDsname: string) => {
+    setClickInfo(userEmail);
+    navigate(`/message/${userDsname}`);
   };
 
   return (

@@ -21,6 +21,8 @@ import ShareWeatherForm from "./ShareWeatherForm";
 import { FeedType } from "../../../types/type";
 import Flicking from "@egjs/react-flicking";
 import { regionApi } from "../../../apis/api";
+import useThrottle from "../../../hooks/useThrottle";
+import { debounce } from "lodash";
 
 type Props = {
   shareBtn: boolean;
@@ -54,6 +56,8 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   });
   const { location } = useCurrentLocation();
   const queryClient = useQueryClient();
+  const cropRef = useRef(null);
+  const { throttle } = useThrottle();
 
   // 현재 주소 받아오기
   const { data: regionData, isLoading: isLoading2 } = useQuery(
@@ -69,7 +73,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   // 이미지 추가 시 view 렌더 시 이미지 노출
   useEffect(() => {
     setSelectedImage(attachments[selectedImageNum]);
-  }, [attachments, selectedImage, selectedImageNum]);
+  }, [attachments, selectedImageNum]);
 
   // 이미지 파일 추가
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,9 +182,20 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
 
   // 다음 버튼
   const onNextClick = () => {
-    if (attachments.length !== 0) {
-      setIsNextClick((prev) => !prev);
+    if (
+      attachments.length ||
+      attachments.some((res) => res?.croppedImageUrl == null)
+    ) {
+      cropRef?.current?.focus();
     }
+
+    debounce(() => {
+      toast.error("자르기 버튼을 눌러주세요.");
+    }, 3000);
+
+    // if (attachments.length !== 0) {
+    //   setIsNextClick((prev) => !prev);
+    // }
   };
 
   // 이전 버튼
@@ -292,11 +307,11 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
           {!isNextClick ? (
             <NextBtn
               type="button"
-              disabled={
-                attachments.length === 0 ||
-                attachments.filter((asd) => asd?.croppedImageUrl == null)
-                  .length !== 0
-              }
+              // disabled={
+              //   attachments.length === 0 ||
+              //   attachments.filter((res) => res?.croppedImageUrl == null)
+              //     .length !== 0
+              // }
               onClick={onNextClick}
             >
               <EditText>다음</EditText>
@@ -324,6 +339,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
             attachments={attachments}
             selectedImage={selectedImage}
             setCroppedImageFor={setCroppedImageFor}
+            ref={cropRef}
           />
         )}
         <ImageWrapper length={attachments.length}>

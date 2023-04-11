@@ -13,15 +13,16 @@ import { dbService } from "../fbase";
 import { ReactComponent as SheatherLogo } from "../assets/image/sheather_logo.svg";
 import { Link } from "react-router-dom";
 
-type Props = {};
+type Props = {
+  onIsLogin: (callback: () => void) => void;
+};
 
-const MobileHeader = (props: Props) => {
+const MobileHeader = ({ onIsLogin }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
   );
-
   const [isSearchModal, setIsSearchModal] = useState(false);
   const [isNoticeModal, setIsNoticeModal] = useState(false);
   const [myAccount, setMyAccount] = useState(null);
@@ -30,7 +31,7 @@ const MobileHeader = (props: Props) => {
   useEffect(() => {
     if (userLogin) {
       const unsubscribe = onSnapshot(
-        doc(dbService, "users", userObj?.displayName),
+        doc(dbService, "users", userObj?.email),
         (doc) => {
           setMyAccount(doc.data());
         }
@@ -38,14 +39,16 @@ const MobileHeader = (props: Props) => {
 
       return () => unsubscribe();
     }
-  }, [userLogin, userObj?.displayName]);
+  }, [userLogin, userObj?.email]);
 
   const onSearchModal = () => {
     setIsSearchModal((prev) => !prev);
   };
 
   const onNoticeModal = () => {
-    setIsNoticeModal((prev) => !prev);
+    onIsLogin(() => {
+      setIsNoticeModal((prev) => !prev);
+    });
   };
 
   return (

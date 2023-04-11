@@ -141,7 +141,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const ProfileBox = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 30px;
   height: 120px;
   position: relative;
   @media (max-width: 767px) {
@@ -362,6 +362,7 @@ const ProfileActBox = styled.div`
 
 const ProfileAct = styled.div`
   font-size: 14px;
+  cursor: default;
   color: ${thirdColor};
   white-space: pre;
   &:not(:first-of-type) {

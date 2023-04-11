@@ -11,18 +11,24 @@ import { Toaster } from "react-hot-toast";
 import TagCategoryList from "./components/explore/TagCategoryList";
 import FollowCategoryList from "./components/explore/FollowCategoryList";
 import useMediaScreen from "./hooks/useMediaScreen";
+import useUserAccount from "./hooks/useUserAccount";
 import MobileHeader from "./components/MobileHeader";
 import InfoCategory from "./components/explore/InfoCategory";
 import AppDeco from "./components/AppDeco";
 import LeftBar from "./components/leftBar/LeftBar";
 import RightBar from "./components/rightBar/RightBar";
 import { SuspenseSpinner } from "./assets/spinner/SuspenseSpinner";
+import AuthFormModal from "./components/modal/auth/AuthFormModal";
+import useSendNoticeMessage from "./hooks/useSendNoticeMessage";
 const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
   const [init, setInit] = useState(false);
   const [userObj, setUserObj] = useState(null);
   const { isMobile, isDesktop, RightBarNone } = useMediaScreen();
+  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+    useUserAccount();
+  const { setNoticeMessage } = useSendNoticeMessage(); // 푸시 알림
 
   useEffect(() => {
     console.log(`
@@ -53,10 +59,13 @@ const App = () => {
     <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
       <Body>
+        {isAuthModal && (
+          <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
+        )}
         {isDesktop && <AppDeco />}
         <Wrapper>
-          <LeftBar />
-          {isMobile && <MobileHeader />}
+          <LeftBar onIsLogin={onIsLogin} />
+          {isMobile && <MobileHeader onIsLogin={onIsLogin} />}
           <Main>
             <Toaster position="bottom-center" reverseOrder={false} />
             <Container>

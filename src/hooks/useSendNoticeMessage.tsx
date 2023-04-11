@@ -23,7 +23,7 @@ const useSendNoticeMessage = () => {
   const { userObj, myAccount } = useGetMyAccount();
   const [messageCollection, setMessageCollection] = useState(null);
   const [users, setUsers] = useState([]);
-  const { takeThrottle } = useThrottle();
+  const { throttle } = useThrottle();
 
   const setNoticeMessage = (noticeText: string) => {
     const title = "SHEATHER";
@@ -47,9 +47,9 @@ const useSendNoticeMessage = () => {
 
   // 메시지 상대 계정 정보 가져오기
   useEffect(() => {
-    myAccount?.message?.map(async (res: { user: string }) => {
-      if (res.user) {
-        onSnapshot(doc(dbService, "users", res.user), (doc) => {
+    myAccount?.message?.map(async (res: { email: string }) => {
+      if (res.email) {
+        onSnapshot(doc(dbService, "users", res.email), (doc) => {
           setUsers((prev: CurrentUserType[]) => {
             // 중복 체크
             if (!prev.some((user) => user.uid === doc.data().uid)) {
@@ -84,69 +84,70 @@ const useSendNoticeMessage = () => {
   }, [userObj.displayName, users]);
 
   // 팔로우, 좋아요, 댓글 알림 보내기
-  // useEffect(() => {
-  const noticeCheck = myAccount?.notice?.filter(
-    (res: NoticeArrType) => !res.isRead
-  );
-  const noticeFilter = noticeCheck?.at(-1);
-  let noticeText: string = "";
+  useEffect(() => {
+    const noticeCheck = myAccount?.notice?.filter(
+      (res: NoticeArrType) => !res.isRead
+    );
+    const noticeFilter = noticeCheck?.at(-1);
+    let noticeText: string = "";
 
-  if (noticeFilter?.type === "like") {
-    noticeText = `${noticeFilter.displayName}님이 회원님의 게시물을 좋아합니다.`;
-  }
-  if (noticeFilter?.type === "reply") {
-    noticeText = `${noticeFilter.displayName}님이 회원님의 게시물에 댓글을 남겼습니다: )${noticeFilter?.text}`;
-  }
-  if (noticeFilter?.type === "follower") {
-    noticeText = `${noticeFilter.displayName}님이 회원님을 팔로우하기 시작했습니다.`;
-  }
-
-  const onSendNotice = async () => {
-    const result = await Notification.requestPermission();
-    if (result === "granted") {
-      setNoticeMessage(noticeText);
+    if (noticeFilter?.type === "like") {
+      noticeText = `${noticeFilter.displayName}님이 회원님의 게시물을 좋아합니다.`;
     }
-  };
+    if (noticeFilter?.type === "reply") {
+      noticeText = `${noticeFilter.displayName}님이 회원님의 게시물에 댓글을 남겼습니다: )${noticeFilter?.text}`;
+    }
+    if (noticeFilter?.type === "follower") {
+      noticeText = `${noticeFilter.displayName}님이 회원님을 팔로우하기 시작했습니다.`;
+    }
 
-  if (
-    noticeCheck?.length &&
-    noticeText !== "" &&
-    prevData?.length < noticeCheck?.length
-  ) {
-    onSendNotice();
-  }
-  // }, [myAccount?.notice]);
+    const onSendNotice = async () => {
+      const result = await Notification.requestPermission();
+      if (result === "granted") {
+        setNoticeMessage(noticeText);
+      }
+    };
+
+    if (
+      noticeCheck?.length &&
+      noticeText !== "" &&
+      prevData?.length < noticeCheck?.length
+    ) {
+      onSendNotice();
+    }
+  }, [myAccount?.notice]);
 
   // 메시지 알림 보내기
-  // useEffect(() => {
-  const messageCheck = messageCollection
-    ?.map((res: NoticeMessageType) =>
-      res.message.filter(
-        (msg) => !msg.isRead && msg.displayName !== userObj.displayName
+  useEffect(() => {
+    let noticeText: string = "";
+    const messageCheck = messageCollection
+      ?.map((res: NoticeMessageType) =>
+        res.message.filter(
+          (msg) => !msg.isRead && msg.displayName !== userObj.displayName
+        )
       )
-    )
-    .flat();
-  const messageFilter: MessageType = messageCheck?.at(-1);
-  if (messageFilter) {
-    noticeText = `${messageFilter.displayName}님이 메시지를 보냈습니다.`;
-  }
-
-  const onSendMessage = async () => {
-    const result = await Notification.requestPermission();
-    if (result === "granted") {
-      setNoticeMessage(noticeText);
+      .flat();
+    const messageFilter: MessageType = messageCheck?.at(-1);
+    if (messageFilter) {
+      noticeText = `${messageFilter.displayName}님이 메시지를 보냈습니다.`;
     }
-  };
 
-  if (messageCheck?.length && noticeText !== "") {
-    const setNotificationTimer = (timeout: number) => {
-      takeThrottle(() => {
-        onSendMessage();
-      }, timeout);
+    const onSendMessage = async () => {
+      const result = await Notification.requestPermission();
+      if (result === "granted") {
+        setNoticeMessage(noticeText);
+      }
     };
-    setNotificationTimer(3000);
-  }
-  // }, [messageCollection, userObj.displayName]);
+
+    if (messageCheck?.length && noticeText !== "") {
+      const setNotificationTimer = (timeout: number) => {
+        throttle(() => {
+          onSendMessage();
+        }, timeout);
+      };
+      setNotificationTimer(3000);
+    }
+  }, [messageCollection, userObj.displayName]);
 
   return { setNoticeMessage };
 };

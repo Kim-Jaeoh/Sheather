@@ -4,7 +4,7 @@ const useThrottle = () => {
   // timer를 저장하는 Ref를 하나 만든다.
   const timerRef = useRef(null);
 
-  const takeThrottle = (callback: () => void, delay: number) => {
+  const throttle = (callback: () => void, delay: number) => {
     // 만약 timer가 없다면, 새로운 timer를 설정해준다.
     if (!timerRef.current) {
       timerRef.current = setTimeout(() => {
@@ -17,7 +17,7 @@ const useThrottle = () => {
     }
   };
 
-  return { takeThrottle };
+  return { throttle };
 };
 
 export default useThrottle;

@@ -1,15 +1,13 @@
 import styled from "@emotion/styled";
 import ColorList from "../../assets/data/ColorList";
-import { CurrentUserType, MessageReadType } from "../../types/type";
+import { MessageReadType } from "../../types/type";
 import { onSnapshot, doc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import { dbService } from "../../fbase";
-import { useNavigate } from "react-router-dom";
-import useCreateChat from "../../hooks/useCreateChat";
 
 type Props = {
   data: MessageReadType;
-  onListClick: (userName: string) => void;
+  onListClick: (userName: string, userDsName: string) => void;
 };
 
 const ChatList = ({ data, onListClick }: Props) => {
@@ -18,7 +16,7 @@ const ChatList = ({ data, onListClick }: Props) => {
   useEffect(() => {
     if (!data) return;
     const unsubscribe = onSnapshot(
-      doc(dbService, "users", data?.user),
+      doc(dbService, "users", data?.email),
       (doc) => {
         setUsers(doc.data());
       }
@@ -27,20 +25,24 @@ const ChatList = ({ data, onListClick }: Props) => {
   }, [data]);
 
   return (
-    <User onClick={() => onListClick(users.displayName)}>
-      <ProfileImageBox>
-        <ProfileImage
-          onContextMenu={(e) => e.preventDefault()}
-          src={users?.profileURL}
-          alt="profile image"
-        />
-      </ProfileImageBox>
-      <ProfileInfoBox>
-        <ProfileDsName>{users?.displayName}</ProfileDsName>
-        <ProfileName>{users?.name}</ProfileName>
-      </ProfileInfoBox>
-      {!data.isRead && data.user === users?.displayName && <NoticeBox />}
-    </User>
+    <>
+      {users && (
+        <User onClick={() => onListClick(users.email, users.displayName)}>
+          <ProfileImageBox>
+            <ProfileImage
+              onContextMenu={(e) => e.preventDefault()}
+              src={users?.profileURL}
+              alt="profile image"
+            />
+          </ProfileImageBox>
+          <ProfileInfoBox>
+            <ProfileDsName>{users?.displayName}</ProfileDsName>
+            <ProfileName>{users?.name}</ProfileName>
+          </ProfileInfoBox>
+          {!data.isRead && data.user === users?.displayName && <NoticeBox />}
+        </User>
+      )}
+    </>
   );
 };
 
