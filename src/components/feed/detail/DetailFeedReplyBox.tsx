@@ -9,10 +9,11 @@ import { useHandleResizeTextArea } from "../../../hooks/useHandleResizeTextArea"
 import Emoji from "../../emoji/Emoji";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 import useReply from "../../../hooks/useReply";
+import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
 
 type Props = {
   userAccount: CurrentUserType;
-  res: FeedType;
+  feed: FeedType;
   onIsLogin: () => void;
 };
 
@@ -21,26 +22,28 @@ export type ReplyPayload = {
   reply?: replyType[];
 };
 
-const DetailFeedReplyBox = ({ userAccount, res, onIsLogin }: Props) => {
+const DetailFeedReplyBox = ({ userAccount, feed, onIsLogin }: Props) => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
   const textRef = useRef<HTMLTextAreaElement>(null);
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
+  const { getToken } = useSendNoticeMessage(feed);
   const { replyText, setReplyText, onReply, onReplyDelete } = useReply({
     userObj,
     userAccount,
-    res,
+    feed,
     textRef,
+    getToken,
   });
   const { isMobile } = useMediaScreen();
 
   // 시간순
   const dataSort = useMemo(() => {
-    return res.reply.sort(
+    return feed.reply.sort(
       (a: { time: number }, b: { time: number }) => b.time - a.time
     );
-  }, [res.reply]);
+  }, [feed.reply]);
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setReplyText(e.target.value);
@@ -59,9 +62,9 @@ const DetailFeedReplyBox = ({ userAccount, res, onIsLogin }: Props) => {
 
   return (
     <Container>
-      {res.reply.length > 0 && (
+      {feed.reply.length > 0 && (
         <>
-          <UserReactNum>댓글 {res.reply.length}개</UserReactNum>
+          <UserReactNum>댓글 {feed.reply.length}개</UserReactNum>
           {dataSort.map((data, index) => {
             return (
               <DetailFeedReply
@@ -73,19 +76,19 @@ const DetailFeedReplyBox = ({ userAccount, res, onIsLogin }: Props) => {
           })}
         </>
       )}
-      <ReplyEditBox onSubmit={() => onReply(res)} onClick={onIsLogin}>
+      <ReplyEditBox onSubmit={() => onReply(feed)} onClick={onIsLogin}>
         <ReplyEditText
           spellCheck="false"
           maxLength={120}
           value={replyText}
           ref={textRef}
           onChange={onChange}
-          onKeyDown={(e) => onKeyPress(e, res)}
+          onKeyDown={(e) => onKeyPress(e, feed)}
           onInput={handleResizeHeight}
           placeholder="댓글 달기..."
         />
         {replyText.length > 0 && (
-          <ReplyEditBtn type="button" onClick={() => onReply(res)}>
+          <ReplyEditBtn type="button" onClick={() => onReply(feed)}>
             게시
           </ReplyEditBtn>
         )}

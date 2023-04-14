@@ -12,6 +12,7 @@ import { Spinner } from "../../../assets/spinner/Spinner";
 import { dbService } from "../../../fbase";
 import useToggleFollow from "../../../hooks/useToggleFollow";
 import { FollowerType, FollowingType } from "../../../types/type";
+import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
 
 // interface followInfoType {
 //   displayName: string;
@@ -43,7 +44,9 @@ const ProfileFollowModal = ({
   const [account, setAccount] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [clickIndex, setClickIndex] = useState(0);
-  const { toggleFollow } = useToggleFollow({ user: account[clickIndex] });
+  const { toggleFollow } = useToggleFollow({
+    user: account[clickIndex],
+  });
 
   // 계정 정보 가져오기 (병렬 처리 = 한 번에 가져오기 위함)
   useEffect(() => {

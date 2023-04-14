@@ -25,12 +25,14 @@ import { toast } from "react-hot-toast";
 import { IoIosArrowBack } from "react-icons/io";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import useThrottle from "../../hooks/useThrottle";
+import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
+import BottomButton from "../scrollButton/BottomButton";
 
 interface Props {
   users: CurrentUserType;
   myAccount: CurrentUserType;
   setClickInfo: React.Dispatch<React.SetStateAction<CurrentUserType>>;
+  bottomListRef: React.MutableRefObject<HTMLDivElement>;
 }
 
 interface DayType {
@@ -38,7 +40,17 @@ interface DayType {
   day: string;
 }
 
-const Chat = ({ users, myAccount, setClickInfo }: Props) => {
+const dayArr: { [key: number]: string } = {
+  0: `일`,
+  1: `월`,
+  2: `화`,
+  3: `수`,
+  4: `목`,
+  5: `금`,
+  6: `토`,
+};
+
+const Chat = ({ users, myAccount, setClickInfo, bottomListRef }: Props) => {
   const [messages, setMessages] = useState(null);
   const [sortMessages, setSortMessages] = useState<
     Array<[string, MessageType[]]>
@@ -46,22 +58,13 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   const [day, setDay] = useState<DayType[]>([]);
   const [text, setText] = useState("");
   const [messageCollection, setMessageCollection] = useState(null);
-  const containerRef = useRef<HTMLDivElement>();
-  const textRef = useRef<HTMLTextAreaElement>();
-  const bottomListRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // const bottomListRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
-
-  const dayArr: { [key: number]: string } = {
-    0: `일`,
-    1: `월`,
-    2: `화`,
-    3: `수`,
-    4: `목`,
-    5: `금`,
-    6: `토`,
-  };
+  const { sendMessage } = useSendNoticeMessage(users);
 
   // 화면 하단 스크롤
   useEffect(() => {
@@ -69,6 +72,23 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
       bottomListRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, users]);
+
+  useEffect(() => {
+    const getScrollDifference = () => {
+      const totalScrollHeight = containerRef?.current?.scrollHeight; // 전체 스크롤 높이 값
+      const currentScrollPosition = window.pageYOffset; // 현재 문서의 수직 스크롤 위치 값
+      const scrollDifference = totalScrollHeight - currentScrollPosition; // 전체 스크롤 값에서 현재 스크롤 값 뺀 차이값
+      if (scrollDifference > 2000) {
+        console.log("ddd");
+      }
+    };
+
+    window.addEventListener("scroll", getScrollDifference);
+
+    return () => {
+      window.removeEventListener("scroll", getScrollDifference);
+    };
+  }, []);
 
   // 1. 채팅방 목록 및 정보 불러오기
   useEffect(() => {
@@ -187,6 +207,11 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
       });
     }
 
+    // 알림 보내기
+    if (users?.email) {
+      sendMessage(trimmedMessage);
+    }
+
     setText("");
     textRef.current.style.height = "24px";
   };
@@ -280,7 +305,11 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   return (
     <>
       {users && (
-        <>
+        <Wrapper>
+          {/* <BottomButton
+            containerRef={containerRef}
+            bottomListRef={bottomListRef}
+          /> */}
           <Category>
             <IconBox onClick={onBackClick}>
               <IoIosArrowBack />
@@ -378,7 +407,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
               </TextAreaBox>
             </ChatBox>
           </Conatiner>
-        </>
+        </Wrapper>
       )}
     </>
   );
@@ -387,6 +416,14 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
 export default Chat;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+
+const Wrapper = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+`;
 
 const Category = styled.header`
   width: 100%;
@@ -484,7 +521,7 @@ const DeleteChatBtn = styled.button`
   }
 `;
 
-const Conatiner = styled.section`
+const Conatiner = styled.div`
   flex: 1;
   width: 100%;
   height: 100%;

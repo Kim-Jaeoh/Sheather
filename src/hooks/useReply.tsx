@@ -5,17 +5,20 @@ import { ReplyPayload } from "../components/feed/detail/DetailFeedReplyBox";
 import { CurrentUserType, FeedType, replyType } from "../types/type";
 import { dbService } from "../fbase";
 import { updateDoc, doc } from "firebase/firestore";
+import useSendNoticeMessage from "./useSendNoticeMessage";
 
 type Props = {
-  res: FeedType;
+  feed: FeedType;
   userObj: CurrentUserType;
   userAccount: CurrentUserType;
   textRef: React.MutableRefObject<HTMLTextAreaElement>;
+  getToken: string;
 };
 
-const useReply = ({ res, userObj, userAccount, textRef }: Props) => {
+const useReply = ({ feed, userObj, userAccount, textRef, getToken }: Props) => {
   const [replyText, setReplyText] = useState("");
   const queryClient = useQueryClient();
+  const { sendActions } = useSendNoticeMessage(feed);
 
   const noticeCopy = useMemo(() => {
     if (userAccount) {
@@ -35,16 +38,16 @@ const useReply = ({ res, userObj, userAccount, textRef }: Props) => {
   );
 
   // 댓글 업로드
-  const onReply = async (res: FeedType) => {
-    const replyId = `${res.id}_${+new Date()}`; // 고유 값
-    const copy = [...res.reply];
+  const onReply = async (feed: FeedType) => {
+    const replyId = `${feed.id}_${+new Date()}`; // 고유 값
+    const copy = [...feed.reply];
 
     mutate({
-      id: res.id,
+      id: feed.id,
       reply: [
         ...copy,
         {
-          postId: res.id,
+          postId: feed.id,
           replyId: replyId,
           email: userObj.email,
           displayName: userObj.displayName,
@@ -54,15 +57,15 @@ const useReply = ({ res, userObj, userAccount, textRef }: Props) => {
       ],
     });
 
-    if (userObj.displayName !== res.displayName) {
+    if (userObj.displayName !== feed.displayName) {
       await updateDoc(doc(dbService, "users", userAccount.email), {
         notice: [
           ...noticeCopy,
           {
             type: "reply",
-            postId: res.id,
+            postId: feed.id,
             replyId: replyId,
-            imgUrl: res.url[0],
+            imgUrl: feed.url[0],
             text: replyText,
             displayName: userObj.displayName,
             time: +new Date(),
@@ -70,6 +73,11 @@ const useReply = ({ res, userObj, userAccount, textRef }: Props) => {
           },
         ],
       });
+    }
+
+    // 알림 보내기
+    if (getToken) {
+      sendActions(`reply`, replyText);
     }
 
     setReplyText("");
@@ -94,7 +102,7 @@ const useReply = ({ res, userObj, userAccount, textRef }: Props) => {
 
   // 댓글 삭제
   const onReplyDelete = async (replyData: replyType) => {
-    const filter = res.reply.filter((info) => info.text !== replyData.text);
+    const filter = feed.reply.filter((info) => info.text !== replyData.text);
     const noticeFilter = noticeCopy.filter(
       (notice) =>
         notice.replyId !== replyData.replyId || notice.type !== "reply"
@@ -106,7 +114,7 @@ const useReply = ({ res, userObj, userAccount, textRef }: Props) => {
     });
 
     // 상대 알림에서 제거
-    if (userObj.displayName !== res.displayName) {
+    if (userObj.displayName !== feed.displayName) {
       console.log("제거");
       await updateDoc(doc(dbService, "users", userAccount.email), {
         notice: noticeFilter,

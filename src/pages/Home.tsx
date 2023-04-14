@@ -4,6 +4,7 @@ import FeedPost from "../components/feed/FeedPost";
 import SortFeedCategory from "../components/feed/SortFeedCategory";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import useUserAccount from "../hooks/useUserAccount";
+import TopButton from "../components/scrollButton/TopButton";
 
 const Home = () => {
   const [url, setUrl] = useState(
@@ -18,6 +19,7 @@ const Home = () => {
         <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
       <Container>
+        <TopButton bgColor={`#ff5673`} />
         <Box>
           <SortFeedCategory url={url} setUrl={setUrl} />
           <FeedPost url={url} onIsLogin={onIsLogin} />

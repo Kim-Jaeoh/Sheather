@@ -92,7 +92,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
       setProfileURL({ ...profileURL, imageUrl: userObj.profileURL });
       return setIsImage(false);
     }
-    return modalClose();
+    return shareBtnClick();
   };
 
   // 닉네임 중복 체크
@@ -266,8 +266,27 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     }));
   };
 
+  // 모달 닫기
+  const shareBtnClick = () => {
+    if (
+      userObj.name !== inputs.name ||
+      userObj.displayName !== inputs.dpName ||
+      userObj.description !== inputs.desc ||
+      profileURL.croppedImageUrl !== null
+    ) {
+      const ok = window.confirm(
+        "게시물을 삭제하시겠어요? 지금 나가면 수정 내용이 저장되지 않습니다."
+      );
+      if (ok) {
+        modalClose();
+      }
+    } else {
+      modalClose();
+    }
+  };
+
   return (
-    <Modal open={modalOpen} onClose={modalClose} disableScrollLock={false}>
+    <Modal open={modalOpen} onClose={shareBtnClick} disableScrollLock={false}>
       <Container onSubmit={onSubmit}>
         <Header>
           <IconBox onClick={onPrevClick}>
@@ -358,15 +377,16 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                         onBlur={(e) => onFocus(e, false)}
                         placeholder="사용자 이름"
                       />
-                      {inputs.dpName !== "" && (
-                        <InputCheckBox check={error}>
-                          {error === "" ? (
-                            <IoCheckmarkCircleOutline />
-                          ) : (
-                            <IoCloseCircleOutline />
-                          )}
-                        </InputCheckBox>
-                      )}
+                      {inputs.dpName !== "" &&
+                        userObj.displayName !== inputs.dpName && (
+                          <InputCheckBox check={error}>
+                            {error === "" ? (
+                              <IoCheckmarkCircleOutline />
+                            ) : (
+                              <IoCloseCircleOutline />
+                            )}
+                          </InputCheckBox>
+                        )}
                     </InputBox>
                     {error !== "" && <ErrorText>{error}</ErrorText>}
                   </ProfileInfo>
@@ -620,6 +640,7 @@ const InputCheckBox = styled.div<{ check?: string }>`
 
 const ProfileName = styled.input<{ focus: boolean }>`
   width: 100%;
+  height: 48px;
   box-sizing: border-box;
   font-size: 14px;
   font-weight: 400;
@@ -642,6 +663,7 @@ const InputBox = styled.div<{ focus: boolean }>`
 
 const ProfileDpName = styled.input`
   width: 100%;
+  height: 48px;
   box-sizing: border-box;
   font-size: 14px;
   font-weight: 400;

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginToken, currentUser } from "../app/user";
 import { authService } from "../fbase";
 import { RootState } from "../app/store";
+import { toast } from "react-hot-toast";
 
 const useUserAccount = () => {
   const { loginToken: userLogin } = useSelector((state: RootState) => {
@@ -46,6 +47,7 @@ const useUserAccount = () => {
           following: [],
         })
       );
+      toast.success("로그아웃 되었습니다.");
       window.location.reload();
     }
   };

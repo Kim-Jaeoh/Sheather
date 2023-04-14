@@ -6,7 +6,6 @@ import axios from "axios";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { BiLeftArrowAlt } from "react-icons/bi";
-import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 import ColorList from "../../../assets/data/ColorList";
 import { FeedType } from "../../../types/type";
@@ -14,22 +13,22 @@ import ShareWeatherCategory from "../shareWeather/ShareWeatherCategory";
 import ShareWeatherForm from "../shareWeather/ShareWeatherForm";
 
 type Props = {
-  info: FeedType;
+  feed: FeedType;
   modalOpen: boolean;
   modalClose: () => void;
 };
 
-const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
+const FeedEditModal = ({ feed, modalOpen, modalClose }: Props) => {
   const [checkTag, setCheckTag] = useState({
-    feel: info.feel,
-    outer: info.wearInfo.outer,
-    top: info.wearInfo.top,
-    innerTop: info.wearInfo.innerTop,
-    bottom: info.wearInfo.bottom,
-    etc: info.wearInfo.etc,
+    feel: feed.feel,
+    outer: feed.wearInfo.outer,
+    top: feed.wearInfo.top,
+    innerTop: feed.wearInfo.innerTop,
+    bottom: feed.wearInfo.bottom,
+    etc: feed.wearInfo.etc,
   });
-  const [text, setText] = useState(info.text);
-  const [tags, setTags] = useState(info.tag);
+  const [text, setText] = useState(feed.text);
+  const [tags, setTags] = useState(feed.tag);
   const { pathname } = useLocation();
   const queryClient = useQueryClient();
 
@@ -41,7 +40,7 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
   const { mutate } = useMutation(
     (response: FeedType) =>
       axios.patch(
-        `${process.env.REACT_APP_SERVER_PORT}/api/feed/${info.id}`,
+        `${process.env.REACT_APP_SERVER_PORT}/api/feed/${feed.id}`,
         response
       ),
     {
@@ -56,7 +55,7 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     mutate({
-      ...info,
+      ...feed,
       text: text,
       feel: checkTag.feel,
       wearInfo: {
@@ -101,13 +100,13 @@ const FeedEditModal = ({ info, modalOpen, modalClose }: Props) => {
             align="prev"
           >
             <ImageContainerBox>
-              {Array.from({ length: info.url.length })?.map((res, index) => {
+              {Array.from({ length: feed.url.length })?.map((res, index) => {
                 return (
                   <ImageContainer key={index}>
-                    {info.url[index] ? (
-                      <ImageBox length={info.url.length}>
+                    {feed.url[index] ? (
+                      <ImageBox length={feed.url.length}>
                         <ImageWrap>
-                          <Images src={info.url[index]} alt="" />
+                          <Images src={feed.url[index]} alt="" />
                         </ImageWrap>
                       </ImageBox>
                     ) : (

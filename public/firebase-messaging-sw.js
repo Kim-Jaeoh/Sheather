@@ -27,17 +27,6 @@ firebase.initializeApp(firebaseConfig);
 // eslint-disable-next-line no-undef
 const messaging = firebase.messaging();
 
-// const app = initializeApp(firebaseConfig);
-// const messaging = getMessaging(app);
-
-// messaging.onMessage(messaging, (payload) => {
-//   console.log("??");
-//   console.log("메시지가 도착했습니다.", payload);
-//   new Notification(payload.notification.title, {
-//     body: payload.notification.body,
-//   });
-// });
-
 //백그라운드 서비스워커 설정
 messaging.onBackgroundMessage(messaging, (payload) => {
   console.log(
@@ -48,6 +37,7 @@ messaging.onBackgroundMessage(messaging, (payload) => {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
+    icon: "/image/sheather_logo_s.svg",
   };
 
   // eslint-disable-next-line no-restricted-globals

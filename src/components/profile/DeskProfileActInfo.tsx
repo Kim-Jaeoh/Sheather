@@ -7,6 +7,7 @@ import useCreateChat from "../../hooks/useCreateChat";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import { FiLogOut } from "react-icons/fi";
 import { CurrentUserType, FollowerType, FollowingType } from "../../types/type";
+import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
 
 type Props = {
   myPost: number;
@@ -35,7 +36,7 @@ const DeskProfileActInfo = ({
     }
   );
   const { toggleFollow } = useToggleFollow({ user: account });
-  const { clickInfo, onCreateChatClick } = useCreateChat();
+  const { onCreateChatClick } = useCreateChat();
 
   const onMessageClick = (res: CurrentUserType) => {
     onIsLogin(() => onCreateChatClick(res));

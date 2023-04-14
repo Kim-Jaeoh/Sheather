@@ -103,7 +103,7 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
                         </CardImageBox>
                       </Card>
                       <UserBox>
-                        <FeedProfileInfo res={res} />
+                        <FeedProfileInfo feed={res} />
                         <UserText>{res.text}</UserText>
                         {res?.tag?.length !== 0 && (
                           <TagList>

@@ -21,8 +21,6 @@ import ShareWeatherForm from "./ShareWeatherForm";
 import { FeedType } from "../../../types/type";
 import Flicking from "@egjs/react-flicking";
 import { regionApi } from "../../../apis/api";
-import useThrottle from "../../../hooks/useThrottle";
-import { debounce } from "lodash";
 
 type Props = {
   shareBtn: boolean;
@@ -39,6 +37,12 @@ interface TagType {
 }
 
 const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
+  const shareWeatherData = useSelector((state: RootState) => {
+    return state.weather;
+  });
   const [tags, setTags] = useState<string[]>([]);
   const [checkTag, setCheckTag] = useState<TagType>();
   const [attachments, setAttachments] = useState([]);
@@ -48,16 +52,9 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   const [fileName, setFileName] = useState([]);
   const [text, setText] = useState("");
   const [isNextClick, setIsNextClick] = useState(false);
-  const { currentUser: userObj } = useSelector((state: RootState) => {
-    return state.user;
-  });
-  const shareWeatherData = useSelector((state: RootState) => {
-    return state.weather;
-  });
   const { location } = useCurrentLocation();
   const queryClient = useQueryClient();
   const cropRef = useRef(null);
-  const { throttle } = useThrottle();
 
   // 현재 주소 받아오기
   const { data: regionData, isLoading: isLoading2 } = useQuery(
@@ -182,20 +179,14 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
 
   // 다음 버튼
   const onNextClick = () => {
-    if (
-      attachments.length ||
-      attachments.some((res) => res?.croppedImageUrl == null)
-    ) {
+    if (attachments.some((res) => res?.croppedImageUrl == null)) {
       cropRef?.current?.focus();
+      toast.error("자르기 버튼을 눌러주세요.", {
+        id: `not-cropped`, // 중복 방지
+      });
+    } else {
+      setIsNextClick((prev) => !prev);
     }
-
-    debounce(() => {
-      toast.error("자르기 버튼을 눌러주세요.");
-    }, 3000);
-
-    // if (attachments.length !== 0) {
-    //   setIsNextClick((prev) => !prev);
-    // }
   };
 
   // 이전 버튼
@@ -498,9 +489,9 @@ const WeatherInfoBox = styled.div`
     justify-content: center;
     letter-spacing: -0.8px;
   }
-  font-size: 16px;
-  font-weight: bold;
-
+  margin-left: 4px;
+  font-size: 14px;
+  font-weight: 500;
   user-select: none;
   display: flex;
   align-items: center;
@@ -660,8 +651,8 @@ const Images = styled.img`
 const DateBox = styled.div`
   svg {
     margin-right: 2px;
-    font-size: 14px;
-    color: ${secondColor};
+    font-size: 12px;
+    color: ${thirdColor};
   }
 `;
 
@@ -747,8 +738,8 @@ const WeatherIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   margin: 0 -14px 0 -10px;
   img {
     display: block;

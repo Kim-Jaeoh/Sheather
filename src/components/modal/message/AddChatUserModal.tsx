@@ -24,11 +24,11 @@ const AddChatUserModal = ({ userObj, modalOpen, modalClose }: Props) => {
 
   // 팔로잉 계정 정보 가져오기
   useEffect(() => {
-    userObj?.following?.forEach(async (res) => {
-      onSnapshot(doc(dbService, "users", res.displayName), (doc) => {
+    userObj?.following?.forEach((res) => {
+      onSnapshot(doc(dbService, "users", res?.email), (doc) => {
         setUsers((prev: CurrentUserType[]) => {
           // 중복 체크
-          if (!prev.some((user) => user.uid === doc.data().uid)) {
+          if (!prev.some((user) => user?.email === doc.data()?.email)) {
             return [...prev, doc.data()];
           } else {
             return prev;
@@ -63,22 +63,22 @@ const AddChatUserModal = ({ userObj, modalOpen, modalClose }: Props) => {
                   return (
                     <UserList key={index}>
                       <ProfileImageBox
-                        to={`/profile/${res.displayName}/post`}
-                        state={res.displayName}
+                        to={`/profile/${res?.displayName}/post`}
+                        state={res?.displayName}
                         onClick={modalClose}
                       >
                         <ProfileImage
-                          src={res.profileURL}
+                          src={res?.profileURL}
                           alt="profile image"
                         />
                       </ProfileImageBox>
                       <ProfileInfoBox
-                        to={`/profile/${res.displayName}/post`}
-                        state={res.displayName}
+                        to={`/profile/${res?.displayName}/post`}
+                        state={res?.displayName}
                         onClick={modalClose}
                       >
-                        <ProfileDsName>{res.displayName}</ProfileDsName>
-                        {res.name && <ProfileName>{res.name}</ProfileName>}
+                        <ProfileDsName>{res?.displayName}</ProfileDsName>
+                        {res?.name && <ProfileName>{res?.name}</ProfileName>}
                       </ProfileInfoBox>
                       {res?.email !== userObj.email && (
                         <FollowBtnBox onClick={() => onCreatChat(res)}>

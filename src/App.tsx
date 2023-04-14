@@ -28,7 +28,6 @@ const App = () => {
   const { isMobile, isDesktop, RightBarNone } = useMediaScreen();
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
-  const { setNoticeMessage } = useSendNoticeMessage(); // 푸시 알림
 
   useEffect(() => {
     console.log(`

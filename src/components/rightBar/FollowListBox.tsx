@@ -9,6 +9,7 @@ import { RootState } from "../../app/store";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import { cloneDeep } from "lodash";
 import FollowListSkeleton from "../../assets/skeleton/FollowListSkeleton";
+import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
 
 type Props = {
   modalOpen?: boolean;
@@ -25,7 +26,9 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
   const [users, setUsers] = useState([]);
   const [clickIndex, setClickIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const { toggleFollow } = useToggleFollow({ user: users[clickIndex] });
+  const { toggleFollow } = useToggleFollow({
+    user: users[clickIndex],
+  });
   const usersArr = useRef([]);
 
   // 계정 정보 가져오기

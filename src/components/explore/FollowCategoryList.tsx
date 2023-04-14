@@ -11,6 +11,8 @@ import { dbService } from "../../fbase";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import useUserAccount from "../../hooks/useUserAccount";
 import AuthFormModal from "../modal/auth/AuthFormModal";
+import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
+import { CurrentUserType } from "../../types/type";
 
 interface Count {
   [key: string]: number;
@@ -25,7 +27,9 @@ const FollowCategoryList = () => {
   const [users, setUsers] = useState([]);
   const [arrState, setArrState] = useState(false);
   const [clickIndex, setClickIndex] = useState(0);
-  const { toggleFollow } = useToggleFollow({ user: users[clickIndex] });
+  const { toggleFollow } = useToggleFollow({
+    user: users[clickIndex],
+  });
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
 

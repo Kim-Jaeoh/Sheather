@@ -315,10 +315,6 @@ const CropBtn = styled.button<{ isCrop?: boolean }>`
   &:active {
     background-color: ${mainColor};
   }
-
-  &:focus {
-    background: red;
-  }
 `;
 
 const ResetText = styled.p`

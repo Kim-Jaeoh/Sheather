@@ -45,15 +45,6 @@ const useInfinityScroll = ({ url, count }: props) => {
     }
   );
 
-  // useEffect(() => {
-  //   return () => {
-  //     queryClient.setQueryData(["feed", url], (data: any) => ({
-  //       pages: data?.pages?.slice(0, 1),
-  //       pageParams: data?.pageParams?.slice(0, 1),
-  //     }));
-  //   };
-  // }, [url]);
-
   const { ref, inView } = useInView();
 
   useEffect(() => {

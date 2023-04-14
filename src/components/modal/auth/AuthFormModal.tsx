@@ -3,25 +3,17 @@ import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import {
   createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  setDoc,
-} from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { useDispatch } from "react-redux";
 import {
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
   IoCloseOutline,
 } from "react-icons/io5";
-import { authService, dbService } from "../../../fbase";
+import { authService, dbService, createDeviceToken } from "../../../fbase";
 import { currentUser, loginToken } from "../../../app/user";
 import defaultAccount from "../../../assets/image/account_img_default.png";
 import ColorList from "../../../assets/data/ColorList";
@@ -168,11 +160,14 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                 ...docSnap.data(),
               })
             );
+            // 알림 토큰 생성
+            await createDeviceToken(SignUser.email).then(() => {
+              alert("로그인 되었습니다.");
+              modalClose();
+              window.location.reload();
+            });
           }
         });
-        alert("로그인 되었습니다.");
-        modalClose();
-        window.location.reload();
       } else {
         await createUserWithEmailAndPassword(
           authService,
@@ -184,7 +179,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
             displayName: inputs.dpName,
           });
           const usersRef = collection(dbService, "users");
-          await setDoc(doc(usersRef, inputs.email), {
+          await setDoc(doc(usersRef, user.email), {
             uid: user.uid,
             createdAt: Date.now(),
             profileURL: defaultAccount,
@@ -217,7 +212,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               following: [],
             })
           );
-
+          createDeviceToken(user.email); // 알림 토큰 생성
           setIsExistAccount(true);
           setInputs({
             email: "",

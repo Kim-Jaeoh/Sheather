@@ -1,9 +1,10 @@
-import { updateDoc, doc } from "firebase/firestore";
+import { updateDoc, doc, getDoc } from "firebase/firestore";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store";
 import { currentUser } from "../app/user";
 import { dbService } from "../fbase";
 import { CurrentUserType } from "../types/type";
+import useSendNoticeMessage from "./useSendNoticeMessage";
 
 type props = {
   user: CurrentUserType;
@@ -16,6 +17,7 @@ const useToggleFollow = ({ user }: props) => {
     }
   );
   const dispatch = useDispatch();
+  const { getToken, sendActions } = useSendNoticeMessage(user);
 
   const toggleFollow = async (resDpName: string) => {
     const followingCopy = [...userObj.following];
@@ -33,7 +35,7 @@ const useToggleFollow = ({ user }: props) => {
     );
 
     if (!userLogin) {
-      return alert("로그인하기~~");
+      return alert("로그인을 해주세요.");
     }
     if (
       userObj.following.filter((res) => res.displayName === resDpName)
@@ -106,6 +108,11 @@ const useToggleFollow = ({ user }: props) => {
           ],
         })
       );
+
+      // 알림 보내기
+      if (getToken) {
+        sendActions(`follower`);
+      }
     }
   };
 

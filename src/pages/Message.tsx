@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BiMessageAltAdd } from "react-icons/bi";
 import { BsChatDots } from "react-icons/bs";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,6 +14,7 @@ import useGetMyAccount from "../hooks/useGetMyAccount";
 import ChatList from "../components/message/ChatList";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../fbase";
+import BottomButton from "../components/scrollButton/BottomButton";
 
 type Props = {};
 
@@ -28,6 +29,8 @@ const Message = (props: Props) => {
   const { state } = useLocation() as LocationType;
   const { userLogin, userObj, myAccount } = useGetMyAccount();
   const { isDesktop, isTablet, isMobile, isMobileBefore } = useMediaScreen();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const bottomListRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   // 상대 계정 정보 가져오기
@@ -65,7 +68,11 @@ const Message = (props: Props) => {
         />
       )}
       <Wrapper>
-        <Container>
+        <BottomButton
+          containerRef={containerRef}
+          bottomListRef={bottomListRef}
+        />
+        <Container ref={containerRef}>
           <ChatRoomList isMobile={isMobile} state={state ? state : clickInfo}>
             <Category>
               <CategoryText>메시지</CategoryText>
@@ -98,6 +105,7 @@ const Message = (props: Props) => {
                   users={users}
                   myAccount={myAccount}
                   setClickInfo={setClickInfo}
+                  bottomListRef={bottomListRef}
                 />
               ) : (
                 <NotInfoBox>
@@ -126,6 +134,7 @@ const Wrapper = styled.div`
   position: relative;
   overflow: hidden;
   padding: 40px;
+  width: 100%;
   height: 100%;
   border-top: 2px solid ${secondColor};
   background: #ff5c1b;
@@ -201,7 +210,10 @@ const AddChatBtn = styled.button`
   }
 `;
 
-const ChatRoomList = styled.div<{ isMobile: boolean; state: CurrentUserType }>`
+const ChatRoomList = styled.article<{
+  isMobile: boolean;
+  state: CurrentUserType;
+}>`
   display: ${(props) => (props.isMobile && props.state ? `none` : `block`)};
   width: ${(props) => (props.isMobile ? `100%` : `240px`)};
   height: 100%;
@@ -213,7 +225,7 @@ const ChatRoomList = styled.div<{ isMobile: boolean; state: CurrentUserType }>`
   }
 `;
 
-const ChatRoom = styled.div`
+const ChatRoom = styled.article`
   display: flex;
   flex-direction: column;
   flex: 1 0 250px;

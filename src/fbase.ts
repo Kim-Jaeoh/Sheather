@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
 import {
@@ -10,11 +10,11 @@ import {
   onMessage,
 } from "firebase/messaging";
 
-declare global {
-  interface Window {
-    registration: any;
-  }
-}
+// declare global {
+//   interface Window {
+//     registration: any;
+//   }
+// }
 
 // Your web app's Firebase configuration
 export const firebaseConfig = {
@@ -34,48 +34,53 @@ export const authService = getAuth(app);
 export const dbService = getFirestore(app);
 export const storageService = getStorage(app);
 export const analytics = getAnalytics(app);
-
-// export const messaging: any = getMessaging(app);
 export const messaging = async () => (await isSupported()) && getMessaging(app);
 
-const requestNotificationsPermissions = async () => {
-  console.log("Requesting notifications permission...");
+// 알림 여부
+const requestNotificationsPermissions = async (userEmail: string) => {
   const permission = await Notification.requestPermission();
 
   if (permission === "granted") {
-    console.log("Notification permission granted.");
-    // Notification permission granted.
-    await saveMessagingDeviceToken();
+    console.log("알림 권한 부여");
+    await saveMessagingDeviceToken(userEmail);
   } else {
-    console.log("Unable to get permission to notify.");
+    console.log("알림 권한 없음");
   }
 };
 
-export const saveMessagingDeviceToken = async () => {
+// 알림 받기
+export const saveMessagingDeviceToken = async (userEmail: string) => {
   try {
     const msg = await messaging();
     const fcmToken = await getToken(msg, {
       vapidKey: process.env.REACT_APP_VAPID_KEY,
     });
     if (fcmToken) {
-      // This will fire when a message is received while the app is in the foreground.
-      // When the app is in the background, firebase-messaging-sw.js will receive the message instead.
       onMessage(msg, (message) => {
-        console.log(
-          "New foreground notification from Firebase msg!",
-          message.notification
-        );
+        console.log(message.notification);
         new Notification(message.notification.title, {
           body: message.notification.body,
+          icon: "/image/sheather_logo_s.png",
+          badge: "/image/sheather_badge.png",
         });
       });
     } else {
-      // Need to request permissions to show notifications.
-      requestNotificationsPermissions();
+      // 푸시 알림 권한 요청하기
+      requestNotificationsPermissions(userEmail);
     }
   } catch (error) {
     console.error("Unable to get messaging token.", error);
   }
 };
 
-saveMessagingDeviceToken();
+// 기기 토큰값 저장
+export const createDeviceToken = async (userEmail: string) => {
+  const msg = await messaging();
+  const fcmToken = await getToken(msg, {
+    vapidKey: process.env.REACT_APP_VAPID_KEY,
+  });
+  if (fcmToken) {
+    const tokenRef = doc(dbService, `fcmTokens`, userEmail);
+    await setDoc(tokenRef, { fcmToken }).then((e) => console.log("토큰 생성"));
+  }
+};

@@ -8,12 +8,12 @@ import toast from "react-hot-toast";
 import useToggleBookmark from "../../../hooks/useToggleBookmark";
 
 type Props = {
-  res: FeedType;
+  feed: FeedType;
   userObj: CurrentUserType;
-  toggleLike: (res: FeedType) => void;
+  toggleLike: (feed: FeedType) => void;
 };
 
-const DetailFeedInfo = ({ res, userObj, toggleLike }: Props) => {
+const DetailFeedInfo = ({ feed, userObj, toggleLike }: Props) => {
   const { toggleBookmark } = useToggleBookmark();
 
   // 복사
@@ -32,15 +32,15 @@ const DetailFeedInfo = ({ res, userObj, toggleLike }: Props) => {
       <TextBox>
         <UserReactBox>
           <IconBox>
-            <Icon onClick={() => toggleLike(res)}>
-              {userObj?.like?.filter((id) => id === res.id).length > 0 ? (
+            <Icon onClick={() => toggleLike(feed)}>
+              {userObj?.like?.filter((id) => id === feed.id).length > 0 ? (
                 <FaHeart style={{ color: `#ff5673` }} />
               ) : (
                 <FaRegHeart />
               )}
             </Icon>
-            <Icon onClick={() => toggleBookmark(res.id)}>
-              {userObj?.bookmark?.filter((id) => id === res.id).length > 0 ? (
+            <Icon onClick={() => toggleBookmark(feed.id)}>
+              {userObj?.bookmark?.filter((id) => id === feed.id).length > 0 ? (
                 <FaBookmark style={{ color: `#ff5673` }} />
               ) : (
                 <FaRegBookmark />
@@ -51,13 +51,13 @@ const DetailFeedInfo = ({ res, userObj, toggleLike }: Props) => {
             <BiCopy />
           </Icon>
         </UserReactBox>
-        <UserReactNum>공감 {res.like.length}개</UserReactNum>
+        <UserReactNum>공감 {feed.like.length}개</UserReactNum>
         <UserTextBox>
-          <UserText>{res.text}</UserText>
+          <UserText>{feed.text}</UserText>
         </UserTextBox>
-        {res?.tag.length > 0 && (
+        {feed?.tag.length > 0 && (
           <TagList>
-            {res?.tag?.map((tag, index) => {
+            {feed?.tag?.map((tag, index) => {
               return (
                 <Tag key={index} to={`/explore/search?keyword=${tag}`}>
                   <span>#</span>

@@ -10,6 +10,7 @@ import useMediaScreen from "../../hooks/useMediaScreen";
 import { FeedType } from "../../types/type";
 import useUserAccount from "../../hooks/useUserAccount";
 import AuthFormModal from "../modal/auth/AuthFormModal";
+import TopButton from "../scrollButton/TopButton";
 
 const InfoCategory = () => {
   const [isGridRender, setIsGridRender] = useState(false);
@@ -97,6 +98,7 @@ const InfoCategory = () => {
       <Container>
         {!isLoading ? (
           <Box>
+            <TopButton bgColor={`#30c56e`} />
             <TagCategory>
               <TagCategoryText>
                 {search?.includes("cat")

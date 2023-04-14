@@ -7,16 +7,17 @@ import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { FeedType } from "../../types/type";
 import useToggleBookmark from "../../hooks/useToggleBookmark";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { Skeleton } from "@mui/material";
+import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
 
 type Props = {
-  res: FeedType;
+  feed: FeedType;
 };
 
-const FeedProfileInfo = ({ res }: Props) => {
+const FeedProfileInfo = ({ feed }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
@@ -25,20 +26,19 @@ const FeedProfileInfo = ({ res }: Props) => {
   const [account, setAccount] = useState(null);
   const { toggleBookmark } = useToggleBookmark(); // 북마크 커스텀 훅
   const { toggleLike } = useToggleLike({ user: account }); // 좋아요 커스텀 훅
-  const { pathname } = useLocation();
 
   // 계정 정보 가져오기
   useEffect(() => {
-    const unsubscribe = onSnapshot(doc(dbService, "users", res.email), (doc) =>
+    const unsubscribe = onSnapshot(doc(dbService, "users", feed.email), (doc) =>
       setAccount(doc.data())
     );
     return () => unsubscribe();
-  }, [res]);
+  }, [feed]);
 
   return (
     <UserInfoBox>
       <UserImageBox
-        to={userLogin && `/profile/${res.displayName}/post`}
+        to={userLogin && `/profile/${feed.displayName}/post`}
         onContextMenu={(e) => e.preventDefault()}
       >
         {account ? (
@@ -52,7 +52,7 @@ const FeedProfileInfo = ({ res }: Props) => {
           />
         )}
       </UserImageBox>
-      <UserNameBox to={userLogin && `/profile/${res.displayName}/post`}>
+      <UserNameBox to={userLogin && `/profile/${feed.displayName}/post`}>
         {account ? (
           <UserName>{account?.displayName}</UserName>
         ) : (
@@ -68,19 +68,19 @@ const FeedProfileInfo = ({ res }: Props) => {
       </UserNameBox>
       <UserReactBox>
         <UserIconBox>
-          <UserIcon onClick={() => toggleLike(res)}>
-            {userObj?.like?.filter((id) => id === res.id).length > 0 ? (
+          <UserIcon onClick={() => toggleLike(feed)}>
+            {userObj?.like?.filter((id) => id === feed.id).length > 0 ? (
               <FaHeart style={{ color: "#FF5673" }} />
             ) : (
               <FaRegHeart />
             )}
           </UserIcon>
-          {res.like.length > 0 && (
-            <UserReactNum>{res.like.length}</UserReactNum>
+          {feed.like.length > 0 && (
+            <UserReactNum>{feed.like.length}</UserReactNum>
           )}
         </UserIconBox>
-        <UserIcon onClick={() => toggleBookmark(res.id)}>
-          {userObj?.bookmark?.filter((id) => id === res.id).length > 0 ? (
+        <UserIcon onClick={() => toggleBookmark(feed.id)}>
+          {userObj?.bookmark?.filter((id) => id === feed.id).length > 0 ? (
             <FaBookmark style={{ color: "#FF5673" }} />
           ) : (
             <FaRegBookmark />

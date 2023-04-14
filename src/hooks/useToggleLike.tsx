@@ -6,6 +6,7 @@ import { RootState } from "../app/store";
 import { currentUser } from "../app/user";
 import { dbService } from "../fbase";
 import { CurrentUserType, FeedType } from "../types/type";
+import useSendNoticeMessage from "./useSendNoticeMessage";
 
 type props = {
   user: CurrentUserType;
@@ -19,6 +20,7 @@ const useToggleLike = ({ user }: props) => {
   );
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+  const { getToken, sendActions } = useSendNoticeMessage(user);
 
   // firebase 계정에 추가
   const fbLike = async (res: FeedType) => {
@@ -30,7 +32,7 @@ const useToggleLike = ({ user }: props) => {
     );
 
     if (!userLogin) {
-      return alert("로그인을 해주세요");
+      return alert("로그인을 해주세요.");
     }
 
     if (userObj.like?.includes(res.id)) {
@@ -119,6 +121,11 @@ const useToggleLike = ({ user }: props) => {
           ...copy,
         ],
       });
+
+      // 알림 보내기
+      if (getToken) {
+        sendActions(`like`, getToken);
+      }
     } else {
       mutate({
         id: res.id,

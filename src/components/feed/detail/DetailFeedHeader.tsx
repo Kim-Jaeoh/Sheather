@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/data/ColorList";
-import { onSnapshot, doc } from "firebase/firestore";
+import { onSnapshot, doc, getDoc } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import { CurrentUserType, FeedType } from "../../../types/type";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -9,33 +9,43 @@ import { Link } from "react-router-dom";
 import useToggleFollow from "../../../hooks/useToggleFollow";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { Skeleton } from "@mui/material";
+import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
 
 type Props = {
   userObj: CurrentUserType;
-  res: FeedType;
+  feed: FeedType;
   onMoreClick: () => void;
 };
 
-const DetailFeedHeader = ({ userObj, res, onMoreClick }: Props) => {
+const DetailFeedHeader = ({ userObj, feed, onMoreClick }: Props) => {
   const [userAccount, setUserAccount] = useState(null);
-  const { toggleFollow } = useToggleFollow({ user: userAccount });
+  const { toggleFollow } = useToggleFollow({
+    user: userAccount,
+  });
   const { timeToString2 } = useTimeFormat();
 
   // 계정 정보 가져오기
   useEffect(() => {
-    onSnapshot(doc(dbService, "users", res.email), (doc) =>
+    onSnapshot(doc(dbService, "users", feed.email), (doc) =>
       setUserAccount(doc.data())
     );
-    // const unsubscribe = onSnapshot(doc(dbService, "users", res.email), (doc) =>
-    //   setUserAccount(doc.data())
-    // );
-    // return () => unsubscribe();
-  }, [res]);
+  }, [feed]);
+
+  // // 상대방 기기 토큰값 가져오기
+  // useEffect(() => {
+  //   if (feed?.email) {
+  //     const querySnapshot = async () => {
+  //       const getdoc = await getDoc(doc(dbService, "fcmTokens", feed?.email));
+  //       setGetToken(getdoc?.data()?.fcmToken);
+  //     };
+  //     querySnapshot();
+  //   }
+  // }, [feed?.email]);
 
   return (
     <Header>
       <UserInfoBox>
-        <UserImageBox to={`/profile/${res.displayName}/post`}>
+        <UserImageBox to={`/profile/${feed.displayName}/post`}>
           {userAccount ? (
             <UserImage
               onContextMenu={(e) => e.preventDefault()}
@@ -53,8 +63,8 @@ const DetailFeedHeader = ({ userObj, res, onMoreClick }: Props) => {
         </UserImageBox>
         <UserWriteInfo>
           <UserNameBox
-            to={`/profile/${res.displayName}/post`}
-            state={res.email}
+            to={`/profile/${feed.displayName}/post`}
+            state={feed.email}
           >
             {userAccount ? (
               <UserName>{userAccount?.displayName}</UserName>
@@ -69,12 +79,12 @@ const DetailFeedHeader = ({ userObj, res, onMoreClick }: Props) => {
               </SkeletonBox>
             )}
           </UserNameBox>
-          <WriteDate>{timeToString2(Number(res.createdAt))}</WriteDate>
+          <WriteDate>{timeToString2(Number(feed.createdAt))}</WriteDate>
         </UserWriteInfo>
-        {res.email !== userObj.email ? (
-          <FollowBtnBox onClick={() => toggleFollow(res.displayName)}>
+        {feed.email !== userObj.email ? (
+          <FollowBtnBox onClick={() => toggleFollow(feed.displayName)}>
             {userObj?.following.filter((obj) =>
-              obj?.displayName?.includes(res.displayName)
+              obj?.displayName?.includes(feed.displayName)
             ).length !== 0 ? (
               <FollowingBtn>팔로잉</FollowingBtn>
             ) : (

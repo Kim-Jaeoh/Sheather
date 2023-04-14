@@ -20,6 +20,7 @@ import DetailFeedImage from "./DetailFeedImage";
 import DetailFeedInfo from "./DetailFeedInfo";
 import useUserAccount from "../../../hooks/useUserAccount";
 import { feedApi } from "../../../apis/api";
+import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
 
 const DetailFeed = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -113,24 +114,24 @@ const DetailFeed = () => {
                   <FeedEditModal
                     modalOpen={isFeedEdit}
                     modalClose={onFeedEditClick}
-                    info={res}
+                    feed={res}
                   />
                 )}
                 <Container>
                   <DetailFeedHeader
                     userObj={userObj}
-                    res={res}
+                    feed={res}
                     onMoreClick={onMoreClick}
                   />
                   <DetailFeedCategory res={res} />
                   <DetailFeedImage res={res} />
                   <DetailFeedInfo
-                    res={res}
+                    feed={res}
                     userObj={userObj}
                     toggleLike={toggleLike}
                   />
                   <DetailFeedReplyBox
-                    res={res}
+                    feed={res}
                     userAccount={userAccount}
                     onIsLogin={() => onIsLogin(() => null)}
                   />

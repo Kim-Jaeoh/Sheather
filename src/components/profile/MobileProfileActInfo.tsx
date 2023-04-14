@@ -7,6 +7,7 @@ import { RootState } from "../../app/store";
 import useCreateChat from "../../hooks/useCreateChat";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import { CurrentUserType, FollowerType, FollowingType } from "../../types/type";
+import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
 
 type Props = {
   myPost: number;
