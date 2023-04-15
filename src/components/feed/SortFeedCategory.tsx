@@ -1,7 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import styled from "@emotion/styled";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import ColorList from "../../assets/data/ColorList";
 import RangeTimeModal from "../modal/feed/RangeTimeModal";
 import moment from "moment";
@@ -32,13 +37,10 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
   const [isDetailModal, setIsDetailModal] = useState(false);
   const [isDetailDone, setIsDetailDone] = useState(false);
   const [categoryModal, setCategoryModal] = useState(false);
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
-
-  const value = useMemo(() => {
-    return moment(changeValue).format("YYYYMMDD");
-  }, [changeValue]);
 
   // 팔로잉 목록 담기
   const followArr = useMemo(() => {
@@ -52,10 +54,12 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
     if (selectCategory === 0) {
       setCategoryModal(false); // 모바일 카테고리 모달
       if (dateCategory === "recent") {
+        // 최신순
         return setUrl(
           `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/recent?users=${followArr}&`
         );
       } else {
+        // 인기순
         return setUrl(
           `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/popular?users=${followArr}&`
         );
@@ -66,20 +70,23 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
     if (selectCategory === 1) {
       setCategoryModal(false); // 모바일 카테고리 모달
       if (dateCategory === "recent") {
+        // 최신순
         return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`);
       } else {
+        // 인기순
         return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/popular?`);
       }
     }
-  }, [dateCategory, selectCategory, setUrl]);
+  }, [dateCategory, followArr, selectCategory, setUrl]);
 
   useEffect(() => {
     // 날짜별
     if (isDate) {
       if (isDetailDone) {
         setCategoryModal(false); // 모바일 카테고리 모달
-
+        const value = moment(changeValue).format("YYYYMMDD"); // 날짜 형식
         if (pathname.split("/")[2] === "following") {
+          // 팔로잉
           navigate(
             `following?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}`
           );
@@ -87,6 +94,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
             `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/date?users=${followArr}&value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}&`
           );
         } else {
+          // 탐색
           navigate(
             `explore?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}`
           );
@@ -97,38 +105,43 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
       }
     }
   }, [
+    changeValue,
     dateCategory,
+    followArr,
+    isDate,
     isDetailDone,
     navigate,
     pathname,
     rangeTime,
-    selectCategory,
     setUrl,
-    value,
   ]);
 
   // 메인 카테고리
   useEffect(() => {
-    if (pathname.includes("following")) {
+    const pathValue = (type: string) => pathname.includes(type);
+
+    if (pathValue("following")) {
       return setSelectCategory(0);
     }
-    if (pathname.includes("explore")) {
+    if (pathValue("explore")) {
       return setSelectCategory(1);
     }
-    if (pathname.includes("date")) {
+    if (pathValue("date")) {
       return setSelectCategory(2);
     }
-  }, [pathname, search]);
+  }, [pathname]);
 
   // 세부 카테고리
   useEffect(() => {
-    if (search.includes("cat=recent")) {
+    const searchValue = (type: string) => searchParams.get(type);
+
+    if (searchValue("cat") === `recent`) {
       return setDateCategory("recent");
     }
-    if (search.includes("cat=popular")) {
+    if (searchValue("cat") === "popular") {
       return setDateCategory("popular");
     }
-  }, [search]);
+  }, [searchParams]);
 
   // 메인 카테고리
   const onSelectCategory = (e: number) => {

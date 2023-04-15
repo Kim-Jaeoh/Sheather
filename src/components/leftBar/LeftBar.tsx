@@ -215,7 +215,7 @@ const LeftBar = ({ onIsLogin }: props) => {
                 <SlBell />
                 <MenuText>알림</MenuText>
                 {myAccount?.notice?.some(
-                  (res: NoticeArrType) => !res.isRead
+                  (res: NoticeArrType) => !res?.isRead
                 ) && <NoticeBox />}
               </MenuList>
             </MenuBtn>

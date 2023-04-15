@@ -10,12 +10,6 @@ import {
   onMessage,
 } from "firebase/messaging";
 
-// declare global {
-//   interface Window {
-//     registration: any;
-//   }
-// }
-
 // Your web app's Firebase configuration
 export const firebaseConfig = {
   apiKey: process.env.REACT_APP_FB_API_KEY,
@@ -29,7 +23,7 @@ export const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 export const authService = getAuth(app);
 export const dbService = getFirestore(app);
 export const storageService = getStorage(app);

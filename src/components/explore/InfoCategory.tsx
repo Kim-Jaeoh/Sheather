@@ -17,6 +17,7 @@ const InfoCategory = () => {
   const [randomFeed, setRandomFeed] = useState(null);
   const [dateCategory, setDateCategory] = useState("recent");
   const { search } = useLocation();
+  const pathname = useLocation();
   const [searchParams] = useSearchParams();
   const { isMobile } = useMediaScreen();
   const navigate = useNavigate();
@@ -71,6 +72,27 @@ const InfoCategory = () => {
     }
   }, [dataList?.pages, dateCategory]);
 
+  const categoryText = useMemo(() => {
+    const params = (type: string) => searchParams.get(type);
+
+    if (params("cat") === "temp") {
+      return `${searchParams.get("detail")}º`;
+    }
+    if (params("cat") === "wind") {
+      return (
+        <>
+          {params("detail")}
+          <span>m/s</span>
+        </>
+      );
+    }
+    if (params("cat")) {
+      return params("detail");
+    } else {
+      return `# ${params("keyword")}`;
+    }
+  }, [searchParams]);
+
   const sortClick = (type: string) => {
     setDateCategory(type);
     if (search.includes("cat")) {
@@ -100,11 +122,7 @@ const InfoCategory = () => {
           <Box>
             <TopButton bgColor={`#30c56e`} />
             <TagCategory>
-              <TagCategoryText>
-                {search?.includes("cat")
-                  ? searchParams.get("detail")
-                  : `# ${searchParams.get("keyword")}`}
-              </TagCategoryText>
+              <TagCategoryText>{categoryText}</TagCategoryText>
             </TagCategory>
             <SelectDetailTimeBox>
               <SelectCategoryBox>
@@ -255,6 +273,10 @@ const TagCategoryText = styled.h2`
   border-radius: 9999px;
   box-shadow: 0px 4px ${secondColor};
   background: #fff;
+
+  span {
+    font-size: 14px;
+  }
 
   @media (max-width: 767px) {
     border-width: 1px;
