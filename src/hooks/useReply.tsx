@@ -76,7 +76,7 @@ const useReply = ({ feed, userObj, userAccount, textRef, getToken }: Props) => {
     }
 
     // 알림 보내기
-    if (getToken) {
+    if (getToken && feed.displayName !== userObj.displayName) {
       sendActions(`reply`, replyText);
     }
 

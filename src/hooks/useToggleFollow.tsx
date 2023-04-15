@@ -110,7 +110,7 @@ const useToggleFollow = ({ user }: props) => {
       );
 
       // 알림 보내기
-      if (getToken) {
+      if (getToken && user.displayName !== userObj.displayName) {
         sendActions(`follower`);
       }
     }
