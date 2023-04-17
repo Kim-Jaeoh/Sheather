@@ -66,7 +66,7 @@ const DetailFeedCategory = ({ res }: Props) => {
                     >
                       <WeatherIcon>
                         <img
-                          src={`http://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
+                          src={`https://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
                           alt="weather icon"
                         />
                       </WeatherIcon>

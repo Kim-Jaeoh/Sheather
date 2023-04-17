@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/data/ColorList";
-import { onSnapshot, doc, getDoc } from "firebase/firestore";
+import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import { CurrentUserType, FeedType } from "../../../types/type";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 import useToggleFollow from "../../../hooks/useToggleFollow";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { Skeleton } from "@mui/material";
-import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
 
 type Props = {
   userObj: CurrentUserType;
@@ -30,17 +29,6 @@ const DetailFeedHeader = ({ userObj, feed, onMoreClick }: Props) => {
       setUserAccount(doc.data())
     );
   }, [feed]);
-
-  // // 상대방 기기 토큰값 가져오기
-  // useEffect(() => {
-  //   if (feed?.email) {
-  //     const querySnapshot = async () => {
-  //       const getdoc = await getDoc(doc(dbService, "fcmTokens", feed?.email));
-  //       setGetToken(getdoc?.data()?.fcmToken);
-  //     };
-  //     querySnapshot();
-  //   }
-  // }, [feed?.email]);
 
   return (
     <Header>
