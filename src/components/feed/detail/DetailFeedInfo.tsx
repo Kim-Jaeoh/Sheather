@@ -21,9 +21,9 @@ const DetailFeedInfo = ({ feed, userObj, toggleLike }: Props) => {
     try {
       await navigator.clipboard.writeText(window.location.href);
 
-      toast.success("클립보드로 복사했습니다.");
+      toast.success("클립보드에 복사했습니다.");
     } catch (error) {
-      alert("클립보드에 복사되지 않았습니다.");
+      toast.error("클립보드에 복사되지 않았습니다.");
     }
   };
 

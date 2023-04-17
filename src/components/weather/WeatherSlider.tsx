@@ -153,7 +153,7 @@ const WeatherSlider = ({ data }: PropsType) => {
                           {res?.weather[0]?.description}
                         </WeatherCategoryIconText>
                         <WeatherCategoryIcon
-                          src={`http://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
+                          src={`https://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
                           alt="weather icon"
                         />
                         <WeatherCategoryIconText>

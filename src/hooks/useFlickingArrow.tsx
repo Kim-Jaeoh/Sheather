@@ -1,6 +1,4 @@
-import Flicking from "@egjs/flicking";
-import React, { useEffect, useRef, useState } from "react";
-import { FeedType, WeathersFiveDataType } from "../types/type";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   dataLength?: number;

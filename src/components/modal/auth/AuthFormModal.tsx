@@ -18,9 +18,6 @@ import { currentUser, loginToken } from "../../../app/user";
 import defaultAccount from "../../../assets/image/account_img_default.png";
 import ColorList from "../../../assets/data/ColorList";
 import useMediaScreen from "../../../hooks/useMediaScreen";
-import { ReactComponent as SheatherLogo } from "../../../assets/image/sheather_logo.svg";
-import Deco from "../../leftBar/Deco";
-import { FirebaseError } from "firebase/app";
 import FindPassword from "./FindPassword";
 import { BsArrowLeftShort } from "react-icons/bs";
 
@@ -44,11 +41,11 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
     dpName: false,
     password: false,
   });
-  const [select, setSelect] = useState({
-    email: false,
-    password: false,
-    dpName: false,
-  });
+  // const [select, setSelect] = useState({
+  //   email: false,
+  //   password: false,
+  //   dpName: false,
+  // });
   const [isExistAccount, setIsExistAccount] = useState(true);
   const [isDuplication, setIsDuplication] = useState({
     email: false,
@@ -279,8 +276,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                       alt="shather logo"
                     />
                   </Logo>
-                  {/* <Deco /> */}
-                  {/* <SheatherLogo width="230px" height="100px" /> */}
                 </LogoBox>
               )}
               <FormBox>
@@ -296,12 +291,12 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                       value={inputs.email}
                       onChange={onChange}
                       autoComplete="off"
-                      onFocus={() =>
-                        setSelect((prev) => ({ ...prev, email: false }))
-                      }
-                      onBlur={() =>
-                        setSelect((prev) => ({ ...prev, email: true }))
-                      }
+                      // onFocus={() =>
+                      //   setSelect((prev) => ({ ...prev, email: false }))
+                      // }
+                      // onBlur={() =>
+                      //   setSelect((prev) => ({ ...prev, email: true }))
+                      // }
                     />
                     {inputs.email !== "" && (
                       <InputCheckBox
@@ -326,12 +321,12 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                         value={inputs.dpName}
                         onChange={onChange}
                         autoComplete="off"
-                        onFocus={() =>
-                          setSelect((prev) => ({ ...prev, dpName: false }))
-                        }
-                        onBlur={() =>
-                          setSelect((prev) => ({ ...prev, dpName: true }))
-                        }
+                        // onFocus={() =>
+                        //   setSelect((prev) => ({ ...prev, dpName: false }))
+                        // }
+                        // onBlur={() =>
+                        //   setSelect((prev) => ({ ...prev, dpName: true }))
+                        // }
                       />
                       {inputs.dpName !== "" && (
                         <InputCheckBox
@@ -357,12 +352,12 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                       onChange={onChange}
                       autoComplete="off"
                       autoCapitalize="off"
-                      onFocus={() =>
-                        setSelect((prev) => ({ ...prev, password: false }))
-                      }
-                      onBlur={() =>
-                        setSelect((prev) => ({ ...prev, password: true }))
-                      }
+                      // onFocus={() =>
+                      //   setSelect((prev) => ({ ...prev, password: false }))
+                      // }
+                      // onBlur={() =>
+                      //   setSelect((prev) => ({ ...prev, password: true }))
+                      // }
                     />
                     {inputs.password !== "" && (
                       <InputCheckBox check={checkMessage.password}>

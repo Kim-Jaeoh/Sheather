@@ -66,7 +66,8 @@ const DetailFeedCategory = ({ res }: Props) => {
                     >
                       <WeatherIcon>
                         <img
-                          src={`https://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
+                          src={`/image/weather/${res.weatherInfo.weatherIcon}.png`}
+                          // src={`https://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
                           alt="weather icon"
                         />
                       </WeatherIcon>
@@ -136,7 +137,8 @@ const DetailFeedCategory = ({ res }: Props) => {
                       >
                         <WeatherIcon>
                           <img
-                            src={`http://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
+                            src={`/image/weather/${res.weatherInfo.weatherIcon}.png`}
+                            // src={`http://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
                             alt="weather icon"
                           />
                         </WeatherIcon>
@@ -292,9 +294,9 @@ const WeatherIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
-  margin-right: 8px;
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
   img {
     display: block;
     width: 100%;
@@ -310,6 +312,7 @@ const CategoryTagBox = styled.div`
 const CategoryTag = styled.div`
   font-size: 14px;
   padding: 6px 8px;
+  height: 30px;
   display: flex;
   align-items: center;
   border: 1px solid ${thirdColor};

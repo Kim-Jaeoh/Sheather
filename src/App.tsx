@@ -19,7 +19,6 @@ import LeftBar from "./components/leftBar/LeftBar";
 import RightBar from "./components/rightBar/RightBar";
 import { SuspenseSpinner } from "./assets/spinner/SuspenseSpinner";
 import AuthFormModal from "./components/modal/auth/AuthFormModal";
-import useSendNoticeMessage from "./hooks/useSendNoticeMessage";
 const Weather = lazy(() => import("./pages/Weather"));
 
 const App = () => {
@@ -31,17 +30,24 @@ const App = () => {
 
   useEffect(() => {
     console.log(`
-    ╭ ◜◝ ͡ ◜◝ ͡ ◜◝ ͡ ◜◝  ◜◝╮
-   💗 이 토이프로젝트 재밌다  💗
-    ╰ ◟◞ ͜ ◟ ͜ ◟◞ ͜ ◟ ͜ ◟◞◟◞╯
-    　ｏ
-    　　 。
-    　　　｡
-    　　∧＿∧
-    　 (*　･ω･)
-    ＿(__つ/￣￣￣/_
-    　　＼/　　　/
+    。　♡ 。　 ♡。　　♡
+    ♡。　＼　　｜　　／。　♡
+    　      SHEATHER
+    ♡。　／　　｜　　＼。　♡
+    。　♡。 　　。　　♡。
     `);
+    //   console.log(`
+    //   ╭ ◜◝ ͡ ◜◝ ͡ ◜◝ ͡ ◜◝  ◜◝╮
+    //  💗 이 토이프로젝트 재밌다  💗
+    //   ╰ ◟◞ ͜ ◟ ͜ ◟◞ ͜ ◟ ͜ ◟◞◟◞╯
+    //   　ｏ
+    //   　　 。
+    //   　　　｡
+    //   　　∧＿∧
+    //   　 (*　･ω･)
+    //   ＿(__つ/￣￣￣/_
+    //   　　＼/　　　/
+    //   `);
 
     // // 유저 상태 변화 추적(로그인, 로그아웃, 어플리케이션 초기화 시)
     // authService.onAuthStateChanged(async (user) => {

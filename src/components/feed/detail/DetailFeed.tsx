@@ -20,7 +20,6 @@ import DetailFeedImage from "./DetailFeedImage";
 import DetailFeedInfo from "./DetailFeedInfo";
 import useUserAccount from "../../../hooks/useUserAccount";
 import { feedApi } from "../../../apis/api";
-import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
 
 const DetailFeed = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(

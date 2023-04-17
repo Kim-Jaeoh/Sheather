@@ -279,7 +279,8 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
             </DateBox>
             <WeatherIcon>
               <img
-                src={`https://openweathermap.org/img/wn/${shareWeatherData?.weather[0].icon}@2x.png`}
+                src={`/image/weather/${shareWeatherData?.weather[0].icon}.png`}
+                // src={`https://openweathermap.org/img/wn/${shareWeatherData?.weather[0].icon}@2x.png`}
                 alt="weather icon"
               />
             </WeatherIcon>

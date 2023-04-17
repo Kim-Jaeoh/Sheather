@@ -1,5 +1,4 @@
 import { updateDoc, doc } from "firebase/firestore";
-import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store";
 import { currentUser } from "../app/user";

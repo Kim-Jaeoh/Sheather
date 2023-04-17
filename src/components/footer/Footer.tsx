@@ -22,7 +22,7 @@ const Footer = (props: Props) => {
           <SheatherLogoWhite width="100%" height="100%" />
         </LogoBox>
         <InfoBox>
-          <Text>ⓒ Jaeoh</Text>
+          <Text>Copyright 2023. Jaeoh All rights reserved.</Text>
           <SnsBox>
             <Sns onClick={() => onClick("github")}>
               <AiOutlineGithub />

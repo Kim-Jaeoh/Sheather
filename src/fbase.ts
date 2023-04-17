@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
 import {
@@ -9,6 +9,7 @@ import {
   isSupported,
   onMessage,
 } from "firebase/messaging";
+import { useEffect } from "react";
 
 // Your web app's Firebase configuration
 export const firebaseConfig = {
@@ -35,10 +36,9 @@ const requestNotificationsPermissions = async (userEmail: string) => {
   const permission = await Notification.requestPermission();
 
   if (permission === "granted") {
-    console.log("알림 권한 부여");
     await saveMessagingDeviceToken(userEmail);
   } else {
-    console.log("알림 권한 없음");
+    console.log("not allowed");
   }
 };
 
@@ -51,7 +51,6 @@ export const saveMessagingDeviceToken = async (userEmail: string) => {
     });
     if (fcmToken) {
       onMessage(msg, (message) => {
-        console.log(message.notification);
         new Notification(message.notification.title, {
           body: message.notification.body,
           icon: "/image/sheather_logo_s.png",
@@ -73,8 +72,9 @@ export const createDeviceToken = async (userEmail: string) => {
   const fcmToken = await getToken(msg, {
     vapidKey: process.env.REACT_APP_VAPID_KEY,
   });
-  if (fcmToken) {
-    const tokenRef = doc(dbService, `fcmTokens`, userEmail);
-    await setDoc(tokenRef, { fcmToken }).then((e) => console.log("토큰 생성"));
+  const tokenRef = doc(dbService, `fcmTokens`, userEmail);
+  const checkToken = await getDoc(tokenRef);
+  if (fcmToken && !checkToken.exists()) {
+    await setDoc(tokenRef, { fcmToken });
   }
 };

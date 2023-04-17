@@ -60,7 +60,8 @@ const FeedWeatherInfo = () => {
             </InfoText>
             <WeatherIcon>
               <img
-                src={`https://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
+                src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
+                // src={`https://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
                 alt="weather icon"
               />
             </WeatherIcon>
