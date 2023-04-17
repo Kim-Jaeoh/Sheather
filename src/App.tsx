@@ -82,7 +82,7 @@ const App = () => {
                 <Route path="/profile/:id/*" element={<Profile />} />
                 <Route
                   path="*"
-                  element={<Navigate replace to="/feed/recent" />}
+                  element={<Navigate replace to="/feed/following" />}
                 />
               </Routes>
             </Container>
