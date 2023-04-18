@@ -210,8 +210,8 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
       sendMessage(trimmedMessage);
     }
 
+    textRef.current.style.height = "24px";
     setText("");
-    // textRef.current.style.height = "24px";
   };
 
   const onClickSendMessage = () => {
@@ -420,7 +420,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
                       ref={textRef}
                       onClick={onReadMessage}
                       onChange={onChange}
-                      onKeyUp={onKeyPress}
+                      onKeyDown={onKeyPress}
                       onInput={handleResizeHeight}
                       placeholder="메시지 입력..."
                     />
