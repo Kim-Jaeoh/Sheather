@@ -86,7 +86,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     return () => {
       setBtnStatus((prev) => ({ ...prev, toBottom: false }));
     };
-  }, [bottomListRef, isLoading, messages, users]);
+  }, [isLoading, users]);
 
   // 1. 채팅방 목록 및 정보 불러오기
   useEffect(() => {
