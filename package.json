@@ -79,5 +79,5 @@
     "@types/redux-persist": "^4.3.1"
   },
   "type": "module",
-  "homepage": "."
+  "homepage": "https://sheather.netlify.app"
 }

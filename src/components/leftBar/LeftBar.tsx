@@ -519,8 +519,9 @@ const MenuList = styled.li`
 `;
 
 const MenuText = styled.h2`
-  font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
-  margin-bottom: -4px; // 폰트 교체로 인해 여백 제거
+  /* font-family: "GmarketSans", -apple-system, Apple SD Gothic Neo, Malgun Gothic,
+    sans-serif !important; */
+  /* margin-bottom: -4px; // 폰트 교체로 인해 여백 제거 */
   margin-left: 16px;
   text-align: left;
   font-size: 18px;

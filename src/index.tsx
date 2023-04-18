@@ -18,7 +18,7 @@ root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+        <BrowserRouter basename={process.env.PUBLIC_URL}>
           {/* <React.StrictMode> */}
           <App />
           {/* </React.StrictMode> */}

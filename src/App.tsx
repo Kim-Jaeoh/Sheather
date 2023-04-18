@@ -59,7 +59,7 @@ const App = () => {
     //   setInit(true); // 어플리케이션이 언제 시작해도 onAuthStateChanged가 실행돼야 하기 때문에 true
     // });
   }, []);
-  const dd = `http://localhost:3000`;
+
   return (
     <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
@@ -105,14 +105,6 @@ export default App;
 
 const Body = styled.div`
   position: relative;
-  /* background-color: #222222;
-  background-image: url("https://www.transparenttextures.com/patterns/ps-neutral.png"); */
-
-  /* background-color: #fafafa;
-  background-image: url("https://www.transparenttextures.com/patterns/az-subtle.png"); */
-
-  /* background-color: #888888;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cg fill='%23222222' fill-opacity='0.4'%3E%3Cpath fill-rule='evenodd' d='M0 0h4v4H0V0zm4 4h4v4H4V4z'/%3E%3C/g%3E%3C/svg%3E"); */
 `;
 
 const Wrapper = styled.div`
@@ -142,7 +134,7 @@ const Main = styled.main`
   }
   @media (max-width: 767px) {
     margin-top: 52px;
-    /* height: 100vh; */
+    /* height: 100%; */
     height: calc(100vh - 52px);
   }
 `;
