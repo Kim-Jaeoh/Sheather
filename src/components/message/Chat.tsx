@@ -207,7 +207,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     }
 
     // 알림 보내기
-    if (users?.email && !isFocus) {
+    if (users?.email) {
       sendMessage(trimmedMessage);
     }
 
