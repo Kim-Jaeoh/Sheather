@@ -47,7 +47,7 @@ const Container = styled.section`
   border: 2px solid ${secondColor};
   border-left: none;
   padding: 20px;
-  /* overflow: hidden; */
+  overflow: hidden;
   border-radius: 0 40px 40px 0;
 
   @media (max-width: 956px) {

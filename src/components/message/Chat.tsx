@@ -72,7 +72,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   }); // 버튼 상태
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomListRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLTextAreaElement>();
+  const textRef = useRef<HTMLTextAreaElement>(null);
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
@@ -80,13 +80,13 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
 
   // 화면 하단 스크롤
   useEffect(() => {
-    if (users && isLoading) {
-      bottomListRef.current.scrollIntoView({ behavior: "smooth" });
+    if (users) {
+      bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
     }
-    return () => {
-      setBtnStatus((prev) => ({ ...prev, toBottom: false }));
-    };
-  }, [isLoading, messages, users]);
+    // return () => {
+    //   setBtnStatus((prev) => ({ ...prev, toBottom: false }));
+    // };
+  }, [messages, users]);
 
   // 1. 채팅방 목록 및 정보 불러오기
   useEffect(() => {
@@ -211,7 +211,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     }
 
     setText("");
-    textRef.current.style.height = "24px";
+    // textRef.current.style.height = "24px";
   };
 
   const onClickSendMessage = () => {
@@ -304,7 +304,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     () =>
       throttle(() => {
         const totalScrollHeight = containerRef?.current?.scrollHeight; // 전체 스크롤 높이 값
-        const clientHeight = containerRef?.current.clientHeight; // 클라이언트 높이
+        const clientHeight = containerRef?.current?.clientHeight; // 클라이언트 높이
         const currentScrollPosition = containerRef?.current?.scrollTop; // 현재 스크롤 위치 값
         const scrollDifference = totalScrollHeight - currentScrollPosition; // 전체 스크롤 값 - 현재 스크롤 값
 
@@ -420,7 +420,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
                       ref={textRef}
                       onClick={onReadMessage}
                       onChange={onChange}
-                      onKeyDown={onKeyPress}
+                      onKeyUp={onKeyPress}
                       onInput={handleResizeHeight}
                       placeholder="메시지 입력..."
                     />
