@@ -2,6 +2,7 @@
   "name": "sheather",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://sheather.netlify.app",
   "dependencies": {
     "@egjs/flicking-plugins": "^4.7.0",
     "@egjs/grid": "^1.12.0",

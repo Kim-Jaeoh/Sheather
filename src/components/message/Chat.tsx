@@ -72,7 +72,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   }); // 버튼 상태
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomListRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLTextAreaElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>();
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
@@ -86,7 +86,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     return () => {
       setBtnStatus((prev) => ({ ...prev, toBottom: false }));
     };
-  }, [isLoading, users]);
+  }, [isLoading, messages, users]);
 
   // 1. 채팅방 목록 및 정보 불러오기
   useEffect(() => {

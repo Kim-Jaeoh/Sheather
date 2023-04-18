@@ -6,6 +6,7 @@ import { dbService, saveMessagingDeviceToken } from "../fbase";
 import useThrottle from "./useThrottle";
 import axios, { AxiosRequestConfig } from "axios";
 import useGetMyAccount from "./useGetMyAccount";
+import { throttle } from "lodash";
 
 interface PostData {
   message: string;
@@ -13,7 +14,7 @@ interface PostData {
 }
 
 const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
-  const { throttle } = useThrottle();
+  // const { throttle } = useThrottle();
   const [getToken, setGetToken] = useState(null);
   const { userObj } = useGetMyAccount();
 
@@ -29,11 +30,9 @@ const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
   }, [users?.email]);
 
   // 메세지 알림 보내기
-  const sendMessage = (text: string) => {
+  const sendMessage = throttle((text: string) => {
     if (getToken) {
-      throttle(() => {
-        saveMessagingDeviceToken(users?.email);
-      }, 3000);
+      saveMessagingDeviceToken(users?.email);
 
       const config: AxiosRequestConfig<PostData> = {
         data: {
@@ -49,7 +48,7 @@ const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
         })
         .catch((e) => console.log("에러 ", e));
     }
-  };
+  }, 3000);
 
   // 팔로우, 좋아요, 댓글 알림 보내기
   const sendActions = (type: string, text?: string) => {
