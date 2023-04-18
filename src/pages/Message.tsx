@@ -15,6 +15,7 @@ import ChatList from "../components/message/ChatList";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../fbase";
 import BottomButton from "../components/scrollButton/BottomButton";
+import { Spinner } from "../assets/spinner/Spinner";
 
 type Props = {};
 
@@ -29,8 +30,6 @@ const Message = (props: Props) => {
   const { state } = useLocation() as LocationType;
   const { userLogin, userObj, myAccount } = useGetMyAccount();
   const { isDesktop, isTablet, isMobile, isMobileBefore } = useMediaScreen();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const bottomListRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   // 상대 계정 정보 가져오기
@@ -68,11 +67,7 @@ const Message = (props: Props) => {
         />
       )}
       <Wrapper>
-        <BottomButton
-          containerRef={containerRef}
-          bottomListRef={bottomListRef}
-        />
-        <Container ref={containerRef}>
+        <Container>
           <ChatRoomList isMobile={isMobile} state={state ? state : clickInfo}>
             <Category>
               <CategoryText>메시지</CategoryText>
@@ -105,7 +100,6 @@ const Message = (props: Props) => {
                   users={users}
                   myAccount={myAccount}
                   setClickInfo={setClickInfo}
-                  bottomListRef={bottomListRef}
                 />
               ) : (
                 <NotInfoBox>
@@ -135,13 +129,15 @@ const Wrapper = styled.div`
   overflow: hidden;
   padding: 40px;
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
+  height: calc(100vh - 52px);
   border-top: 2px solid ${secondColor};
   background: #ff5c1b;
 
   @media (max-width: 767px) {
     padding: 16px;
     border: none;
+    height: calc(100vh - 112px);
   }
 `;
 
@@ -226,6 +222,7 @@ const ChatRoomList = styled.article<{
 `;
 
 const ChatRoom = styled.article`
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1 0 250px;

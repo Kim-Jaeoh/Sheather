@@ -99,7 +99,7 @@ const Home = () => {
         <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
       <Container>
-        <TopButton bgColor={`#ff5673`} />
+        {/* <TopButton bgColor={`#ff5673`} /> */}
         <Box>
           <SortFeedCategory url={url} setUrl={setUrl} />
           <FeedPost url={url} onIsLogin={onIsLogin} />

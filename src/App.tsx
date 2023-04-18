@@ -59,7 +59,7 @@ const App = () => {
     //   setInit(true); // 어플리케이션이 언제 시작해도 onAuthStateChanged가 실행돼야 하기 때문에 true
     // });
   }, []);
-
+  const dd = `http://localhost:3000`;
   return (
     <Suspense fallback={<SuspenseSpinner />}>
       <SrollToTop />
@@ -75,17 +75,17 @@ const App = () => {
             <Toaster position="bottom-center" reverseOrder={false} />
             <Container>
               <Routes>
-                <Route path="/feed/*" element={<Home />} />
-                <Route path="/feed/detail/:id" element={<DetailFeed />} />
-                <Route path="/weather" element={<Weather />} />
-                <Route path="/message/*" element={<Message />} />
-                <Route path="/explore/*" element={<InfoCategory />} />
-                <Route path="/explore/tag" element={<TagCategoryList />} />
+                <Route path={`/feed/*`} element={<Home />} />
+                <Route path={`/feed/detail/:id`} element={<DetailFeed />} />
+                <Route path={`/weather`} element={<Weather />} />
+                <Route path={`/message/*`} element={<Message />} />
+                <Route path={`/explore/*`} element={<InfoCategory />} />
+                <Route path={`/explore/tag`} element={<TagCategoryList />} />
                 <Route
-                  path="/explore/people"
+                  path={`/explore/people`}
                   element={<FollowCategoryList />}
                 />
-                <Route path="/profile/:id/*" element={<Profile />} />
+                <Route path={`/profile/:id/*`} element={<Profile />} />
                 <Route
                   path="*"
                   element={<Navigate replace to="/feed/following" />}

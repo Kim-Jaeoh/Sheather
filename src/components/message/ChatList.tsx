@@ -59,6 +59,7 @@ const User = styled.div`
   height: 100%;
   transition: all 0.15s linear;
   cursor: pointer;
+  user-select: none;
 
   &:hover,
   &:active {
@@ -79,6 +80,7 @@ const ProfileImage = styled.img`
   display: block;
   width: 100%;
   object-fit: cover;
+  user-select: none;
 `;
 
 const ProfileInfoBox = styled.div`
@@ -98,6 +100,7 @@ const ProfileDsName = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  user-select: none;
 `;
 
 const ProfileName = styled.p`
@@ -108,6 +111,7 @@ const ProfileName = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  user-select: none;
 `;
 
 const NoticeBox = styled.div`
