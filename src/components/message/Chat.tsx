@@ -70,6 +70,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     show: false,
     toBottom: false,
   }); // 버튼 상태
+  const [isFocus, setIsFocus] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomListRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -206,7 +207,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     }
 
     // 알림 보내기
-    if (users?.email) {
+    if (users?.email && !isFocus) {
       sendMessage(trimmedMessage);
     }
 
@@ -420,6 +421,8 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
                       ref={textRef}
                       onClick={onReadMessage}
                       onChange={onChange}
+                      onFocus={() => setIsFocus(true)}
+                      onBlur={() => setIsFocus(false)}
                       onKeyDown={onKeyPress}
                       onInput={handleResizeHeight}
                       placeholder="메시지 입력..."
