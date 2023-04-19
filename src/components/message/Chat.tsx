@@ -213,8 +213,10 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
       sendMessage(trimmedMessage);
     }
 
-    textRef.current.style.height = `auto`;
     setText("");
+    if (textRef.current) {
+      textRef.current.style.height = `auto`;
+    }
   };
 
   const onClickSendMessage = () => {

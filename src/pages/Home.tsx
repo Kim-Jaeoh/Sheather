@@ -42,7 +42,7 @@ const Home = () => {
       <Container>
         <Box>
           <SortFeedCategory url={url} setUrl={setUrl} />
-          {userObj.displayName || userObj.following.length !== 0 ? (
+          {userObj?.displayName || userObj?.following?.length !== 0 ? (
             <FeedPost url={url} onIsLogin={onIsLogin} />
           ) : (
             <NotInfoBox>

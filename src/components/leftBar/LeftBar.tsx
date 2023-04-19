@@ -142,7 +142,6 @@ const LeftBar = ({ onIsLogin }: props) => {
                   />
                 </Logo>
               ) : (
-                // <SheatherLogo width="100%" height="100%" />
                 <SheatherLogoSmall width="100%" height="100%" />
               )}
             </LogoBox>
@@ -220,18 +219,6 @@ const LeftBar = ({ onIsLogin }: props) => {
               </MenuList>
             </MenuBtn>
           )}
-          {/* <MenuLink
-            menu={selectMenu}
-            cat="explore"
-            onClick={() => setSelectMenu(3)}
-            color="#30c56e"
-            to="/explore"
-          >
-            <MenuList>
-              <IoCompassOutline />
-              <MenuText>탐색</MenuText>
-            </MenuList>
-          </MenuLink> */}
           <MenuBtn
             style={{ order: isMobile ? 3 : 5 }}
             menu={selectMenu}

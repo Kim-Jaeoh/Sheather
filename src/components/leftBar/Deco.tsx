@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
+// import { css } from "@emotion/react";
 import { ReactComponent as DecoTwinkle } from "../../assets/image/deco_twinkle.svg";
 import { ReactComponent as DecoWeather } from "../../assets/image/deco_weather.svg";
 
@@ -35,16 +35,23 @@ const Deco = () => {
         height="16px"
       /> */}
       <DecoWeather
-        css={css`
-          position: absolute;
-          bottom: 48px;
-          left: -100px;
-          width: 140px;
-          transform: rotate(20deg);
-          @media (max-width: 767px) {
-            display: none;
-          }
-        `}
+        style={{
+          position: `absolute`,
+          bottom: `48px`,
+          left: `-100px`,
+          width: `140px`,
+          transform: `rotate(20deg)`,
+        }}
+        // css={css`
+        //   position: absolute;
+        //   bottom: 48px;
+        //   left: -100px;
+        //   width: 140px;
+        //   transform: rotate(20deg);
+        //   @media (max-width: 767px) {
+        //     display: none;
+        //   }
+        // `}
       />
     </>
   );

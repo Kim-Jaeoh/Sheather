@@ -60,9 +60,9 @@ const requestNotificationsPermissions = async (userEmail: string) => {
 
   if (isSupported()) {
     if (permission === "granted") {
-      await saveMessagingDeviceToken(userEmail);
+      return await saveMessagingDeviceToken(userEmail);
     } else {
-      console.log("not allowed");
+      return alert("Notification not allowed");
     }
   }
 };

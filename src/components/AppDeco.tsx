@@ -11,9 +11,10 @@ type BgColor = {
 const AppDeco = () => {
   const circleInstance = useRef();
   const { pathname } = useLocation();
+
   useEffect(() => {
     new DecoCircleType(circleInstance.current);
-  }, []);
+  });
 
   const bgColor = useMemo(() => {
     const bgArr: BgColor = {
@@ -85,7 +86,6 @@ const EmptyDecoCircle = styled.div<{ bgColor: string }>`
   height: 160px;
   border-radius: 50%;
   background-color: ${(props) => props.bgColor};
-  /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath fill-rule='evenodd' d='M0 0h4v4H0V0zm4 4h4v4H4V4z'/%3E%3C/g%3E%3C/svg%3E"); */
 `;
 
 const Text = styled.p`

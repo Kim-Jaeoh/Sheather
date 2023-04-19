@@ -60,7 +60,7 @@ const MobileHeader = ({ onIsLogin }: Props) => {
         <NoticeModal modalOpen={isNoticeModal} modalClose={onNoticeModal} />
       )}
       <Header>
-        <LogoBox to="/">
+        <LogoBox to="/feed/following">
           <SheatherLogo width="100%" height="100%" />
         </LogoBox>
         <IconBox>

@@ -1,6 +1,11 @@
-import { getMessaging } from "firebase/messaging/sw";
-import { onBackgroundMessage } from "firebase/messaging/sw";
-
+// eslint-disable-next-line no-undef
+importScripts(
+  "https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"
+);
+// eslint-disable-next-line no-undef
+importScripts(
+  "https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"
+);
 // // eslint-disable-next-line no-undef
 // importScripts("https://www.gstatic.com/firebasejs/8.2.0/firebase-app.js");
 // // eslint-disable-next-line no-undef
@@ -27,55 +32,28 @@ const firebaseConfig = {
 
 // eslint-disable-next-line no-undef
 firebase.initializeApp(firebaseConfig);
+
 // eslint-disable-next-line no-undef
-// const messaging = firebase.messaging();
+const isSupported = firebase.messaging.isSupported();
 
-//백그라운드 서비스워커 설정
-// messaging.onBackgroundMessage(messaging, (payload) => {
-//   console.log(
-//     "[firebase-messaging-sw.js] Received background message ",
-//     payload
-//   );
+if (isSupported) {
+  // eslint-disable-next-line no-undef
+  const messaging = firebase.messaging();
 
-//   const notificationTitle = payload.notification.title;
-//   const notificationOptions = {
-//     body: payload.notification.body,
-//     icon: "/image/sheather_logo_s.svg",
-//   };
+  //백그라운드 서비스워커 설정
+  messaging.onBackgroundMessage(messaging, (payload) => {
+    console.log(
+      "[firebase-messaging-sw.js] Received background message ",
+      payload
+    );
 
-//   // eslint-disable-next-line no-restricted-globals
-//   self.registration.showNotification(notificationTitle, notificationOptions);
-// });
+    const notificationTitle = payload.notification.title;
+    const notificationOptions = {
+      body: payload.notification.body,
+      icon: "/image/sheather_logo_s.svg",
+    };
 
-// messaging.onBackgroundMessage((payload) => {
-//   console.log(
-//     "[firebase-messaging-sw.js] Received background message ",
-//     payload
-//   );
-//   // Customize notification here
-//   const notificationTitle = "Background Message Title";
-//   const notificationOptions = {
-//     body: "Background Message body.",
-//     icon: "/firebase-logo.png",
-//   };
-
-//   // eslint-disable-next-line no-restricted-globals
-//   self.registration.showNotification(notificationTitle, notificationOptions);
-// });
-
-const messaging = getMessaging();
-onBackgroundMessage(messaging, (payload) => {
-  console.log(
-    "[firebase-messaging-sw.js] Received background message ",
-    payload
-  );
-  // Customize notification here
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: "/image/sheather_logo_s.svg",
-  };
-
-  // eslint-disable-next-line no-restricted-globals
-  self.registration.showNotification(notificationTitle, notificationOptions);
-});
+    // eslint-disable-next-line no-restricted-globals
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  });
+}
