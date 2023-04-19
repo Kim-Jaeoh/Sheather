@@ -56,18 +56,18 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
         <>
           {dataList?.pages?.flat().length !== 0 ? (
             <CardBox>
-              <div
-              // className="container"
-              // gap={!isMobile ? 30 : 12}
-              // defaultDirection={"end"}
-              // align={"stretch"}
-              // column={2}
-              // // column={isMobile ? 1 : 2}
-              // columnSize={0}
-              // columnSizeRatio={0}
-              // onRenderComplete={({ isResize, mounted, updated }) => {
-              //   setIsGridRender(Boolean(updated));
-              // }}
+              <MasonryGrid
+                className="container"
+                gap={!isMobile ? 30 : 12}
+                defaultDirection={"end"}
+                align={"stretch"}
+                column={2}
+                // column={isMobile ? 1 : 2}
+                columnSize={0}
+                columnSizeRatio={0}
+                onRenderComplete={({ isResize, mounted, updated }) => {
+                  setIsGridRender(Boolean(updated));
+                }}
               >
                 {dataList?.pages?.flat().map((res: FeedType, index: number) => {
                   sizes(res.imgAspect);
@@ -126,7 +126,7 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
                 })}
 
                 <div ref={ref} />
-              </div>
+              </MasonryGrid>
             </CardBox>
           ) : (
             <NotInfoBox>
