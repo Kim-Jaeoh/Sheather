@@ -15,17 +15,17 @@ const root = ReactDOM.createRoot(
 const queryClient = new QueryClient();
 
 root.render(
-  <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
-      <QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter basename={process.env.PUBLIC_URL}>
           {/* <React.StrictMode> */}
           <App />
           {/* </React.StrictMode> */}
         </BrowserRouter>
-      </QueryClientProvider>
-    </PersistGate>
-  </Provider>
+      </PersistGate>
+    </Provider>
+  </QueryClientProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -1,6 +1,4 @@
 import styled from "@emotion/styled";
-import { useRef, useEffect } from "react";
-import CircleType from "circletype";
 import ColorList from "../../assets/data/ColorList";
 import FollowListBox from "./FollowListBox";
 import TagListBox from "./TagListBox";
@@ -9,15 +7,8 @@ import AuthFormModal from "../modal/auth/AuthFormModal";
 import useUserAccount from "../../hooks/useUserAccount";
 
 const RightBar = () => {
-  const circleInstance = useRef();
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
-
-  useEffect(() => {
-    if (circleInstance.current) {
-      new CircleType(circleInstance.current);
-    }
-  }, []);
 
   return (
     <>

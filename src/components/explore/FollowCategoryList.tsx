@@ -1,18 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/data/ColorList";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import { useQuery } from "@tanstack/react-query";
 import { DocumentData, query, collection, getDocs } from "firebase/firestore";
 import { cloneDeep } from "lodash";
 import { dbService } from "../../fbase";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import useUserAccount from "../../hooks/useUserAccount";
 import AuthFormModal from "../modal/auth/AuthFormModal";
-import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
-import { CurrentUserType } from "../../types/type";
 
 interface Count {
   [key: string]: number;
@@ -32,6 +29,7 @@ const FollowCategoryList = () => {
   });
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
+  const { pathname } = useLocation();
 
   // 계정 정보 가져오기
   useEffect(() => {
@@ -73,6 +71,14 @@ const FollowCategoryList = () => {
     }
   }, [users?.length]);
 
+  const bgColor = useMemo(() => {
+    if (pathname.includes("explore")) {
+      return `#30c56e`;
+    } else {
+      return `transparent`;
+    }
+  }, [pathname]);
+
   // 배열 랜덤
   const randomArray = (array: DocumentData[]) => {
     // (피셔-예이츠)
@@ -99,50 +105,53 @@ const FollowCategoryList = () => {
       {isAuthModal && (
         <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
-      <Container>
-        <CategoryBox>
-          <SelectName>추천</SelectName>
-        </CategoryBox>
+      <Container bgColor={bgColor}>
+        {pathname?.includes("explore") && (
+          <CategoryBox>
+            <SelectName>추천</SelectName>
+          </CategoryBox>
+        )}
         <ListBox>
-          <>
-            {users?.map((res, index) => {
-              // 해당 태그가 피드 리스트에 포함되어 있는지 필터링
-              return (
-                <List key={index} onClick={() => onIsLogin(() => null)}>
-                  <User
-                    to={userLogin && `/profile/${res.displayName}/post`}
-                    state={res.displayName}
-                  >
-                    <ProfileImageBox>
-                      <ProfileImage
-                        onContextMenu={(e) => e.preventDefault()}
-                        src={res.profileURL}
-                        alt="profile image"
-                      />
-                    </ProfileImageBox>
-                    <ProfileInfoBox>
-                      <ProfileDsName>{res.displayName}</ProfileDsName>
-                      {res.name && <ProfileName>{res.name}</ProfileName>}
-                    </ProfileInfoBox>
-                  </User>
-                  {res?.email !== userObj.email && (
-                    <FollowBtnBox
-                      onClick={() => onFollowClick(res.displayName, index)}
+          {users?.map((res, index) => {
+            return (
+              <List key={index}>
+                {index < 6 && (
+                  <Card onClick={() => onIsLogin(() => null)}>
+                    <User
+                      to={userLogin && `/profile/${res.displayName}/post`}
+                      state={res.displayName}
                     >
-                      {userObj.following.filter((obj) =>
-                        obj?.displayName?.includes(res?.displayName)
-                      ).length !== 0 ? (
-                        <FollowingBtn>팔로잉</FollowingBtn>
-                      ) : (
-                        <FollowBtn>팔로우</FollowBtn>
-                      )}
-                    </FollowBtnBox>
-                  )}
-                </List>
-              );
-            })}
-            {arrState && <NullCard />}
-          </>
+                      <ProfileImageBox>
+                        <ProfileImage
+                          onContextMenu={(e) => e.preventDefault()}
+                          src={res.profileURL}
+                          alt="profile image"
+                        />
+                      </ProfileImageBox>
+                      <ProfileInfoBox>
+                        <ProfileDsName>{res.displayName}</ProfileDsName>
+                        {res.name && <ProfileName>{res.name}</ProfileName>}
+                      </ProfileInfoBox>
+                    </User>
+                    {res?.email !== userObj.email && (
+                      <FollowBtnBox
+                        onClick={() => onFollowClick(res.displayName, index)}
+                      >
+                        {userObj.following.filter((obj) =>
+                          obj?.displayName?.includes(res?.displayName)
+                        ).length !== 0 ? (
+                          <FollowingBtn>팔로잉</FollowingBtn>
+                        ) : (
+                          <FollowBtn>팔로우</FollowBtn>
+                        )}
+                      </FollowBtnBox>
+                    )}
+                  </Card>
+                )}
+              </List>
+            );
+          })}
+          {arrState && <NullCard />}
         </ListBox>
       </Container>
     </>
@@ -153,12 +162,12 @@ export default FollowCategoryList;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const Container = styled.div`
+const Container = styled.div<{ bgColor: string }>`
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
-  background: #30c56e;
+  background: ${(props) => props.bgColor};
 
   @media (max-width: 767px) {
     padding: 16px;
@@ -207,16 +216,19 @@ const ListBox = styled.ul`
   /* justify-content: center; */
   flex-wrap: wrap;
   width: 100%;
-  padding: 40px;
+  padding: 20px 40px 40px;
   gap: 20px;
 
   @media (max-width: 767px) {
-    padding: 20px 0 0px;
+    padding: 0;
   }
 `;
 
 const List = styled.li`
   flex: 1 0 40%;
+`;
+
+const Card = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -242,6 +254,7 @@ const List = styled.li`
 
   @media (max-width: 767px) {
     flex: 1 1 100%;
+    height: 80px;
     border-width: 1px;
     animation: none;
   }
@@ -293,6 +306,10 @@ const ProfileDsName = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const ProfileName = styled.p`
@@ -303,6 +320,10 @@ const ProfileName = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @media (max-width: 767px) {
+    font-size: 12px;
+  }
 `;
 
 const ProfileDesc = styled.p`
@@ -340,6 +361,9 @@ const FollowBtn = styled.button`
   &:hover,
   &:active {
     background: #000;
+  }
+  @media (max-width: 767px) {
+    padding: 8px 12px;
   }
 `;
 

@@ -27,12 +27,12 @@ const FeedWeatherInfo = () => {
 
   // 현재 주소 받아오기
   const { data: regionData, isLoading: isLoading2 } = useQuery(
-    ["Region", weatherData?.data],
+    ["Region", location],
     () => regionApi(location),
     {
       refetchOnWindowFocus: false,
       onError: (e) => console.log(e),
-      enabled: Boolean(weatherData?.data),
+      enabled: Boolean(location),
     }
   );
 
@@ -91,7 +91,7 @@ const FeedWeatherInfo = () => {
               >
                 {/* <WearInfo> */}
                 <TagBox>
-                  {filterTempClothes[0].clothes.map((res, index) => {
+                  {filterTempClothes[0]?.clothes?.map((res, index) => {
                     return <Tag key={index}>{res}</Tag>;
                   })}
                 </TagBox>

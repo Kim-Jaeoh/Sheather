@@ -1,18 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import FeedPost from "../components/feed/FeedPost";
 import SortFeedCategory from "../components/feed/SortFeedCategory";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import useUserAccount from "../hooks/useUserAccount";
-import TopButton from "../components/scrollButton/TopButton";
-import {
-  deleteToken,
-  getMessaging,
-  getToken,
-  isSupported,
-  onMessage,
-} from "firebase/messaging";
-import { app } from "../fbase";
+import { useSelector } from "react-redux";
+import { RootState } from "../app/store";
+import ColorList from "../assets/data/ColorList";
+import FollowCategoryList from "../components/explore/FollowCategoryList";
 
 declare global {
   interface Window {
@@ -20,78 +15,24 @@ declare global {
   }
 }
 const Home = () => {
-  const [url, setUrl] = useState(
-    `${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`
+  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+    (state: RootState) => {
+      return state.user;
+    }
   );
   const { isAuthModal, onAuthModal, setIsAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
 
-  //   const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
-  //   const messaging = async () => (await isSupported()) && getMessaging(app);
+  // 팔로잉 목록 담기
+  const followArr = useMemo(() => {
+    let arr: string[] = [];
+    userObj.following.forEach((res) => arr.push(res.displayName));
+    return arr;
+  }, [userObj.following]);
 
-  // useEffect(() => {
-  //   // 페이지 로드 시 웹 푸시 알림 권한 확인 및 상태 설정
-  //   const requestNotificationsPermissions = async () => {
-  //     const permission = await Notification.requestPermission();
-  //     if (permission === "granted") {
-  //       console.log("알림 권한 부여!!!");
-  //     } else {
-  //       getMessaging(app);
-  //       const msg = await messaging();
-  //       const fcmToken = await getToken(msg, {
-  //         vapidKey: process.env.REACT_APP_VAPID_KEY,
-  //       });
-  //       if (fcmToken) {
-  //         onMessage(msg, (message) => {
-  //           console.log(message.notification);
-  //           new Notification(message.notification.title, {
-  //             body: message.notification.body,
-  //             icon: "/image/sheather_logo_s.png",
-  //             badge: "/image/sheather_badge.png",
-  //           });
-  //         });
-  //       }
-  //       console.log("알림 권한 없음!!");
-  //     }
-  //   };
-  //   requestNotificationsPermissions();
-  // }, []);
-
-  // const handleToggle = async () => {
-  //   const msg = await messaging();
-  //   if (isNotificationEnabled) {
-  //     // 웹 푸시 알림 권한 해제
-  //     try {
-  //       await deleteToken(msg).then(() => {
-  //         console.log("Notification permission revoked.");
-  //         setIsNotificationEnabled(false);
-  //       });
-  //     } catch (error) {
-  //       console.error("Error revoking notification permission:", error);
-  //     }
-  //   } else {
-  //     // 웹 푸시 알림 권한 요청
-  //     try {
-  //       const token = await getToken(msg, {
-  //         vapidKey: process.env.REACT_APP_VAPID_KEY,
-  //       });
-  //       if (token) {
-  //         console.log("??");
-  //         onMessage(msg, (message) => {
-  //           console.log(message.notification);
-  //           new Notification(message.notification.title, {
-  //             body: message.notification.body,
-  //             icon: "/image/sheather_logo_s.png",
-  //             badge: "/image/sheather_badge.png",
-  //           });
-  //         });
-  //         setIsNotificationEnabled(true);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error getting notification permission or token:", error);
-  //     }
-  //   }
-  // };
+  const [url, setUrl] = useState(
+    `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/recent?users=${followArr}&`
+  );
 
   return (
     <>
@@ -99,10 +40,15 @@ const Home = () => {
         <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
       <Container>
-        {/* <TopButton bgColor={`#ff5673`} /> */}
         <Box>
           <SortFeedCategory url={url} setUrl={setUrl} />
-          <FeedPost url={url} onIsLogin={onIsLogin} />
+          {userObj.displayName || userObj.following.length !== 0 ? (
+            <FeedPost url={url} onIsLogin={onIsLogin} />
+          ) : (
+            <NotInfoBox>
+              <FollowCategoryList />
+            </NotInfoBox>
+          )}
         </Box>
       </Container>
     </>
@@ -110,11 +56,14 @@ const Home = () => {
 };
 export default Home;
 
+const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+
 const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
   background: #ff5673;
+  overflow: hidden;
 
   @media (max-width: 767px) {
     padding: 16px;
@@ -140,4 +89,40 @@ const Box = styled.div`
       return shadow;
     }};
   }
+`;
+
+const NotInfoBox = styled.div`
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  animation-name: slideDown;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-in-out;
+
+  @keyframes slideDown {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+  }
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
+`;
+
+const NotInfo = styled.span`
+  color: ${secondColor};
 `;

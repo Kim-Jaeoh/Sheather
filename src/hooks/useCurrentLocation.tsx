@@ -9,12 +9,7 @@ const useCurrentLocation = () => {
   const [location, setLocation] = useState<LocationStateType | null>(null);
 
   // 성공 함수
-  const onSuccess = (
-    res: LocationCoordsType
-    // {
-    // coords: { latitude: number; longitude: number; accuracy: number };
-    // }
-  ) => {
+  const onSuccess = (res: LocationCoordsType) => {
     setLocation({
       coordinates: {
         lat: res.coords.latitude,
@@ -25,15 +20,8 @@ const useCurrentLocation = () => {
   };
 
   // 에러 함수
-  const onError = (
-    err: LocationErrorType
-    // {
-    // code: number;
-    // message: string;
-    // }
-  ) => {
+  const onError = (err: LocationErrorType) => {
     setLocation({
-      // error,
       error: {
         code: err.code,
         message: err.message,

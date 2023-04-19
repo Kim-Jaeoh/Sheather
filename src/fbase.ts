@@ -35,10 +35,12 @@ export const messaging = async () => (await isSupported()) && getMessaging(app);
 const requestNotificationsPermissions = async (userEmail: string) => {
   const permission = await Notification.requestPermission();
 
-  if (permission === "granted") {
-    await saveMessagingDeviceToken(userEmail);
-  } else {
-    console.log("not allowed");
+  if (isSupported()) {
+    if (permission === "granted") {
+      await saveMessagingDeviceToken(userEmail);
+    } else {
+      console.log("not allowed");
+    }
   }
 };
 

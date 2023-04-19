@@ -30,7 +30,7 @@ const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
   }, [users?.email]);
 
   // 메세지 알림 보내기
-  const sendMessage = throttle((text: string) => {
+  const sendMessage = throttle(async (text: string) => {
     if (getToken) {
       saveMessagingDeviceToken(users?.email);
 
@@ -41,7 +41,7 @@ const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
         },
       };
 
-      axios
+      await axios
         .post(`${process.env.REACT_APP_SERVER_PORT}/api/push_send`, config)
         .then((e) => {
           console.log("성공 ", e);
@@ -51,7 +51,7 @@ const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
   }, 3000);
 
   // 팔로우, 좋아요, 댓글 알림 보내기
-  const sendActions = (type: string, text?: string) => {
+  const sendActions = async (type: string, text?: string) => {
     if (getToken) {
       let noticeText: string = "";
 
@@ -76,7 +76,7 @@ const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
         },
       };
 
-      axios
+      await axios
         .post(`${process.env.REACT_APP_SERVER_PORT}/api/push_send`, config)
         .then((e) => {
           console.log("성공 ", e);

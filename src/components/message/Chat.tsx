@@ -74,7 +74,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomListRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
-  const { handleResizeHeight } = useHandleResizeTextArea(textRef);
+  // const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
   const { sendMessage } = useSendNoticeMessage(users);
@@ -154,6 +154,8 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   // 텍스트 입력
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
+    textRef.current.style.height = `auto`;
+    textRef.current.style.height = textRef.current.scrollHeight + `px`;
   };
 
   // 메시지 전송
@@ -211,7 +213,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
       sendMessage(trimmedMessage);
     }
 
-    textRef.current.style.height = "24px";
+    textRef.current.style.height = `auto`;
     setText("");
   };
 
@@ -418,13 +420,14 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
                       spellCheck="false"
                       maxLength={120}
                       value={text}
+                      rows={1}
                       ref={textRef}
                       onClick={onReadMessage}
                       onChange={onChange}
                       onFocus={() => setIsFocus(true)}
                       onBlur={() => setIsFocus(false)}
                       onKeyDown={onKeyPress}
-                      onInput={handleResizeHeight}
+                      // onInput={handleResizeHeight}
                       placeholder="메시지 입력..."
                     />
                     {text.length > 0 && (

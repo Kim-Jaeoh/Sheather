@@ -11,7 +11,7 @@ const useNationalWeather = () => {
   const [weather, setWeather] = useState(null);
 
   useEffect(() => {
-    if (location) {
+    if (location.coordinates.lat) {
       const transcoord = async () => {
         await axios
           .get(
@@ -35,7 +35,7 @@ const useNationalWeather = () => {
 
   // 예보
   useEffect(() => {
-    if (coordinate) {
+    if (location.coordinates.lat) {
       const getWeather = async () => {
         await axios
           .get(
@@ -49,7 +49,7 @@ const useNationalWeather = () => {
       };
       getWeather();
     }
-  }, [coordinate]);
+  }, [coordinate.x, coordinate?.y, location.coordinates.lat]);
 
   return { weather };
 };

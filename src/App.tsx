@@ -62,12 +62,12 @@ const App = () => {
 
   return (
     <Suspense fallback={<SuspenseSpinner />}>
-      <SrollToTop />
+      {/* <SrollToTop /> */}
       <Body>
         {isAuthModal && (
           <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
         )}
-        {isDesktop && <AppDeco />}
+        {/* {isDesktop && <AppDeco />} */}
         <Wrapper>
           <LeftBar onIsLogin={onIsLogin} />
           {isMobile && <MobileHeader onIsLogin={onIsLogin} />}
