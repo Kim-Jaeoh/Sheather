@@ -14,7 +14,7 @@ const AppDeco = () => {
 
   useEffect(() => {
     new DecoCircleType(circleInstance.current);
-  });
+  }, []);
 
   const bgColor = useMemo(() => {
     const bgArr: BgColor = {

@@ -1,9 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
-import ColorList from "../data/ColorList";
-import { FrameGrid } from "@egjs/react-grid";
-import { Link } from "react-router-dom";
 
 const ProfileSkeleton = () => {
   return (
