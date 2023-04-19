@@ -90,7 +90,7 @@ const useToggleLike = ({ user }: props) => {
     (response: {
       id: string;
       like: { displayName: string; time: number; postId: string }[];
-    }) => axios.post("http://localhost:4000/api/like", response),
+    }) => axios.post(`${process.env.REACT_APP_SERVER_PORT}/api/like`, response),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
