@@ -118,6 +118,7 @@ const Icon = styled.button`
   padding: 0;
   cursor: pointer;
   svg {
+    color: ${secondColor};
     width: 20px;
     height: 20px;
   }

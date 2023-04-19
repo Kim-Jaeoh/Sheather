@@ -40,7 +40,7 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
 
     return (
       <>
-        {!loading ? (
+        {loading ? (
           <>
             {myPost?.length !== 0 ? (
               <>

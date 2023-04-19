@@ -56,6 +56,7 @@ const RangeBox = styled.div`
   border-radius: 20px;
   border: 1px solid ${thirdColor};
   background: #fff;
+  overflow: hidden;
   outline: none;
   filter: drop-shadow(0px 0px 4px #22222222);
 
@@ -75,6 +76,7 @@ const Container = styled.div`
 const Btn = styled.button<{ num: number; select: number }>`
   width: 100%;
   height: 40px;
+  overflow: hidden;
   padding: 4px 8px;
   font-size: 14px;
   color: ${secondColor};

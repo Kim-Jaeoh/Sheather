@@ -441,6 +441,7 @@ const MenuBtn = styled.button<{ cat: string; menu: string; color: string }>`
   width: 100%;
 
   svg {
+    color: ${secondColor};
     font-size: 24px;
   }
 
