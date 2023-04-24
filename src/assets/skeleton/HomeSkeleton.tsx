@@ -2,21 +2,18 @@ import React from "react";
 import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
 import ColorList from "../data/ColorList";
-import { MasonryGrid } from "@egjs/react-grid";
 import useMediaScreen from "../../hooks/useMediaScreen";
+import ImageList from "@mui/material/ImageList";
 
 const HomeSkeleton = () => {
   const { isDesktop, isTablet, isMobile } = useMediaScreen();
 
   return (
-    <MasonryGrid
-      className="container"
-      gap={!isMobile ? 30 : 10}
-      defaultDirection={"end"}
-      align={"stretch"}
-      column={2}
-      columnSize={0}
-      columnSizeRatio={0}
+    <ImageList
+      sx={{ overflow: "hidden" }}
+      variant="masonry"
+      cols={2}
+      gap={!isMobile ? 30 : 12}
     >
       {Array.from({ length: 6 }).map((res, index) => {
         return (
@@ -30,7 +27,7 @@ const HomeSkeleton = () => {
           </CardList>
         );
       })}
-    </MasonryGrid>
+    </ImageList>
   );
 };
 
@@ -39,12 +36,17 @@ export default HomeSkeleton;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const CardList = styled.li`
-  width: 330px;
-  height: 400px;
+  /* width: 330px; */
+  height: 380px;
   display: flex;
   flex-direction: column;
   border-radius: 8px;
   border: 2px solid #22222222;
+  margin-bottom: 30px;
+  @media (max-width: 767px) {
+    margin-bottom: 12px;
+    height: 230px;
+  }
 `;
 
 const Card = styled.div`
@@ -54,7 +56,11 @@ const Card = styled.div`
   outline: none;
   overflow: hidden;
   border-bottom: 2px solid #22222222;
-  height: 314px;
+  height: 320px;
+
+  @media (max-width: 767px) {
+    height: 170px;
+  }
 `;
 
 const UserBox = styled.div`

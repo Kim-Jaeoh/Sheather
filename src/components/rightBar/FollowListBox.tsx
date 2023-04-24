@@ -164,6 +164,7 @@ const Container = styled.article`
   margin-top: 30px;
   border-radius: 20px;
   overflow: hidden;
+  overflow-y: auto;
 
   @media (max-width: 956px) {
     max-height: auto;

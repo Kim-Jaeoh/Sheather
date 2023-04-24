@@ -10,11 +10,6 @@ import TempClothes from "../../assets/data/TempClothes";
 import ColorList from "../../assets/data/ColorList";
 import { nowWeatherApi, regionApi } from "../../apis/api";
 import { BiErrorCircle } from "react-icons/bi";
-import {
-  LocationStateType,
-  LocationCoordsType,
-  LocationErrorType,
-} from "../../types/type";
 
 const FeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
@@ -48,74 +43,6 @@ const FeedWeatherInfo = () => {
         info.tempMax >= Math.round(temp) && info.tempMin <= Math.round(temp)
     );
   }, [weatherData?.data?.main.temp]);
-
-  const [locations, setLocations] = useState<LocationStateType | null>(null);
-
-  // 성공 함수
-  const onSuccess = (res: LocationCoordsType) => {
-    setLocations({
-      coordinates: {
-        lat: res.coords.latitude,
-        lon: res.coords.longitude,
-        acc: res.coords.accuracy,
-      },
-    });
-  };
-
-  // 에러 함수
-  const onError = (err: LocationErrorType) => {
-    setLocations({
-      error: {
-        code: err.code,
-        message: err.message,
-      },
-    });
-  };
-
-  const options = {
-    enableHighAccuracy: true,
-    maximumAge: 0, //1000 * 60 * 1, // 불러온 값을 캐싱하는 시간 (1분)
-    timeout: 5000, // API 최대 요청 시간
-  };
-  useEffect(() => {
-    const { geolocation } = navigator; // window.navigator.geolocation
-    // 옵션
-    if (!geolocation) {
-      requestGeo();
-    }
-  }, []);
-
-  const requestGeo = () => {
-    const { geolocation } = navigator; // window.navigator.geolocation
-    geolocation.getCurrentPosition(onSuccess, onError, options);
-    console.log("?");
-  };
-
-  const [isLocationEnabled, setLocationEnabled] = useState(false);
-
-  useEffect(() => {
-    if (isLocationEnabled) {
-      // 위치 권한을 요청하는 코드 작성
-      navigator.geolocation.getCurrentPosition(
-        (position) => console.log(position),
-        (error) => console.log(error)
-      );
-    }
-  }, [isLocationEnabled]);
-
-  const handleButtonClick = () => {
-    if (isLocationEnabled) {
-      // 위치 엑세스 권한을 끄는 코드 작성
-      setLocationEnabled(false);
-    } else {
-      // 위치 엑세스 권한을 켜는 코드 작성
-      navigator.geolocation.getCurrentPosition(
-        (position) => console.log(position),
-        (error) => console.log(error)
-      );
-      setLocationEnabled(true);
-    }
-  };
 
   return (
     <Container>
@@ -185,16 +112,9 @@ const FeedWeatherInfo = () => {
       ) : (
         <NotInfoBox>
           <NotInfo>
-            <button onClick={handleButtonClick}>
-              {isLocationEnabled
-                ? "위치 엑세스 권한 끄기"
-                : "위치 엑세스 권한 켜기"}
-            </button>
-          </NotInfo>
-          {/* <NotInfo onClick={requestGeo}>
             <BiErrorCircle />
             위치 권한이 허용되지 않았습니다.
-          </NotInfo> */}
+          </NotInfo>
         </NotInfoBox>
       )}
     </Container>

@@ -40,14 +40,34 @@ const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
 
   return (
     <TextFormBox>
-      <TextArea
-        spellCheck="false"
-        maxLength={120}
-        value={text}
-        onChange={onChange}
-        ref={textRef}
-        placeholder="무슨 일이 일어나고 있나요?"
-      />
+      <TextBox>
+        <TextArea
+          spellCheck="false"
+          maxLength={120}
+          value={text}
+          onChange={onChange}
+          ref={textRef}
+          placeholder="무슨 일이 일어나고 있나요?"
+        />
+        <EditInfo>
+          {!isMobile && (
+            <Emoji
+              setText={setText}
+              textRef={textRef}
+              right={36}
+              bottom={-10}
+            />
+          )}
+          <TextAreaLength>
+            <TextAreaLengthColor bgColor={bgColor}>
+              {textRef?.current?.value
+                ? textRef?.current?.value.trim().length
+                : 0}
+            </TextAreaLengthColor>
+            /120
+          </TextAreaLength>
+        </EditInfo>
+      </TextBox>
       <TagBox>
         <EmojiIcon htmlFor="tag">
           <BiTag />
@@ -81,21 +101,6 @@ const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
           </InputTagBox>
         </TagList>
       </TagBox>
-      <BtnBox>
-        {!isMobile && (
-          <Emoji setText={setText} textRef={textRef} right={32} bottom={-10} />
-        )}
-        <EditInfo>
-          <TextAreaLength>
-            <TextAreaLengthColor bgColor={bgColor}>
-              {textRef?.current?.value
-                ? textRef?.current?.value.trim().length
-                : 0}
-            </TextAreaLengthColor>
-            /120
-          </TextAreaLength>
-        </EditInfo>
-      </BtnBox>
     </TextFormBox>
   );
 };
@@ -106,23 +111,34 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const TextFormBox = styled.div`
   width: 100%;
+  /* height: 100%; */
   flex: 1;
   display: flex;
   flex-direction: column;
 `;
 
+const TextBox = styled.div`
+  position: relative;
+  width: 100%;
+  height: 244px;
+  padding: 14px 14px 28px;
+
+  @media (max-width: 767px) {
+    height: 100%;
+  }
+`;
+
 const TextArea = styled.textarea`
   display: block;
   width: 100%;
-  flex: 1 0 244px;
-  height: 244px;
+  height: 100%;
+  /* flex: 1 0 244px; */
   font-size: 14px;
   line-height: 24px;
   resize: none;
   outline: none;
   border: none;
-  padding: 14px;
-  border-bottom: 1px solid ${thirdColor};
+  /* border-bottom: 1px solid ${thirdColor}; */
 
   &::placeholder {
     font-size: 14px;
@@ -151,21 +167,24 @@ const EditInfo = styled.div`
   margin-left: auto;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+
+  @media (max-width: 767px) {
+    justify-content: end;
+  }
 `;
 
-const TextAreaLength = styled.p`
-  /* padding-right: 12px; */
-  /* border-right: 1px solid ${thirdColor}; */
-`;
+const TextAreaLength = styled.p``;
 
 const TextAreaLengthColor = styled.span<{ bgColor: string }>`
-  color: ${(props) => props.bgColor}; ;
+  color: ${(props) => props.bgColor};
 `;
 
 const TagBox = styled.div`
   display: flex;
   align-items: center;
-  border-bottom: 1px solid ${thirdColor};
+  border-top: 1px solid ${thirdColor};
   padding: 14px;
 `;
 

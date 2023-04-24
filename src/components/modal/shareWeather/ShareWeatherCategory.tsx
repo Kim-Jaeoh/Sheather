@@ -375,7 +375,7 @@ const Container = styled.div`
 
 const WearInfoBox = styled.section`
   width: 100%;
-  border-top: 1px solid ${thirdColor};
+  /* border-top: 1px solid ${thirdColor}; */
   border-bottom: 1px solid ${thirdColor};
 `;
 

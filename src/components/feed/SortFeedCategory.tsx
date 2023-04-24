@@ -221,8 +221,90 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
             </IconBox>
           </InfoBox>
           <SelectDetailTimeBox>
-            {userObj?.displayName ||
-              (userObj?.following?.length !== 0 && (
+            {(userObj?.displayName || userObj?.following?.length !== 0) && (
+              <>
+                {isDate && isDetailDone && (
+                  <SelectDetailTime>
+                    {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
+                    {rangeTime[0] < 10
+                      ? "0" + rangeTime[0]
+                      : rangeTime[0]} ~{" "}
+                    {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
+                  </SelectDetailTime>
+                )}
+                <SelectCategoryBox>
+                  <SelectCategoryBtn
+                    select={dateCategory}
+                    category={"recent"}
+                    type="button"
+                    onClick={() => setDateCategory("recent")}
+                  >
+                    최신순
+                  </SelectCategoryBtn>
+                  <SelectCategoryBtn
+                    select={dateCategory}
+                    category={"popular"}
+                    type="button"
+                    onClick={() => setDateCategory("popular")}
+                  >
+                    인기순
+                  </SelectCategoryBtn>
+                  <SelectCategoryDateBtn
+                    select={isDate && isDetailDone ? "date" : null}
+                    category={"date"}
+                    type="button"
+                    onClick={() => onSelectCategory2()}
+                  >
+                    날짜별
+                  </SelectCategoryDateBtn>
+                  {isDate && isDetailDone && (
+                    <SelectDeleteBtn onClick={() => setIsDate(false)}>
+                      <IoMdClose />
+                    </SelectDeleteBtn>
+                  )}
+                </SelectCategoryBox>
+              </>
+            )}
+          </SelectDetailTimeBox>
+        </>
+      ) : (
+        <>
+          <FeedWeatherInfo />
+          <SelectTimeBox select={selectCategory}>
+            <SelectCategory>
+              <SelectCategoryTextLink
+                to="following"
+                onClick={() => onSelectCategory(0)}
+                select={selectCategory}
+                num={0}
+              >
+                <SelectCategoryText>팔로잉</SelectCategoryText>
+              </SelectCategoryTextLink>
+              <SelectCategoryTextLink
+                to="explore"
+                onClick={() => onSelectCategory(1)}
+                select={selectCategory}
+                num={1}
+              >
+                <SelectCategoryText>탐색</SelectCategoryText>
+              </SelectCategoryTextLink>
+            </SelectCategory>
+
+            {isDate && isDetailModal && (
+              <RangeTimeModal
+                modalOpen={isDetailModal}
+                modalClose={onDetailModal}
+                rangeTime={rangeTime}
+                setRangeTime={setRangeTime}
+                changeValue={changeValue}
+                setChangeValue={setChangeValue}
+                onReset={onReset}
+                onDone={onDone}
+              />
+            )}
+
+            <SelectDetailTimeBox>
+              {(userObj?.displayName || userObj?.following?.length !== 0) && (
                 <>
                   {isDate && isDetailDone && (
                     <SelectDetailTime>
@@ -265,93 +347,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                     )}
                   </SelectCategoryBox>
                 </>
-              ))}
-          </SelectDetailTimeBox>
-        </>
-      ) : (
-        <>
-          <FeedWeatherInfo />
-          <SelectTimeBox select={selectCategory}>
-            <SelectCategory>
-              <SelectCategoryTextLink
-                to="following"
-                onClick={() => onSelectCategory(0)}
-                select={selectCategory}
-                num={0}
-              >
-                <SelectCategoryText>팔로잉</SelectCategoryText>
-              </SelectCategoryTextLink>
-              <SelectCategoryTextLink
-                to="explore"
-                onClick={() => onSelectCategory(1)}
-                select={selectCategory}
-                num={1}
-              >
-                <SelectCategoryText>탐색</SelectCategoryText>
-              </SelectCategoryTextLink>
-            </SelectCategory>
-
-            {isDate && isDetailModal && (
-              <RangeTimeModal
-                modalOpen={isDetailModal}
-                modalClose={onDetailModal}
-                rangeTime={rangeTime}
-                setRangeTime={setRangeTime}
-                changeValue={changeValue}
-                setChangeValue={setChangeValue}
-                onReset={onReset}
-                onDone={onDone}
-              />
-            )}
-
-            <SelectDetailTimeBox>
-              {userObj?.displayName ||
-                (userObj?.following?.length !== 0 && (
-                  <>
-                    {isDate && isDetailDone && (
-                      <SelectDetailTime>
-                        {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
-                        {rangeTime[0] < 10
-                          ? "0" + rangeTime[0]
-                          : rangeTime[0]}{" "}
-                        ~{" "}
-                        {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}
-                        시
-                      </SelectDetailTime>
-                    )}
-                    <SelectCategoryBox>
-                      <SelectCategoryBtn
-                        select={dateCategory}
-                        category={"recent"}
-                        type="button"
-                        onClick={() => setDateCategory("recent")}
-                      >
-                        최신순
-                      </SelectCategoryBtn>
-                      <SelectCategoryBtn
-                        select={dateCategory}
-                        category={"popular"}
-                        type="button"
-                        onClick={() => setDateCategory("popular")}
-                      >
-                        인기순
-                      </SelectCategoryBtn>
-                      <SelectCategoryDateBtn
-                        select={isDate && isDetailDone ? "date" : null}
-                        category={"date"}
-                        type="button"
-                        onClick={() => onSelectCategory2()}
-                      >
-                        날짜별
-                      </SelectCategoryDateBtn>
-                      {isDate && isDetailDone && (
-                        <SelectDeleteBtn onClick={() => setIsDate(false)}>
-                          <IoMdClose />
-                        </SelectDeleteBtn>
-                      )}
-                    </SelectCategoryBox>
-                  </>
-                ))}
+              )}
             </SelectDetailTimeBox>
           </SelectTimeBox>
         </>
@@ -370,6 +366,7 @@ const InfoBox = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  padding: 16px 16px 0;
   /* padding: 20px 16px; */
 `;
 
@@ -413,7 +410,7 @@ const SelectDetailTimeBox = styled.div`
     padding: 0;
     > div {
       border-top: 1px solid ${fourthColor};
-      padding: 16px 0;
+      padding: 16px;
       width: 100%;
     }
   }

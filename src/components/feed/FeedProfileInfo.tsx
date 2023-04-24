@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { Skeleton } from "@mui/material";
-import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
+import useMediaScreen from "../../hooks/useMediaScreen";
 
 type Props = {
   feed: FeedType;
@@ -26,6 +26,7 @@ const FeedProfileInfo = ({ feed }: Props) => {
   const [account, setAccount] = useState(null);
   const { toggleBookmark } = useToggleBookmark(); // 북마크 커스텀 훅
   const { toggleLike } = useToggleLike({ user: account }); // 좋아요 커스텀 훅
+  const { isMobile } = useMediaScreen();
 
   // 계정 정보 가져오기
   useEffect(() => {
@@ -79,13 +80,15 @@ const FeedProfileInfo = ({ feed }: Props) => {
             <UserReactNum>{feed.like.length}</UserReactNum>
           )}
         </UserIconBox>
-        <UserIcon onClick={() => toggleBookmark(feed.id)}>
-          {userObj?.bookmark?.filter((id) => id === feed.id).length > 0 ? (
-            <FaBookmark style={{ color: "#FF5673" }} />
-          ) : (
-            <FaRegBookmark />
-          )}
-        </UserIcon>
+        {!isMobile && (
+          <UserIcon onClick={() => toggleBookmark(feed.id)}>
+            {userObj?.bookmark?.filter((id) => id === feed.id).length > 0 ? (
+              <FaBookmark style={{ color: "#FF5673" }} />
+            ) : (
+              <FaRegBookmark />
+            )}
+          </UserIcon>
+        )}
       </UserReactBox>
     </UserInfoBox>
   );
@@ -148,7 +151,10 @@ const UserNameBox = styled(Link)`
   }
 `;
 
-const UserName = styled.p``;
+const UserName = styled.p`
+  text-overflow: ellipsis;
+  overflow: hidden;
+`;
 
 const UserReactBox = styled.div`
   display: flex;
@@ -182,7 +188,7 @@ const UserIcon = styled.div<{ isMobile?: boolean }>`
 
 const UserReactNum = styled.p`
   font-size: 14px;
-  margin-left: 4px;
+  margin-left: 2px;
   color: ${thirdColor};
 
   @media (max-width: 767px) {

@@ -10,6 +10,8 @@ import { dbService } from "../../fbase";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import useUserAccount from "../../hooks/useUserAccount";
 import AuthFormModal from "../modal/auth/AuthFormModal";
+import useMediaScreen from "../../hooks/useMediaScreen";
+import { ImageList } from "@mui/material";
 
 interface Count {
   [key: string]: number;
@@ -30,6 +32,7 @@ const FollowCategoryList = () => {
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
   const { pathname } = useLocation();
+  const { isMobile } = useMediaScreen();
 
   // 계정 정보 가져오기
   useEffect(() => {
@@ -63,13 +66,13 @@ const FollowCategoryList = () => {
     });
   }, [userObj.displayName]);
 
-  // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
-  useEffect(() => {
-    // 2의 배수가 아니고, 2개 중 1개 모자랄 때
-    if (users?.length % 2 === 1) {
-      setArrState(true);
-    }
-  }, [users?.length]);
+  // // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
+  // useEffect(() => {
+  //   // 2의 배수가 아니고, 2개 중 1개 모자랄 때
+  //   if (users?.length % 2 === 1) {
+  //     setArrState(true);
+  //   }
+  // }, [users?.length]);
 
   const bgColor = useMemo(() => {
     if (pathname.includes("explore")) {
@@ -112,46 +115,52 @@ const FollowCategoryList = () => {
           </CategoryBox>
         )}
         <ListBox>
-          {users?.map((res, index) => {
-            return (
-              <List key={index}>
-                {index < 6 && (
-                  <Card onClick={() => onIsLogin(() => null)}>
-                    <User
-                      to={userLogin && `/profile/${res.displayName}/post`}
-                      state={res.displayName}
-                    >
-                      <ProfileImageBox>
-                        <ProfileImage
-                          onContextMenu={(e) => e.preventDefault()}
-                          src={res.profileURL}
-                          alt="profile image"
-                        />
-                      </ProfileImageBox>
-                      <ProfileInfoBox>
-                        <ProfileDsName>{res.displayName}</ProfileDsName>
-                        {res.name && <ProfileName>{res.name}</ProfileName>}
-                      </ProfileInfoBox>
-                    </User>
-                    {res?.email !== userObj.email && (
-                      <FollowBtnBox
-                        onClick={() => onFollowClick(res.displayName, index)}
+          <ImageList
+            sx={{ overflow: "hidden" }}
+            cols={!isMobile ? 2 : 1}
+            gap={20}
+          >
+            {users?.map((res, index) => {
+              return (
+                <List key={index}>
+                  {index < 20 && (
+                    <Card onClick={() => onIsLogin(() => null)}>
+                      <User
+                        to={userLogin && `/profile/${res.displayName}/post`}
+                        state={res.displayName}
                       >
-                        {userObj.following.filter((obj) =>
-                          obj?.displayName?.includes(res?.displayName)
-                        ).length !== 0 ? (
-                          <FollowingBtn>팔로잉</FollowingBtn>
-                        ) : (
-                          <FollowBtn>팔로우</FollowBtn>
-                        )}
-                      </FollowBtnBox>
-                    )}
-                  </Card>
-                )}
-              </List>
-            );
-          })}
-          {arrState && <NullCard />}
+                        <ProfileImageBox>
+                          <ProfileImage
+                            onContextMenu={(e) => e.preventDefault()}
+                            src={res.profileURL}
+                            alt="profile image"
+                          />
+                        </ProfileImageBox>
+                        <ProfileInfoBox>
+                          <ProfileDsName>{res.displayName}</ProfileDsName>
+                          {res.name && <ProfileName>{res.name}</ProfileName>}
+                        </ProfileInfoBox>
+                      </User>
+                      {res?.email !== userObj.email && (
+                        <FollowBtnBox
+                          onClick={() => onFollowClick(res.displayName, index)}
+                        >
+                          {userObj.following.filter((obj) =>
+                            obj?.displayName?.includes(res?.displayName)
+                          ).length !== 0 ? (
+                            <FollowingBtn>팔로잉</FollowingBtn>
+                          ) : (
+                            <FollowBtn>팔로우</FollowBtn>
+                          )}
+                        </FollowBtnBox>
+                      )}
+                    </Card>
+                  )}
+                </List>
+              );
+            })}
+            {/* {arrState && <NullCard />} */}
+          </ImageList>
         </ListBox>
       </Container>
     </>
@@ -211,16 +220,18 @@ const SelectName = styled.h2`
 `;
 
 const ListBox = styled.ul`
-  display: flex;
-  align-items: center;
+  /* display: flex; */
+  /* align-items: center; */
   /* justify-content: center; */
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
+  /* gap: 20px; */
+  /* padding: 20px 40px 40px; */
   width: 100%;
-  padding: 20px 40px 40px;
-  gap: 20px;
+  padding: 40px;
+  overflow: hidden;
 
   @media (max-width: 767px) {
-    padding: 0;
+    padding: 20px 0 0;
   }
 `;
 

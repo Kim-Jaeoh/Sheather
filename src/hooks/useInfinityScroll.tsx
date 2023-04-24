@@ -2,8 +2,6 @@ import React, { useEffect, useRef } from "react";
 import axios from "axios";
 import { useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
-import { useNavigate } from "react-router-dom";
-import { createBrowserHistory } from "history";
 
 type props = {
   url: string;

@@ -8,6 +8,7 @@ import useMediaScreen from "../../hooks/useMediaScreen";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { BsQuestionCircle, BsQuestionLg } from "react-icons/bs";
+import { ImageList } from "@mui/material";
 
 type props = {
   myPost: FeedType[];
@@ -44,40 +45,44 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
           <>
             {myPost?.length !== 0 ? (
               <>
-                <CardBox>
-                  {Array.from({ length: arrState })?.map((res, index) => (
+                {/* <CardBox> */}
+                <ImageList
+                  sx={{ overflow: "hidden" }}
+                  cols={3}
+                  gap={!isMobile ? 20 : 10}
+                >
+                  {myPost?.map((res, index) => (
                     <Card key={index} exist={Boolean(myPost[index])}>
-                      {myPost[index] ? (
-                        <Link
-                          onClick={() => onIsLogin(() => null)}
-                          onContextMenu={(e) => e.preventDefault()}
-                          to={userLogin && `/feed/detail/${myPost[index].id}`}
-                        >
-                          <WeatherEmojiBox>
-                            <WeatherEmoji>
-                              {isMobile
-                                ? myPost[index].feel.split(" ")[0]
-                                : myPost[index].feel}
-                            </WeatherEmoji>
-                          </WeatherEmojiBox>
-                          {myPost[index].url.length > 1 && (
-                            <CardLengthBox>
-                              <CardLength>
-                                +{myPost[index].url.length}
-                              </CardLength>
-                            </CardLengthBox>
-                          )}
-                          <CardImage
-                            src={myPost[index].url[0]}
-                            alt="upload Image"
-                          />
-                        </Link>
-                      ) : (
-                        <NulLCard />
-                      )}
+                      {/* {myPost[index] ? ( */}
+                      <Link
+                        onClick={() => onIsLogin(() => null)}
+                        onContextMenu={(e) => e.preventDefault()}
+                        to={userLogin && `/feed/detail/${myPost[index].id}`}
+                      >
+                        <WeatherEmojiBox>
+                          <WeatherEmoji>
+                            {isMobile
+                              ? myPost[index].feel.split(" ")[0]
+                              : myPost[index].feel}
+                          </WeatherEmoji>
+                        </WeatherEmojiBox>
+                        {myPost[index].url.length > 1 && (
+                          <CardLengthBox>
+                            <CardLength>+{myPost[index].url.length}</CardLength>
+                          </CardLengthBox>
+                        )}
+                        <CardImage
+                          src={myPost[index].url[0]}
+                          alt="upload Image"
+                        />
+                      </Link>
+                      {/* // ) : (
+                      //   <NulLCard />
+                      // )} */}
                     </Card>
                   ))}
-                </CardBox>
+                </ImageList>
+                {/* </CardBox> */}
                 <div ref={ref} />
               </>
             ) : (
@@ -123,12 +128,14 @@ const CardBox = styled.ul`
 
 const Card = styled.li<{ exist?: boolean }>`
   cursor: pointer;
-  border-radius: 20px;
+  border-radius: 10px;
   display: block;
-  flex: 1 0 30%;
+  /* flex: 1 0 30%; */
   position: relative;
   overflow: hidden;
-  border: ${(props) => (props?.exist ? `2px solid ${secondColor}` : `none`)};
+  border: 2px solid ${secondColor};
+  /* border: ${(props) =>
+    props?.exist ? `2px solid ${secondColor}` : `none`}; */
   -webkit-user-drag: none;
 
   animation-name: slideUp;

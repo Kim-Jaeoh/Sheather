@@ -37,5 +37,5 @@ const Container = styled.div`
   color: ${secondColor};
   background: #fff;
   outline: none;
-  overflow: hidden;
+  overflow-y: auto;
 `;

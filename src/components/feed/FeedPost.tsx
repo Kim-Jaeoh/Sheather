@@ -7,9 +7,9 @@ import { RootState } from "../../app/store";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import HomeSkeleton from "../../assets/skeleton/HomeSkeleton";
 import { useState } from "react";
-import { MasonryGrid } from "@egjs/react-grid";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import FeedProfileInfo from "./FeedProfileInfo";
+import Masonry from "@mui/lab/Masonry";
 
 type Props = {
   url?: string;
@@ -21,23 +21,10 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
     return state.user;
   });
 
-  const [isGridRender, setIsGridRender] = useState(false);
   const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
   const { isMobile } = useMediaScreen();
 
-  let checkSize: number;
   let checkAspect: number;
-  const sizes = (aspect: string) => {
-    if (aspect === "4/3") {
-      return (checkSize = 34);
-    }
-    if (aspect === "1/1") {
-      return (checkSize = 42);
-    }
-    if (aspect === "3/4") {
-      return (checkSize = 52);
-    }
-  };
   const sizeAspect = (aspect: string) => {
     if (aspect === "4/3") {
       return (checkAspect = 74.8);
@@ -54,29 +41,18 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
     <>
       {!isLoading ? (
         <>
-          {dataList?.pages?.flat().length !== 0 ? (
+          {dataList?.pages?.flat()?.length !== 0 ? (
             <CardBox>
-              <MasonryGrid
-                className="container"
-                gap={!isMobile ? 30 : 12}
-                defaultDirection={"end"}
-                align={"stretch"}
-                column={2}
-                // column={isMobile ? 1 : 2}
-                columnSize={0}
-                columnSizeRatio={0}
-                onRenderComplete={({ isResize, mounted, updated }) => {
-                  setIsGridRender(Boolean(updated));
-                }}
+              <Masonry
+                sx={{ overflow: "hidden", position: "relative" }}
+                columns={2}
+                spacing={!isMobile ? 3.7 : 1.5}
               >
                 {dataList?.pages?.flat().map((res: FeedType, index: number) => {
-                  sizes(res.imgAspect);
                   sizeAspect(res.imgAspect);
 
                   return (
                     <CardList
-                      render={isGridRender}
-                      size={checkSize}
                       key={res.id}
                       onClick={() => onIsLogin(() => null)}
                     >
@@ -124,9 +100,8 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
                     </CardList>
                   );
                 })}
-
-                <div ref={ref} />
-              </MasonryGrid>
+              </Masonry>
+              <div ref={ref} style={{ position: `absolute`, bottom: 0 }} />
             </CardBox>
           ) : (
             <NotInfoBox>
@@ -149,24 +124,24 @@ export default FeedPost;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const CardBox = styled.ul`
+const CardBox = styled.div`
   width: 100%;
-  padding: 10px 40px 40px;
+  padding: 10px 24px 40px;
+  display: flex;
+  justify-content: center;
+  position: relative;
 
   @media (max-width: 767px) {
-    padding: 0;
+    padding: 0 10px;
   }
 `;
 
-const CardList = styled.li<{
-  render?: boolean;
-  size?: number;
-  isMobile?: boolean;
-}>`
-  width: 330px;
-  border-radius: 20px;
+const CardList = styled.div`
+  /* width: 330px; */
+  border-radius: 10px;
   border: 2px solid ${secondColor};
   overflow: hidden;
+  margin-bottom: 30px;
   background: #fff;
 
   > a {
@@ -192,14 +167,16 @@ const CardList = styled.li<{
   }
 
   @media (max-width: 767px) {
-    width: 174px;
+    /* width: 174px; */
     border: none;
     background: transparent;
     animation: none;
+    margin-bottom: 12px;
 
     > a {
-      border-radius: 20px;
-      border-bottom: none;
+      border-radius: 10px;
+      border: 1px solid ${fourthColor};
+      overflow: hidden;
     }
   }
 `;
@@ -253,7 +230,9 @@ const CardLength = styled.span`
 const CardImageBox = styled.div`
   position: absolute;
   top: 0%;
+  right: 0;
   left: 0%;
+  bottom: 0;
   width: 100%;
 `;
 
@@ -271,87 +250,6 @@ const UserBox = styled.div`
 
   @media (max-width: 767px) {
     padding: 12px 0;
-  }
-`;
-
-const UserInfoBox = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const UserImageBox = styled(Link)`
-  display: block;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 1px solid ${fourthColor};
-  object-fit: cover;
-  cursor: pointer;
-  position: relative;
-
-  @media (max-width: 767px) {
-    width: 26px;
-    height: 26px;
-  }
-`;
-
-const UserNameBox = styled(Link)`
-  display: block;
-  cursor: pointer;
-  overflow: hidden;
-  position: relative;
-  text-overflow: ellipsis;
-  font-size: 14px;
-  flex: 1;
-  padding: 8px;
-  white-space: nowrap;
-  font-weight: 500;
-  letter-spacing: -0.15px;
-  color: ${secondColor};
-
-  @media (max-width: 767px) {
-    font-size: 12px;
-  }
-`;
-
-const UserReactBox = styled.div`
-  display: flex;
-  margin: 0;
-  padding: 0;
-  align-items: center;
-  gap: 10px;
-`;
-
-const UserIconBox = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const UserIcon = styled.div<{ isMobile?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  color: ${thirdColor};
-  svg {
-    font-size: 16px;
-  }
-
-  @media (max-width: 767px) {
-    font-size: 14px;
-  }
-`;
-
-const UserReactNum = styled.p`
-  font-size: 14px;
-  margin-left: 4px;
-  color: ${thirdColor};
-
-  @media (max-width: 767px) {
-    font-size: 12px;
   }
 `;
 

@@ -10,6 +10,7 @@
     "@egjs/react-grid": "^1.13.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@mui/lab": "^5.0.0-alpha.127",
     "@mui/material": "^5.11.6",
     "@reduxjs/toolkit": "^1.9.1",
     "@tanstack/react-query": "^4.22.0",

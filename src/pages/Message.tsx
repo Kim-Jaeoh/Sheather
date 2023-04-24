@@ -160,6 +160,7 @@ const Container = styled.div`
 
   @media (max-width: 767px) {
     border: 1px solid ${secondColor};
+    box-shadow: none;
   }
 `;
 

@@ -60,7 +60,7 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
     <Modal
       open={modalOpen}
       onClose={onModalClosedAfterRead}
-      disableScrollLock={true}
+      disableScrollLock={false}
     >
       <Container>
         <Header>
@@ -185,6 +185,7 @@ const Container = styled.div`
     border: none;
     border-radius: 0;
     box-shadow: none;
+    overflow-y: auto;
   }
 `;
 

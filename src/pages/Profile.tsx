@@ -308,6 +308,7 @@ const Container = styled.div`
   @media (max-width: 767px) {
     padding: 0;
     border: 1px solid ${secondColor};
+    box-shadow: none;
   }
 `;
 

@@ -304,7 +304,7 @@ const EditBtn = styled.button<{ bgColor: string }>`
 `;
 
 const EditText = styled.p`
-  font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
+  /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
 `;
 
 const Category = styled.div`

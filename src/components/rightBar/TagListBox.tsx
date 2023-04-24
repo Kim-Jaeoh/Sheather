@@ -40,7 +40,7 @@ const TagListBox = ({ modalOpen, modalClose }: Props) => {
       return accu;
     }, {});
 
-    // 키, 값 배열로 객체에 담기
+    // 키, 값 배열로 담기
     const arrayMap = Object.entries(result);
 
     return arrayMap
@@ -99,10 +99,10 @@ const Container = styled.article`
   margin-top: 30px;
   border-radius: 20px;
   overflow: hidden;
+  overflow-y: auto;
 
   @media (max-width: 956px) {
     min-height: auto;
-    /* padding: 20px; */
     margin-top: 0;
     border: none;
     border-radius: 0;
@@ -117,8 +117,6 @@ const CategoryBox = styled.div`
 
   @media (max-width: 956px) {
     padding: 20px 20px 12px;
-    /* padding: 20px; */
-    /* margin-bottom: 12px; */
   }
 `;
 

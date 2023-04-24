@@ -72,7 +72,7 @@ const Box = styled.div`
 
   @media (max-width: 767px) {
     background: #fff;
-    padding: 16px;
+    /* padding: 16px; */
     border: 1px solid #222;
     border-radius: 20px;
     /* box-shadow: ${(props) => {

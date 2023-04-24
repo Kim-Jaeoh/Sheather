@@ -11,42 +11,46 @@ import { FeedType } from "../../types/type";
 import useUserAccount from "../../hooks/useUserAccount";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import TopButton from "../scrollButton/TopButton";
+import { ImageList } from "@mui/material";
 
 const InfoCategory = () => {
-  const [isGridRender, setIsGridRender] = useState(false);
+  const [url, setUrl] = useState("");
   const [randomFeed, setRandomFeed] = useState(null);
   const [dateCategory, setDateCategory] = useState("recent");
   const { search } = useLocation();
-  const pathname = useLocation();
   const [searchParams] = useSearchParams();
   const { isMobile } = useMediaScreen();
   const navigate = useNavigate();
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
-
-  const url = useMemo(() => {
-    if (search.includes("cat")) {
-      return `${process.env.REACT_APP_SERVER_PORT}/api/${searchParams.get(
-        "q"
-      )}?cat=${searchParams.get("cat")}&detail=${encodeURIComponent(
-        searchParams.get(`detail`)
-      )}&`;
-    } else {
-      return `${
-        process.env.REACT_APP_SERVER_PORT
-      }/api/search?keyword=${searchParams.get("keyword")}&`;
-    }
-  }, [search, searchParams]);
-
   const { ref, isLoading, dataList } = useInfinityScroll({
     url: url,
     count: 10,
   });
 
+  useEffect(() => {
+    if (search.includes("cat")) {
+      setUrl(
+        `${process.env.REACT_APP_SERVER_PORT}/api/${searchParams.get(
+          "q"
+        )}?cat=${searchParams.get("cat")}&detail=${encodeURIComponent(
+          searchParams.get(`detail`)
+        )}&`
+      );
+    } else {
+      setUrl(
+        `${
+          process.env.REACT_APP_SERVER_PORT
+        }/api/search?keyword=${searchParams.get("keyword")}&`
+      );
+    }
+  }, [search, searchParams]);
+
   //  랜덤화
   useEffect(() => {
     // 객체 깊은 복사
-    let arr = cloneDeep(dataList?.pages?.flat()); // 렌더링이 2번 돼서 cloneDeep으로 해결
+    let arr = dataList?.pages?.flat(); // 렌더링이 2번 돼서 cloneDeep으로 해결
+    // let arr = cloneDeep(dataList?.pages?.flat()); // 렌더링이 2번 돼서 cloneDeep으로 해결
 
     // const randomArray = (array: FeedType[]) => {
     //   // (피셔-예이츠)
@@ -145,39 +149,31 @@ const InfoCategory = () => {
               </SelectCategoryBox>
             </SelectDetailTimeBox>
             {randomFeed?.length !== 0 ? (
-              <CardBox>
-                <FrameGrid
-                  className="container"
-                  gap={isMobile ? 10 : 20}
-                  defaultDirection={"end"}
-                  frame={[
-                    [1, 1, 2, 2, 3, 3],
-                    [1, 1, 2, 2, 3, 3],
-                  ]}
-                  onRenderComplete={() => setIsGridRender(true)}
+              <>
+                {/* <CardBox> */}
+                <ImageList
+                  sx={{ overflow: "hidden" }}
+                  cols={3}
+                  gap={!isMobile ? 20 : 10}
                 >
                   {randomFeed?.map((res: FeedType, index: number) => {
                     return (
-                      <CardList
-                        render={isGridRender}
-                        key={res.id}
-                        onClick={() => onClick(res)}
-                      >
+                      <CardList key={index} onClick={() => onClick(res)}>
                         <Card>
                           <WeatherEmojiBox>
                             <WeatherEmoji>
-                              {isMobile ? res.feel.split(" ")[0] : res.feel}
+                              {isMobile ? res?.feel?.split(" ")[0] : res?.feel}
                             </WeatherEmoji>
                           </WeatherEmojiBox>
-                          {res.url.length > 1 && (
+                          {res?.url?.length > 1 && (
                             <CardLengthBox>
-                              <CardLength>+{res.url.length}</CardLength>
+                              <CardLength>+{res?.url?.length}</CardLength>
                             </CardLengthBox>
                           )}
                           <CardImageBox>
                             <CardImage
                               onContextMenu={(e) => e.preventDefault()}
-                              src={res.url[0]}
+                              src={res?.url[0]}
                               alt=""
                             />
                           </CardImageBox>
@@ -185,15 +181,10 @@ const InfoCategory = () => {
                       </CardList>
                     );
                   })}
-                </FrameGrid>
-                <div
-                  ref={ref}
-                  // style={{
-                  //   position: "absolute",
-                  //   bottom: "-100px",
-                  // }}
-                />
-              </CardBox>
+                </ImageList>
+                <div ref={ref} />
+                {/* </CardBox> */}
+              </>
             ) : (
               <NotInfoBox>
                 <NotInfo>해당 태그에 관한 글이 존재하지 않습니다.</NotInfo>
@@ -240,14 +231,14 @@ const Box = styled.div`
     border: 1px solid #222;
     border-radius: 20px;
 
-    box-shadow: ${(props) => {
+    /* box-shadow: ${(props) => {
       let shadow = "";
       for (let i = 1; i < 63; i++) {
         shadow += `#209b53 ${i}px ${i}px,`;
       }
       shadow += `#209b53 63px 63px`;
       return shadow;
-    }};
+    }}; */
   }
 `;
 
@@ -330,7 +321,7 @@ const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
   }
 `;
 
-const CardBox = styled.ul`
+const CardBox = styled.div`
   width: 100%;
   height: 100%;
 
@@ -339,11 +330,9 @@ const CardBox = styled.ul`
   }
 `;
 
-const CardList = styled.li<{ render?: boolean; size?: number }>`
-  /* display: flex;
-  flex-direction: column; */
-  border-radius: 20px;
-  border: ${(props) => props.render && `2px solid ${secondColor}`};
+const CardList = styled.li`
+  border-radius: 10px;
+  border: 2px solid ${secondColor};
   overflow: hidden;
 
   animation-name: slideUp;
@@ -367,14 +356,14 @@ const CardList = styled.li<{ render?: boolean; size?: number }>`
   @media (max-width: 767px) {
     animation: none;
     border: none;
-    border-radius: 0;
   }
 `;
 
-const Card = styled.div<{ aspect?: number }>`
+const Card = styled.div`
   display: block;
   width: 100%;
   height: 100%;
+  padding-bottom: 100%;
   position: relative;
   cursor: pointer;
   outline: none;
@@ -426,7 +415,7 @@ const CardImageBox = styled.div`
   width: 100%;
   height: 100%;
   font-size: 0;
-  line-height: 0; ;
+  line-height: 0;
 `;
 
 const CardImage = styled.img`

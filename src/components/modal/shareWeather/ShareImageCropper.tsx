@@ -209,6 +209,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.div`
   width: 100%;
+  /* height: 476px; */
 
   @media (max-width: 767px) {
     flex: 1;
@@ -219,18 +220,16 @@ const Container = styled.div`
 
 const CropBox = styled.div<{ attachments?: string }>`
   width: 100%;
-  height: ${(props) => (props.attachments ? "476px" : "540px")};
+  /* flex: 1; */
+  height: 476px;
+  /* height: ${(props) => (props.attachments ? "476px" : "540px")}; */
   margin: 0 auto;
   border-bottom: 1px solid ${thirdColor};
   position: relative;
 
-  /* div {
-    width: 100%;
-    height: 100%;
-  } */
-
   @media (max-width: 767px) {
-    flex: 1;
+    /* flex: 1; */
+    height: 100%;
   }
 `;
 
@@ -329,7 +328,7 @@ const NotInfoBox = styled.div`
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  padding-bottom: 30px;
+  /* padding-bottom: 30px; */
 `;
 
 const NotInfoCategory = styled.p`

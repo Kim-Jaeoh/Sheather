@@ -186,7 +186,10 @@ export default MobileSearchBox;
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.article`
-  /* width: 100%; */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
 `;
 
 const Header = styled.div`
@@ -286,7 +289,7 @@ const ModalCloseBox = styled.button`
 const SearchedBox = styled.div<{ focus: boolean; toggleAnimation: boolean }>`
   /* padding: 4px 20px 16px; */
   padding: 4px 16px 16px;
-
+  flex: 1;
   border-radius: 20px;
   position: relative;
   overflow: hidden;

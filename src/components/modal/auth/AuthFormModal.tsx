@@ -157,12 +157,15 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                 ...docSnap.data(),
               })
             );
-            // 알림 토큰 생성
-            await createDeviceToken(SignUser.email).then(() => {
-              alert("로그인 되었습니다.");
-              modalClose();
-              window.location.reload();
-            });
+            alert("로그인 되었습니다.");
+            modalClose();
+
+            // // 알림 토큰 생성
+            // await createDeviceToken(SignUser.email).then(() => {
+            //   alert("로그인 되었습니다.");
+            //   modalClose();
+            //   window.location.reload();
+            // });
           }
         });
       } else {
@@ -209,7 +212,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               following: [],
             })
           );
-          createDeviceToken(user.email); // 알림 토큰 생성
+          // createDeviceToken(user.email); // 알림 토큰 생성
           setIsExistAccount(true);
           setInputs({
             email: "",
