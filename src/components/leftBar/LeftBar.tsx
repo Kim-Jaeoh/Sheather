@@ -53,7 +53,7 @@ const LeftBar = ({ onIsLogin }: props) => {
   >(["Weather", location], () => nowWeatherApi(location), {
     refetchOnWindowFocus: false,
     onError: (e) => console.log(e),
-    enabled: Boolean(location),
+    enabled: Boolean(location?.coordinates?.lat),
   });
 
   useEffect(() => {

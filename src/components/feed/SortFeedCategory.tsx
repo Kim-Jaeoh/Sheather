@@ -221,46 +221,51 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
             </IconBox>
           </InfoBox>
           <SelectDetailTimeBox>
-            <div>
-              {isDate && isDetailDone && (
-                <SelectDetailTime>
-                  {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
-                  {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
-                  {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
-                </SelectDetailTime>
-              )}
-              <SelectCategoryBox>
-                <SelectCategoryBtn
-                  select={dateCategory}
-                  category={"recent"}
-                  type="button"
-                  onClick={() => setDateCategory("recent")}
-                >
-                  최신순
-                </SelectCategoryBtn>
-                <SelectCategoryBtn
-                  select={dateCategory}
-                  category={"popular"}
-                  type="button"
-                  onClick={() => setDateCategory("popular")}
-                >
-                  인기순
-                </SelectCategoryBtn>
-                <SelectCategoryDateBtn
-                  select={isDate && isDetailDone ? "date" : null}
-                  category={"date"}
-                  type="button"
-                  onClick={() => onSelectCategory2()}
-                >
-                  날짜별
-                </SelectCategoryDateBtn>
-                {isDate && isDetailDone && (
-                  <SelectDeleteBtn onClick={() => setIsDate(false)}>
-                    <IoMdClose />
-                  </SelectDeleteBtn>
-                )}
-              </SelectCategoryBox>
-            </div>
+            {userObj?.displayName ||
+              (userObj?.following?.length !== 0 && (
+                <>
+                  {isDate && isDetailDone && (
+                    <SelectDetailTime>
+                      {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
+                      {rangeTime[0] < 10
+                        ? "0" + rangeTime[0]
+                        : rangeTime[0]} ~{" "}
+                      {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
+                    </SelectDetailTime>
+                  )}
+                  <SelectCategoryBox>
+                    <SelectCategoryBtn
+                      select={dateCategory}
+                      category={"recent"}
+                      type="button"
+                      onClick={() => setDateCategory("recent")}
+                    >
+                      최신순
+                    </SelectCategoryBtn>
+                    <SelectCategoryBtn
+                      select={dateCategory}
+                      category={"popular"}
+                      type="button"
+                      onClick={() => setDateCategory("popular")}
+                    >
+                      인기순
+                    </SelectCategoryBtn>
+                    <SelectCategoryDateBtn
+                      select={isDate && isDetailDone ? "date" : null}
+                      category={"date"}
+                      type="button"
+                      onClick={() => onSelectCategory2()}
+                    >
+                      날짜별
+                    </SelectCategoryDateBtn>
+                    {isDate && isDetailDone && (
+                      <SelectDeleteBtn onClick={() => setIsDate(false)}>
+                        <IoMdClose />
+                      </SelectDeleteBtn>
+                    )}
+                  </SelectCategoryBox>
+                </>
+              ))}
           </SelectDetailTimeBox>
         </>
       ) : (
@@ -300,44 +305,53 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
             )}
 
             <SelectDetailTimeBox>
-              {isDate && isDetailDone && (
-                <SelectDetailTime>
-                  {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
-                  {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
-                  {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
-                </SelectDetailTime>
-              )}
-              <SelectCategoryBox>
-                <SelectCategoryBtn
-                  select={dateCategory}
-                  category={"recent"}
-                  type="button"
-                  onClick={() => setDateCategory("recent")}
-                >
-                  최신순
-                </SelectCategoryBtn>
-                <SelectCategoryBtn
-                  select={dateCategory}
-                  category={"popular"}
-                  type="button"
-                  onClick={() => setDateCategory("popular")}
-                >
-                  인기순
-                </SelectCategoryBtn>
-                <SelectCategoryDateBtn
-                  select={isDate && isDetailDone ? "date" : null}
-                  category={"date"}
-                  type="button"
-                  onClick={() => onSelectCategory2()}
-                >
-                  날짜별
-                </SelectCategoryDateBtn>
-                {isDate && isDetailDone && (
-                  <SelectDeleteBtn onClick={() => setIsDate(false)}>
-                    <IoMdClose />
-                  </SelectDeleteBtn>
-                )}
-              </SelectCategoryBox>
+              {userObj?.displayName ||
+                (userObj?.following?.length !== 0 && (
+                  <>
+                    {isDate && isDetailDone && (
+                      <SelectDetailTime>
+                        {moment(changeValue).format("YYYY년 MM월 DD일")} &nbsp;
+                        {rangeTime[0] < 10
+                          ? "0" + rangeTime[0]
+                          : rangeTime[0]}{" "}
+                        ~{" "}
+                        {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}
+                        시
+                      </SelectDetailTime>
+                    )}
+                    <SelectCategoryBox>
+                      <SelectCategoryBtn
+                        select={dateCategory}
+                        category={"recent"}
+                        type="button"
+                        onClick={() => setDateCategory("recent")}
+                      >
+                        최신순
+                      </SelectCategoryBtn>
+                      <SelectCategoryBtn
+                        select={dateCategory}
+                        category={"popular"}
+                        type="button"
+                        onClick={() => setDateCategory("popular")}
+                      >
+                        인기순
+                      </SelectCategoryBtn>
+                      <SelectCategoryDateBtn
+                        select={isDate && isDetailDone ? "date" : null}
+                        category={"date"}
+                        type="button"
+                        onClick={() => onSelectCategory2()}
+                      >
+                        날짜별
+                      </SelectCategoryDateBtn>
+                      {isDate && isDetailDone && (
+                        <SelectDeleteBtn onClick={() => setIsDate(false)}>
+                          <IoMdClose />
+                        </SelectDeleteBtn>
+                      )}
+                    </SelectCategoryBox>
+                  </>
+                ))}
             </SelectDetailTimeBox>
           </SelectTimeBox>
         </>

@@ -1,20 +1,15 @@
 /** @jsxImportSource @emotion/react */
 import styled from "@emotion/styled";
-import { useEffect, useMemo, useRef } from "react";
-import DecoCircleType from "circletype";
+import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
+import decoCircle from "../assets/image/deco_circle.png";
 
 type BgColor = {
   [key: string]: string;
 };
 
 const AppDeco = () => {
-  const circleInstance = useRef();
   const { pathname } = useLocation();
-
-  useEffect(() => {
-    new DecoCircleType(circleInstance.current);
-  }, []);
 
   const bgColor = useMemo(() => {
     const bgArr: BgColor = {
@@ -31,14 +26,11 @@ const AppDeco = () => {
 
   return (
     <Container bgColor={bgColor}>
-      <DecoDecoCircleBox>
+      <DecoCircleBox>
         <DecoCircle>
-          <Text ref={circleInstance}>
-            · SHEATHER · SHEATHER · SHEATHER · SHEATHER ·
-          </Text>
-          <EmptyDecoCircle bgColor={bgColor} />
+          <img src={decoCircle} alt="" />
         </DecoCircle>
-      </DecoDecoCircleBox>
+      </DecoCircleBox>
     </Container>
   );
 };
@@ -60,13 +52,12 @@ const Container = styled.div<{ bgColor: string }>`
   background-image: url("/image/bg.png");
 `;
 
-const DecoDecoCircleBox = styled.div`
+const DecoCircleBox = styled.div`
   position: absolute;
-  bottom: -110px;
-  right: -110px;
+  bottom: -106px;
+  right: -106px;
   width: 300px;
   height: 300px;
-  background: #222;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -78,32 +69,8 @@ const DecoCircle = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
 
-const EmptyDecoCircle = styled.div<{ bgColor: string }>`
-  position: absolute;
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  background-color: ${(props) => props.bgColor};
-`;
-
-const Text = styled.p`
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
-  font-weight: bold;
-  font-size: 28px;
-  white-space: pre-line;
   animation: rotate 15s linear infinite;
-
-  /* 띄어쓰기 안 먹히는 거 조정 */
-  > div span:first-of-type {
-    display: none;
-  }
-
   @keyframes rotate {
     0% {
       transform: rotate(360deg);

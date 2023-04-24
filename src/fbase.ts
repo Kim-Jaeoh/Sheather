@@ -9,7 +9,6 @@ import {
   isSupported,
   onMessage,
 } from "firebase/messaging";
-import { useEffect } from "react";
 
 // Your web app's Firebase configuration
 export const firebaseConfig = {
@@ -31,30 +30,30 @@ export const storageService = getStorage(app);
 export const analytics = getAnalytics(app);
 export const messaging = async () => (await isSupported()) && getMessaging(app);
 
-const isIOS = () => {
-  const browserInfo = navigator.userAgent.toLowerCase();
+// const isIOS = () => {
+//   const browserInfo = navigator.userAgent.toLowerCase();
 
-  if (browserInfo.match("iphone") || browserInfo.match("ipad")) {
-    return true;
-  }
-  if (
-    [
-      "iPad Simulator",
-      "iPhone Simulator",
-      "iPod Simulator",
-      "iPad",
-      "iPhone",
-      "iPod",
-    ].includes(navigator.platform)
-  ) {
-    return true;
-  }
-  return false;
-};
+//   if (browserInfo.match("iphone") || browserInfo.match("ipad")) {
+//     return true;
+//   }
+//   if (
+//     [
+//       "iPad Simulator",
+//       "iPhone Simulator",
+//       "iPod Simulator",
+//       "iPad",
+//       "iPhone",
+//       "iPod",
+//     ].includes(navigator.platform)
+//   ) {
+//     return true;
+//   }
+//   return false;
+// };
 
 // 알림 여부
 const requestNotificationsPermissions = async (userEmail: string) => {
-  if (isIOS()) return;
+  // if (isIOS()) return;
 
   const permission = await Notification.requestPermission();
 

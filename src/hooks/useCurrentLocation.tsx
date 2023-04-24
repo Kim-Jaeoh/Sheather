@@ -29,16 +29,15 @@ const useCurrentLocation = () => {
     });
   };
 
-  // 옵션
-  const options = {
-    enableHighAccuracy: true,
-    maximumAge: 0, //1000 * 60 * 1, // 불러온 값을 캐싱하는 시간 (1분)
-    timeout: 5000, // API 최대 요청 시간
-  };
-
   useEffect(() => {
     const { geolocation } = navigator; // window.navigator.geolocation
-    if (!("geolocation" in navigator)) {
+    // 옵션
+    const options = {
+      enableHighAccuracy: true,
+      maximumAge: 0, //1000 * 60 * 1, // 불러온 값을 캐싱하는 시간 (1분)
+      timeout: 5000, // API 최대 요청 시간
+    };
+    if (!geolocation) {
       // navigator에 해당 텍스트가 없을 시 에러
       onError({
         code: 0,

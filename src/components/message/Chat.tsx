@@ -81,13 +81,13 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
 
   // 화면 하단 스크롤
   useEffect(() => {
-    if (users) {
+    if (isLoading) {
       bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
     }
     // return () => {
     //   setBtnStatus((prev) => ({ ...prev, toBottom: false }));
     // };
-  }, [messages, users]);
+  }, [isLoading]);
 
   // 1. 채팅방 목록 및 정보 불러오기
   useEffect(() => {
@@ -108,6 +108,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
         );
         setMessageCollection(getInfo[0]);
       });
+
       return () => unsubscribe();
     }
   }, [myAccount?.displayName, users]);
@@ -213,6 +214,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
       sendMessage(trimmedMessage);
     }
 
+    bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
     setText("");
     if (textRef.current) {
       textRef.current.style.height = `auto`;

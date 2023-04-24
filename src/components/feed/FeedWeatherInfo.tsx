@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +9,12 @@ import "../../styles/DetailFlicking.css";
 import TempClothes from "../../assets/data/TempClothes";
 import ColorList from "../../assets/data/ColorList";
 import { nowWeatherApi, regionApi } from "../../apis/api";
+import { BiErrorCircle } from "react-icons/bi";
+import {
+  LocationStateType,
+  LocationCoordsType,
+  LocationErrorType,
+} from "../../types/type";
 
 const FeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
@@ -21,10 +27,9 @@ const FeedWeatherInfo = () => {
     {
       refetchOnWindowFocus: false,
       onError: (e) => console.log(e),
-      enabled: Boolean(location),
+      enabled: Boolean(location?.coordinates?.acc),
     }
   );
-
   // 현재 주소 받아오기
   const { data: regionData, isLoading: isLoading2 } = useQuery(
     ["Region", location],
@@ -32,7 +37,7 @@ const FeedWeatherInfo = () => {
     {
       refetchOnWindowFocus: false,
       onError: (e) => console.log(e),
-      enabled: Boolean(location),
+      enabled: Boolean(location?.coordinates?.acc),
     }
   );
 
@@ -44,64 +49,146 @@ const FeedWeatherInfo = () => {
     );
   }, [weatherData?.data?.main.temp]);
 
+  const [locations, setLocations] = useState<LocationStateType | null>(null);
+
+  // 성공 함수
+  const onSuccess = (res: LocationCoordsType) => {
+    setLocations({
+      coordinates: {
+        lat: res.coords.latitude,
+        lon: res.coords.longitude,
+        acc: res.coords.accuracy,
+      },
+    });
+  };
+
+  // 에러 함수
+  const onError = (err: LocationErrorType) => {
+    setLocations({
+      error: {
+        code: err.code,
+        message: err.message,
+      },
+    });
+  };
+
+  const options = {
+    enableHighAccuracy: true,
+    maximumAge: 0, //1000 * 60 * 1, // 불러온 값을 캐싱하는 시간 (1분)
+    timeout: 5000, // API 최대 요청 시간
+  };
+  useEffect(() => {
+    const { geolocation } = navigator; // window.navigator.geolocation
+    // 옵션
+    if (!geolocation) {
+      requestGeo();
+    }
+  }, []);
+
+  const requestGeo = () => {
+    const { geolocation } = navigator; // window.navigator.geolocation
+    geolocation.getCurrentPosition(onSuccess, onError, options);
+    console.log("?");
+  };
+
+  const [isLocationEnabled, setLocationEnabled] = useState(false);
+
+  useEffect(() => {
+    if (isLocationEnabled) {
+      // 위치 권한을 요청하는 코드 작성
+      navigator.geolocation.getCurrentPosition(
+        (position) => console.log(position),
+        (error) => console.log(error)
+      );
+    }
+  }, [isLocationEnabled]);
+
+  const handleToggle = () => {
+    console.log("?");
+    setLocationEnabled(!isLocationEnabled);
+  };
+
   return (
     <Container>
-      {!isLoading2 ? (
-        <WeatherBox>
-          <NowBox>
-            <p>NOW</p>
-          </NowBox>
-          <WeatherInfo>
-            <InfoText>
-              <MdPlace />
-              <span>
-                {regionData?.data?.documents[0]?.address?.region_3depth_name}
-              </span>
-            </InfoText>
-            <WeatherIcon>
-              <img
-                src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
-                // src={`https://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
-                alt="weather icon"
-              />
-            </WeatherIcon>
-          </WeatherInfo>
-          <WeatherInfo>
-            <InfoText>날씨</InfoText>
-            <WeatherDesc>
-              {weatherData?.data?.weather[0].description}
-            </WeatherDesc>
-          </WeatherInfo>
-          <WeatherInfo>
-            <InfoText>현재</InfoText>
-            <WeatherTemp>
-              {Math.round(weatherData?.data?.main.temp)}
-              <sup>º</sup>
-            </WeatherTemp>
-          </WeatherInfo>
-          <WeatherClothesInfo>
-            <InfoText>추천하는 옷</InfoText>
-            <FlickingCategoryBox>
-              <Flicking
-                onChanged={(e) => console.log(e)}
-                moveType="freeScroll"
-                bound={true}
-                // bounce={0}
-                align="prev"
-              >
-                {/* <WearInfo> */}
-                <TagBox>
-                  {filterTempClothes[0]?.clothes?.map((res, index) => {
-                    return <Tag key={index}>{res}</Tag>;
-                  })}
-                </TagBox>
-                {/* </WearInfo> */}
-              </Flicking>
-            </FlickingCategoryBox>
-          </WeatherClothesInfo>
-        </WeatherBox>
+      {location?.coordinates?.acc ? (
+        <>
+          {!isLoading2 ? (
+            <WeatherBox>
+              <NowBox>
+                <p>NOW</p>
+              </NowBox>
+              <WeatherInfo>
+                <InfoText>
+                  <MdPlace />
+                  <span>
+                    {
+                      regionData?.data?.documents[0]?.address
+                        ?.region_3depth_name
+                    }
+                  </span>
+                </InfoText>
+                <WeatherIcon>
+                  <img
+                    src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
+                    // src={`https://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
+                    alt="weather icon"
+                  />
+                </WeatherIcon>
+              </WeatherInfo>
+              <WeatherInfo>
+                <InfoText>날씨</InfoText>
+                <WeatherDesc>
+                  {weatherData?.data?.weather[0].description}
+                </WeatherDesc>
+              </WeatherInfo>
+              <WeatherInfo>
+                <InfoText>현재</InfoText>
+                <WeatherTemp>
+                  {Math.round(weatherData?.data?.main.temp)}
+                  <sup>º</sup>
+                </WeatherTemp>
+              </WeatherInfo>
+              <WeatherClothesInfo>
+                <InfoText>추천하는 옷</InfoText>
+                <FlickingCategoryBox>
+                  <Flicking
+                    onChanged={(e) => console.log(e)}
+                    moveType="freeScroll"
+                    bound={true}
+                    // bounce={0}
+                    align="prev"
+                  >
+                    {/* <WearInfo> */}
+                    <TagBox>
+                      {filterTempClothes[0]?.clothes?.map((res, index) => {
+                        return <Tag key={index}>{res}</Tag>;
+                      })}
+                    </TagBox>
+                    {/* </WearInfo> */}
+                  </Flicking>
+                </FlickingCategoryBox>
+              </WeatherClothesInfo>
+            </WeatherBox>
+          ) : (
+            <Spinner />
+          )}
+        </>
       ) : (
-        <Spinner />
+        <NotInfoBox>
+          <NotInfo>
+            <label htmlFor="location-toggle">위치 권한 허용</label>
+            <input
+              type="checkbox"
+              id="location-toggle"
+              checked={isLocationEnabled}
+              onChange={handleToggle}
+            />
+          </NotInfo>
+          {/* <NotInfo onClick={requestGeo}>
+            <BiErrorCircle />
+            위치 권한이 허용되지 않았습니다.
+          </NotInfo> */}
+        </NotInfoBox>
       )}
     </Container>
   );
@@ -294,4 +381,30 @@ const WeatherDesc = styled.span`
   justify-content: center;
   flex: 1;
   font-weight: bold;
+`;
+
+const NotInfoBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: ${secondColor};
+`;
+
+const NotInfo = styled.p`
+  color: #fff;
+  opacity: 0.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+  }
 `;
