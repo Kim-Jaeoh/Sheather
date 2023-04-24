@@ -103,9 +103,18 @@ const FeedWeatherInfo = () => {
     }
   }, [isLocationEnabled]);
 
-  const handleToggle = () => {
-    console.log("?");
-    setLocationEnabled(!isLocationEnabled);
+  const handleButtonClick = () => {
+    if (isLocationEnabled) {
+      // 위치 엑세스 권한을 끄는 코드 작성
+      setLocationEnabled(false);
+    } else {
+      // 위치 엑세스 권한을 켜는 코드 작성
+      navigator.geolocation.getCurrentPosition(
+        (position) => console.log(position),
+        (error) => console.log(error)
+      );
+      setLocationEnabled(true);
+    }
   };
 
   return (
@@ -176,13 +185,11 @@ const FeedWeatherInfo = () => {
       ) : (
         <NotInfoBox>
           <NotInfo>
-            <label htmlFor="location-toggle">위치 권한 허용</label>
-            <input
-              type="checkbox"
-              id="location-toggle"
-              checked={isLocationEnabled}
-              onChange={handleToggle}
-            />
+            <button onClick={handleButtonClick}>
+              {isLocationEnabled
+                ? "위치 엑세스 권한 끄기"
+                : "위치 엑세스 권한 켜기"}
+            </button>
           </NotInfo>
           {/* <NotInfo onClick={requestGeo}>
             <BiErrorCircle />
