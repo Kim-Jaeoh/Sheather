@@ -7,6 +7,7 @@ import ColorList from "../../../assets/data/ColorList";
 import { FeedType } from "../../../types/type";
 import { useState } from "react";
 import useFlickingArrow from "../../../hooks/useFlickingArrow";
+import useMediaScreen from "../../../hooks/useMediaScreen";
 
 type Props = {
   res: FeedType;
@@ -14,6 +15,7 @@ type Props = {
 
 const DetailFeedImage = ({ res }: Props) => {
   const [onMouse, setOnMouse] = useState(false);
+  const { isMobile } = useMediaScreen();
 
   // 이미지 여러장 캐러셀
   const {
@@ -36,7 +38,7 @@ const DetailFeedImage = ({ res }: Props) => {
           onMouseOver={() => setOnMouse(true)}
           onMouseLeave={() => setOnMouse(false)}
         >
-          {onMouse && (
+          {!isMobile && onMouse && (
             <>
               <PrevArrow onClick={onClickArrowPrev} visible={visible}>
                 <ArrowIcon>
@@ -102,10 +104,6 @@ const FlickingCategoryBox = styled.div`
     width: 14px;
     content: "";
   }
-
-  @media (max-width: 767px) {
-    /* width: 136px; */
-  }
 `;
 
 const FlickingImageBox = styled(FlickingCategoryBox)`
@@ -140,10 +138,6 @@ const PaginationButton = styled.div`
   position: absolute;
   bottom: 18px;
   z-index: 10;
-
-  /* @media screen and (min-width: 640px) {
-    margin: 0 30px;
-  } */
 `;
 
 const PaginationSpan = styled.span<{ slideIndex: number }>`
@@ -166,103 +160,6 @@ const PaginationSpan = styled.span<{ slideIndex: number }>`
     span {
       background-color: #222;
     }
-  }
-`;
-
-const InfoBox = styled.div`
-  padding: 20px;
-  border-top: 1px solid ${thirdColor};
-`;
-
-const TagList = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  flex-wrap: wrap;
-  margin-top: 20px;
-  gap: 10px;
-`;
-
-const Tag = styled(Link)`
-  position: relative;
-  display: flex;
-  align-items: center;
-  border-radius: 64px;
-  background-color: #f5f5f5;
-  padding: 8px 10px;
-  color: #ff5673;
-
-  cursor: pointer;
-  &:hover {
-    background-color: #f0f0f0;
-  }
-  span {
-    margin-right: 4px;
-  }
-
-  @media (max-width: 767px) {
-    padding: 6px 8px;
-  }
-`;
-
-const TagName = styled.div`
-  font-weight: 500;
-`;
-
-const TextBox = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const UserReactBox = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-left: -2px;
-  margin-bottom: 16px;
-`;
-
-const UserReactNum = styled.p`
-  font-size: 14px;
-  color: ${thirdColor};
-  margin-bottom: 6px;
-`;
-
-const IconBox = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
-
-const Icon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  color: ${thirdColor};
-  svg {
-    font-size: 24px;
-  }
-`;
-
-const UserTextBox = styled.div`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 30px;
-  font-size: 16px;
-  letter-spacing: -0.21px;
-  @media (max-width: 767px) {
-    font-size: 14px;
-  }
-`;
-
-const UserText = styled.span`
-  font-size: 16px;
-  white-space: pre-wrap;
-  @media (max-width: 767px) {
-    font-size: 14px;
   }
 `;
 

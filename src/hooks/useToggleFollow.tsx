@@ -88,9 +88,9 @@ const useToggleFollow = ({ user }: props) => {
           ...noticeCopy,
           {
             type: "follower",
-            postId: false,
-            imgUrl: null,
-            text: null,
+            postId: "",
+            imgUrl: "",
+            text: "",
             displayName: userObj.displayName,
             email: userObj.email,
             time: +new Date(),

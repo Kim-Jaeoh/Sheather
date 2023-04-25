@@ -39,6 +39,10 @@ const Wrapper = styled.div`
   border-radius: 20px;
   overflow: hidden;
   border: 2px solid #22222222;
+
+  @media (max-width: 767px) {
+    border-width: 1px;
+  }
 `;
 
 const Header = styled.header`
@@ -46,6 +50,10 @@ const Header = styled.header`
   height: 54px;
   padding: 0 12px;
   box-sizing: border-box;
+
+  @media (max-width: 767px) {
+    border-width: 1px;
+  }
 `;
 
 const SliderBox = styled.ul`

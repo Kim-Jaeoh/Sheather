@@ -129,40 +129,46 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     croppedImageUrl?: string
   ) => {
     const options = {
-      maxSizeMB: 2,
+      maxSizeMB: 0.5,
       maxWidthOrHeight: 1120,
+      useWebWorker: true,
     };
 
-    // 1) 크롭된 이미지 주소(BlobUrl: string)를 File 형태로 변환
-    const CroppedImageUrlToFile = await imageCompression.getFilefromDataUrl(
-      croppedImageUrl,
-      "feed image"
-    );
+    try {
+      // 1) 크롭된 이미지 주소(BlobUrl: string)를 File 형태로 변환
+      const CroppedImageUrlToFile = await imageCompression.getFilefromDataUrl(
+        croppedImageUrl,
+        "feed image"
+      );
 
-    // 2) 1)에서 변환된 File을 압축
-    const compressedFile = await imageCompression(
-      CroppedImageUrlToFile,
-      options
-    );
+      // 2) 1)에서 변환된 File을 압축
+      const compressedFile = await imageCompression(
+        CroppedImageUrlToFile,
+        options
+      );
 
-    // 3) 압축된 File을 다시 이미지 주소로 변환
-    const compressedCroppedImage = await imageCompression.getDataUrlFromFile(
-      compressedFile
-    );
+      // 3) 압축된 File을 다시 이미지 주소로 변환
+      const compressedCroppedImage = await imageCompression.getDataUrlFromFile(
+        compressedFile
+      );
 
-    const newAttachmentList = [...attachments];
-    const attachmentIndex = attachments.findIndex((x) => x?.name === name);
-    const attachment = attachments[attachmentIndex];
-    const newAttachment = {
-      ...attachment,
-      name,
-      crop,
-      zoom,
-      aspect,
-      croppedImageUrl: compressedCroppedImage,
-    };
-    newAttachmentList[attachmentIndex] = newAttachment;
-    setAttachments(newAttachmentList);
+      const newAttachmentList = [...attachments];
+      const attachmentIndex = attachments.findIndex((x) => x?.name === name);
+      const attachment = attachments[attachmentIndex];
+      const newAttachment = {
+        ...attachment,
+        name,
+        crop,
+        zoom,
+        aspect,
+        croppedImageUrl: compressedCroppedImage,
+      };
+      newAttachmentList[attachmentIndex] = newAttachment;
+      setAttachments(newAttachmentList);
+    } catch (error) {
+      console.log(error);
+    }
+
     // setSelectedImage(null);
   };
 

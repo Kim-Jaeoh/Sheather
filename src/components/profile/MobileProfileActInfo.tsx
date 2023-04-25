@@ -328,7 +328,7 @@ const ProfileActBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  gap: 30px;
+  /* gap: 30px; */
   border-top: 1px solid ${fourthColor};
   padding: 8px 0;
 `;

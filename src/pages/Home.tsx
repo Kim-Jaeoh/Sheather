@@ -40,9 +40,7 @@ const Home = () => {
           {userObj?.displayName || userObj?.following?.length !== 0 ? (
             <FeedPost url={url} onIsLogin={onIsLogin} />
           ) : (
-            <NotInfoBox>
-              <FollowCategoryList />
-            </NotInfoBox>
+            <FollowCategoryList />
           )}
         </Box>
       </Container>
@@ -72,7 +70,6 @@ const Box = styled.div`
 
   @media (max-width: 767px) {
     background: #fff;
-    /* padding: 16px; */
     border: 1px solid #222;
     border-radius: 20px;
     /* box-shadow: ${(props) => {
@@ -84,40 +81,4 @@ const Box = styled.div`
       return shadow;
     }}; */
   }
-`;
-
-const NotInfoBox = styled.div`
-  width: 100%;
-  height: 100%;
-  margin: 0 auto;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  animation-name: slideDown;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-in-out;
-
-  @keyframes slideDown {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  }
-
-  @media (max-width: 767px) {
-    font-size: 14px;
-  }
-`;
-
-const NotInfo = styled.span`
-  color: ${secondColor};
 `;

@@ -46,70 +46,64 @@ const FeedWeatherInfo = () => {
 
   return (
     <Container>
-      {location?.coordinates?.acc ? (
-        <>
-          {!isLoading2 ? (
-            <WeatherBox>
-              <NowBox>
-                <p>NOW</p>
-              </NowBox>
-              <WeatherInfo>
-                <InfoText>
-                  <MdPlace />
-                  <span>
-                    {
-                      regionData?.data?.documents[0]?.address
-                        ?.region_3depth_name
-                    }
-                  </span>
-                </InfoText>
-                <WeatherIcon>
-                  <img
-                    src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
-                    // src={`https://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
-                    alt="weather icon"
-                  />
-                </WeatherIcon>
-              </WeatherInfo>
-              <WeatherInfo>
-                <InfoText>날씨</InfoText>
-                <WeatherDesc>
-                  {weatherData?.data?.weather[0].description}
-                </WeatherDesc>
-              </WeatherInfo>
-              <WeatherInfo>
-                <InfoText>현재</InfoText>
-                <WeatherTemp>
-                  {Math.round(weatherData?.data?.main.temp)}
-                  <sup>º</sup>
-                </WeatherTemp>
-              </WeatherInfo>
-              <WeatherClothesInfo>
-                <InfoText>추천하는 옷</InfoText>
-                <FlickingCategoryBox>
-                  <Flicking
-                    onChanged={(e) => console.log(e)}
-                    moveType="freeScroll"
-                    bound={true}
-                    // bounce={0}
-                    align="prev"
-                  >
-                    {/* <WearInfo> */}
-                    <TagBox>
-                      {filterTempClothes[0]?.clothes?.map((res, index) => {
-                        return <Tag key={index}>{res}</Tag>;
-                      })}
-                    </TagBox>
-                    {/* </WearInfo> */}
-                  </Flicking>
-                </FlickingCategoryBox>
-              </WeatherClothesInfo>
-            </WeatherBox>
-          ) : (
-            <Spinner />
-          )}
-        </>
+      {!isLoading2 ? (
+        <WeatherBox>
+          <NowBox>
+            <p>NOW</p>
+          </NowBox>
+          <WeatherInfo>
+            <InfoText>
+              <MdPlace />
+              <span>
+                {regionData?.data?.documents[0]?.address?.region_3depth_name}
+              </span>
+            </InfoText>
+            <WeatherIcon>
+              <img
+                src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
+                // src={`https://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
+                alt="weather icon"
+              />
+            </WeatherIcon>
+          </WeatherInfo>
+          <WeatherInfo>
+            <InfoText>날씨</InfoText>
+            <WeatherDesc>
+              {weatherData?.data?.weather[0].description}
+            </WeatherDesc>
+          </WeatherInfo>
+          <WeatherInfo>
+            <InfoText>현재</InfoText>
+            <WeatherTemp>
+              {Math.round(weatherData?.data?.main.temp)}
+              <sup>º</sup>
+            </WeatherTemp>
+          </WeatherInfo>
+          <WeatherClothesInfo>
+            <InfoText>추천하는 옷</InfoText>
+            <FlickingCategoryBox>
+              <Flicking
+                onChanged={(e) => console.log(e)}
+                moveType="freeScroll"
+                bound={true}
+                // bounce={0}
+                align="prev"
+              >
+                {/* <WearInfo> */}
+                <TagBox>
+                  {filterTempClothes[0]?.clothes?.map((res, index) => {
+                    return <Tag key={index}>{res}</Tag>;
+                  })}
+                </TagBox>
+                {/* </WearInfo> */}
+              </Flicking>
+            </FlickingCategoryBox>
+          </WeatherClothesInfo>
+        </WeatherBox>
       ) : (
+        <Spinner />
+      )}
+      {location?.error?.message && (
         <NotInfoBox>
           <NotInfo>
             <BiErrorCircle />

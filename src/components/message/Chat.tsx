@@ -84,9 +84,6 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     if (isLoading) {
       bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
     }
-    // return () => {
-    //   setBtnStatus((prev) => ({ ...prev, toBottom: false }));
-    // };
   }, [isLoading]);
 
   // 1. 채팅방 목록 및 정보 불러오기

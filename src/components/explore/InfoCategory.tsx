@@ -41,7 +41,9 @@ const InfoCategory = () => {
       setUrl(
         `${
           process.env.REACT_APP_SERVER_PORT
-        }/api/search?keyword=${searchParams.get("keyword")}&`
+        }/api/search?keyword=${encodeURIComponent(
+          searchParams.get("keyword")
+        )}&`
       );
     }
   }, [search, searchParams]);
@@ -149,42 +151,38 @@ const InfoCategory = () => {
               </SelectCategoryBox>
             </SelectDetailTimeBox>
             {randomFeed?.length !== 0 ? (
-              <>
-                {/* <CardBox> */}
-                <ImageList
-                  sx={{ overflow: "hidden" }}
-                  cols={3}
-                  gap={!isMobile ? 20 : 10}
-                >
-                  {randomFeed?.map((res: FeedType, index: number) => {
-                    return (
-                      <CardList key={index} onClick={() => onClick(res)}>
-                        <Card>
-                          <WeatherEmojiBox>
-                            <WeatherEmoji>
-                              {isMobile ? res?.feel?.split(" ")[0] : res?.feel}
-                            </WeatherEmoji>
-                          </WeatherEmojiBox>
-                          {res?.url?.length > 1 && (
-                            <CardLengthBox>
-                              <CardLength>+{res?.url?.length}</CardLength>
-                            </CardLengthBox>
-                          )}
-                          <CardImageBox>
-                            <CardImage
-                              onContextMenu={(e) => e.preventDefault()}
-                              src={res?.url[0]}
-                              alt=""
-                            />
-                          </CardImageBox>
-                        </Card>
-                      </CardList>
-                    );
-                  })}
-                </ImageList>
+              <ImageList
+                sx={{ overflow: "hidden" }}
+                cols={3}
+                gap={!isMobile ? 20 : 10}
+              >
+                {randomFeed?.map((res: FeedType, index: number) => {
+                  return (
+                    <CardList key={index} onClick={() => onClick(res)}>
+                      <Card>
+                        <WeatherEmojiBox>
+                          <WeatherEmoji>
+                            {isMobile ? res?.feel?.split(" ")[0] : res?.feel}
+                          </WeatherEmoji>
+                        </WeatherEmojiBox>
+                        {res?.url?.length > 1 && (
+                          <CardLengthBox>
+                            <CardLength>+{res?.url?.length}</CardLength>
+                          </CardLengthBox>
+                        )}
+                        <CardImageBox>
+                          <CardImage
+                            onContextMenu={(e) => e.preventDefault()}
+                            src={res?.url[0]}
+                            alt=""
+                          />
+                        </CardImageBox>
+                      </Card>
+                    </CardList>
+                  );
+                })}
                 <div ref={ref} />
-                {/* </CardBox> */}
-              </>
+              </ImageList>
             ) : (
               <NotInfoBox>
                 <NotInfo>해당 태그에 관한 글이 존재하지 않습니다.</NotInfo>
@@ -330,7 +328,7 @@ const CardBox = styled.div`
   }
 `;
 
-const CardList = styled.li`
+const CardList = styled.div`
   border-radius: 10px;
   border: 2px solid ${secondColor};
   overflow: hidden;
@@ -355,7 +353,7 @@ const CardList = styled.li`
 
   @media (max-width: 767px) {
     animation: none;
-    border: none;
+    border: 1px solid #ebebeb;
   }
 `;
 
@@ -411,6 +409,8 @@ const CardImageBox = styled.div`
   position: absolute;
   top: 0%;
   left: 0%;
+  right: 0;
+  bottom: 0;
   /* transform: translate(-50%, -50%); */
   width: 100%;
   height: 100%;

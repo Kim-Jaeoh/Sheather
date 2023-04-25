@@ -209,7 +209,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const WearDetailBox = styled.div`
   overflow: hidden;
   display: flex;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid ${fourthColor};
 `;
 
 const WearDetail = styled.div`
@@ -220,7 +220,7 @@ const WearDetail = styled.div`
   /* width: 50%; */
   align-items: center;
   &:not(:last-of-type) {
-    border-right: 1px solid ${thirdColor};
+    border-right: 1px solid ${fourthColor};
   }
 
   @media (max-width: 767px) {
@@ -278,10 +278,6 @@ const FlickingCategoryBox = styled.div`
     width: 14px;
     content: "";
   }
-
-  @media (max-width: 767px) {
-    /* width: 136px; */
-  }
 `;
 
 const WearInfo = styled.div`
@@ -315,9 +311,9 @@ const CategoryTag = styled.div`
   height: 30px;
   display: flex;
   align-items: center;
-  border: 1px solid ${thirdColor};
+  border: 1px solid ${fourthColor};
   border-radius: 8px;
-
+  color: ${thirdColor};
   svg {
     margin-right: 2px;
     font-size: 12px;

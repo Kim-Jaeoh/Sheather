@@ -10,7 +10,11 @@ const HomeSkeleton = () => {
 
   return (
     <ImageList
-      sx={{ overflow: "hidden" }}
+      sx={{
+        width: "100%",
+        overflow: "hidden",
+        padding: `${isMobile ? `0 6px` : `0 14px`}`,
+      }}
       variant="masonry"
       cols={2}
       gap={!isMobile ? 30 : 12}
@@ -40,11 +44,13 @@ const CardList = styled.li`
   height: 380px;
   display: flex;
   flex-direction: column;
-  border-radius: 8px;
+  border-radius: 10px;
+  overflow: hidden;
   border: 2px solid #22222222;
   margin-bottom: 30px;
   @media (max-width: 767px) {
     margin-bottom: 12px;
+    border-width: 1px;
     height: 230px;
   }
 `;

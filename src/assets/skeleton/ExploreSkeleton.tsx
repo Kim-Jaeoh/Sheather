@@ -36,6 +36,10 @@ const CardList = styled.div`
   border: 2px solid #22222222;
   width: 100%;
   height: 404px;
+
+  @media (max-width: 767px) {
+    border-width: 1px;
+  }
 `;
 
 const Card = styled.div`

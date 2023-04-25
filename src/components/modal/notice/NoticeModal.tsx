@@ -22,13 +22,13 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
   const { timeToString } = useTimeFormat();
   const navigate = useNavigate();
   const { result, isLoading } = useNoticeCheck();
-  const { userLogin, userObj, myAccount } = useGetMyAccount();
+  const { userObj, myAccount } = useGetMyAccount();
 
   // 읽음 처리
   useEffect(() => {
     if (myAccount) {
       const checkNotice = async () => {
-        await updateDoc(doc(dbService, "users", userObj.email), {
+        await updateDoc(doc(dbService, "users", myAccount.email), {
           notice: myAccount?.notice?.map((res: NoticeArrType) => {
             return { ...res, isRead: true };
           }),
@@ -37,7 +37,7 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
 
       checkNotice();
     }
-  }, [myAccount, userObj.email]);
+  }, [myAccount]);
 
   const onClick = (res: NoticeArrType) => {
     if (res.type === `like`) {
@@ -73,55 +73,55 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
           <UserListBox>
             {isLoading ? (
               result
-                ?.sort((a, b) => b.time - a.time)
+                ?.sort((a, b) => b?.time - a?.time)
                 .map((res, index) => {
                   let stateText: string = "";
-                  if (res.type === "like") {
+                  if (res?.type === "like") {
                     stateText = `님이 회원님의 게시물을 좋아합니다.`;
                   }
-                  if (res.type === "reply") {
-                    stateText = `님이 회원님의 게시물에 댓글을 남겼습니다: ${res.text}`;
+                  if (res?.type === "reply") {
+                    stateText = `님이 회원님의 게시물에 댓글을 남겼습니다: ${res?.text}`;
                   }
-                  if (res.type === "follower") {
+                  if (res?.type === "follower") {
                     stateText = `님이 회원님을 팔로우하기 시작했습니다.`;
                   }
                   return (
                     <UserList key={index}>
                       <ProfileImageBox
-                        to={`/profile/${res.displayName}/post`}
-                        state={res.displayName}
+                        to={`/profile/${res?.displayName}/post`}
+                        // state={res?.displayName}
                         onClick={modalClose}
                       >
                         <ProfileImage
                           onContextMenu={(e) => e.preventDefault()}
-                          src={res.profileURL}
+                          src={res?.profileURL}
                           alt="profile image"
                         />
                       </ProfileImageBox>
                       <NoticeInfoBox>
                         <NoticeInfo>
                           <ProfileDsName
-                            to={`/profile/${res.displayName}/post`}
-                            state={res.displayName}
+                            to={`/profile/${res?.displayName}/post`}
+                            // state={res?.displayName}
                             onClick={modalClose}
                           >
-                            {res.displayName}
+                            {res?.displayName}
                           </ProfileDsName>
                           <NoticeText onClick={() => onClick(res)}>
                             {stateText}
                           </NoticeText>
                         </NoticeInfo>
-                        <NoticeAt>{timeToString(res.time)}</NoticeAt>
+                        <NoticeAt>{timeToString(res?.time)}</NoticeAt>
                       </NoticeInfoBox>
                       {res?.imgUrl && (
                         <NoticeImageBox
                           to={`/feed/detail`}
-                          state={{ id: res.postId }}
+                          state={{ id: res?.postId }}
                           onClick={modalClose}
                         >
                           <NoticeImage
                             onContextMenu={(e) => e.preventDefault()}
-                            src={res.imgUrl}
+                            src={res?.imgUrl}
                           />
                         </NoticeImageBox>
                       )}

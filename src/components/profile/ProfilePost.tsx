@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { FeedType } from "../../types/type";
 import ProfileSkeleton from "../../assets/skeleton/ProfileSkeleton";
@@ -7,8 +7,8 @@ import ColorList from "../../assets/data/ColorList";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import { BsQuestionCircle, BsQuestionLg } from "react-icons/bs";
-import { ImageList } from "@mui/material";
+import { BsQuestionLg } from "react-icons/bs";
+import { ImageList, ImageListItem } from "@mui/material";
 
 type props = {
   myPost: FeedType[];
@@ -23,21 +23,21 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
     const { loginToken: userLogin } = useSelector((state: RootState) => {
       return state.user;
     });
-    const [arrState, setArrState] = useState(myPost?.length);
     const { isMobile } = useMediaScreen();
+    // const [arrState, setArrState] = useState(myPost?.length);
 
-    // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
-    useEffect(() => {
-      // 3의 배수가 아니고, 3개 중 2개 모자랄 때
-      if (myPost?.length % 3 === 1) {
-        setArrState(myPost?.length + 2);
-      }
+    // // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
+    // useEffect(() => {
+    //   // 3의 배수가 아니고, 3개 중 2개 모자랄 때
+    //   if (myPost?.length % 3 === 1) {
+    //     setArrState(myPost?.length + 2);
+    //   }
 
-      // 3의 배수가 아니고, 3개 중 1개 모자랄 때
-      if (myPost?.length % 3 === 2) {
-        setArrState(myPost?.length + 1);
-      }
-    }, [myPost?.length]);
+    //   // 3의 배수가 아니고, 3개 중 1개 모자랄 때
+    //   if (myPost?.length % 3 === 2) {
+    //     setArrState(myPost?.length + 1);
+    //   }
+    // }, [myPost?.length]);
 
     return (
       <>
@@ -45,15 +45,13 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
           <>
             {myPost?.length !== 0 ? (
               <>
-                {/* <CardBox> */}
                 <ImageList
-                  sx={{ overflow: "hidden" }}
+                  sx={{ padding: `${isMobile && "10px"}`, overflow: "hidden" }}
                   cols={3}
                   gap={!isMobile ? 20 : 10}
                 >
                   {myPost?.map((res, index) => (
-                    <Card key={index} exist={Boolean(myPost[index])}>
-                      {/* {myPost[index] ? ( */}
+                    <Card key={index}>
                       <Link
                         onClick={() => onIsLogin(() => null)}
                         onContextMenu={(e) => e.preventDefault()}
@@ -76,14 +74,10 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
                           alt="upload Image"
                         />
                       </Link>
-                      {/* // ) : (
-                      //   <NulLCard />
-                      // )} */}
                     </Card>
                   ))}
+                  <div ref={ref} />
                 </ImageList>
-                {/* </CardBox> */}
-                <div ref={ref} />
               </>
             ) : (
               <NotInfoBox>
@@ -110,7 +104,7 @@ export default ProfilePost;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
-const CardBox = styled.ul`
+const CardBox = styled.div`
   width: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -119,14 +113,16 @@ const CardBox = styled.ul`
 
   @media (max-width: 767px) {
     gap: 10px;
+    padding: 10px;
   }
 
   @media (max-width: 600px) {
+    padding: 4px;
     gap: 4px;
   }
 `;
 
-const Card = styled.li<{ exist?: boolean }>`
+const Card = styled.div`
   cursor: pointer;
   border-radius: 10px;
   display: block;
@@ -134,8 +130,6 @@ const Card = styled.li<{ exist?: boolean }>`
   position: relative;
   overflow: hidden;
   border: 2px solid ${secondColor};
-  /* border: ${(props) =>
-    props?.exist ? `2px solid ${secondColor}` : `none`}; */
   -webkit-user-drag: none;
 
   animation-name: slideUp;
@@ -163,8 +157,7 @@ const Card = styled.li<{ exist?: boolean }>`
   }
 
   @media (max-width: 767px) {
-    border: none;
-    border-radius: 0;
+    border: 1px solid #ebebeb;
     animation: none;
   }
 `;
@@ -176,7 +169,7 @@ const WeatherEmojiBox = styled.div`
   z-index: 1;
   top: 8px;
   left: 8px;
-  background-color: rgba(34, 34, 34, 0.4);
+  background-color: rgba(34, 34, 34, 0.2);
   border-radius: 10px;
   backdrop-filter: blur(5px);
   -webkit-user-drag: none;
@@ -190,6 +183,10 @@ const WeatherEmoji = styled.div`
   font-size: 12px;
   font-weight: bold;
   color: #fff;
+
+  @media (max-width: 767px) {
+    font-size: 10px;
+  }
 `;
 
 const CardLengthBox = styled.div`
@@ -197,7 +194,7 @@ const CardLengthBox = styled.div`
   z-index: 1;
   top: 8px;
   right: 8px;
-  background-color: rgba(34, 34, 34, 0.5);
+  background-color: rgba(34, 34, 34, 0.2);
   border-radius: 10px;
   backdrop-filter: blur(5px);
 `;
@@ -206,8 +203,12 @@ const CardLength = styled.span`
   display: inline-block;
   padding: 4px 6px;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 500;
   color: #fff;
+
+  @media (max-width: 767px) {
+    font-size: 10px;
+  }
 `;
 
 const CardImage = styled.img`

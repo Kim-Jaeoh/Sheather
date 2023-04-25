@@ -78,7 +78,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const InfoBox = styled.div`
   padding: 20px;
-  border-top: 1px solid ${thirdColor};
+  border-top: 1px solid ${fourthColor};
 `;
 
 const TagList = styled.div`
@@ -97,6 +97,7 @@ const Tag = styled(Link)`
   border-radius: 64px;
   background-color: #f5f5f5;
   padding: 8px 10px;
+  font-size: 14px;
   color: #ff5673;
 
   cursor: pointer;
@@ -108,7 +109,11 @@ const Tag = styled(Link)`
   }
 
   @media (max-width: 767px) {
+    font-size: 10px;
     padding: 6px 8px;
+    span {
+      margin-right: 2px;
+    }
   }
 `;
 
@@ -151,6 +156,13 @@ const Icon = styled.div`
   color: ${thirdColor};
   svg {
     font-size: 24px;
+  }
+  @media (max-width: 767px) {
+    width: 24px;
+    height: 24px;
+    svg {
+      font-size: 20px;
+    }
   }
 `;
 

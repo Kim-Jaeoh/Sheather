@@ -22,7 +22,7 @@ const Footer = (props: Props) => {
           <SheatherLogoWhite width="100%" height="100%" />
         </LogoBox>
         <InfoBox>
-          <Text>Copyright 2023. Jaeoh All rights reserved.</Text>
+          <Text>Copyright 2023. jjjjjaeoh All rights reserved.</Text>
           <SnsBox>
             <Sns onClick={() => onClick("github")}>
               <AiOutlineGithub />
@@ -88,7 +88,7 @@ const InfoBox = styled.div`
 
 const Text = styled.p`
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   margin-right: 20px;
 `;
 

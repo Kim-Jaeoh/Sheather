@@ -7,7 +7,7 @@ import useGetMyAccount from "./useGetMyAccount";
 const useNoticeCheck = () => {
   const [result, setResult] = useState<NoticeArrType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { userLogin, userObj, myAccount } = useGetMyAccount();
+  const { myAccount } = useGetMyAccount();
 
   // 정보 + 프로필 이미지 담기
   useEffect(() => {
@@ -29,7 +29,7 @@ const useNoticeCheck = () => {
 
       const promiseList = async () => {
         const list = await Promise.all(
-          myAccount?.notice?.map(async (res: NoticeArrType) => {
+          myAccount?.notice?.map((res: NoticeArrType) => {
             return getList(res);
           })
         );

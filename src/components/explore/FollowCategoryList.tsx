@@ -66,16 +66,8 @@ const FollowCategoryList = () => {
     });
   }, [userObj.displayName]);
 
-  // // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
-  // useEffect(() => {
-  //   // 2의 배수가 아니고, 2개 중 1개 모자랄 때
-  //   if (users?.length % 2 === 1) {
-  //     setArrState(true);
-  //   }
-  // }, [users?.length]);
-
   const bgColor = useMemo(() => {
-    if (pathname.includes("explore")) {
+    if (pathname.includes("people")) {
       return `#30c56e`;
     } else {
       return `transparent`;
@@ -109,7 +101,7 @@ const FollowCategoryList = () => {
         <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
       <Container bgColor={bgColor}>
-        {pathname?.includes("explore") && (
+        {pathname?.includes("people") && (
           <CategoryBox>
             <SelectName>추천</SelectName>
           </CategoryBox>
@@ -219,13 +211,7 @@ const SelectName = styled.h2`
   font-size: 18px;
 `;
 
-const ListBox = styled.ul`
-  /* display: flex; */
-  /* align-items: center; */
-  /* justify-content: center; */
-  /* flex-wrap: wrap; */
-  /* gap: 20px; */
-  /* padding: 20px 40px 40px; */
+const ListBox = styled.div`
   width: 100%;
   padding: 40px;
   overflow: hidden;
@@ -235,7 +221,7 @@ const ListBox = styled.ul`
   }
 `;
 
-const List = styled.li`
+const List = styled.div`
   flex: 1 0 40%;
 `;
 

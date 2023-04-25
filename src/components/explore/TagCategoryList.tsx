@@ -9,6 +9,8 @@ import { FeedType } from "../../types/type";
 import useUserAccount from "../../hooks/useUserAccount";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import { feedApi } from "../../apis/api";
+import { ImageList } from "@mui/material";
+import useMediaScreen from "../../hooks/useMediaScreen";
 
 interface Count {
   [key: string]: number;
@@ -20,7 +22,7 @@ const TagCategoryList = () => {
       return state.user;
     }
   );
-  const [arrState, setArrState] = useState(false);
+  const { isMobile } = useMediaScreen();
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
 
@@ -59,14 +61,6 @@ const TagCategoryList = () => {
       .sort((a, b) => b.count - a.count);
   }, [feedData]);
 
-  // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
-  useEffect(() => {
-    // 2의 배수가 아니고, 2개 중 1개 모자랄 때
-    if (tagList?.length % 2 === 1) {
-      setArrState(true);
-    }
-  }, [tagList?.length]);
-
   return (
     <>
       {isAuthModal && (
@@ -77,7 +71,11 @@ const TagCategoryList = () => {
           <SelectName>태그</SelectName>
         </CategoryBox>
         <ListBox>
-          <>
+          <ImageList
+            sx={{ overflow: "hidden" }}
+            cols={!isMobile ? 2 : 1}
+            gap={20}
+          >
             {tagList?.map((res, index) => {
               // 해당 태그가 피드 리스트에 포함되어 있는지 필터링
               const filterUser = feedData?.filter((feed) =>
@@ -88,11 +86,7 @@ const TagCategoryList = () => {
                 (a, b) => b.like.length - a.like.length
               );
               return (
-                <List
-                  key={index}
-                  exist={arrState}
-                  onClick={() => onIsLogin(() => null)}
-                >
+                <List key={index} onClick={() => onIsLogin(() => null)}>
                   {index < 20 && (
                     <Tag
                       key={index}
@@ -115,8 +109,7 @@ const TagCategoryList = () => {
                 </List>
               );
             })}
-            {arrState && <NullCard />}
-          </>
+          </ImageList>
         </ListBox>
       </Container>
     </>
@@ -179,21 +172,21 @@ const SelectName = styled.h2`
   /* } */
 `;
 
-const ListBox = styled.ul`
-  display: flex;
+const ListBox = styled.div`
+  /* display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  gap: 20px;
+  flex-wrap: wrap; */
   width: 100%;
   padding: 40px;
-  gap: 20px;
 
   @media (max-width: 767px) {
     padding: 20px 0 0px;
   }
 `;
 
-const List = styled.li<{ exist?: boolean }>`
+const List = styled.div`
   border: 2px solid ${secondColor};
   flex: 1 1 40%;
   border-radius: 20px;

@@ -83,18 +83,6 @@ const RangeTimeModal = (props: Props) => {
               </DateIcon>
               <DateText>{moment(changeValue).format("YYYY-MM-DD")}</DateText>
             </DateBox>
-            {/* <DateBox onClick={onClickCalendar}>
-            {isCalendar ? (
-              <ResetBtn>CANCLE</ResetBtn>
-            ) : (
-              <>
-                <DateIcon>
-                  <BsCalendar3 />
-                </DateIcon>
-                <DateText>{moment(changeValue).format("YYYY-MM-DD")}</DateText>
-              </>
-            )}
-          </DateBox> */}
             {rangeTime && (
               <ViewNumber>
                 {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
@@ -191,7 +179,8 @@ const ViewNumberBox = styled.div`
 `;
 
 const ViewNumber = styled.div`
-  font-weight: bold;
+  font-weight: 500;
+  font-size: 14px;
 `;
 
 const RangeSlideBox = styled.div`

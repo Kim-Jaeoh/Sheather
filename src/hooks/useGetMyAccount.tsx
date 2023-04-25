@@ -16,7 +16,7 @@ const useGetMyAccount = () => {
   useEffect(() => {
     if (userLogin) {
       const unsubscribe = onSnapshot(
-        doc(dbService, "users", userObj?.email),
+        doc(dbService, "users", userObj.email),
         (doc) => {
           setMyAccount(doc.data());
         }
@@ -24,7 +24,7 @@ const useGetMyAccount = () => {
 
       return () => unsubscribe();
     }
-  }, [userLogin, userObj?.email]);
+  }, [userLogin, userObj.email]);
 
   return { userLogin, userObj, myAccount };
 };

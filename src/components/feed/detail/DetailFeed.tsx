@@ -4,7 +4,7 @@ import ColorList from "../../../assets/data/ColorList";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { FeedType } from "../../../types/type";
+import { CurrentUserType, FeedType } from "../../../types/type";
 import useToggleLike from "../../../hooks/useToggleLike";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
@@ -12,7 +12,14 @@ import FeedEditModal from "../../modal/feed/FeedEditModal";
 import toast from "react-hot-toast";
 import FeedMoreSelectModal from "../../modal/feed/FeedMoreSelectModal";
 import DetailFeedCategory from "./DetailFeedCategory";
-import { doc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import DetailFeedHeader from "./DetailFeedHeader";
 import DetailFeedReplyBox from "./DetailFeedReplyBox";
@@ -20,6 +27,7 @@ import DetailFeedImage from "./DetailFeedImage";
 import DetailFeedInfo from "./DetailFeedInfo";
 import useUserAccount from "../../../hooks/useUserAccount";
 import { feedApi } from "../../../apis/api";
+import user from "../../../app/user";
 
 const DetailFeed = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -28,6 +36,8 @@ const DetailFeed = () => {
     }
   );
   const [userAccount, setUserAccount] = useState(null);
+  const [documentLike, setDocumentLike] = useState([]);
+  const [documentNotice, setDocumentNotice] = useState([]);
   const [isMore, setIsMore] = useState(false);
   const { isAuthModal, onAuthModal, setIsAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
@@ -60,6 +70,56 @@ const DetailFeed = () => {
     }
   }, [detailInfo]);
 
+  // 해당 글 값 가지고 있는 필드 값 검색
+  useEffect(() => {
+    const userCollection = collection(dbService, "users");
+    const q = query(userCollection);
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const data: any = querySnapshot.docs.map((doc) => {
+        return { id: doc.id, ...doc.data() };
+      });
+      const likeFilter = data.filter((res: CurrentUserType) =>
+        res.like.some((id) => id === postId)
+      );
+      const noticeFilter = data.filter((res: CurrentUserType) =>
+        res.notice.some((notice) => notice.postId === postId)
+      );
+
+      setDocumentLike(likeFilter);
+      setDocumentNotice(noticeFilter);
+    });
+
+    return () => unsubscribe();
+  }, [postId]);
+
+  // 해당 글 값이 있으면 삭제
+  const fbFieldFilter = async (user: CurrentUserType, type: string) => {
+    if (type === "notice") {
+      const noticeFilter = user.notice.filter((res) => res.postId !== postId);
+      await updateDoc(doc(dbService, "users", user.email), {
+        notice: noticeFilter,
+      });
+    }
+    if (type === "like") {
+      const likeFilter = user.like.filter((res) => res !== postId);
+      await updateDoc(doc(dbService, "users", user.email), {
+        like: likeFilter,
+      });
+    }
+  };
+
+  // 게시글 지울 때 관련된 것들 삭제 (좋아요, 댓글)
+  const onFbFieldDelete = async () => {
+    const noticePromises = documentNotice.map((user) =>
+      fbFieldFilter(user, "notice")
+    );
+    const likePromises = documentLike.map((user) =>
+      fbFieldFilter(user, "like")
+    );
+    await Promise.all([noticePromises, likePromises]); // 병렬 처리
+  };
+
   // 피드 삭제
   const { mutate: mutateFeedDelete } = useMutation(
     () =>
@@ -67,6 +127,7 @@ const DetailFeed = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
+        onFbFieldDelete();
         onMoreClick();
         navigate("/");
       },
@@ -168,9 +229,6 @@ const Container = styled.div`
   border-radius: 20px;
   overflow: hidden;
   background: #fff;
-
-  /* box-shadow: 12px 12px 0 -2px #be374e, 12px 12px #be374e; */
-
   box-shadow: ${(props) => {
     let shadow = "";
     for (let i = 1; i < 63; i++) {
@@ -182,5 +240,6 @@ const Container = styled.div`
 
   @media (max-width: 767px) {
     border: 1px solid ${secondColor};
+    box-shadow: none;
   }
 `;

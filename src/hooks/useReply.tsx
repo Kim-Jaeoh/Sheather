@@ -68,6 +68,7 @@ const useReply = ({ feed, userObj, userAccount, textRef, getToken }: Props) => {
             imgUrl: feed.url[0],
             text: replyText,
             displayName: userObj.displayName,
+            email: userObj.email,
             time: +new Date(),
             isRead: false,
           },

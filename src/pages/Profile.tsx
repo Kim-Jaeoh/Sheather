@@ -282,7 +282,6 @@ const Wrapper = styled.div`
   @media (max-width: 767px) {
     border: none;
     padding: 16px;
-    /* height: calc(100vh - 112px); */
   }
 `;
 
@@ -321,9 +320,9 @@ const CategoryBox = styled.div`
   border-top: 1px solid ${fourthColor};
 
   @media (max-width: 767px) {
-    gap: 30px;
+    gap: 0px;
     margin-top: 0;
-    /* margin-bottom: 20px; */
+    overflow: hidden;
     justify-content: space-evenly;
     border-bottom: 1px solid ${fourthColor};
   }
@@ -362,8 +361,9 @@ const Category = styled(Link)<{ select: number; num: number }>`
     color: ${(props) => (props.num === props.select ? `#4e2fa3` : thirdColor)};
 
     svg {
-      width: 22px;
-      height: 22px;
+      /* font-size: 20px; */
+      width: 18px;
+      height: 18px;
     }
 
     &::after {

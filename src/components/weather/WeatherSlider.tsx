@@ -221,24 +221,14 @@ const Wrapper = styled.div`
 
   @media (max-width: 767px) {
     border: 1px solid ${secondColor};
-    box-shadow: ${(props) => {
+    /* box-shadow: ${(props) => {
       let shadow = "";
       for (let i = 1; i < 63; i++) {
         shadow += `#307ac4 ${i}px ${i}px,`;
       }
       shadow += `#307ac4 63px 63px`;
       return shadow;
-    }};
-    /* border: none;
-    &:not(:first-of-type) {
-      border-bottom: none;
-    }
-    &:not(:last-of-type) {
-      border-top: none;
-      border-bottom: 1px solid ${secondColor};
-      margin-bottom: 0px;
-    }
-    border-radius: 0; */
+    }}; */
   }
 `;
 

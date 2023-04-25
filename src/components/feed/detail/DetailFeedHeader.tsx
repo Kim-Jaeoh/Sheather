@@ -95,7 +95,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Header = styled.div`
   padding: 20px;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid ${fourthColor};
 
   @media (max-width: 767px) {
     padding: 16px;

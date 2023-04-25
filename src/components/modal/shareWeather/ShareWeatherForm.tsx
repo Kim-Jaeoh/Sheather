@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/data/ColorList";
 import Emoji from "../../emoji/Emoji";
 import useTag from "../../../hooks/useTag";
 import { IoMdClose } from "react-icons/io";
-import { AiOutlineTag } from "react-icons/ai";
 import { BiTag } from "react-icons/bi";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 
@@ -18,8 +17,7 @@ type Props = {
 
 const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
   const textRef = useRef<HTMLTextAreaElement>();
-  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
-    useMediaScreen();
+  const { isMobile } = useMediaScreen();
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);

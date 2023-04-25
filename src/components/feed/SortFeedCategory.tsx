@@ -365,9 +365,8 @@ const InfoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-  padding: 16px 16px 0;
-  /* padding: 20px 16px; */
+  padding: 16px 16px;
+  border-bottom: 1px solid ${fourthColor};
 `;
 
 const IconBox = styled.div`
@@ -404,13 +403,9 @@ const SelectDetailTimeBox = styled.div`
 
   @media (max-width: 767px) {
     margin: 0;
-    padding: 0;
     border: none;
-    /* padding: 0px 16px; */
-    padding: 0;
+    padding: 16px;
     > div {
-      border-top: 1px solid ${fourthColor};
-      padding: 16px;
       width: 100%;
     }
   }
@@ -420,7 +415,6 @@ const SelectCategoryBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: end;
-  /* gap: 12px; */
 `;
 
 const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
@@ -433,9 +427,9 @@ const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
   cursor: pointer;
   color: ${secondColor};
   white-space: pre;
+
   @media (max-width: 767px) {
     font-size: 12px;
-    /* border-color: ${fourthColor}; */
   }
 `;
 
@@ -456,8 +450,14 @@ const SelectDeleteBtn = styled.button`
   cursor: pointer;
   svg {
     color: ${secondColor};
-    width: 18px;
-    height: 18px;
+    /* width: 18px; */
+    /* height: 18px; */
+  }
+
+  @media (max-width: 767px) {
+    margin-left: 2px;
+    width: 14px;
+    height: 14px;
   }
 `;
 
@@ -470,9 +470,8 @@ const SelectDetailTime = styled.p`
   white-space: pre;
 
   @media (max-width: 767px) {
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 300;
-    border-color: ${fourthColor};
     color: ${thirdColor};
   }
 `;

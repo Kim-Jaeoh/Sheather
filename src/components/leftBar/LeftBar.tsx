@@ -299,7 +299,8 @@ const Container = styled.section`
     left: 0;
     right: 0;
     border-radius: 0;
-    padding: 0 30px;
+    padding: 0;
+    /* padding: 0 30px; */
     border: 0;
     border-top: 1px solid ${secondColor};
     z-index: 100;
@@ -370,7 +371,7 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
         : "2px solid transparent"};
     box-shadow: ${(props) =>
       props.cat === props.menu
-        ? `0px 6px 0 -2px ${props.color}, 0px 6px #222`
+        ? `0px 6px 0 -2px ${props.color}, 0px 6px ${secondColor}`
         : "0"};
   }
 
@@ -440,7 +441,7 @@ const MenuBtn = styled.button<{ cat: string; menu: string; color: string }>`
         : "2px solid transparent"};
     box-shadow: ${(props) =>
       props.cat === props.menu
-        ? `0px 6px 0 -2px ${props.color}, 0px 6px #222`
+        ? `0px 6px 0 -2px ${props.color}, 0px 6px ${secondColor}`
         : "0"};
   }
 
@@ -522,7 +523,11 @@ const UserProfileBox = styled.div`
   height: 24px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid #dbdbdb;
+  border: 2px solid ${fourthColor};
+
+  @media (max-width: 767px) {
+    border-width: 1px;
+  }
 `;
 
 const UserProfile = styled.img`

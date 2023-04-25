@@ -10,6 +10,7 @@ import { useState } from "react";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import FeedProfileInfo from "./FeedProfileInfo";
 import Masonry from "@mui/lab/Masonry";
+import Flicking from "@egjs/react-flicking";
 
 type Props = {
   url?: string;
@@ -81,21 +82,30 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
                       <UserBox>
                         <FeedProfileInfo feed={res} />
                         <UserText>{res.text}</UserText>
-                        {res?.tag?.length !== 0 && (
-                          <TagList>
-                            {res?.tag?.map((tag, index) => {
-                              return (
-                                <Tag
-                                  key={index}
-                                  to={`/explore/search?keyword=${tag}`}
-                                >
-                                  <span>#</span>
-                                  <TagName>{tag}</TagName>
-                                </Tag>
-                              );
-                            })}
-                          </TagList>
-                        )}
+                        <FlickingCategoryBox>
+                          {res?.tag?.length !== 0 && (
+                            <Flicking
+                              onChanged={(e) => console.log(e)}
+                              moveType="freeScroll"
+                              bound={true}
+                              align="prev"
+                            >
+                              <TagList>
+                                {res?.tag?.map((tag, index) => {
+                                  return (
+                                    <Tag
+                                      key={index}
+                                      to={`/explore/search?keyword=${tag}`}
+                                    >
+                                      <span>#</span>
+                                      <TagName>{tag}</TagName>
+                                    </Tag>
+                                  );
+                                })}
+                              </TagList>
+                            </Flicking>
+                          )}
+                        </FlickingCategoryBox>
                       </UserBox>
                     </CardList>
                   );
@@ -175,7 +185,7 @@ const CardList = styled.div`
 
     > a {
       border-radius: 10px;
-      border: 1px solid ${fourthColor};
+      border: 1px solid #ebebeb;
       overflow: hidden;
     }
   }
@@ -195,7 +205,7 @@ const WeatherEmojiBox = styled.div`
   z-index: 1;
   top: 8px;
   left: 8px;
-  background-color: rgba(34, 34, 34, 0.4);
+  background-color: rgba(34, 34, 34, 0.2);
   border-radius: 10px;
   backdrop-filter: blur(5px);
 `;
@@ -263,13 +273,34 @@ const UserText = styled.p`
   -webkit-box-orient: vertical;
   line-height: 20px;
   font-size: 14px;
+
+  @media (max-width: 767px) {
+    font-size: 12px;
+  }
+`;
+
+const FlickingCategoryBox = styled.div`
+  width: 100%;
+  cursor: pointer;
+  position: relative;
+  &::after {
+    right: 0px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+    position: absolute;
+    top: 0px;
+    z-index: 10;
+    height: 100%;
+    width: 14px;
+    content: "";
+  }
 `;
 
 const TagList = styled.div`
+  /* position: relative; */
   display: flex;
   align-items: center;
-  font-size: 12px;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
+  white-space: pre;
   margin-top: 12px;
   gap: 10px;
 `;
@@ -281,6 +312,7 @@ const Tag = styled(Link)`
   border-radius: 64px;
   background-color: #f5f5f5;
   padding: 8px 10px;
+  font-size: 12px;
   color: #ff5673;
 
   cursor: pointer;
@@ -289,6 +321,14 @@ const Tag = styled(Link)`
   }
   span {
     margin-right: 4px;
+  }
+
+  @media (max-width: 767px) {
+    font-size: 10px;
+    padding: 6px 8px;
+    span {
+      margin-right: 2px;
+    }
   }
 `;
 
