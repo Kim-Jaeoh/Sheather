@@ -153,7 +153,8 @@ const WeatherSlider = ({ data }: PropsType) => {
                           {res?.weather[0]?.description}
                         </WeatherCategoryIconText>
                         <WeatherCategoryIcon
-                          src={`https://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
+                          src={`/image/weather/${res?.weather[0].icon}.png`}
+                          // src={`https://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
                           alt="weather icon"
                         />
                         <WeatherCategoryIconText>
@@ -233,7 +234,7 @@ const Wrapper = styled.div`
 `;
 
 const FlickingBox = styled.ul`
-  height: 354px;
+  min-height: 364px;
   li:not(:last-of-type) {
     border-right: 1px solid ${fourthColor};
   }
@@ -382,12 +383,12 @@ const WeatherCategoryIcon = styled.img`
 const WeatherCategoryIconText = styled.span`
   user-select: text;
   font-weight: bold;
-
+  font-size: 14px;
   &:not(:last-of-type) {
     margin-top: 20px;
   }
   &:not(:first-of-type) {
-    font-size: 20px;
+    font-size: 18px;
   }
 `;
 
@@ -395,7 +396,7 @@ const WeatherCategoryMain = styled.span`
   user-select: text;
   border: 1px solid ${thirdColor};
   border-radius: 9999px;
-  padding: 0px 6px;
+  padding: 2px 6px;
   margin-bottom: 4px;
   font-size: 12px;
   color: ${thirdColor};
@@ -404,6 +405,7 @@ const WeatherCategoryMain = styled.span`
 const WeatherCategorySub = styled.span`
   user-select: text;
   font-size: 14px;
+  font-weight: 500;
   span {
     font-size: 10px;
   }

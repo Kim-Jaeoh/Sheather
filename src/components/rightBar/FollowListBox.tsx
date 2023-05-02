@@ -106,9 +106,9 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
         <UserListBox>
           {isLoading ? (
             users.map((res, index) => (
-              <UserList onClick={onClick} key={index}>
+              <li key={index}>
                 {index < 5 && (
-                  <>
+                  <UserList onClick={onClick}>
                     <User
                       to={`/profile/${res.displayName}/post`}
                       state={res.email}
@@ -138,9 +138,9 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
                         )}
                       </FollowBtnBox>
                     )}
-                  </>
+                  </UserList>
                 )}
-              </UserList>
+              </li>
             ))
           ) : (
             <FollowListSkeleton />
@@ -185,15 +185,17 @@ const CategoryBox = styled.div`
   @media (max-width: 956px) {
     padding: 0;
     padding: 20px 20px 12px;
-    /* padding: 20px; */
-    /* margin-bottom: 12px; */
     width: 100%;
   }
 `;
 
 const Category = styled.h2`
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const AllClick = styled(Link)`
@@ -212,15 +214,11 @@ const AllClick = styled(Link)`
 
 const UserListBox = styled.ul``;
 
-const UserList = styled.li`
+const UserList = styled.div`
   position: relative;
-`;
-
-const User = styled(Link)`
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 0;
+  justify-content: space-between;
   padding: 12px 16px;
   /* height: 56px; */
   transition: all 0.15s linear;
@@ -232,8 +230,15 @@ const User = styled(Link)`
   }
 
   @media (max-width: 956px) {
-    padding: 16px 20px;
+    padding: 12px 20px;
   }
+`;
+
+const User = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
 `;
 
 const ProfileImageBox = styled.div`
@@ -252,18 +257,18 @@ const ProfileImage = styled.img`
 `;
 
 const ProfileInfoBox = styled.div`
-  cursor: pointer;
-  flex: 1;
-  padding-right: 20px;
+  /* cursor: pointer; */
+  /* flex: 1; */
+  /* padding-right: 20px;
   @media (max-width: 956px) {
     padding-right: 0;
-  }
+  } */
 `;
 
 const ProfileDsName = styled.p`
   font-size: 14px;
   font-weight: 500;
-  width: 120px;
+  /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -273,7 +278,7 @@ const ProfileDsName = styled.p`
 const ProfileName = styled.p`
   font-size: 12px;
   color: ${thirdColor};
-  width: 120px;
+  /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -292,17 +297,17 @@ const ProfileDesc = styled.p`
 `;
 
 const FollowBtnBox = styled.div`
-  position: absolute;
+  /* position: absolute;
   top: 50%;
   right: 20px;
-  transform: translateY(-50%);
+  transform: translateY(-50%); */
 `;
 
 const FollowBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 700;
   font-size: 12px;
   padding: 6px 10px;
   color: #fff;

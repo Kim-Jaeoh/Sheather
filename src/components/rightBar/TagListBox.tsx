@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../assets/data/ColorList";
 import { useQuery } from "@tanstack/react-query";
@@ -122,7 +122,11 @@ const CategoryBox = styled.div`
 
 const Category = styled.h2`
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const AllClick = styled(Link)`
@@ -150,7 +154,7 @@ const TagList = styled(Link)`
   }
 
   @media (max-width: 956px) {
-    padding: 16px 20px;
+    padding: 10px 20px;
     /* padding: 12px 0px; */
   }
 `;
@@ -158,6 +162,7 @@ const TagList = styled(Link)`
 const TagRank = styled.span`
   font-size: 12px;
   color: ${thirdColor};
+  font-weight: 500;
   margin-right: 18px;
 `;
 
@@ -169,10 +174,11 @@ const TagInfo = styled.div`
 
 const TagName = styled.span`
   margin-right: 8px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 `;
 
 const TagCount = styled.span`
   font-size: 12px;
+  color: ${thirdColor};
 `;

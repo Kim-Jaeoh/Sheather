@@ -8,6 +8,7 @@ import React, {
 import styled from "@emotion/styled";
 import { dbService } from "../../fbase";
 import {
+  DocumentData,
   addDoc,
   collection,
   deleteDoc,
@@ -35,118 +36,120 @@ import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
 import BottomButton from "../scrollButton/BottomButton";
 import { Spinner } from "../../assets/spinner/Spinner";
 import { debounce, throttle } from "lodash";
+import useChatInfiniteScroll from "../../hooks/useChatInfiniteScroll";
 
 interface Props {
   users: CurrentUserType;
   myAccount: CurrentUserType;
+  messageCollection: MessageListType;
   setClickInfo: React.Dispatch<React.SetStateAction<CurrentUserType>>;
 }
 
-interface DayType {
-  createdAt: number;
-  day: string;
+interface SubCollectionType extends MessageType {
+  id: string;
 }
 
-const dayArr: { [key: number]: string } = {
-  0: `일`,
-  1: `월`,
-  2: `화`,
-  3: `수`,
-  4: `목`,
-  5: `금`,
-  6: `토`,
-};
-
-const Chat = ({ users, myAccount, setClickInfo }: Props) => {
-  const [messages, setMessages] = useState(null);
-  const [sortMessages, setSortMessages] = useState<
-    Array<[string, MessageType[]]>
-  >([]);
-  const [day, setDay] = useState<DayType[]>([]);
+const ChatTest = ({
+  users,
+  myAccount,
+  messageCollection,
+  setClickInfo,
+}: Props) => {
+  const [chatId, setChatId] = useState([]);
   const [text, setText] = useState("");
-  const [messageCollection, setMessageCollection] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [btnStatus, setBtnStatus] = useState({
     show: false,
     toBottom: false,
   }); // 버튼 상태
   const [isFocus, setIsFocus] = useState(false);
+  const [isRead, setIsRead] = useState(false);
+  const [prevScrollHeight, setPrevScrollHeight] = useState(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomListRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
   const { sendMessage } = useSendNoticeMessage(users);
+  const {
+    isLoading,
+    day,
+    sortMessages,
+    detachListeners,
+    ref: moreRef,
+  } = useChatInfiniteScroll({
+    chatId: messageCollection?.id,
+    toBottom: btnStatus.toBottom,
+    containerRef,
+    setPrevScrollHeight,
+  });
 
-  // 화면 하단 스크롤
   useEffect(() => {
-    if (isLoading) {
-      bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
+    // prevScrollHeight 있을 시 현재 전체 스크롤 높이 값 - 과거 전체 스크롤 높이 값
+    if (prevScrollHeight) {
+      onScrollTo(containerRef.current?.scrollHeight - prevScrollHeight);
+      return setPrevScrollHeight(null);
     }
-  }, [isLoading]);
 
-  // 1. 채팅방 목록 및 정보 불러오기
+    // prevScrollHeight 없을 시 맨 아래로 이동
+    onScrollTo(
+      containerRef.current?.scrollHeight - containerRef.current?.clientHeight
+    );
+    // bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
+  }, [sortMessages]);
+
+  const onScrollTo = (height: number) => {
+    if (height) {
+      containerRef.current.scrollTop = Number(height);
+    }
+  };
+
+  const handleScroll = useMemo(
+    () =>
+      throttle((e) => {
+        e.preventDefault();
+        const totalScrollHeight = containerRef?.current?.scrollHeight; // 전체 스크롤 높이 값
+        const clientHeight = containerRef?.current?.clientHeight; // 클라이언트 높이
+        const currentScrollPosition = containerRef?.current?.scrollTop; // 현재 스크롤 위치 값
+        const scrollDifference = totalScrollHeight - currentScrollPosition; // 전체 스크롤 값 - 현재 스크롤 값
+
+        // 스크롤 맨 아래 감지
+        if (currentScrollPosition + clientHeight === totalScrollHeight) {
+          setBtnStatus((prev) => ({ ...prev, toBottom: true }));
+        }
+
+        if (scrollDifference > 1500 && btnStatus.toBottom) {
+          setBtnStatus((prev) => ({ ...prev, show: true }));
+        } else {
+          setBtnStatus((prev) => ({ ...prev, show: false }));
+        }
+      }, 200),
+    [btnStatus.toBottom]
+  );
+
   useEffect(() => {
-    if (users) {
-      // 채팅방 입장 시 대화 내역 초기화 (렌더링 하는 순간에 다른 채팅방 유저 프로필이 보이기 때문)
-      setMessages(null);
-      setIsLoading(false);
-      const q = query(collection(dbService, `messages`));
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const list: MessageListType[] = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        const getInfo = list?.filter(
-          (res) =>
-            res.member.includes(myAccount?.email) &&
-            res.member.includes(users?.email)
-        );
-        setMessageCollection(getInfo[0]);
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll); //clean up
+    };
+  }, [handleScroll]);
+
+  // 1. 서브 컬렉션 ID값 가져오기
+  useEffect(() => {
+    if (messageCollection) {
+      const docRef = doc(dbService, "messages", messageCollection?.id);
+      const subCollectionRef = collection(docRef, "message");
+      const Query = query(subCollectionRef, where("email", "==", users?.email));
+
+      const unsubscribe = onSnapshot(Query, (doc) => {
+        const collectionId = doc.docs.map((res) => {
+          return { id: res.id, ...res.data() };
+        });
+        setChatId(collectionId);
       });
 
       return () => unsubscribe();
     }
-  }, [myAccount?.email, users]);
-
-  // 2. 채팅 내역 불러오기
-  useEffect(() => {
-    if (messageCollection?.id && users) {
-      const unsubscribe = onSnapshot(
-        doc(dbService, "messages", messageCollection?.id),
-        (doc) => {
-          setMessages(doc.data()); // 메세지 통으로 정리
-          setIsLoading(true);
-          // Map으로 생성 방법
-          const sections = new Map<string, MessageType[]>();
-          doc?.data()?.message?.forEach((chat: MessageType) => {
-            const monthDate = moment(chat.createdAt).format("YYYY년 M월 D일");
-            const section = sections.get(monthDate);
-            if (section) {
-              section.push(chat);
-            } else {
-              sections.set(monthDate, [chat]);
-            }
-
-            // 요일 구하기
-            const getDay = dayArr[moment(chat.createdAt).day()];
-
-            // 중복 체크
-            setDay((prev) => {
-              if (!prev.some((res) => res.createdAt === chat.createdAt)) {
-                return [...prev, { createdAt: chat.createdAt, day: getDay }];
-              } else {
-                return prev;
-              }
-            });
-          });
-
-          setSortMessages(Array.from(sections));
-        }
-      );
-      return () => unsubscribe();
-    }
-  }, [messageCollection?.id, users]);
+  }, [messageCollection, users?.email]);
 
   // 텍스트 입력
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -155,43 +158,22 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     textRef.current.style.height = textRef.current.scrollHeight + `px`;
   };
 
-  console.log(messageCollection?.id);
-
   // 메시지 전송
   const onSubmit = async () => {
     // 입력한 채팅 공백 제거
     const trimmedMessage = text.trim();
 
-    // 채팅 새로 만들기
-    if (!messageCollection?.id) {
-      await addDoc(collection(dbService, `messages`), {
-        member: [myAccount?.displayName, users?.displayName],
-        message: [
-          {
-            text: trimmedMessage,
-            createdAt: +Date.now(),
-            uid: myAccount?.uid,
-            displayName: myAccount?.displayName,
-            isRead: false,
-          },
-        ],
-      });
-    }
-
     // 채팅방에 글 보내기
-    if (messages && messageCollection?.id) {
-      const messageCopy = [...messages?.message];
-      await updateDoc(doc(dbService, "messages", messageCollection?.id), {
-        message: [
-          ...messageCopy,
-          {
-            text: trimmedMessage,
-            createdAt: +Date.now(),
-            uid: myAccount?.uid,
-            displayName: myAccount?.displayName,
-            isRead: false,
-          },
-        ],
+    if (messageCollection?.id) {
+      const docRef = doc(dbService, "messages", messageCollection?.id);
+      const subCollectionRef = collection(docRef, "message");
+      await addDoc(subCollectionRef, {
+        text: trimmedMessage,
+        createdAt: +Date.now(),
+        uid: myAccount?.uid,
+        displayName: myAccount?.displayName,
+        email: myAccount?.email,
+        isRead: false,
       });
 
       // 글 보낼 시 상대가 본인 메시지 안 읽은 것으로 변경
@@ -231,19 +213,32 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     }
   };
 
+  // useEffect(()=>{
+  //   if(myAccount?.message?.some((res) => !res.isRead)) {
+  //   }
+  // },[])
+
   // 메세지 읽음 확인
   const onReadMessage = useCallback(async () => {
     if (myAccount?.message?.some((res) => !res.isRead)) {
+      setIsRead(true);
+
       // 채팅 정보 값 변경
-      const messageCopy = [...messages?.message];
-      await updateDoc(doc(dbService, "messages", messageCollection?.id), {
-        message: messageCopy.map((res) => {
-          if (res?.email === users?.email) {
-            return { ...res, isRead: true };
-          } else {
-            return { ...res };
-          }
-        }),
+      const update = async (sub: SubCollectionType) => {
+        const docRef = doc(
+          dbService,
+          "messages",
+          messageCollection?.id,
+          "message",
+          sub.id
+        );
+        await updateDoc(docRef, {
+          isRead: true,
+        });
+      };
+
+      chatId.forEach((res) => {
+        update(res);
       });
 
       // 계정 메시지 정보 값 변경
@@ -259,8 +254,8 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
       });
     }
   }, [
+    chatId,
     messageCollection?.id,
-    messages?.message,
     myAccount?.email,
     myAccount?.message,
     users?.email,
@@ -307,38 +302,10 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   };
 
   const onBackClick = () => {
+    detachListeners();
     setClickInfo(null);
     navigate(`/message`);
   };
-
-  const handleScroll = useMemo(
-    () =>
-      throttle(() => {
-        const totalScrollHeight = containerRef?.current?.scrollHeight; // 전체 스크롤 높이 값
-        const clientHeight = containerRef?.current?.clientHeight; // 클라이언트 높이
-        const currentScrollPosition = containerRef?.current?.scrollTop; // 현재 스크롤 위치 값
-        const scrollDifference = totalScrollHeight - currentScrollPosition; // 전체 스크롤 값 - 현재 스크롤 값
-
-        // 스크롤 맨 아래 감지
-        if (currentScrollPosition + clientHeight === totalScrollHeight) {
-          setBtnStatus((prev) => ({ ...prev, toBottom: true }));
-        }
-
-        if (scrollDifference > 1500 && btnStatus.toBottom) {
-          setBtnStatus((prev) => ({ ...prev, show: true }));
-        } else {
-          setBtnStatus((prev) => ({ ...prev, show: false }));
-        }
-      }, 200),
-    [btnStatus.toBottom]
-  );
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll); //clean up
-    };
-  }, [handleScroll]);
 
   return (
     <>
@@ -373,45 +340,92 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
                   bottomListRef={bottomListRef}
                 />
                 <MessageBox ref={containerRef} onScroll={handleScroll}>
-                  {sortMessages?.map(
-                    (arr: [string, MessageType[]], index: number) => {
-                      return (
-                        <GroupMessage key={arr[0]}>
-                          <GroupDateBox>
-                            <GroupDate>{`${arr[0]} ${day[index].day}요일`}</GroupDate>
-                          </GroupDateBox>
-                          {arr[1]?.map((res: MessageType, index: number) => {
-                            const isMine =
-                              res?.displayName === myAccount?.displayName;
-                            return (
-                              <User key={res.createdAt} isMine={isMine}>
-                                {!isMine && users && (
-                                  <ProfileImageBox
-                                    to={`/profile/${res?.displayName}/post`}
-                                  >
-                                    <ProfileImage
-                                      onContextMenu={(e) => e.preventDefault()}
-                                      src={users?.profileURL}
-                                      alt="profile image"
-                                    />
-                                  </ProfileImageBox>
-                                )}
-                                <SendMessageBox>
-                                  <SendMessage isMine={isMine}>
-                                    {res?.text}
-                                  </SendMessage>
-                                </SendMessageBox>
-                                <SeneMessageAt isMine={isMine}>
-                                  <Read>{res?.isRead ? null : 1}</Read>
-                                  {moment(res?.createdAt).format(`HH:mm`)}
-                                </SeneMessageAt>
-                              </User>
-                            );
-                          })}
-                        </GroupMessage>
-                      );
-                    }
-                  )}
+                  <div
+                    ref={moreRef}
+                    style={{
+                      position: "absolute",
+                      top: "0",
+                    }}
+                  />
+                  {sortMessages &&
+                    sortMessages?.map(
+                      (arr: [string, DocumentData[]], index: number) => {
+                        const date = day.sort(
+                          (a, b) => a.createdAt - b.createdAt
+                        );
+                        const filter = arr[1].filter(
+                          (me) => me.email === myAccount.email
+                        );
+
+                        return (
+                          <GroupMessage key={arr[0]}>
+                            <GroupDateBox>
+                              <GroupDate>{`${arr[0]} ${date[index].day}요일`}</GroupDate>
+                            </GroupDateBox>
+                            {arr[1]
+                              .sort((a, b) => a.createdAt - b.createdAt)
+                              .map((res: DocumentData, idx: number) => {
+                                const isMine =
+                                  res?.displayName === myAccount?.displayName;
+
+                                return (
+                                  <User key={res.createdAt} isMine={isMine}>
+                                    {!isMine && users && (
+                                      <ProfileImageBox
+                                        to={`/profile/${res?.displayName}/post`}
+                                      >
+                                        <ProfileImage
+                                          onContextMenu={(e) =>
+                                            e.preventDefault()
+                                          }
+                                          src={users?.profileURL}
+                                          alt="profile image"
+                                        />
+                                      </ProfileImageBox>
+                                    )}
+                                    <SendMessageBox>
+                                      <SendMessage isMine={isMine}>
+                                        {res?.text}
+                                      </SendMessage>
+                                    </SendMessageBox>
+                                    <SeneMessageAt isMine={isMine}>
+                                      <Read>
+                                        <>
+                                          {
+                                            // res?.isRead &&
+                                            isMine &&
+                                            idx ===
+                                              arr[1].lastIndexOf(
+                                                filter[filter.length - 1]
+                                              ) &&
+                                            users?.message?.some(
+                                              (user) =>
+                                                user.email ===
+                                                  myAccount?.email &&
+                                                user.isRead
+                                            )
+                                              ? "읽음"
+                                              : null
+                                          }
+                                          {/* {isMine &&
+                                          users?.message?.some(
+                                            (user) =>
+                                              user.email !== myAccount?.email &&
+                                              !user.isRead
+                                          )
+                                            ? "ㅇㅇ"
+                                            : "a"} */}
+                                        </>
+                                      </Read>
+                                      {moment(res?.createdAt).format(`HH:mm`)}
+                                    </SeneMessageAt>
+                                  </User>
+                                );
+                              })}
+                          </GroupMessage>
+                        );
+                      }
+                    )}
                   <div ref={bottomListRef} />
                 </MessageBox>
                 <ChatBox>
@@ -460,7 +474,7 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
   );
 };
 
-export default Chat;
+export default ChatTest;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 

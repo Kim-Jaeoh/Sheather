@@ -122,7 +122,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 const Container = styled.nav`
   position: sticky;
   top: 0px;
-  height: 80px;
+  min-height: 80px;
   border-top: 2px solid #222;
   border-bottom: 2px solid #222;
   background-color: #fff;

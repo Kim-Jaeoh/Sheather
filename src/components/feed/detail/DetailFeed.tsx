@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/data/ColorList";
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,7 +18,6 @@ import {
   onSnapshot,
   query,
   updateDoc,
-  where,
 } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import DetailFeedHeader from "./DetailFeedHeader";
@@ -27,7 +26,6 @@ import DetailFeedImage from "./DetailFeedImage";
 import DetailFeedInfo from "./DetailFeedInfo";
 import useUserAccount from "../../../hooks/useUserAccount";
 import { feedApi } from "../../../apis/api";
-import user from "../../../app/user";
 
 const DetailFeed = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -36,6 +34,7 @@ const DetailFeed = () => {
     }
   );
   const [userAccount, setUserAccount] = useState(null);
+  const [detailInfo, setDetailInfo] = useState([]);
   const [documentLike, setDocumentLike] = useState([]);
   const [documentNotice, setDocumentNotice] = useState([]);
   const [isMore, setIsMore] = useState(false);
@@ -53,13 +52,24 @@ const DetailFeed = () => {
     onError: (e) => console.log(e),
   });
 
-  const detailInfo = useMemo(() => {
-    return feedData?.filter((res) => postId === res.id);
-  }, [feedData, postId]);
+  useEffect(() => {
+    if (feedData?.length) {
+      let filterData = feedData?.filter((res) => postId === res?.id);
+      if (!filterData.length) {
+        navigate("/feed/following");
+        toast.error("존재하지 않는 글입니다.", {
+          id: `not-cropped`, // 중복 방지
+        });
+        // return null;
+      } else {
+        setDetailInfo(filterData);
+      }
+    }
+  }, [feedData, navigate, postId]);
 
   // 상대 계정 정보 가져오기
   useEffect(() => {
-    if (detailInfo) {
+    if (detailInfo?.length) {
       const unsubcribe = onSnapshot(
         doc(dbService, "users", detailInfo[0]?.email),
         (doc) => {
@@ -158,9 +168,9 @@ const DetailFeed = () => {
 
   return (
     <>
-      {feedData && (
+      {feedData?.length && detailInfo?.length && (
         <>
-          {detailInfo.map((res, index) => {
+          {detailInfo?.map((res, index) => {
             return (
               <Wrapper key={res.id}>
                 {isMore && !isFeedEdit ? (

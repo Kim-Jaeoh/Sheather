@@ -194,7 +194,7 @@ export interface MessageType {
   isRead: boolean;
 }
 
-export interface listType {
+export interface MessageListType {
   id: string;
   member?: string;
   message?: MessageType[];

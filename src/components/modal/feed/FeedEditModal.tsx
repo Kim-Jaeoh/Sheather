@@ -92,7 +92,7 @@ const FeedEditModal = ({ feed, modalOpen, modalClose }: Props) => {
           </EditBtn>
         </Header>
 
-        <ImageWrapper>
+        {/* <ImageWrapper>
           <Flicking
             onChanged={(e) => console.log(e)}
             moveType="freeScroll"
@@ -117,7 +117,7 @@ const FeedEditModal = ({ feed, modalOpen, modalClose }: Props) => {
               })}
             </ImageContainerBox>
           </Flicking>
-        </ImageWrapper>
+        </ImageWrapper> */}
 
         <ShareWeatherCategory
           bgColor={bgColor}
@@ -307,11 +307,16 @@ const EditText = styled.p`
   /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
 `;
 
-const Category = styled.div`
+const Category = styled.p`
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-weight: bold;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 16px;
+  user-select: none;
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;

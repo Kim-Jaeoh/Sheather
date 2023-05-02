@@ -148,13 +148,9 @@ const CategoryBox = styled.div`
 
   @media (max-width: 767px) {
     position: relative;
-    font-size: 18px;
     margin: 0 auto;
     width: auto;
     height: auto;
-    text-align: center;
-    font-weight: 700;
-    color: ${secondColor};
     padding: 8px 14px;
     border-radius: 9999px;
     border: 1px solid ${secondColor};
@@ -167,17 +163,12 @@ const SelectName = styled.h2`
   font-weight: 700;
   font-size: 18px;
 
-  /* @media (max-width: 767px) { */
-  /* font-size: 16px; */
-  /* } */
+  @media (max-width: 767px) {
+    font-size: 16px;
+  }
 `;
 
 const ListBox = styled.div`
-  /* display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap; */
   width: 100%;
   padding: 40px;
 
@@ -186,7 +177,7 @@ const ListBox = styled.div`
   }
 `;
 
-const List = styled.div`
+const List = styled.li`
   border: 2px solid ${secondColor};
   flex: 1 1 40%;
   border-radius: 20px;
@@ -211,14 +202,12 @@ const List = styled.div`
   }
 
   @media screen and (max-width: 1050px) {
-    flex: 1 1 100%;
     animation: none;
     border-width: 1px;
+    margin: 0 auto;
+    width: 300px;
+    height: 70px;
   }
-`;
-
-const NullCard = styled.div`
-  flex: 1 0 40%;
 `;
 
 const Tag = styled(Link)`
@@ -242,6 +231,8 @@ const ListProfileBox = styled.div`
 
   @media (max-width: 767px) {
     border-right-width: 1px;
+    width: 70px;
+    height: 70px;
   }
 `;
 
@@ -267,12 +258,16 @@ const TagRank = styled.div`
 `;
 
 const TagInfo = styled.div`
-  padding: 0 20px;
+  padding-left: 20px;
   display: flex;
   justify-content: center;
   flex-direction: column;
   gap: 6px;
   height: 100%;
+
+  @media (max-width: 767px) {
+    padding-left: 14px;
+  }
 `;
 
 const TagName = styled.span`
@@ -281,6 +276,10 @@ const TagName = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const TagCount = styled.span`
@@ -288,4 +287,8 @@ const TagCount = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 14px;
+  color: ${thirdColor};
+  @media (max-width: 767px) {
+    font-size: 12px;
+  }
 `;

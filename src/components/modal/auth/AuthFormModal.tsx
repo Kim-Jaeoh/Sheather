@@ -157,8 +157,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                 ...docSnap.data(),
               })
             );
-            // alert("로그인 되었습니다.");
-            // modalClose();
 
             // 알림 토큰 생성
             await createDeviceToken(SignUser.email).then(() => {

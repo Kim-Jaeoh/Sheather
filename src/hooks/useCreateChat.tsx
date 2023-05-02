@@ -15,18 +15,18 @@ const useCreateChat = () => {
   // 채팅 생성
   const onCreateChatClick = async (user: CurrentUserType) => {
     const myFilter = myAccount?.message?.filter(
-      (message: MessageReadType) => message.user === user.displayName
+      (message: MessageReadType) => message.email === user.email
     );
     const userFilter = user.message.filter(
-      (message) => message.user === myAccount?.displayName
+      (message) => message.email === myAccount?.email
     );
 
     if (!myFilter.length && !userFilter.length) {
       // 채팅 새로 만들기
       await addDoc(collection(dbService, `messages`), {
-        member: [myAccount?.displayName, user.displayName],
-        message: [],
-      }).then((document) => {
+        member: [myAccount?.email, user.email],
+        // message: [],
+      }).then(async (document) => {
         // 중복 체크
         const checkMyInfo = myAccount?.message?.some(
           (res: { id: string }) => res.id === document?.id
@@ -74,8 +74,7 @@ const useCreateChat = () => {
       });
     } else {
       // 기존 채팅방 본인 계정 message에 id값 추가
-      if (myAccount && myFilter.length) {
-        console.log("???");
+      if (myAccount && !myFilter.length) {
         const myAccountPushId = async () => {
           await updateDoc(doc(dbService, "users", myAccount?.email), {
             message: [
@@ -84,7 +83,7 @@ const useCreateChat = () => {
                 user: user?.displayName,
                 email: user?.email,
                 id: userFilter[0].id,
-                isRead: false,
+                isRead: true,
               },
             ],
           });
@@ -93,7 +92,7 @@ const useCreateChat = () => {
       }
 
       // 기존 채팅방 상대 계정 message에 id값 추가
-      if (user && userFilter.length) {
+      if (user && !userFilter.length) {
         const UserAccountPushId = async () => {
           await updateDoc(doc(dbService, "users", user.email), {
             message: [
@@ -102,7 +101,7 @@ const useCreateChat = () => {
                 user: myAccount?.displayName,
                 email: myAccount?.email,
                 id: myFilter[0]?.id,
-                isRead: false,
+                isRead: true,
               },
             ],
           });

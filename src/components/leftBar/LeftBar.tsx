@@ -25,6 +25,7 @@ import ShareWeatherModal from "../modal/shareWeather/ShareWeatherModal";
 import Deco from "./Deco";
 import useGetMyAccount from "../../hooks/useGetMyAccount";
 import { nowWeatherApi } from "../../apis/api";
+import { VscBell } from "react-icons/vsc";
 
 type MenuFuncgionType = {
   [key: string]: () => void;
@@ -211,7 +212,7 @@ const LeftBar = ({ onIsLogin }: props) => {
               onClick={() => onBtnClick("notice")}
             >
               <MenuList>
-                <SlBell />
+                <VscBell />
                 <MenuText>알림</MenuText>
                 {myAccount?.notice?.some(
                   (res: NoticeArrType) => !res?.isRead

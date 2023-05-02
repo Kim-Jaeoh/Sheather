@@ -45,8 +45,9 @@ const RangeBox = styled.div`
   }
 
   @media (max-width: 767px) {
+    width: 180px;
     border-width: 1px;
-    box-shadow: 8px 8px 0 -1px #ff5673, 8px 8px ${secondColor};
+    box-shadow: 6px 6px 0 -1px #ff5673, 6px 6px ${secondColor};
   }
 `;
 
@@ -59,13 +60,16 @@ const Container = styled.div`
 
 const ResetBtn = styled.button`
   width: 100%;
-  min-height: 60px;
+  height: 60px;
   padding: 4px 8px;
   font-size: 16px;
   cursor: pointer;
   font-weight: bold;
   &:not(:last-of-type) {
     border-bottom: 1px solid ${thirdColor};
+  }
+  @media (max-width: 767px) {
+    font-size: 14px;
   }
 `;
 

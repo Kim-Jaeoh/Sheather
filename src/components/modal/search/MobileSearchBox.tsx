@@ -7,13 +7,13 @@ import {
   IoMdClose,
 } from "react-icons/io";
 import useDebounce from "../../../hooks/useDebounce";
-import FollowListBox from "../FollowListBox";
-import TagListBox from "../TagListBox";
-import SearchList, { localType } from "./SearchList";
-import SearchedShowList from "./SearchedShowList";
+import FollowListBox from "../../rightBar/FollowListBox";
+import TagListBox from "../../rightBar/TagListBox";
+import SearchList, { localType } from "../../rightBar/search/SearchList";
+import SearchedShowList from "../../rightBar/search/SearchedShowList";
 import ColorList from "../../../assets/data/ColorList";
 import useUserAccount from "../../../hooks/useUserAccount";
-import AuthFormModal from "../../modal/auth/AuthFormModal";
+import AuthFormModal from "../auth/AuthFormModal";
 
 type Props = {
   modalOpen: boolean;

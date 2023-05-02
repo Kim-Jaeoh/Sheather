@@ -44,7 +44,8 @@ const useFlickingArrow = ({ dataLength, lastLength }: Props) => {
     if (flickingRef.current.animating === true) {
       return;
     }
-    if (slideIndex !== 3) {
+    console.log(slideIndex);
+    if (slideIndex !== 4) {
       setSlideIndex(slideIndex + 1);
     }
   };

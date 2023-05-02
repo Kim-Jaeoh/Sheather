@@ -2,7 +2,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/data/ColorList";
 import Modal from "@mui/material/Modal";
-import MobileSearchBox from "../../rightBar/search/MobileSearchBox";
+import MobileSearchBox from "./MobileSearchBox";
 
 type Props = {
   modalOpen: boolean;

@@ -205,6 +205,10 @@ const Category = styled.div`
   align-items: center;
   font-weight: bold;
   font-size: 16px;
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
 `;
 
 const CloseBox = styled.button`

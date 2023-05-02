@@ -12,6 +12,11 @@ import { RootState } from "../app/store";
 import { dbService } from "../fbase";
 import { ReactComponent as SheatherLogo } from "../assets/image/sheather_logo.svg";
 import { Link } from "react-router-dom";
+import { BiBell, BiSearch } from "react-icons/bi";
+import { VscBell } from "react-icons/vsc";
+import { CiSearch } from "react-icons/ci";
+import { HiOutlineBell, HiOutlineSearch } from "react-icons/hi";
+import { IoSearchOutline } from "react-icons/io5";
 
 type Props = {
   onIsLogin: (callback: () => void) => void;
@@ -65,10 +70,11 @@ const MobileHeader = ({ onIsLogin }: Props) => {
         </LogoBox>
         <IconBox>
           <Icon type="button" onClick={onSearchModal}>
-            <FiSearch />
+            <CiSearch />
+            {/* <IoSearchOutline /> */}
           </Icon>
           <Icon type="button" onClick={onNoticeModal}>
-            <SlBell />
+            <VscBell />
             {myAccount?.notice?.some((res: NoticeArrType) => !res.isRead) && (
               <NoticeBox />
             )}
@@ -117,10 +123,17 @@ const Icon = styled.button`
   position: relative;
   padding: 0;
   cursor: pointer;
+
+  &:first-of-type {
+    svg {
+      stroke-width: 0.6;
+    }
+  }
+
   svg {
     color: ${secondColor};
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
 `;
 

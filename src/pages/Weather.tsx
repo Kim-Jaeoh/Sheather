@@ -12,7 +12,7 @@ import moment from "moment";
 import WeatherSliderSkeleton from "../assets/skeleton/WeatherSliderSkeleton";
 import ColorList from "../assets/data/ColorList";
 import { nowWeatherApi, weatherApi } from "../apis/api";
-const WeatherSlider = lazy(() => import("../components/weather/WeatherSlider"));
+import WeatherSlider from "../components/weather/WeatherSlider";
 
 const Weather = () => {
   const [weather, setWeather] = useState<WeathersFiveDataType | null>(null);

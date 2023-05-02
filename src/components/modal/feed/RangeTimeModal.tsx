@@ -10,6 +10,7 @@ import "../../../styles/RangeTimeModalRcSlider.css";
 import { Modal } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
 import useMediaScreen from "../../../hooks/useMediaScreen";
+import { BiLeftArrowAlt } from "react-icons/bi";
 
 type Props = {
   modalOpen: boolean;
@@ -59,58 +60,66 @@ const RangeTimeModal = (props: Props) => {
     >
       <RangeBox isMobile={isMobile}>
         <Header>
-          <IconBox onClick={isCalendar ? onClickCalendar : modalClose}>
-            <IoMdClose />
-          </IconBox>
+          <p>날짜 지정</p>
+          {isCalendar ? (
+            <IconBox onClick={onClickCalendar} style={{ marginRight: "auto" }}>
+              <BiLeftArrowAlt />
+            </IconBox>
+          ) : (
+            <IconBox onClick={modalClose} style={{ marginLeft: "auto" }}>
+              <IoMdClose />
+            </IconBox>
+          )}
         </Header>
-        <Container>
-          <ViewNumberBox>
-            {isCalendar && (
-              <CalendarBox>
-                <Calendar
-                  formatDay={(locale, date) => moment(date).format("DD")} // 날'일' 제외하고 숫자만 보이도록 설정
-                  showNeighboringMonth={false} //  이전, 이후 달의 날짜는 보이지 않도록 설정
-                  onChange={(e: Date) => {
-                    setClickCalendar(e);
-                  }}
-                  value={changeValue}
-                />
-              </CalendarBox>
-            )}
-            <DateBox onClick={onClickCalendar}>
-              <DateIcon>
-                <BsCalendar3 />
-              </DateIcon>
-              <DateText>{moment(changeValue).format("YYYY-MM-DD")}</DateText>
-            </DateBox>
-            {rangeTime && (
-              <ViewNumber>
-                {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
-                {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
-              </ViewNumber>
-            )}
-          </ViewNumberBox>
-          <RangeSlideBox>
-            <Slider
-              range
-              min={0}
-              max={23}
-              value={rangeTime}
-              onChange={handleSliderChange}
-              allowCross={false}
-              pushable={1}
-              defaultValue={[0, 23]}
+        {isCalendar ? (
+          <CalendarBox>
+            <Calendar
+              formatDay={(locale, date) => moment(date).format("D")} // 날'일' 제외하고 숫자만 보이도록 설정
+              showNeighboringMonth={false} //  이전, 이후 달의 날짜는 보이지 않도록 설정
+              onChange={(e: Date) => {
+                setClickCalendar(e);
+              }}
+              value={changeValue}
             />
-          </RangeSlideBox>
-          <RangeNumberBox>
-            <RangeNumber>0시</RangeNumber>
-            <RangeNumber>23시</RangeNumber>
-          </RangeNumberBox>
-          <ButtonBox>
-            <ResetBtn onClick={onReset}>초기화</ResetBtn>
-            <DoneBtn onClick={onDone}>완료</DoneBtn>
-          </ButtonBox>
-        </Container>
+          </CalendarBox>
+        ) : (
+          <Container>
+            <ViewNumberBox>
+              <DateBox onClick={onClickCalendar}>
+                <DateIcon>
+                  <BsCalendar3 />
+                </DateIcon>
+                <DateText>{moment(changeValue).format("YYYY-MM-DD")}</DateText>
+              </DateBox>
+              {rangeTime && (
+                <ViewNumber>
+                  {rangeTime[0] < 10 ? "0" + rangeTime[0] : rangeTime[0]} ~{" "}
+                  {rangeTime[1] < 10 ? "0" + rangeTime[1] : rangeTime[1]}시
+                </ViewNumber>
+              )}
+            </ViewNumberBox>
+            <RangeSlideBox>
+              <Slider
+                range
+                min={0}
+                max={23}
+                value={rangeTime}
+                onChange={handleSliderChange}
+                allowCross={false}
+                pushable={1}
+                defaultValue={[0, 23]}
+              />
+            </RangeSlideBox>
+            <RangeNumberBox>
+              <RangeNumber>0시</RangeNumber>
+              <RangeNumber>23시</RangeNumber>
+            </RangeNumberBox>
+            <ButtonBox>
+              <ResetBtn onClick={onReset}>초기화</ResetBtn>
+              <DoneBtn onClick={onDone}>완료</DoneBtn>
+            </ButtonBox>
+          </Container>
+        )}
       </RangeBox>
     </Modal>
   );
@@ -122,42 +131,60 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const RangeBox = styled.div<{ isMobile: boolean }>`
   position: absolute;
-  /* top: 214px;
-  left: 50%;
-  transform: translateX(-50%); */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 100;
   border-radius: 20px;
   border: 2px solid ${secondColor};
-  width: 300px;
+  width: 400px;
   background: #fff;
   box-shadow: 8px 8px 0 -2px #ff5673, 8px 8px ${secondColor};
+  overflow: hidden;
 
   @media (max-width: 767px) {
+    width: 300px;
     border-width: 1px;
-    box-shadow: 8px 8px 0 -1px #ff5673, 8px 8px ${secondColor};
+    box-shadow: 6px 6px 0 -1px #ff5673, 6px 6px ${secondColor};
   }
 `;
 
 const Header = styled.header`
   width: 100%;
+  height: 52px;
   display: flex;
-  justify-content: end;
+  align-items: center;
+  position: relative;
+  p {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    font-size: 16px;
+    user-select: none;
+  }
+
   overflow: hidden;
   border-bottom: 1px solid ${thirdColor};
+
+  @media (max-width: 767px) {
+    p {
+      font-size: 14px;
+    }
+  }
 `;
 
 const IconBox = styled.div`
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   svg {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    padding: 8px;
+    width: 24px;
+    height: 24px;
+    /* padding: 8px; */
   }
 `;
 
@@ -236,14 +263,14 @@ const DoneBtn = styled.button`
 
 const CalendarBox = styled.div`
   z-index: 99;
-  position: absolute;
-  left: -1px;
-  top: 37px;
-  bottom: 0;
-  right: -1px;
+  /* position: absolute; */
+  /* left: -1px; */
+  /* top: 52px; */
+  /* bottom: 0; */
+  /* right: -1px; */
   > div:last-of-type {
     padding: 10px;
-    border-radius: 0 0 8px 8px;
+    /* border-radius: 0 0 20px 20px; */
     border-top: none;
   }
 `;

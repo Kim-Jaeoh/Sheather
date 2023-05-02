@@ -6,6 +6,7 @@ import useDebounce from "../../../hooks/useDebounce";
 import SearchList, { localType } from "./SearchList";
 import ColorList from "../../../assets/data/ColorList";
 import SearchedShowList from "./SearchedShowList";
+import { IoSearchOutline } from "react-icons/io5";
 
 const SearchBox = () => {
   const [focus, setFocus] = useState(false);
@@ -99,7 +100,8 @@ const SearchBox = () => {
     <Container>
       <InputTextBox onSubmit={onSubmitText} focus={focus}>
         <IconBox htmlFor="search" focus={focus}>
-          <FiSearch />
+          <IoSearchOutline />
+          {/* <FiSearch /> */}
         </IconBox>
         <SearchInput
           spellCheck="false"

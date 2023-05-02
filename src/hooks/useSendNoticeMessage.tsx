@@ -6,7 +6,7 @@ import { dbService, saveMessagingDeviceToken } from "../fbase";
 import useThrottle from "./useThrottle";
 import axios, { AxiosRequestConfig } from "axios";
 import useGetMyAccount from "./useGetMyAccount";
-import { throttle } from "lodash";
+import { debounce, throttle } from "lodash";
 
 interface PostData {
   message: string;
@@ -30,7 +30,7 @@ const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
   }, [users?.email]);
 
   // 메세지 알림 보내기
-  const sendMessage = throttle(async (text: string) => {
+  const sendMessage = debounce(async (text: string) => {
     if (getToken) {
       saveMessagingDeviceToken(users?.email);
 

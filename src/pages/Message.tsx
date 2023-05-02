@@ -9,13 +9,16 @@ import Chat from "../components/message/Chat";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";
 import useCreateChat from "../hooks/useCreateChat";
 import useMediaScreen from "../hooks/useMediaScreen";
-import { CurrentUserType, MessageReadType } from "../types/type";
+import {
+  CurrentUserType,
+  MessageReadType,
+  MessageListType,
+} from "../types/type";
 import useGetMyAccount from "../hooks/useGetMyAccount";
 import ChatList from "../components/message/ChatList";
-import { onSnapshot, doc } from "firebase/firestore";
+import { onSnapshot, doc, collection, query } from "firebase/firestore";
 import { dbService } from "../fbase";
-import BottomButton from "../components/scrollButton/BottomButton";
-import { Spinner } from "../assets/spinner/Spinner";
+import ChatTest from "../components/message/ChatTest";
 
 type Props = {};
 
@@ -26,17 +29,18 @@ interface LocationType {
 const Message = (props: Props) => {
   const [addUserModal, setAddUserMOdal] = useState(false);
   const [users, setUsers] = useState(null);
+  const [messageCollection, setMessageCollection] = useState(null);
   const { clickInfo, setClickInfo } = useCreateChat();
-  const { state } = useLocation() as LocationType;
-  const { userLogin, userObj, myAccount } = useGetMyAccount();
-  const { isDesktop, isTablet, isMobile, isMobileBefore } = useMediaScreen();
+  const { state: userInfo } = useLocation();
+  const { userObj, myAccount } = useGetMyAccount();
+  const { isDesktop, isTablet, isMobile } = useMediaScreen();
   const navigate = useNavigate();
 
   // 상대 계정 정보 가져오기
   useEffect(() => {
-    if (myAccount && (state || clickInfo)) {
+    if (myAccount && (userInfo || clickInfo)) {
       const unsubscribe = onSnapshot(
-        doc(dbService, "users", state ? state : clickInfo),
+        doc(dbService, "users", userInfo ? userInfo : clickInfo),
         (doc) => {
           setUsers(doc.data());
         }
@@ -44,7 +48,29 @@ const Message = (props: Props) => {
 
       return () => unsubscribe();
     }
-  }, [clickInfo, myAccount, state]);
+  }, [clickInfo, myAccount, userInfo]);
+
+  // 채팅방 목록 및 정보 불러오기
+  useEffect(() => {
+    if (users) {
+      // 채팅방 입장 시 대화 내역 초기화 (렌더링 하는 순간에 다른 채팅방 유저 프로필이 보이기 때문)
+      const q = query(collection(dbService, `messages`));
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const list: MessageListType[] = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        const getInfo = list?.filter(
+          (res) =>
+            res.member.includes(myAccount?.email) &&
+            res.member.includes(users?.email)
+        );
+        setMessageCollection(getInfo[0]);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [myAccount?.email, users]);
 
   // 채팅방 생성
   const onAddChatClick = () => {
@@ -53,6 +79,7 @@ const Message = (props: Props) => {
 
   // 채팅방 클릭
   const onListClick = (userEmail: string, userDsname: string) => {
+    setMessageCollection(null); // 컬렉션 ID 값 겹치지 않게
     setClickInfo(userEmail);
     navigate(`/message/${userDsname}`);
   };
@@ -68,37 +95,57 @@ const Message = (props: Props) => {
       )}
       <Wrapper>
         <Container>
-          <ChatRoomList isMobile={isMobile} state={state ? state : clickInfo}>
-            <Category>
-              <CategoryText>메시지</CategoryText>
-              <AddChatBtn onClick={onAddChatClick}>
-                <BiMessageAltAdd />
-              </AddChatBtn>
-            </Category>
-            {myAccount?.message?.length > 0 ? (
-              <ChatRoomBox>
-                {myAccount?.message.map(
-                  (data: MessageReadType, index: number) => {
-                    return (
-                      <ChatList
-                        key={data.user}
-                        data={data}
-                        onListClick={onListClick}
-                      />
-                    );
-                  }
-                )}
-              </ChatRoomBox>
-            ) : (
-              <MessageUserSkeleton />
-            )}
-          </ChatRoomList>
-          {(isTablet || isDesktop || state || clickInfo) && (
+          {!(userInfo || clickInfo) && (
+            <ChatRoomList
+              isMobile={isMobile}
+              state={userInfo ? userInfo : clickInfo}
+            >
+              <Category>
+                <CategoryText>메시지</CategoryText>
+                <AddChatBtn onClick={onAddChatClick}>
+                  <BiMessageAltAdd />
+                </AddChatBtn>
+              </Category>
+              {myAccount?.message?.length > 0 ? (
+                <ChatRoomBox>
+                  {myAccount?.message.map(
+                    (data: MessageReadType, index: number) => {
+                      return (
+                        <ChatList
+                          key={data.user}
+                          data={data}
+                          onListClick={onListClick}
+                        />
+                      );
+                    }
+                  )}
+                </ChatRoomBox>
+              ) : (
+                <>
+                  {isMobile ? (
+                    <NotInfoBox>
+                      <IconBox>
+                        <Icon>
+                          <BsChatDots />
+                        </Icon>
+                      </IconBox>
+                      <NotInfoCategory>메시지</NotInfoCategory>
+                      <NotInfoText>친구에게 메시지를 보내보세요.</NotInfoText>
+                    </NotInfoBox>
+                  ) : (
+                    <MessageUserSkeleton />
+                  )}
+                </>
+              )}
+            </ChatRoomList>
+          )}
+          {(isTablet || isDesktop || userInfo || clickInfo) && (
             <ChatRoom>
-              {state || clickInfo ? (
-                <Chat
+              {userInfo || clickInfo ? (
+                <ChatTest
                   users={users}
                   myAccount={myAccount}
+                  messageCollection={messageCollection}
                   setClickInfo={setClickInfo}
                 />
               ) : (
@@ -230,6 +277,7 @@ const ChatRoom = styled.article`
   flex-direction: column;
   flex: 1 0 250px;
   height: 100%;
+  transition: all 0.15s linear;
 `;
 
 const ChatRoomBox = styled.div``;
@@ -242,6 +290,10 @@ const NotInfoBox = styled.div`
   flex-direction: column;
   justify-content: center;
   padding-bottom: 30px;
+
+  @media (max-width: 767px) {
+    height: calc(100% - 60px);
+  }
 `;
 
 const NotInfoCategory = styled.p`

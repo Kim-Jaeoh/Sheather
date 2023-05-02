@@ -191,13 +191,9 @@ const CategoryBox = styled.nav`
 
   @media (max-width: 767px) {
     position: relative;
-    font-size: 18px;
     margin: 0 auto;
     width: auto;
     height: auto;
-    text-align: center;
-    font-weight: 700;
-    color: ${secondColor};
     padding: 8px 14px;
     border-radius: 9999px;
     border: 1px solid ${secondColor};
@@ -209,6 +205,10 @@ const CategoryBox = styled.nav`
 const SelectName = styled.h2`
   font-weight: 700;
   font-size: 18px;
+
+  @media (max-width: 767px) {
+    font-size: 16px;
+  }
 `;
 
 const ListBox = styled.div`
@@ -250,10 +250,11 @@ const Card = styled.div`
   }
 
   @media (max-width: 767px) {
-    flex: 1 1 100%;
-    height: 80px;
-    border-width: 1px;
     animation: none;
+    border-width: 1px;
+    margin: 0 auto;
+    width: 300px;
+    height: 70px;
   }
 `;
 

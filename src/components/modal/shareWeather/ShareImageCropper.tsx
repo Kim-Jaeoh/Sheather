@@ -112,9 +112,6 @@ const ShareImageCropper = React.forwardRef<HTMLButtonElement, Props>(
       }
     };
 
-    // const getImageSize = new Image();
-    // getImageSize.src = imageUrl;
-
     return (
       <Container>
         <CropBox attachments={imageUrl}>

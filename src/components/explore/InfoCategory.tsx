@@ -269,7 +269,7 @@ const TagCategoryText = styled.h2`
 
   @media (max-width: 767px) {
     border-width: 1px;
-    font-size: 18px;
+    font-size: 16px;
   }
 `;
 
@@ -373,7 +373,7 @@ const WeatherEmojiBox = styled.div`
   z-index: 1;
   top: 8px;
   left: 8px;
-  background-color: rgba(34, 34, 34, 0.4);
+  background-color: rgba(34, 34, 34, 0.2);
   border-radius: 10px;
   backdrop-filter: blur(5px);
 `;
@@ -385,6 +385,10 @@ const WeatherEmoji = styled.div`
   font-size: 12px;
   font-weight: bold;
   color: #fff;
+
+  @media (max-width: 767px) {
+    font-size: 10px;
+  }
 `;
 
 const CardLengthBox = styled.div`
@@ -392,7 +396,7 @@ const CardLengthBox = styled.div`
   z-index: 1;
   top: 8px;
   right: 8px;
-  background-color: rgba(34, 34, 34, 0.5);
+  background-color: rgba(34, 34, 34, 0.2);
   border-radius: 10px;
   backdrop-filter: blur(5px);
 `;
@@ -403,6 +407,10 @@ const CardLength = styled.span`
   font-size: 12px;
   font-weight: bold;
   color: #fff;
+
+  @media (max-width: 767px) {
+    font-size: 10px;
+  }
 `;
 
 const CardImageBox = styled.div`

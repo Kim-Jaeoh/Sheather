@@ -11,6 +11,7 @@ type props = {
 // 무한 스크롤
 const useInfinityScroll = ({ url, count }: props) => {
   const queryClient = useQueryClient();
+  const { ref, inView } = useInView();
 
   const fetchRepositories = async (page: number) => {
     if (url !== "") {
@@ -42,8 +43,6 @@ const useInfinityScroll = ({ url, count }: props) => {
       },
     }
   );
-
-  const { ref, inView } = useInView();
 
   useEffect(() => {
     if (hasNextPage && inView) {

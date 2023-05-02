@@ -152,6 +152,7 @@ textarea {
   text-decoration: none; /* 링크의 밑줄 제거 */
   color: inherit; /* 링크의 색상 제거 */
   letter-spacing: -0.015em;
+  font-display: block;
   font-family: "Pretendard", -apple-system, Apple SD Gothic Neo, Malgun Gothic,
     sans-serif;
   /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
@@ -196,7 +197,7 @@ section {
 }
 body {
   min-height: -webkit-fill-available;
-  background: #fafafa;
+  /* background: #fafafa; */
   color: #222;
 }
 

@@ -1,9 +1,10 @@
 import styled from "@emotion/styled";
 import ColorList from "../../assets/data/ColorList";
-import { MessageReadType } from "../../types/type";
-import { onSnapshot, doc } from "firebase/firestore";
-import { useState, useEffect } from "react";
+import { MessageReadType, MessageListType } from "../../types/type";
+import { onSnapshot, doc, collection, query } from "firebase/firestore";
+import { useState, useEffect, SetStateAction } from "react";
 import { dbService } from "../../fbase";
+import useGetMyAccount from "../../hooks/useGetMyAccount";
 
 type Props = {
   data: MessageReadType;

@@ -141,6 +141,16 @@ const WearInfoBox = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
+  &::after {
+    right: 0px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+    position: absolute;
+    top: 0px;
+    z-index: 10;
+    height: 100%;
+    width: 14px;
+    content: "";
+  }
 `;
 
 const WearInfoMain = styled.div`
@@ -163,16 +173,16 @@ const FlickingCategoryBox = styled.div`
   /* position: relative; */
   width: 100%;
   cursor: pointer;
-  &::after {
+  /* &::after {
     right: 0px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fafafa);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), red);
     position: absolute;
     top: 0px;
     z-index: 10;
     height: 100%;
     width: 14px;
     content: "";
-  }
+  } */
 `;
 
 const WearInfo = styled.div`

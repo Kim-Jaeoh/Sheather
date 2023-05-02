@@ -76,15 +76,9 @@ const Profile = () => {
       where(`displayName`, "==", userDpName)
     );
 
-    const unsubscribe = onSnapshot(
-      q,
-      (querySnapshot) => {
-        querySnapshot.forEach((doc) => setAccount(doc.data()));
-      },
-      (error) => {
-        console.error("Error getting documents: ", error);
-      }
-    );
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((doc) => setAccount(doc.data()));
+    });
 
     return () => {
       unsubscribe();

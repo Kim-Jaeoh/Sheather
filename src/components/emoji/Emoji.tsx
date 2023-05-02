@@ -52,7 +52,7 @@ const EmojiBox = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 999;
+  /* z-index: 999; */
 `;
 
 const EmojiIcon = styled.div`
@@ -72,13 +72,8 @@ const EmojiIcon = styled.div`
 
 const EmojiPickerBox = styled.div<{ right: number; bottom: number }>`
   position: absolute;
-  /* top: -294px; */
-  /* left: -360px; */
-  /* left: 0; */
   right: ${(props) => props.right}px;
   bottom: ${(props) => props.bottom}px;
-  /* right: 0px;
-  bottom: 30px; */
   z-index: 9999;
 `;
 
