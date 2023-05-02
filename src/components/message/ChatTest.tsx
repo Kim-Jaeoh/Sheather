@@ -407,14 +407,6 @@ const ChatTest = ({
                                               ? "읽음"
                                               : null
                                           }
-                                          {/* {isMine &&
-                                          users?.message?.some(
-                                            (user) =>
-                                              user.email !== myAccount?.email &&
-                                              !user.isRead
-                                          )
-                                            ? "ㅇㅇ"
-                                            : "a"} */}
                                         </>
                                       </Read>
                                       {moment(res?.createdAt).format(`HH:mm`)}
