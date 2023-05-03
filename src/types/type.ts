@@ -81,13 +81,7 @@ export interface ResDataType {
   wind?: { speed: number };
 }
 
-export interface MessageReadType {
-  id: string;
-  user: string;
-  email: string;
-  isRead: boolean;
-}
-
+// 유저 타입
 export interface CurrentUserType {
   uid: string;
   createdAt: number;
@@ -111,16 +105,7 @@ export interface UserType {
   newNotice?: boolean;
 }
 
-export interface replyType {
-  postId: string;
-  replyId: string;
-  email: string;
-  displayName: string;
-  text: string;
-  time: number;
-  // isRead: boolean;
-}
-
+// 팔로우
 export interface FollowerType {
   displayName: string;
   email: string;
@@ -132,6 +117,32 @@ export interface FollowingType {
   displayName: string;
   email: string;
   time: number;
+}
+
+// 피드
+export interface replyType {
+  postId: string;
+  postImgUrl: string;
+  commentId: string;
+  noticeId: string;
+  replyId?: string;
+  replyTagEmail?: string;
+  email: string;
+  displayName: string;
+  text: string;
+  time: number;
+}
+
+export interface CommentType {
+  postId: string;
+  postImgUrl: string;
+  commentId: string;
+  noticeId: string;
+  email: string;
+  displayName: string;
+  text: string;
+  time: number;
+  reply?: replyType[];
 }
 
 export interface FeedType {
@@ -164,11 +175,12 @@ export interface FeedType {
     weather: string;
   };
   region: string;
-  reply: replyType[];
+  comment: CommentType[];
   editAt?: number;
   tag?: string[];
 }
 
+// 이미지
 export interface AspectRatio {
   value: number;
   text: string;
@@ -184,6 +196,7 @@ export interface ImageType {
   croppedImageUrl?: string;
 }
 
+// 채팅
 export interface MessageType {
   text: string;
   createdAt: number;
@@ -200,6 +213,14 @@ export interface MessageListType {
   message?: MessageType[];
 }
 
+export interface MessageReadType {
+  id: string;
+  user: string;
+  email: string;
+  isRead: boolean;
+}
+
+// 알림
 export interface NoticeArrType {
   type: string;
   displayName: string;
@@ -207,6 +228,8 @@ export interface NoticeArrType {
   time: number;
   isRead: boolean;
   postId?: string;
+  noticeId: string;
+  commentId?: string;
   replyId?: string;
   text?: string;
   imgUrl?: string;

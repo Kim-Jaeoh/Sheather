@@ -648,7 +648,8 @@ const SeneMessageAt = styled.span<{ isMine: boolean }>`
 `;
 
 const Read = styled.em`
-  color: #ff5c1b;
+  color: #dbdbdb;
+  /* color: #ff5c1b; */
 `;
 
 const ChatBox = styled.div`

@@ -239,6 +239,7 @@ const User = styled(Link)`
   align-items: center;
   gap: 12px;
   margin: 0;
+  flex: 1;
 `;
 
 const ProfileImageBox = styled.div`

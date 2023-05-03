@@ -12,14 +12,14 @@ importScripts(
 // importScripts("https://www.gstatic.com/firebasejs/8.2.0/firebase-messaging.js");
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDLT1GhsvBi9at5FHkVopCoTQO-BfgCrsk",
-  authDomain: "sheather-458bd.firebaseapp.com",
-  databaseURL: "https://sheather-458bd-default-rtdb.firebaseio.com",
-  projectId: "sheather-458bd",
-  storageBucket: "sheather-458bd.appspot.com",
-  messagingSenderId: "1028313120224",
-  appId: "1:1028313120224:web:6d8262ee13e1ad0f2f3f85",
-  measurementId: "G-1PYDCZB0N8",
+  apiKey: "AIzaSyDuyihGQmcU5emS0e67Nd8oX0JUCynFTKc",
+  authDomain: "sheather-463c7.firebaseapp.com",
+  projectId: "sheather-463c7",
+  storageBucket: "sheather-463c7.appspot.com",
+  messagingSenderId: "748435717637",
+  appId: "1:748435717637:web:1c4c8315dc6c716402a66c",
+  measurementId: "G-559SZ36BYN",
+  databaseURL: 'https://sheather-463c7-default-rtdb.firebaseio.com"',
   // apiKey: process.env.REACT_APP_FB_API_KEY,
   // authDomain: process.env.REACT_APP_FB_AUTH_DOMAIN,
   // databaseURL: process.env.REACT_APP_FB_DATABASE_URL,

@@ -10,7 +10,7 @@ import { NoticeArrType } from "../../../types/type";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { SlBell } from "react-icons/sl";
 import useNoticeCheck from "../../../hooks/useNoticeCheck";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import useGetMyAccount from "../../../hooks/useGetMyAccount";
 
 type Props = {
@@ -18,11 +18,22 @@ type Props = {
   modalClose: () => void;
 };
 
+interface NoticeType {
+  [key: string]: string;
+}
+
 const NoticeModal = ({ modalOpen, modalClose }: Props) => {
   const { timeToString } = useTimeFormat();
   const navigate = useNavigate();
   const { result, isLoading } = useNoticeCheck();
   const { userObj, myAccount } = useGetMyAccount();
+
+  const noticeText: NoticeType = {
+    like: `님이 회원님의 게시물을 좋아합니다.`,
+    comment: `님이 회원님의 게시물에 댓글을 남겼습니다:`,
+    reply: `님이 회원님의 게시물에 답글을 남겼습니다:`,
+    follower: `님이 회원님을 팔로우하기 시작했습니다.`,
+  };
 
   // 읽음 처리
   useEffect(() => {
@@ -43,6 +54,9 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
     if (res.type === `like`) {
       navigate(`/feed/detail/${res.postId}`, { state: { id: res.postId } });
     }
+    if (res.type === `comment`) {
+      navigate(`/feed/detail/${res.postId}`, { state: { id: res.postId } });
+    }
     if (res.type === `reply`) {
       navigate(`/feed/detail/${res.postId}`, { state: { id: res.postId } });
     }
@@ -54,6 +68,20 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
 
   const onModalClosedAfterRead = async () => {
     modalClose();
+  };
+
+  const onDeleteList = async (res: NoticeArrType) => {
+    const ok = window.confirm("알림을 삭제하시겠어요?");
+
+    if (ok) {
+      const noticeFilter = myAccount.notice.filter(
+        (list: NoticeArrType) => list.noticeId !== res.noticeId
+      );
+
+      await updateDoc(doc(dbService, "users", myAccount.email), {
+        notice: noticeFilter,
+      });
+    }
   };
 
   return (
@@ -75,56 +103,76 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
               result
                 ?.sort((a, b) => b?.time - a?.time)
                 .map((res, index) => {
-                  let stateText: string = "";
-                  if (res?.type === "like") {
-                    stateText = `님이 회원님의 게시물을 좋아합니다.`;
+                  let stateText = `${noticeText[res?.type]} ${res?.text ?? ""}`;
+
+                  let replyDpName;
+                  const match = stateText?.match(/@\w+/);
+                  if (match) {
+                    replyDpName = match;
                   }
-                  if (res?.type === "reply") {
-                    stateText = `님이 회원님의 게시물에 댓글을 남겼습니다: ${res?.text}`;
-                  }
-                  if (res?.type === "follower") {
-                    stateText = `님이 회원님을 팔로우하기 시작했습니다.`;
-                  }
+
                   return (
                     <UserList key={index}>
-                      <ProfileImageBox
-                        to={`/profile/${res?.displayName}/post`}
-                        // state={res?.displayName}
-                        onClick={modalClose}
-                      >
-                        <ProfileImage
-                          onContextMenu={(e) => e.preventDefault()}
-                          src={res?.profileURL}
-                          alt="profile image"
-                        />
-                      </ProfileImageBox>
-                      <NoticeInfoBox>
-                        <NoticeInfo>
-                          <ProfileDsName
-                            to={`/profile/${res?.displayName}/post`}
-                            // state={res?.displayName}
-                            onClick={modalClose}
-                          >
-                            {res?.displayName}
-                          </ProfileDsName>
-                          <NoticeText onClick={() => onClick(res)}>
-                            {stateText}
-                          </NoticeText>
-                        </NoticeInfo>
-                        <NoticeAt>{timeToString(res?.time)}</NoticeAt>
-                      </NoticeInfoBox>
-                      {res?.imgUrl && (
-                        <NoticeImageBox
-                          to={`/feed/detail`}
-                          state={{ id: res?.postId }}
+                      <ListInfo>
+                        <ProfileImageBox
+                          to={`/profile/${res?.displayName}/post`}
                           onClick={modalClose}
                         >
-                          <NoticeImage
+                          <ProfileImage
                             onContextMenu={(e) => e.preventDefault()}
-                            src={res?.imgUrl}
+                            src={res?.profileURL}
+                            alt="profile image"
                           />
-                        </NoticeImageBox>
-                      )}
+                        </ProfileImageBox>
+                        <NoticeInfoBox>
+                          <NoticeInfo>
+                            <ProfileDsName
+                              to={`/profile/${res?.displayName}/post`}
+                              onClick={modalClose}
+                            >
+                              {res?.displayName}
+                            </ProfileDsName>
+                            <NoticeText onClick={() => onClick(res)}>
+                              {/* {stateText} */}
+                              {replyDpName ? (
+                                <>
+                                  {`${stateText.split(":")[0]}: `}
+                                  <CommentDpName
+                                    to={`/profile/${
+                                      replyDpName[0].split("@")[1]
+                                    }/post`}
+                                  >
+                                    {`${replyDpName[0]} `}
+                                  </CommentDpName>
+                                  {
+                                    replyDpName["input"].split(
+                                      replyDpName[0]
+                                    )[1]
+                                  }
+                                </>
+                              ) : (
+                                stateText
+                              )}
+                            </NoticeText>
+                          </NoticeInfo>
+                          <NoticeAt>{timeToString(res?.time)}</NoticeAt>
+                        </NoticeInfoBox>
+                        {res?.imgUrl && (
+                          <NoticeImageBox
+                            to={`/feed/detail`}
+                            state={{ id: res?.postId }}
+                            onClick={modalClose}
+                          >
+                            <NoticeImage
+                              onContextMenu={(e) => e.preventDefault()}
+                              src={res?.imgUrl}
+                            />
+                          </NoticeImageBox>
+                        )}
+                      </ListInfo>
+                      <ListCloseBox onClick={() => onDeleteList(res)}>
+                        <IoMdClose />
+                      </ListCloseBox>
                     </UserList>
                   );
                 })
@@ -231,6 +279,36 @@ const CloseBox = styled.button`
   }
 `;
 
+const ListCloseBox = styled.div`
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: ${thirdColor};
+  transition: all 0.12s linear;
+  width: 48px;
+  height: 48px;
+
+  &:hover,
+  &:active {
+    color: ${secondColor};
+  }
+
+  svg {
+    font-size: 18px;
+  }
+
+  @media (max-width: 767px) {
+    /* width: 22px; */
+    /* height: 22px; */
+    /* svg {
+      font-size: 18px;
+    } */
+  }
+`;
+
 const UserListBox = styled.ul`
   overflow-y: auto;
   display: flex;
@@ -246,13 +324,19 @@ const UserList = styled.li`
   padding: 14px 16px;
   width: 100%;
   gap: 12px;
-  cursor: pointer;
   transition: all 0.12s linear;
 
   &:hover,
   &:active {
     background: #f5f5f5;
   }
+`;
+
+const ListInfo = styled.div`
+  display: flex;
+  padding-right: 40px;
+  align-items: center;
+  gap: 12px;
 `;
 
 const ProfileImageBox = styled(Link)`
@@ -273,7 +357,7 @@ const ProfileImage = styled.img`
 
 const NoticeInfoBox = styled.div`
   flex: 1;
-  padding-right: 20px;
+  /* padding-right: 40px; */
 `;
 
 const NoticeInfo = styled.div``;
@@ -290,6 +374,15 @@ const NoticeText = styled.span`
   cursor: pointer;
 `;
 
+const CommentDpName = styled(Link)`
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+  color: #00376b;
+  cursor: pointer;
+  font-weight: 500;
+`;
+
 const NoticeAt = styled.span`
   font-size: 12px;
   margin-top: 6px;
@@ -297,10 +390,12 @@ const NoticeAt = styled.span`
 `;
 
 const NoticeImageBox = styled(Link)`
-  width: 44px;
-  height: 44px;
+  /* width: 44px; */
+  /* height: 44px; */
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
   border: 1px solid ${fourthColor};
-  /* border-radius: 50%; */
   overflow: hidden;
   flex: 0 0 auto;
   cursor: pointer;

@@ -1,24 +1,40 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import React, { useMemo, useState } from "react";
-import { ReplyPayload } from "../components/feed/detail/DetailFeedReplyBox";
-import { CurrentUserType, FeedType, replyType } from "../types/type";
+import {
+  CurrentUserType,
+  FeedType,
+  CommentType,
+  replyType,
+} from "../types/type";
 import { dbService } from "../fbase";
 import { updateDoc, doc } from "firebase/firestore";
 import useSendNoticeMessage from "./useSendNoticeMessage";
+import { toast } from "react-hot-toast";
 
 type Props = {
-  feed: FeedType;
   userObj: CurrentUserType;
   userAccount: CurrentUserType;
+  commentData: CommentType;
   textRef: React.MutableRefObject<HTMLTextAreaElement>;
   getToken: string;
 };
 
-const useReply = ({ feed, userObj, userAccount, textRef, getToken }: Props) => {
+export type ReplyPayload = {
+  commentId?: string;
+  reply?: replyType;
+};
+
+const useReply = ({
+  userObj,
+  userAccount,
+  commentData,
+  textRef,
+  getToken,
+}: Props) => {
   const [replyText, setReplyText] = useState("");
   const queryClient = useQueryClient();
-  const { sendActions } = useSendNoticeMessage(feed);
+  const { sendActions } = useSendNoticeMessage(commentData);
 
   const noticeCopy = useMemo(() => {
     if (userAccount) {
@@ -29,43 +45,50 @@ const useReply = ({ feed, userObj, userAccount, textRef, getToken }: Props) => {
   // 댓글 업로드
   const { mutate } = useMutation(
     (response: ReplyPayload) =>
-      axios.post(`${process.env.REACT_APP_SERVER_PORT}/api/reply`, response),
+      axios.patch(`${process.env.REACT_APP_SERVER_PORT}/api/reply`, response),
     {
       onSuccess: async () => {
+        setReplyText("");
+        textRef.current.style.height = "24px";
         queryClient.invalidateQueries(["feed"]);
       },
     }
   );
 
-  // 댓글 업로드
-  const onReply = async (feed: FeedType) => {
-    const replyId = `${feed.id}_${+new Date()}`; // 고유 값
-    const copy = [...feed.reply];
+  // 답글 업로드
+  const onReply = async (comment: CommentType) => {
+    const replyId = `${comment.commentId}_${+new Date()}`; // 고유 값
+    const noticeId = `notice_${+new Date()}`; // 고유 값
 
     mutate({
-      id: feed.id,
-      reply: [
-        ...copy,
-        {
-          postId: feed.id,
-          replyId: replyId,
-          email: userObj.email,
-          displayName: userObj.displayName,
-          text: replyText,
-          time: +new Date(),
-        },
-      ],
-    });
+      commentId: comment.commentId,
 
-    if (userObj.displayName !== feed.displayName) {
-      await updateDoc(doc(dbService, "users", userAccount.email), {
+      reply: {
+        postId: comment.postId,
+        noticeId: noticeId,
+        postImgUrl: comment.postImgUrl,
+        commentId: comment.commentId,
+        replyId: replyId,
+        replyTagEmail: comment.email,
+        email: userObj.email,
+        displayName: userObj.displayName,
+        text: replyText,
+        time: +new Date(),
+      },
+    });
+    console.log(comment);
+    if (userObj.displayName !== comment.displayName) {
+      await updateDoc(doc(dbService, "users", comment.email), {
         notice: [
           ...noticeCopy,
           {
             type: "reply",
-            postId: feed.id,
+            noticeId: noticeId,
+            postId: comment.postId,
+            commentId: comment.commentId,
             replyId: replyId,
-            imgUrl: feed.url[0],
+            replyTagEmail: comment.email,
+            postImgUrl: comment.postImgUrl,
             text: replyText,
             displayName: userObj.displayName,
             email: userObj.email,
@@ -77,19 +100,16 @@ const useReply = ({ feed, userObj, userAccount, textRef, getToken }: Props) => {
     }
 
     // 알림 보내기
-    if (getToken && feed.displayName !== userObj.displayName) {
+    if (getToken && commentData.displayName !== userObj.displayName) {
       sendActions(`reply`, replyText);
     }
-
-    setReplyText("");
-    textRef.current.style.height = "24px";
   };
 
   // 댓글 삭제
   const { mutate: mutateReplyDelete } = useMutation(
     (response: ReplyPayload) =>
       axios.delete(
-        `${process.env.REACT_APP_SERVER_PORT}/api/reply/${response.id}`,
+        `${process.env.REACT_APP_SERVER_PORT}/api/reply/${response.commentId}`,
         {
           data: response,
         }
@@ -97,29 +117,31 @@ const useReply = ({ feed, userObj, userAccount, textRef, getToken }: Props) => {
     {
       onSuccess: async () => {
         queryClient.invalidateQueries(["feed"]);
+        toast.success("댓글이 삭제되었습니다.");
       },
     }
   );
 
   // 댓글 삭제
   const onReplyDelete = async (replyData: replyType) => {
-    const filter = feed.reply.filter((info) => info.text !== replyData.text);
-    const noticeFilter = noticeCopy.filter(
-      (notice) =>
-        notice.replyId !== replyData.replyId || notice.type !== "reply"
-    );
-
-    mutateReplyDelete({
-      id: replyData.postId,
-      reply: [...filter],
-    });
-
-    // 상대 알림에서 제거
-    if (userObj.displayName !== feed.displayName) {
-      console.log("제거");
-      await updateDoc(doc(dbService, "users", userAccount.email), {
-        notice: noticeFilter,
+    const ok = window.confirm("댓글을 삭제하시겠어요?");
+    if (ok) {
+      const noticeFilter = noticeCopy.filter(
+        (notice) =>
+          notice.replyId !== replyData.replyId || notice.type !== "reply"
+      );
+      console.log(replyData);
+      mutateReplyDelete({
+        commentId: replyData.commentId,
+        reply: replyData,
       });
+
+      // 상대 알림에서 제거
+      if (userObj.displayName !== replyData?.displayName) {
+        await updateDoc(doc(dbService, "users", replyData.replyTagEmail), {
+          notice: noticeFilter,
+        });
+      }
     }
   };
 

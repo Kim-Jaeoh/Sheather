@@ -21,7 +21,7 @@ import {
 } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import DetailFeedHeader from "./DetailFeedHeader";
-import DetailFeedReplyBox from "./DetailFeedReplyBox";
+import DetailFeedCommentBox from "./DetailFeedCommentBox";
 import DetailFeedImage from "./DetailFeedImage";
 import DetailFeedInfo from "./DetailFeedInfo";
 import useUserAccount from "../../../hooks/useUserAccount";
@@ -80,19 +80,19 @@ const DetailFeed = () => {
     }
   }, [detailInfo]);
 
-  // 해당 글 값 가지고 있는 필드 값 검색
+  // 1-1. 해당 글 값 가지고 있는 필드 값 검색
   useEffect(() => {
     const userCollection = collection(dbService, "users");
     const q = query(userCollection);
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const data: any = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
+      const data: CurrentUserType[] = querySnapshot.docs.map((doc) => {
+        return { id: doc.id, ...doc.data() } as unknown as CurrentUserType;
       });
-      const likeFilter = data.filter((res: CurrentUserType) =>
+      const likeFilter = data.filter((res) =>
         res.like.some((id) => id === postId)
       );
-      const noticeFilter = data.filter((res: CurrentUserType) =>
+      const noticeFilter = data.filter((res) =>
         res.notice.some((notice) => notice.postId === postId)
       );
 
@@ -103,7 +103,7 @@ const DetailFeed = () => {
     return () => unsubscribe();
   }, [postId]);
 
-  // 해당 글 값이 있으면 삭제
+  // 1-2. 해당 글 값이 있으면 삭제
   const fbFieldFilter = async (user: CurrentUserType, type: string) => {
     if (type === "notice") {
       const noticeFilter = user.notice.filter((res) => res.postId !== postId);
@@ -113,13 +113,14 @@ const DetailFeed = () => {
     }
     if (type === "like") {
       const likeFilter = user.like.filter((res) => res !== postId);
+      console.log(likeFilter);
       await updateDoc(doc(dbService, "users", user.email), {
         like: likeFilter,
       });
     }
   };
 
-  // 게시글 지울 때 관련된 것들 삭제 (좋아요, 댓글)
+  // 1-3. 게시글 지울 때 관련된 것들 삭제 (좋아요, 댓글)
   const onFbFieldDelete = async () => {
     const noticePromises = documentNotice.map((user) =>
       fbFieldFilter(user, "notice")
@@ -200,7 +201,7 @@ const DetailFeed = () => {
                     userObj={userObj}
                     toggleLike={toggleLike}
                   />
-                  <DetailFeedReplyBox
+                  <DetailFeedCommentBox
                     feed={res}
                     userAccount={userAccount}
                     onIsLogin={() => onIsLogin(() => null)}

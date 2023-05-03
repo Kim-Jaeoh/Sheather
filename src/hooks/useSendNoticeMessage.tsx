@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CurrentUserType, FeedType } from "../types/type";
+import { CurrentUserType, FeedType, CommentType } from "../types/type";
 
 import { doc, getDoc } from "firebase/firestore";
 import { dbService, saveMessagingDeviceToken } from "../fbase";
@@ -13,7 +13,9 @@ interface PostData {
   token: string;
 }
 
-const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
+const useSendNoticeMessage = (
+  users: CurrentUserType | FeedType | CommentType
+) => {
   // const { throttle } = useThrottle();
   const [getToken, setGetToken] = useState(null);
   const { userObj } = useGetMyAccount();
@@ -58,8 +60,11 @@ const useSendNoticeMessage = (users: CurrentUserType | FeedType) => {
       if (type === "like") {
         noticeText = `${userObj.displayName}님이 회원님의 게시물을 좋아합니다.`;
       }
-      if (type === "reply") {
+      if (type === "comment") {
         noticeText = `${userObj.displayName}님이 회원님의 게시물에 댓글을 남겼습니다. : ${text}`;
+      }
+      if (type === "reply") {
+        noticeText = `${userObj.displayName}님이 회원님의 게시물에 답글을 남겼습니다. : ${text}`;
       }
       if (type === "follower") {
         noticeText = `${userObj.displayName}님이 회원님을 팔로우하기 시작했습니다.`;

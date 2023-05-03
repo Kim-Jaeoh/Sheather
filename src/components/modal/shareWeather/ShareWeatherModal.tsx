@@ -256,7 +256,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
             weather: shareWeatherData?.weather[0].description,
           },
           region: regionData?.data?.documents[0]?.address?.region_1depth_name,
-          reply: [],
+          comment: [],
           tag: tags,
         });
       });

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import FeedPost from "../components/feed/FeedPost";
 import SortFeedCategory from "../components/feed/SortFeedCategory";

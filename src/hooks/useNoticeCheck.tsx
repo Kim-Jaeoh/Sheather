@@ -19,6 +19,7 @@ const useNoticeCheck = () => {
           time: res.time,
           displayName: res.displayName,
           postId: res.postId,
+          noticeId: res.noticeId,
           email: res.email,
           text: res.text,
           imgUrl: res.imgUrl,
