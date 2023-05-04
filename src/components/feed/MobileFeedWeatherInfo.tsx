@@ -74,7 +74,7 @@ const MobileFeedWeatherInfo = () => {
                       <CategoryTag>
                         <WeatherIcon>
                           <img
-                            src={`https://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
+                            src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
                             alt="weather icon"
                           />
                         </WeatherIcon>
@@ -156,6 +156,7 @@ const WearInfoBox = styled.div`
 const WearInfoMain = styled.div`
   flex: 0 0 auto;
   user-select: text;
+  margin-right: 4px;
   color: ${secondColor};
   text-align: center;
   display: flex;
@@ -195,8 +196,8 @@ const WeatherIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: 24px;
+  height: 24px;
   margin-right: 8px;
   img {
     display: block;
@@ -212,7 +213,8 @@ const CategoryTagBox = styled.div`
 
 const CategoryTag = styled.div`
   font-size: 12px;
-  padding: 6px 8px;
+  padding: 4px 6px;
+  height: 30px;
   display: flex;
   align-items: center;
   border: 1px solid ${fourthColor};
