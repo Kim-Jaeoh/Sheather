@@ -51,7 +51,7 @@
   },
   "scripts": {
     "start": "cra-append-sw --mode dev --env ./.env ./public/firebase-messaging-sw.js && react-scripts start",
-    "build": "cra-append-sw --env ./.env ./public/firebase-messaging-sw.js && react-scripts build",
+    "build": "cra-append-sw --env ./.env ./firebase-messaging-sw.js && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

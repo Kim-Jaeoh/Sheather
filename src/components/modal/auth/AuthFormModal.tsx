@@ -249,7 +249,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
   };
 
   return (
-    <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
+    <Modal open={modalOpen} onClose={modalClose} disableScrollLock={false}>
       <Container>
         <Header>
           {isFindPassword ? (
