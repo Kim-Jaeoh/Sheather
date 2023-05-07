@@ -213,11 +213,6 @@ const ChatTest = ({
     }
   };
 
-  // useEffect(()=>{
-  //   if(myAccount?.message?.some((res) => !res.isRead)) {
-  //   }
-  // },[])
-
   // 메세지 읽음 확인
   const onReadMessage = useCallback(async () => {
     if (myAccount?.message?.some((res) => !res.isRead)) {

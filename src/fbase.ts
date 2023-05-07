@@ -1,8 +1,14 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getFirestore,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-// import { getAnalytics } from "firebase/analytics";
+import { getAnalytics } from "firebase/analytics";
 import {
   getMessaging,
   getToken,
@@ -27,7 +33,7 @@ export const app = initializeApp(firebaseConfig);
 export const authService = getAuth(app);
 export const dbService = getFirestore(app);
 export const storageService = getStorage(app);
-// export const analytics = getAnalytics(app);
+export const analytics = getAnalytics(app);
 export const messaging = async () => (await isSupported()) && getMessaging(app);
 
 const isSupport = () =>
@@ -37,7 +43,9 @@ const isSupport = () =>
 
 // 알림 여부
 const requestNotificationsPermissions = async (userEmail: string) => {
-  // if (isIOS()) return;
+  if (!Notification) {
+    return;
+  }
 
   const permission = await Notification.requestPermission();
 
@@ -85,6 +93,8 @@ export const createDeviceToken = async (userEmail: string) => {
     const checkToken = await getDoc(tokenRef);
     if (fcmToken && !checkToken.exists()) {
       await setDoc(tokenRef, { fcmToken });
+    } else if (fcmToken && checkToken.exists()) {
+      await updateDoc(tokenRef, { fcmToken });
     }
   }
 };

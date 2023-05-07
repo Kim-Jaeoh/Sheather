@@ -155,8 +155,6 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
     textRef.current.style.height = textRef.current.scrollHeight + `px`;
   };
 
-  console.log(messageCollection?.id);
-
   // 메시지 전송
   const onSubmit = async () => {
     // 입력한 채팅 공백 제거

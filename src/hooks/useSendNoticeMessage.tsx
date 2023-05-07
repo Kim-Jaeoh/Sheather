@@ -32,7 +32,7 @@ const useSendNoticeMessage = (
   }, [users?.email]);
 
   // 메세지 알림 보내기
-  const sendMessage = debounce(async (text: string) => {
+  const sendMessage = throttle(async (text: string) => {
     if (getToken) {
       saveMessagingDeviceToken(users?.email);
 
@@ -73,7 +73,7 @@ const useSendNoticeMessage = (
       throttle(() => {
         saveMessagingDeviceToken(users?.email);
       }, 3000);
-
+      console.log(getToken);
       const config: AxiosRequestConfig<PostData> = {
         data: {
           message: noticeText,

@@ -157,7 +157,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                 ...docSnap.data(),
               })
             );
-
             // 알림 토큰 생성
             await createDeviceToken(SignUser.email).then(() => {
               alert("로그인 되었습니다.");
@@ -210,17 +209,18 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               following: [],
             })
           );
-          await createDeviceToken(user.email); // 알림 토큰 생성
-          setIsExistAccount(true);
-          setInputs({
-            email: "",
-            dpName: "",
-            password: "",
-          });
-          setIsDuplication({ email: false, dpName: false });
-          setError("");
-          emailRef.current.focus();
-          alert("회원가입 되었습니다.");
+          await createDeviceToken(user.email).then(() => {
+            setIsExistAccount(true);
+            setInputs({
+              email: "",
+              dpName: "",
+              password: "",
+            });
+            setIsDuplication({ email: false, dpName: false });
+            setError("");
+            emailRef.current.focus();
+            alert("회원가입 되었습니다.");
+          }); // 알림 토큰 생성
         });
       }
     } catch (error: any) {

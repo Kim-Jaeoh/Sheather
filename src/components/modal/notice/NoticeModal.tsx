@@ -51,19 +51,12 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
   }, [myAccount]);
 
   const onClick = (res: NoticeArrType) => {
-    if (res.type === `like`) {
-      navigate(`/feed/detail/${res.postId}`, { state: { id: res.postId } });
-    }
-    if (res.type === `comment`) {
-      navigate(`/feed/detail/${res.postId}`, { state: { id: res.postId } });
-    }
-    if (res.type === `reply`) {
-      navigate(`/feed/detail/${res.postId}`, { state: { id: res.postId } });
-    }
     if (res.type === `follower`) {
       navigate(`/profile/${res.displayName}/post`);
+    } else {
+      navigate(`/feed/detail/${res.postId}`, { state: { id: res.postId } });
     }
-    return modalClose();
+    modalClose();
   };
 
   const onModalClosedAfterRead = async () => {
@@ -158,11 +151,7 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
                           <NoticeAt>{timeToString(res?.time)}</NoticeAt>
                         </NoticeInfoBox>
                         {res?.imgUrl && (
-                          <NoticeImageBox
-                            to={`/feed/detail`}
-                            state={{ id: res?.postId }}
-                            onClick={modalClose}
-                          >
+                          <NoticeImageBox onClick={() => onClick(res)}>
                             <NoticeImage
                               onContextMenu={(e) => e.preventDefault()}
                               src={res?.imgUrl}
@@ -380,7 +369,7 @@ const NoticeAt = styled.span`
   color: ${thirdColor};
 `;
 
-const NoticeImageBox = styled(Link)`
+const NoticeImageBox = styled.div`
   width: 56px;
   height: 56px;
   border-radius: 4px;
