@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import useCurrentLocation from "../hooks/useCurrentLocation";
 import styled from "@emotion/styled";
 import { AxiosError, AxiosResponse } from "axios";
@@ -147,7 +147,7 @@ const Weather = () => {
 
 export default Weather;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+const { secondColor } = ColorList();
 
 const Container = styled.main`
   overflow: hidden;
@@ -169,20 +169,4 @@ const WeatherBox = styled.div`
   }
 `;
 
-const Box = styled.div`
-  /* @media (max-width: 767px) {
-    overflow: hidden;
-    border: 1px solid ${secondColor};
-    background: #f5f5f5;
-    border-radius: 20px;
-
-    box-shadow: ${(props) => {
-    let shadow = "";
-    for (let i = 1; i < 63; i++) {
-      shadow += `#307ac4 ${i}px ${i}px,`;
-    }
-    shadow += `#307ac4 63px 63px`;
-    return shadow;
-  }};
-  } */
-`;
+const Box = styled.div``;

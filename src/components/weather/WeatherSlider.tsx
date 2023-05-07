@@ -53,8 +53,7 @@ const WeatherSlider = ({ data }: PropsType) => {
     dataLength: data.length,
     lastLength: data.length < 4 ? data.length : 4,
   });
-  const { isDesktop, isTablet, isMobile, isMobileBefore, RightBarNone } =
-    useMediaScreen();
+  const { isMobile } = useMediaScreen();
 
   // 오늘 날짜인지 boolean 체크, 날짜 입력값
   const day = useMemo(() => {
@@ -99,7 +98,6 @@ const WeatherSlider = ({ data }: PropsType) => {
           <FlickingBox>
             <Flicking
               align={"prev"}
-              // align={data.length < 4 ? "center" : "prev"}
               panelsPerView={isMobile ? 2 : data.length < 4 ? data.length : 4}
               circular={false}
               ref={flickingRef}
@@ -152,11 +150,13 @@ const WeatherSlider = ({ data }: PropsType) => {
                         <WeatherCategoryIconText>
                           {res?.weather[0]?.description}
                         </WeatherCategoryIconText>
-                        <WeatherCategoryIcon
-                          src={`/image/weather/${res?.weather[0].icon}.png`}
-                          // src={`https://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
-                          alt="weather icon"
-                        />
+                        <WeatherCategoryIcon>
+                          <img
+                            src={`/image/weather/${res?.weather[0].icon}.png`}
+                            // src={`https://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
+                            alt="weather icon"
+                          />
+                        </WeatherCategoryIcon>
                         <WeatherCategoryIconText>
                           {Math.round(res?.main.temp)}º
                         </WeatherCategoryIconText>
@@ -206,7 +206,7 @@ const WeatherSlider = ({ data }: PropsType) => {
 
 export default React.memo(WeatherSlider);
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+const { secondColor, thirdColor, fourthColor } = ColorList();
 
 const Wrapper = styled.div`
   background: #fff;
@@ -222,14 +222,6 @@ const Wrapper = styled.div`
 
   @media (max-width: 767px) {
     border: 1px solid ${secondColor};
-    /* box-shadow: ${(props) => {
-      let shadow = "";
-      for (let i = 1; i < 63; i++) {
-        shadow += `#307ac4 ${i}px ${i}px,`;
-      }
-      shadow += `#307ac4 63px 63px`;
-      return shadow;
-    }}; */
   }
 `;
 
@@ -277,9 +269,6 @@ const WeatherInfoBtn = styled.button`
       color: #48a3ff;
     }
   }
-  svg {
-    /* font-size: 24px; */
-  }
 `;
 
 const WeatherDateBox = styled.div`
@@ -296,14 +285,12 @@ const WeatherDateBox = styled.div`
   @media (max-width: 767px) {
     border: none;
     border-bottom: 1px solid ${secondColor};
-    /* border-bottom: 1px solid ${thirdColor}; */
   }
 `;
 
 const WeatherDate = styled.span`
   font-size: 14px;
   font-weight: bold;
-  /* width: 50px; */
   white-space: nowrap;
   padding: 6px 10px;
   border-radius: 9999px;
@@ -374,10 +361,18 @@ const WeatherCategoryIconBox = styled.span`
   margin-bottom: 26px;
 `;
 
-const WeatherCategoryIcon = styled.img`
-  display: block;
+const WeatherCategoryIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: -4px 0 2px;
   width: 100px;
+  height: 100px;
+
+  img {
+    display: block;
+    width: 100%;
+  }
 `;
 
 const WeatherCategoryIconText = styled.span`

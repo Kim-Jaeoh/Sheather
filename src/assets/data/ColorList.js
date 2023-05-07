@@ -1,5 +1,5 @@
 const ColorList = () => {
-  const mainColor = "#48A3FF";
+  const mainColor = "#000";
   const secondColor = "#222";
   const thirdColor = "#888";
   const fourthColor = "#dbdbdb";

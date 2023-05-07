@@ -6,7 +6,7 @@ import useMediaScreen from "../../hooks/useMediaScreen";
 import ImageList from "@mui/material/ImageList";
 
 const HomeSkeleton = () => {
-  const { isDesktop, isTablet, isMobile } = useMediaScreen();
+  const { isMobile } = useMediaScreen();
 
   return (
     <ImageList
@@ -37,16 +37,15 @@ const HomeSkeleton = () => {
 
 export default HomeSkeleton;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+const { secondColor } = ColorList();
 
 const CardList = styled.li`
-  /* width: 330px; */
   height: 380px;
   display: flex;
   flex-direction: column;
   border-radius: 10px;
   overflow: hidden;
-  border: 2px solid #22222222;
+  border: 2px solid ${secondColor};
   margin-bottom: 30px;
   @media (max-width: 767px) {
     margin-bottom: 12px;
@@ -61,7 +60,7 @@ const Card = styled.div`
   cursor: pointer;
   outline: none;
   overflow: hidden;
-  border-bottom: 2px solid #22222222;
+  border-bottom: 2px solid ${secondColor};
   height: 320px;
 
   @media (max-width: 767px) {

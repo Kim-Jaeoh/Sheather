@@ -11,7 +11,6 @@ import {
 import { useDispatch } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosResponse, AxiosError } from "axios";
-import { SlBell } from "react-icons/sl";
 import { FiSearch } from "react-icons/fi";
 import { ReactComponent as SheatherLogoSmall } from "../../assets/image/sheather_logo_s.svg";
 import { shareWeather } from "../../app/weather";
@@ -264,7 +263,7 @@ const LeftBar = ({ onIsLogin }: props) => {
 
 export default LeftBar;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+const { secondColor, fourthColor } = ColorList();
 
 const Container = styled.section`
   width: 70px;

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import styled from "@emotion/styled";
 import { Navigate, Route, Routes } from "react-router-dom";
 import SrollToTop from "./hooks/useScrollToTop";
@@ -31,8 +31,7 @@ const App = () => {
   // const [init, setInit] = useState(false);
   // const [userObj, setUserObj] = useState(null);
   const { isMobile, isDesktop, RightBarNone } = useMediaScreen();
-  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
+  const { isAuthModal, onAuthModal, onIsLogin } = useUserAccount();
 
   useEffect(() => {
     console.log(`

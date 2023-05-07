@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import styled from "@emotion/styled";
 import ColorList from "../../../assets/data/ColorList";
 import { CommentType, replyType } from "../../../types/type";
@@ -60,7 +60,7 @@ const DetailFeedComment = ({
 
 export default DetailFeedComment;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+const { thirdColor } = ColorList();
 
 const CommentBox = styled.div`
   overflow: hidden;

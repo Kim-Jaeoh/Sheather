@@ -425,7 +425,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
 
 export default AuthFormModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+const { secondColor, thirdColor } = ColorList();
 
 const Container = styled.div`
   position: absolute;
@@ -442,11 +442,7 @@ const Container = styled.div`
   outline: none;
   display: flex;
   flex-direction: column;
-  /* padding-bottom: 24px; */
 
-  /* @media screen and (min-width: 640px) {
-    width: 500px;
-  } */
   @media (max-width: 767px) {
     left: 0;
     top: 0;
@@ -464,17 +460,12 @@ const Container = styled.div`
 const Header = styled.header`
   width: 100%;
   padding: 0px 14px;
-  /* min-height: 52px; */
   display: flex;
   align-items: center;
   overflow: hidden;
   border-bottom: 1px solid ${thirdColor};
   position: relative;
 
-  /* > div:first-of-type { */
-  /* margin-left: -14px; */
-  /* margin-right: auto; */
-  /* } */
   > div:last-of-type {
     margin-right: -14px;
     margin-left: auto;
@@ -509,7 +500,6 @@ const IconBox = styled.div`
 `;
 
 const LogoBox = styled.div`
-  /* width: 300px; */
   position: relative;
   display: flex;
   align-items: center;
@@ -529,9 +519,7 @@ const Box = styled.div`
   flex: 1;
   display: flex;
   position: relative;
-  /* align-items: center; */
   gap: 52px;
-  /* justify-content: space-between; */
   flex-direction: column;
   padding: 50px;
 `;
@@ -546,7 +534,6 @@ const EmailBox = styled.div`
   margin-bottom: 14px;
   width: 100%;
   border-radius: 10px;
-  /* padding: 0 12px; */
   border: 1px solid ${thirdColor};
 `;
 
@@ -581,7 +568,6 @@ const Input = styled.input`
 const InputCheckBox = styled.div<{ check?: boolean }>`
   width: 48px;
   height: 48px;
-  /* margin-right: -12px; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -633,10 +619,6 @@ const AccountBox = styled.ul`
 
 const AccountFind = styled.li`
   cursor: pointer;
-  /* &:first-of-type {
-    padding-right: 10px;
-    border-right: 1px solid ${fourthColor};
-  } */
 `;
 
 const ErrorText = styled.p`
@@ -646,21 +628,4 @@ const ErrorText = styled.p`
   color: rgb(235, 0, 0);
   letter-spacing: -0.5px;
   margin-top: 24px;
-  /* margin: 24px 0 24px; */
-`;
-
-const ListDelete = styled.button`
-  position: absolute;
-  /* z-index: 10; */
-  /* padding: 9px; */
-  top: 0px;
-  right: 0px;
-
-  svg {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    color: #bdbdbd;
-  }
 `;

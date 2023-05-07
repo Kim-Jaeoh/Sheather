@@ -10,7 +10,7 @@ import { NoticeArrType } from "../../../types/type";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { SlBell } from "react-icons/sl";
 import useNoticeCheck from "../../../hooks/useNoticeCheck";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import useGetMyAccount from "../../../hooks/useGetMyAccount";
 
 type Props = {
@@ -26,7 +26,7 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
   const { timeToString } = useTimeFormat();
   const navigate = useNavigate();
   const { result, isLoading } = useNoticeCheck();
-  const { userObj, myAccount } = useGetMyAccount();
+  const { myAccount } = useGetMyAccount();
 
   const noticeText: NoticeType = {
     like: `님이 회원님의 게시물을 좋아합니다.`,
@@ -203,7 +203,7 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
 
 export default NoticeModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
+const { secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.div`
   display: flex;
@@ -299,14 +299,6 @@ const ListCloseBox = styled.div`
   svg {
     font-size: 18px;
   }
-
-  @media (max-width: 767px) {
-    /* width: 22px; */
-    /* height: 22px; */
-    /* svg {
-      font-size: 18px;
-    } */
-  }
 `;
 
 const UserListBox = styled.ul`
@@ -357,7 +349,6 @@ const ProfileImage = styled.img`
 
 const NoticeInfoBox = styled.div`
   flex: 1;
-  /* padding-right: 40px; */
 `;
 
 const NoticeInfo = styled.div``;
@@ -390,8 +381,6 @@ const NoticeAt = styled.span`
 `;
 
 const NoticeImageBox = styled(Link)`
-  /* width: 44px; */
-  /* height: 44px; */
   width: 56px;
   height: 56px;
   border-radius: 4px;
@@ -408,39 +397,6 @@ const NoticeImage = styled.img`
   object-fit: cover;
 `;
 
-const FollowBtnBox = styled.div``;
-
-const FollowBtn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-  font-size: 14px;
-  padding: 8px 12px;
-  border-radius: 20px;
-  border: 1px solid ${thirdColor};
-  background: #fff;
-  color: ${secondColor};
-
-  cursor: pointer;
-  transition: all 0.1s linear;
-  &:hover,
-  &:active {
-    background: ${fourthColor};
-  }
-`;
-
-const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
-  background: #fff;
-  color: ${secondColor};
-
-  &:hover,
-  &:active {
-    background: ${fourthColor};
-  }
-`;
-
 const NotInfoBox = styled.div`
   width: 100%;
   height: 100%;
@@ -448,24 +404,6 @@ const NotInfoBox = styled.div`
   align-items: center;
   justify-content: center;
   padding: 0 50px 30px;
-
-  /* animation-name: slideDown;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-in-out; */
-
-  /* @keyframes slideDown {
-    0% {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  } */
 `;
 
 const NotInfo = styled.div`
