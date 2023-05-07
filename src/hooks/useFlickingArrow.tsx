@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import useMediaScreen from "./useMediaScreen";
 
 type Props = {
   dataLength?: number;
@@ -10,6 +11,7 @@ const useFlickingArrow = ({ dataLength, lastLength }: Props) => {
   const [slideIndex, setSlideIndex] = useState(0);
   const [visible, setVisible] = useState(true);
   const [visible2, setVisible2] = useState(true);
+  const { isMobile } = useMediaScreen();
 
   // 이미지 변경 시마다 슬라이드 이동
   useEffect(() => {
@@ -44,8 +46,10 @@ const useFlickingArrow = ({ dataLength, lastLength }: Props) => {
     if (flickingRef.current.animating === true) {
       return;
     }
-    console.log(slideIndex);
-    if (slideIndex !== 4) {
+    if (isMobile && slideIndex !== 6) {
+      setSlideIndex(slideIndex + 1);
+    }
+    if (!isMobile && slideIndex !== 4) {
       setSlideIndex(slideIndex + 1);
     }
   };

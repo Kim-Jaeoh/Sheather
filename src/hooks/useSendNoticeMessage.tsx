@@ -73,7 +73,6 @@ const useSendNoticeMessage = (
       throttle(() => {
         saveMessagingDeviceToken(users?.email);
       }, 3000);
-      console.log(getToken);
       const config: AxiosRequestConfig<PostData> = {
         data: {
           message: noticeText,

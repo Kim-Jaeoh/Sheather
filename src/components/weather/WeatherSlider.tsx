@@ -42,6 +42,7 @@ const WeatherSlider = ({ data }: PropsType) => {
   const [shareBtn, setShareBtn] = useState(false);
   const [selected, setSelected] = useState(null);
   const dispatch = useDispatch();
+  const { isMobile } = useMediaScreen();
   const {
     flickingRef,
     visible,
@@ -51,9 +52,9 @@ const WeatherSlider = ({ data }: PropsType) => {
     onClickArrowNext,
   } = useFlickingArrow({
     dataLength: data.length,
-    lastLength: data.length < 4 ? data.length : 4,
+    lastLength: isMobile ? 2 : data.length < 4 ? data.length : 4,
+    // lastLength: data.length < 4 ? data.length : 4,
   });
-  const { isMobile } = useMediaScreen();
 
   // 오늘 날짜인지 boolean 체크, 날짜 입력값
   const day = useMemo(() => {
@@ -103,6 +104,7 @@ const WeatherSlider = ({ data }: PropsType) => {
               ref={flickingRef}
               bound={true}
               bounce={0}
+              autoInit={true}
               onChanged={(e) => {
                 setSlideIndex(e.index);
               }}
