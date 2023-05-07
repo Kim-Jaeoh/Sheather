@@ -20,7 +20,7 @@ import {
 } from "firebase/firestore";
 import ColorList from "../../assets/data/ColorList";
 import moment from "moment";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Emoji from "../emoji/Emoji";
 import {
   CurrentUserType,
@@ -64,6 +64,7 @@ const ChatTest = ({
   const [isFocus, setIsFocus] = useState(false);
   const [isRead, setIsRead] = useState(false);
   const [prevScrollHeight, setPrevScrollHeight] = useState(null);
+  const { pathname } = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomListRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -82,6 +83,12 @@ const ChatTest = ({
     containerRef,
     setPrevScrollHeight,
   });
+
+  useEffect(() => {
+    if (!pathname.split("/")[2]) {
+      onBackClick();
+    }
+  }, [pathname]);
 
   useEffect(() => {
     // prevScrollHeight 있을 시 현재 전체 스크롤 높이 값 - 과거 전체 스크롤 높이 값
@@ -131,7 +138,7 @@ const ChatTest = ({
     return () => {
       window.removeEventListener("scroll", handleScroll); //clean up
     };
-  }, [handleScroll]);
+  }, [handleScroll, setClickInfo]);
 
   // 1. 서브 컬렉션 ID값 가져오기
   useEffect(() => {
