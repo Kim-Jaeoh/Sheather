@@ -101,7 +101,6 @@ const SearchBox = () => {
       <InputTextBox onSubmit={onSubmitText} focus={focus}>
         <IconBox htmlFor="search" focus={focus}>
           <IoSearchOutline />
-          {/* <FiSearch /> */}
         </IconBox>
         <SearchInput
           spellCheck="false"

@@ -45,7 +45,7 @@ const useChatInfiniteScroll = ({
   const [unsubscribe, setUnsubscribe] = useState<(() => void) | null>(null);
   const [sortMessages, setSortMessages] = useState(null);
   const [sections, setSections] = useState(
-    new Map<string, DocumentData[]>(null)
+    new Map<number, DocumentData[]>(null)
   );
   const [day, setDay] = useState<DayType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -71,7 +71,11 @@ const useChatInfiniteScroll = ({
   // 대화 내역 담기
   useEffect(() => {
     if (sections) {
-      setSortMessages(Array.from(sections).reverse());
+      setSortMessages(
+        Array.from(sections)
+          .reverse()
+          .sort((a, b) => a[0] - b[0])
+      );
     }
   }, [sections]);
 
@@ -101,16 +105,18 @@ const useChatInfiniteScroll = ({
 
     const newUnsubscribe = onSnapshot(q, (snapshot) => {
       snapshot?.docs?.forEach((doc) => {
-        const monthDate = moment(doc.data().createdAt).format("YYYY년 M월 D일");
+        // const monthDate = moment(doc.data().createdAt).format("YYYY년 M월 D일");
+        const monthDate = moment(doc.data().createdAt).format("YYYY-MM-DD");
+        const dateKey = new Date(monthDate).getTime();
 
         // 중복 체크
         setSections((prev) => {
           const newSections = new Map(prev);
-          if (!newSections.has(monthDate)) {
-            newSections.set(monthDate, []);
-          }
 
-          const section = newSections.get(monthDate);
+          if (!newSections.has(dateKey)) {
+            newSections.set(dateKey, []);
+          }
+          const section = newSections.get(dateKey);
           const isDuplicate = section.some(
             (data) => data.createdAt === doc.data().createdAt
           );

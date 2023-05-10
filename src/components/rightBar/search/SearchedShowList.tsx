@@ -49,8 +49,17 @@ const SearchedShowList = ({ searched, setSearched, onListClick }: Props) => {
           };
         });
         return data;
+      } else {
+        return {
+          at: res.at,
+          type: res.type,
+          search: res.search,
+          email: "",
+          displayName: "",
+          profileURL: "",
+          name: "",
+        };
       }
-      return [];
     };
 
     // map에서 Promise 방식 (병렬 처리)

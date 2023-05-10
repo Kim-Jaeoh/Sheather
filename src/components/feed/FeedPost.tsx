@@ -115,7 +115,7 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
             </CardBox>
           ) : (
             <NotInfoBox>
-              <NotInfo>해당 날짜의 글이 존재하지 않습니다.</NotInfo>
+              <NotInfo>피드가 존재하지 않습니다.</NotInfo>
             </NotInfoBox>
           )}
         </>

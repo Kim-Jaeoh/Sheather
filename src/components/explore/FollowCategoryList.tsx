@@ -109,7 +109,7 @@ const FollowCategoryList = () => {
         <ListBox>
           <ImageList
             sx={{ overflow: "hidden" }}
-            cols={!isMobile ? 2 : 1}
+            cols={isMobile ? 1 : 2}
             gap={20}
           >
             {users?.map((res, index) => {
@@ -217,7 +217,8 @@ const ListBox = styled.div`
   overflow: hidden;
 
   @media (max-width: 767px) {
-    padding: 20px 0 0;
+    padding: 0;
+    /* padding: 20px 0 0; */
   }
 `;
 
@@ -252,8 +253,8 @@ const Card = styled.div`
   @media (max-width: 767px) {
     animation: none;
     border-width: 1px;
-    margin: 0 auto;
-    width: 300px;
+    /* margin: 0 auto; */
+    width: 100%;
     height: 70px;
   }
 `;

@@ -70,7 +70,6 @@ const ChatTest = ({
   const textRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
-  const { sendMessage } = useSendNoticeMessage(users);
   const {
     isLoading,
     day,
@@ -83,6 +82,7 @@ const ChatTest = ({
     containerRef,
     setPrevScrollHeight,
   });
+  const { sendMessage } = useSendNoticeMessage(users);
 
   useEffect(() => {
     if (!pathname.split("/")[2]) {
@@ -91,17 +91,18 @@ const ChatTest = ({
   }, [pathname]);
 
   useEffect(() => {
+    console.log(sortMessages);
     // prevScrollHeight 있을 시 현재 전체 스크롤 높이 값 - 과거 전체 스크롤 높이 값
     if (prevScrollHeight) {
       onScrollTo(containerRef.current?.scrollHeight - prevScrollHeight);
       return setPrevScrollHeight(null);
     }
 
-    // prevScrollHeight 없을 시 맨 아래로 이동
+    // a. prevScrollHeight 없을 시 맨 아래로 이동
     onScrollTo(
       containerRef.current?.scrollHeight - containerRef.current?.clientHeight
     );
-    // bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
+    // b. bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
   }, [sortMessages]);
 
   const onScrollTo = (height: number) => {
@@ -181,7 +182,16 @@ const ChatTest = ({
         displayName: myAccount?.displayName,
         email: myAccount?.email,
         isRead: false,
+      }).then(() => {
+        // 알림 보내기
+        if (users?.email) {
+          sendMessage(trimmedMessage);
+        }
       });
+
+      setText("");
+      textRef.current.style.height = `auto`;
+      bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
 
       // 글 보낼 시 상대가 본인 메시지 안 읽은 것으로 변경
       const copy = [...users?.message];
@@ -194,17 +204,6 @@ const ChatTest = ({
           }
         }),
       });
-    }
-
-    // 알림 보내기
-    if (users?.email) {
-      sendMessage(trimmedMessage);
-    }
-
-    bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
-    setText("");
-    if (textRef.current) {
-      textRef.current.style.height = `auto`;
     }
   };
 
@@ -352,6 +351,9 @@ const ChatTest = ({
                   {sortMessages &&
                     sortMessages?.map(
                       (arr: [string, DocumentData[]], index: number) => {
+                        const monthDate = moment(arr[0]).format(
+                          "YYYY년 M월 D일"
+                        );
                         const date = day.sort(
                           (a, b) => a.createdAt - b.createdAt
                         );
@@ -362,7 +364,7 @@ const ChatTest = ({
                         return (
                           <GroupMessage key={arr[0]}>
                             <GroupDateBox>
-                              <GroupDate>{`${arr[0]} ${date[index].day}요일`}</GroupDate>
+                              <GroupDate>{`${monthDate} ${date[index].day}요일`}</GroupDate>
                             </GroupDateBox>
                             {arr[1]
                               .sort((a, b) => a.createdAt - b.createdAt)

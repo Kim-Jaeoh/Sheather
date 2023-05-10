@@ -61,7 +61,6 @@ const FeedWeatherInfo = () => {
             <WeatherIcon>
               <img
                 src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
-                // src={`https://openweathermap.org/img/wn/${weatherData?.data?.weather[0].icon}@2x.png`}
                 alt="weather icon"
               />
             </WeatherIcon>
@@ -121,6 +120,7 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.nav`
   position: sticky;
+  flex-shrink: 0;
   top: 0px;
   height: 80px;
   border-top: 2px solid #222;

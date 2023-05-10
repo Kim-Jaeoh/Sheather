@@ -22,22 +22,49 @@ const AddChatUserModal = ({ userObj, modalOpen, modalClose }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { onCreateChatClick } = useCreateChat();
 
-  // 팔로잉 계정 정보 가져오기
+  // // 팔로잉 계정 정보 가져오기
+  // useEffect(() => {
+  //   userObj?.following?.forEach((res) => {
+  //     onSnapshot(doc(dbService, "users", res?.email), (doc) => {
+  //       setUsers((prev: CurrentUserType[]) => {
+  //         // 중복 체크
+  //         if (!prev.some((user) => user?.email === doc.data()?.email)) {
+  //           return [...prev, doc.data()];
+  //         } else {
+  //           return prev;
+  //         }
+  //       });
+  //     });
+  //   });
+  //   setIsLoading(true);
+  //   // return () => unsubscribe();
+  // }, [userObj?.following]);
+
   useEffect(() => {
+    const unsubscribes: (() => void)[] = [];
+
     userObj?.following?.forEach((res) => {
-      onSnapshot(doc(dbService, "users", res?.email), (doc) => {
-        setUsers((prev: CurrentUserType[]) => {
-          // 중복 체크
-          if (!prev.some((user) => user?.email === doc.data()?.email)) {
-            return [...prev, doc.data()];
-          } else {
-            return prev;
-          }
-        });
-      });
+      const unsubscribe = onSnapshot(
+        doc(dbService, "users", res?.email),
+        (doc) => {
+          setUsers((prev: CurrentUserType[]) => {
+            // 중복 체크
+            if (!prev.some((user) => user?.email === doc.data()?.email)) {
+              return [...prev, doc.data()];
+            } else {
+              return prev;
+            }
+          });
+        }
+      );
+      unsubscribes.push(unsubscribe);
     });
     setIsLoading(true);
-    // return () => unsubscribe();
+
+    // cleanup function
+    return () => {
+      unsubscribes.forEach((unsubscribe) => unsubscribe());
+    };
   }, [userObj?.following]);
 
   // 채팅 생성

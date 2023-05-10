@@ -306,7 +306,6 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
               <WeatherIcon>
                 <img
                   src={`/image/weather/${shareWeatherData?.weather[0].icon}.png`}
-                  // src={`https://openweathermap.org/img/wn/${shareWeatherData?.weather[0].icon}@2x.png`}
                   alt="weather icon"
                 />
               </WeatherIcon>
@@ -475,7 +474,6 @@ const Container = styled.form<{ isUpload: boolean }>`
   flex-direction: column;
   width: 480px;
   min-height: -webkit-fill-available;
-  /* height: 736px; */
   box-sizing: border-box;
   position: absolute;
   color: ${secondColor};
@@ -485,7 +483,7 @@ const Container = styled.form<{ isUpload: boolean }>`
   background: #fff;
   border-radius: 20px;
   border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px ${mainColor}, 12px 12px ${secondColor};
+  box-shadow: 12px 12px 0 -2px #48a3ff, 12px 12px ${secondColor};
   &::-webkit-scrollbar {
     display: none;
   }
@@ -543,7 +541,6 @@ const ImageWrapper = styled.div<{ length?: number }>`
   gap: 12px;
   padding: 14px;
   align-items: center;
-  /* justify-content: space-evenly; */
   overflow: hidden;
   position: relative;
   &::after {
@@ -645,9 +642,7 @@ const CropBtn = styled.div`
   justify-content: center;
   position: absolute;
   user-select: none;
-  /* cursor: pointer; */
   bottom: 0px;
-  /* border-radius: 9999px; */
   width: 100%;
   font-size: 16px;
   background: rgba(72, 163, 255, 0.7);
@@ -749,15 +744,11 @@ const EditBtn = styled.button`
 
 const EditText = styled.p`
   font-weight: 500;
-  /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important;
-  margin-bottom: -4px; */
 `;
 
 const IconBox = styled.div`
   width: 48px;
   height: 48px;
-  /* position: absolute; */
-  /* right: 0; */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -69,8 +69,8 @@ export const saveMessagingDeviceToken = async (userEmail: string) => {
       onMessage(msg, (message) => {
         new Notification(message.notification.title, {
           body: message.notification.body,
-          icon: "/image/sheather_logo_s.png",
-          badge: "/image/sheather_badge.png",
+          icon: "./image/sheather_logo_s.png",
+          badge: "./image/sheather_badge.png",
         });
       });
     } else {
@@ -93,7 +93,8 @@ export const createDeviceToken = async (userEmail: string) => {
     const checkToken = await getDoc(tokenRef);
     if (fcmToken && !checkToken.exists()) {
       await setDoc(tokenRef, { fcmToken });
-    } else if (fcmToken && checkToken.exists()) {
+    }
+    if (fcmToken && checkToken.exists()) {
       await updateDoc(tokenRef, { fcmToken });
     }
   }
