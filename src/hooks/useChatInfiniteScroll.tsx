@@ -105,7 +105,6 @@ const useChatInfiniteScroll = ({
 
     const newUnsubscribe = onSnapshot(q, (snapshot) => {
       snapshot?.docs?.forEach((doc) => {
-        // const monthDate = moment(doc.data().createdAt).format("YYYY년 M월 D일");
         const monthDate = moment(doc.data().createdAt).format("YYYY-MM-DD");
         const dateKey = new Date(monthDate).getTime();
 

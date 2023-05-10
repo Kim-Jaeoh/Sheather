@@ -27,7 +27,7 @@ const useInfinityScroll = ({ url, count }: props) => {
     refetch,
     fetchNextPage,
   } = useInfiniteQuery(
-    ["infiniteFeed", url],
+    ["feed", url],
     ({ pageParam = 1 }) => {
       return fetchRepositories(pageParam);
     },

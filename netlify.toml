@@ -1,4 +1,9 @@
 [[redirects]]
+  from = "/api/*"
+  to = "https://port-0-sheather-backend-17xqnr2alghu5xr5.sel3.cloudtype.app/:splat"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

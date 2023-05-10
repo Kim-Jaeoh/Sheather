@@ -126,7 +126,6 @@ const useToggleLike = ({ user }: props) => {
           ...copy,
         ],
       });
-
       // 알림 보내기
       if (getToken && user.displayName !== userObj.displayName) {
         sendActions(`like`, getToken);

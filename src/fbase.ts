@@ -69,8 +69,8 @@ export const saveMessagingDeviceToken = async (userEmail: string) => {
       onMessage(msg, (message) => {
         new Notification(message.notification.title, {
           body: message.notification.body,
-          icon: "./image/sheather_logo_s.png",
-          badge: "./image/sheather_badge.png",
+          icon: "./src/assets/image/sheather_logo_s.png",
+          badge: "./src/assets/image/sheather_badge.png",
         });
       });
     } else {

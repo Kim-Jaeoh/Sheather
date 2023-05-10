@@ -45,7 +45,8 @@ const CardList = styled.li`
   flex-direction: column;
   border-radius: 10px;
   overflow: hidden;
-  border: 2px solid ${secondColor};
+  border: 2px solid #d84a62;
+  /* border: 2px solid ${secondColor}; */
   margin-bottom: 30px;
   @media (max-width: 767px) {
     margin-bottom: 12px;
@@ -60,11 +61,13 @@ const Card = styled.div`
   cursor: pointer;
   outline: none;
   overflow: hidden;
-  border-bottom: 2px solid ${secondColor};
+  border-bottom: 2px solid #d84a62;
+  /* border-bottom: 2px solid ${secondColor}; */
   height: 320px;
 
   @media (max-width: 767px) {
     height: 170px;
+    border-width: 1px;
   }
 `;
 
