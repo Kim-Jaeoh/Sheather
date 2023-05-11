@@ -17,9 +17,7 @@ type Props = {
 
 const DetailFeedHeader = ({ userObj, feed, onMoreClick }: Props) => {
   const [userAccount, setUserAccount] = useState(null);
-  const { toggleFollow } = useToggleFollow({
-    user: userAccount,
-  });
+  const { toggleFollow } = useToggleFollow();
   const { timeToString2 } = useTimeFormat();
 
   // 계정 정보 가져오기
@@ -69,7 +67,7 @@ const DetailFeedHeader = ({ userObj, feed, onMoreClick }: Props) => {
           <WriteDate>{timeToString2(Number(feed.createdAt))}</WriteDate>
         </UserWriteInfo>
         {feed.email !== userObj.email ? (
-          <FollowBtnBox onClick={() => toggleFollow(feed.displayName)}>
+          <FollowBtnBox onClick={() => toggleFollow(userAccount)}>
             {userObj?.following.filter((obj) =>
               obj?.displayName?.includes(feed.displayName)
             ).length !== 0 ? (

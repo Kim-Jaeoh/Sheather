@@ -52,7 +52,7 @@ const useSendNoticeMessage = (
         })
         .catch((e) => console.log("에러 ", e));
     }
-  }, 3000);
+  }, 300);
 
   // 팔로우, 좋아요, 댓글 알림 보내기
   const sendActions = async (type: string, text?: string, link?: string) => {
@@ -74,7 +74,7 @@ const useSendNoticeMessage = (
 
       throttle(() => {
         saveMessagingDeviceToken(users?.email);
-      }, 3000);
+      }, 300);
       const config: AxiosRequestConfig<PostData> = {
         data: {
           message: noticeText,

@@ -8,7 +8,7 @@ import { RootState } from "../../app/store";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import { cloneDeep } from "lodash";
 import FollowListSkeleton from "../../assets/skeleton/FollowListSkeleton";
-import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
+import { CurrentUserType } from "../../types/type";
 
 type Props = {
   modalOpen?: boolean;
@@ -23,11 +23,8 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
     }
   );
   const [users, setUsers] = useState([]);
-  const [clickIndex, setClickIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const { toggleFollow } = useToggleFollow({
-    user: users[clickIndex],
-  });
+  const { toggleFollow } = useToggleFollow();
   const usersArr = useRef([]);
 
   // 계정 정보 가져오기
@@ -83,10 +80,9 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
     }
   };
 
-  const onFollowClick = (dpName: string, index: number) => {
+  const onFollowClick = (user: CurrentUserType, index: number) => {
     onIsLogin(() => {
-      toggleFollow(dpName);
-      setClickIndex(index);
+      toggleFollow(user);
     });
   };
 
@@ -124,9 +120,7 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
                       </ProfileInfoBox>
                     </User>
                     {res?.email !== userObj.email && (
-                      <FollowBtnBox
-                        onClick={() => onFollowClick(res.displayName, index)}
-                      >
+                      <FollowBtnBox onClick={() => onFollowClick(res, index)}>
                         {userObj?.following?.filter((obj) =>
                           obj?.displayName?.includes(res?.displayName)
                         ).length !== 0 ? (

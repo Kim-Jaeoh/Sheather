@@ -34,7 +34,7 @@ const DeskProfileActInfo = ({
       return state.user;
     }
   );
-  const { toggleFollow } = useToggleFollow({ user: account });
+  const { toggleFollow } = useToggleFollow();
   const { onCreateChatClick } = useCreateChat();
 
   const onMessageClick = (res: CurrentUserType) => {
@@ -52,8 +52,8 @@ const DeskProfileActInfo = ({
     });
   };
 
-  const onFollowClick = (dpName: string) => {
-    onIsLogin(() => toggleFollow(dpName));
+  const onFollowClick = (user: CurrentUserType) => {
+    onIsLogin(() => toggleFollow(user));
   };
 
   return (
@@ -101,9 +101,7 @@ const DeskProfileActInfo = ({
               </ProfileBtnBox>
             ) : (
               <ActBtnBox>
-                <FollowBtnBox
-                  onClick={() => onFollowClick(account?.displayName)}
-                >
+                <FollowBtnBox onClick={() => onFollowClick(account)}>
                   {userObj?.following.filter((obj) =>
                     obj.displayName.includes(account.displayName)
                   ).length !== 0 ? (

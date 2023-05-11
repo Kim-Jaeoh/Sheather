@@ -10,7 +10,11 @@ import { RootState } from "../../../app/store";
 import { Spinner } from "../../../assets/spinner/Spinner";
 import { dbService } from "../../../fbase";
 import useToggleFollow from "../../../hooks/useToggleFollow";
-import { FollowerType, FollowingType } from "../../../types/type";
+import {
+  CurrentUserType,
+  FollowerType,
+  FollowingType,
+} from "../../../types/type";
 
 type Props = {
   accountName: string;
@@ -37,9 +41,7 @@ const ProfileFollowModal = ({
   const [account, setAccount] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [clickIndex, setClickIndex] = useState(0);
-  const { toggleFollow } = useToggleFollow({
-    user: account[clickIndex],
-  });
+  const { toggleFollow } = useToggleFollow();
 
   // 계정 정보 가져오기 (병렬 처리 = 한 번에 가져오기 위함)
   useEffect(() => {
@@ -61,8 +63,8 @@ const ProfileFollowModal = ({
     promiseList();
   }, [followInfo]);
 
-  const onFollowClick = (dpName: string, index: number) => {
-    toggleFollow(dpName);
+  const onFollowClick = (user: CurrentUserType, index: number) => {
+    toggleFollow(user);
     setClickIndex(index);
   };
 
@@ -105,7 +107,7 @@ const ProfileFollowModal = ({
                       {res?.email !== userObj.email && (
                         <FollowBtnBox
                           // onClick={() => toggleFollow(res.displayName)}
-                          onClick={() => onFollowClick(res.displayName, index)}
+                          onClick={() => onFollowClick(res, index)}
                         >
                           {userObj.following.filter((obj) =>
                             obj?.displayName?.includes(res?.displayName)

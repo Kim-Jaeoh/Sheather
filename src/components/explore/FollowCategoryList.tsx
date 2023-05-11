@@ -3,7 +3,14 @@ import styled from "@emotion/styled";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import { DocumentData, query, collection, getDocs } from "firebase/firestore";
+import {
+  DocumentData,
+  query,
+  collection,
+  getDocs,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
 import { cloneDeep } from "lodash";
 import { dbService } from "../../fbase";
 import useToggleFollow from "../../hooks/useToggleFollow";
@@ -11,10 +18,7 @@ import useUserAccount from "../../hooks/useUserAccount";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { ImageList } from "@mui/material";
-
-interface Count {
-  [key: string]: number;
-}
+import { CurrentUserType } from "../../types/type";
 
 const FollowCategoryList = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -23,11 +27,7 @@ const FollowCategoryList = () => {
     }
   );
   const [users, setUsers] = useState([]);
-  const [arrState, setArrState] = useState(false);
-  const [clickIndex, setClickIndex] = useState(0);
-  const { toggleFollow } = useToggleFollow({
-    user: users[clickIndex],
-  });
+  const { toggleFollow } = useToggleFollow();
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
   const { pathname } = useLocation();
@@ -51,8 +51,8 @@ const FollowCategoryList = () => {
       const notFollowed = filter?.filter(
         (res) =>
           !res.follower.some(
-            (asd: { displayName: string }) =>
-              asd.displayName === userObj.displayName
+            (user: { displayName: string }) =>
+              user.displayName === userObj.displayName
           )
       );
 
@@ -67,7 +67,7 @@ const FollowCategoryList = () => {
 
   const bgColor = useMemo(() => {
     if (pathname.includes("people")) {
-      return `#30c56e`;
+      return `var(--explore-color)`;
     } else {
       return `transparent`;
     }
@@ -87,10 +87,9 @@ const FollowCategoryList = () => {
     }
   };
 
-  const onFollowClick = (dpName: string, index: number) => {
+  const onFollowClick = (user: CurrentUserType) => {
     onIsLogin(() => {
-      toggleFollow(dpName);
-      setClickIndex(index);
+      toggleFollow(user);
     });
   };
 
@@ -133,9 +132,7 @@ const FollowCategoryList = () => {
                         </ProfileInfoBox>
                       </User>
                       {res?.email !== userObj.email && (
-                        <FollowBtnBox
-                          onClick={() => onFollowClick(res.displayName, index)}
-                        >
+                        <FollowBtnBox onClick={() => onFollowClick(res)}>
                           {userObj.following.filter((obj) =>
                             obj?.displayName?.includes(res?.displayName)
                           ).length !== 0 ? (

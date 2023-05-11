@@ -31,7 +31,7 @@ const MobileProfileActInfo = ({
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
-  const { toggleFollow } = useToggleFollow({ user: account });
+  const { toggleFollow } = useToggleFollow();
   const { onCreateChatClick } = useCreateChat();
 
   const onMessageClick = (res: CurrentUserType) => {
@@ -49,8 +49,8 @@ const MobileProfileActInfo = ({
     });
   };
 
-  const onFollowClick = (dpName: string) => {
-    onIsLogin(() => toggleFollow(dpName));
+  const onFollowClick = (user: CurrentUserType) => {
+    onIsLogin(() => toggleFollow(user));
   };
 
   return (
@@ -79,9 +79,7 @@ const MobileProfileActInfo = ({
               </ProfileBtnBox>
             ) : (
               <ActBtnBox>
-                <FollowBtnBox
-                  onClick={() => onFollowClick(account?.displayName)}
-                >
+                <FollowBtnBox onClick={() => onFollowClick(account)}>
                   <BtnBox>
                     {userObj?.following.filter((obj) =>
                       obj?.displayName.includes(account.displayName)
