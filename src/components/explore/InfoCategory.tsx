@@ -1,9 +1,6 @@
-import { FrameGrid } from "@egjs/react-grid";
 import styled from "@emotion/styled";
-import { cloneDeep } from "lodash";
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
-import ColorList from "../../assets/data/ColorList";
 import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import useMediaScreen from "../../hooks/useMediaScreen";
@@ -203,8 +200,6 @@ const InfoCategory = () => {
 }
 export default InfoCategory;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   height: 100%;
   display: flex;
@@ -219,7 +214,7 @@ const Container = styled.div`
 const Box = styled.div`
   height: 100%;
   padding: 20px 40px 40px;
-  border-top: 2px solid ${secondColor};
+  border-top: 2px solid var(--second-color);
   display: flex;
   flex-direction: column;
 
@@ -228,15 +223,6 @@ const Box = styled.div`
     padding: 16px;
     border: 1px solid #222;
     border-radius: 20px;
-
-    /* box-shadow: ${(props) => {
-      let shadow = "";
-      for (let i = 1; i < 63; i++) {
-        shadow += `#209b53 ${i}px ${i}px,`;
-      }
-      shadow += `#209b53 63px 63px`;
-      return shadow;
-    }}; */
   }
 `;
 
@@ -256,11 +242,11 @@ const TagCategoryText = styled.h2`
   font-size: 18px;
   text-align: center;
   font-weight: 700;
-  color: ${secondColor};
+  color: var(--second-color);
   padding: 8px 14px;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 9999px;
-  box-shadow: 0px 4px ${secondColor};
+  box-shadow: 0px 4px var(--second-color);
   background: #fff;
 
   span {
@@ -280,16 +266,15 @@ const SelectDetailTimeBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: end;
-  border-top: 1px solid ${secondColor};
+  border-top: 1px solid var(--second-color);
 
   @media (max-width: 767px) {
     margin: 0;
     padding: 0;
     border: none;
-    /* padding: 0px 16px; */
     padding: 0;
     > div {
-      border-top: 1px solid ${fourthColor};
+      border-top: 1px solid var(--fourth-color);
       padding: 16px 0;
       width: 100%;
     }
@@ -300,7 +285,6 @@ const SelectCategoryBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: end;
-  /* gap: 12px; */
 `;
 
 const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
@@ -311,11 +295,10 @@ const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
   font-weight: ${(props) =>
     props.select === props.category ? "bold" : "normal"};
   cursor: pointer;
-  color: ${secondColor};
+  color: var(--second-color);
   white-space: pre;
   @media (max-width: 767px) {
     font-size: 12px;
-    /* border-color: ${fourthColor}; */
   }
 `;
 
@@ -330,7 +313,7 @@ const CardBox = styled.div`
 
 const CardList = styled.div`
   border-radius: 10px;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   overflow: hidden;
 
   animation-name: slideUp;
@@ -419,7 +402,6 @@ const CardImageBox = styled.div`
   left: 0%;
   right: 0;
   bottom: 0;
-  /* transform: translate(-50%, -50%); */
   width: 100%;
   height: 100%;
   font-size: 0;

@@ -11,7 +11,6 @@ import FollowListBox from "../../rightBar/FollowListBox";
 import TagListBox from "../../rightBar/TagListBox";
 import SearchList, { localType } from "../../rightBar/search/SearchList";
 import SearchedShowList from "../../rightBar/search/SearchedShowList";
-import ColorList from "../../../assets/data/ColorList";
 import useUserAccount from "../../../hooks/useUserAccount";
 import AuthFormModal from "../auth/AuthFormModal";
 
@@ -183,8 +182,6 @@ const MobileSearchBox = ({ modalOpen, modalClose }: Props) => {
 
 export default MobileSearchBox;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.article`
   display: flex;
   flex-direction: column;
@@ -199,7 +196,7 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   overflow: hidden;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   position: relative;
 `;
 
@@ -209,7 +206,7 @@ const InputTextBox = styled.form<{ focus: boolean }>`
   display: flex;
   align-items: center;
   overflow: hidden;
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   border-radius: 20px;
   padding: 10px 40px 10px 10px;
   transition: all 0.15s linear;
@@ -218,7 +215,8 @@ const InputTextBox = styled.form<{ focus: boolean }>`
 
 const IconBox = styled.label<{ focus: boolean }>`
   margin-right: 10px;
-  color: ${(props) => (props.focus ? secondColor : thirdColor)};
+  color: ${(props) =>
+    props.focus ? `var(--second-color)` : `var(--third-color)`};
   svg {
     width: 20px;
     height: 20px;
@@ -244,7 +242,7 @@ const SearchInput = styled.input`
 
   &:focus::placeholder {
     opacity: 0.4;
-    color: ${thirdColor};
+    color: var(--third-color);
     transition: all 0.15s;
   }
 `;
@@ -260,7 +258,7 @@ const InputCloseBox = styled.button`
   outline: none;
   padding: 0;
   margin: 0;
-  color: ${thirdColor};
+  color: var(--third-color);
 
   svg {
     width: 20px;

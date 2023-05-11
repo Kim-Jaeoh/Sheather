@@ -3,7 +3,6 @@ import { Modal } from "@mui/material";
 import { doc, updateDoc } from "firebase/firestore";
 import { IoMdClose } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
-import ColorList from "../../../assets/data/ColorList";
 import { Spinner } from "../../../assets/spinner/Spinner";
 import { dbService } from "../../../fbase";
 import { NoticeArrType } from "../../../types/type";
@@ -192,8 +191,6 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
 
 export default NoticeModal;
 
-const { secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -204,12 +201,12 @@ const Container = styled.div`
   top: 50%;
   transform: translate(-50%, -50%);
   box-sizing: border-box;
-  color: ${secondColor};
+  color: var(--second-color);
   outline: none;
   background: #fff;
   border-radius: 20px;
-  border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px #cbdd2c, 12px 12px ${secondColor};
+  border: 2px solid var(--second-color);
+  box-shadow: 12px 12px 0 -2px #cbdd2c, 12px 12px var(--second-color);
 
   @media (max-width: 767px) {
     top: 0;
@@ -231,7 +228,7 @@ const Header = styled.header`
   min-height: 52px;
   display: flex;
   overflow: hidden;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   position: relative;
 `;
 
@@ -275,14 +272,14 @@ const ListCloseBox = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: ${thirdColor};
+  color: var(--third-color);
   transition: all 0.12s linear;
   width: 48px;
   height: 48px;
 
   &:hover,
   &:active {
-    color: ${secondColor};
+    color: var(--second-color);
   }
 
   svg {
@@ -323,7 +320,7 @@ const ListInfo = styled.div`
 const ProfileImageBox = styled(Link)`
   width: 44px;
   height: 44px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -366,14 +363,14 @@ const CommentDpName = styled(Link)`
 const NoticeAt = styled.span`
   font-size: 12px;
   margin-top: 6px;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;
 
 const NoticeImageBox = styled.div`
   width: 56px;
   height: 56px;
   border-radius: 4px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   overflow: hidden;
   flex: 0 0 auto;
   cursor: pointer;
@@ -406,7 +403,7 @@ const NotInfoCategory = styled.p`
 `;
 
 const IconBox = styled.div`
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 50%;
   width: 70px;
   height: 70px;

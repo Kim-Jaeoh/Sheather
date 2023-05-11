@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import moment from "moment";
 import Calendar from "react-calendar";
 import "../../../styles/Calendar.css"; // css import
@@ -127,8 +126,6 @@ const RangeTimeModal = (props: Props) => {
 
 export default RangeTimeModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const RangeBox = styled.div<{ isMobile: boolean }>`
   position: absolute;
   top: 50%;
@@ -136,16 +133,16 @@ const RangeBox = styled.div<{ isMobile: boolean }>`
   transform: translate(-50%, -50%);
   z-index: 100;
   border-radius: 20px;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   width: 400px;
   background: #fff;
-  box-shadow: 8px 8px 0 -2px #ff5673, 8px 8px ${secondColor};
+  box-shadow: 8px 8px 0 -2px var(--feed-color), 8px 8px var(--second-color);
   overflow: hidden;
 
   @media (max-width: 767px) {
     width: 300px;
     border-width: 1px;
-    box-shadow: 6px 6px 0 -1px #ff5673, 6px 6px ${secondColor};
+    box-shadow: 6px 6px 0 -1px var(--feed-color), 6px 6px var(--second-color);
   }
 `;
 
@@ -165,7 +162,7 @@ const Header = styled.header`
   }
 
   overflow: hidden;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
 
   @media (max-width: 767px) {
     p {
@@ -192,7 +189,7 @@ const CancleBox = styled.div`
   display: flex;
   align-items: center;
   padding: 8px;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
 `;
 
 const Container = styled.div`
@@ -239,7 +236,7 @@ const ResetBtn = styled.button`
   padding: 2px 0;
   font-size: 14px;
   cursor: pointer;
-  color: #ff5673;
+  color: var(--feed-color);
 `;
 
 const DoneBtn = styled.button`
@@ -248,14 +245,14 @@ const DoneBtn = styled.button`
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 9999px;
-  border: 1px solid #ff5673;
+  border: 1px solid var(--feed-color);
   background: #fff;
-  color: #ff5673;
+  color: var(--feed-color);
 
   &:hover,
   &:active {
     color: #fff;
-    background: #ff5673;
+    background: var(--feed-color);
   }
 
   transition: all 0.15s linear;
@@ -281,7 +278,7 @@ const DateBox = styled.div`
   gap: 6px;
   cursor: pointer;
 
-  color: ${secondColor};
+  color: var(--second-color);
 `;
 const DateText = styled.span`
   font-size: 14px;

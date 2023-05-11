@@ -3,7 +3,6 @@ import Flicking from "@egjs/react-flicking";
 import { BsSun } from "react-icons/bs";
 import { IoShirtOutline } from "react-icons/io5";
 import { MdPlace } from "react-icons/md";
-import ColorList from "../../../assets/data/ColorList";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 import { FeedType } from "../../../types/type";
 import { useNavigate } from "react-router-dom";
@@ -204,12 +203,10 @@ const DetailFeedCategory = ({ res }: Props) => {
 
 export default DetailFeedCategory;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const WearDetailBox = styled.div`
   overflow: hidden;
   display: flex;
-  border-bottom: 1px solid ${fourthColor};
+  border-bottom: 1px solid var(--fourth-color);
 `;
 
 const WearDetail = styled.div`
@@ -217,10 +214,9 @@ const WearDetail = styled.div`
   padding: 10px 14px;
   display: flex;
   flex: 1;
-  /* width: 50%; */
   align-items: center;
   &:not(:last-of-type) {
-    border-right: 1px solid ${fourthColor};
+    border-right: 1px solid var(--fourth-color);
   }
 
   @media (max-width: 767px) {
@@ -239,7 +235,7 @@ const WearInfoBox = styled.div`
 const WearInfoMain = styled.div`
   flex: 0 0 auto;
   user-select: text;
-  color: ${secondColor};
+  color: var(--second-color);
   text-align: center;
   margin-right: 12px;
   font-size: 14px;
@@ -257,7 +253,7 @@ const WearInfoMain = styled.div`
     margin-right: 4px;
 
     svg {
-      color: ${thirdColor};
+      color: var(--third-color);
       width: 12px;
       height: 12px;
     }
@@ -311,13 +307,13 @@ const CategoryTag = styled.div`
   height: 30px;
   display: flex;
   align-items: center;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 8px;
-  color: ${thirdColor};
+  color: var(--third-color);
   svg {
     margin-right: 2px;
     font-size: 12px;
-    color: ${thirdColor};
+    color: var(--third-color);
   }
 
   @media (max-width: 767px) {

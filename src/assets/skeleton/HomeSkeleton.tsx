@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
-import ColorList from "../data/ColorList";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import ImageList from "@mui/material/ImageList";
 
@@ -37,8 +36,6 @@ const HomeSkeleton = () => {
 
 export default HomeSkeleton;
 
-const { fourthColor } = ColorList();
-
 const CardList = styled.li`
   height: 380px;
   display: flex;
@@ -50,7 +47,7 @@ const CardList = styled.li`
   @media (max-width: 767px) {
     margin-bottom: 12px;
     border-width: 1px;
-    border-color: ${fourthColor};
+    border-color: var(--fourth-color);
     height: 230px;
   }
 `;
@@ -67,7 +64,7 @@ const Card = styled.div`
   @media (max-width: 767px) {
     height: 170px;
     border-width: 1px;
-    border-color: ${fourthColor};
+    border-color: var(--fourth-color);
   }
 `;
 

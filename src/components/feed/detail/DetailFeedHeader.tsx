@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import { CurrentUserType, FeedType } from "../../../types/type";
@@ -91,11 +90,9 @@ const DetailFeedHeader = ({ userObj, feed, onMoreClick }: Props) => {
 
 export default DetailFeedHeader;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Header = styled.div`
   padding: 20px;
-  border-bottom: 1px solid ${fourthColor};
+  border-bottom: 1px solid var(--fourth-color);
 
   @media (max-width: 767px) {
     padding: 16px;
@@ -112,7 +109,7 @@ const UserImageBox = styled(Link)`
   height: 42px;
   border-radius: 50%;
   overflow: hidden;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   object-fit: cover;
   cursor: pointer;
   position: relative;
@@ -130,7 +127,7 @@ const UserWriteInfo = styled.div`
   flex-direction: column;
   gap: 8px;
   margin-left: 12px;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;
 
 const WriteDate = styled.span`
@@ -148,7 +145,7 @@ const UserNameBox = styled(Link)`
   font-size: 16px;
   font-weight: 500;
   letter-spacing: -0.15px;
-  color: ${secondColor};
+  color: var(--second-color);
   @media (max-width: 767px) {
     font-size: 14px;
   }
@@ -180,7 +177,7 @@ const MoreBtn = styled.button`
   cursor: pointer;
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
   svg {
     font-size: 20px;
@@ -195,10 +192,9 @@ const FollowBtn = styled.button`
   font-size: 14px;
   padding: 10px 16px;
   color: #fff;
-  /* border-radius: 9999px; */
   border-radius: 8px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
+  border: 1px solid var(--second-color);
+  background: var(--second-color);
   cursor: pointer;
 
   &:hover,
@@ -213,12 +209,12 @@ const FollowBtn = styled.button`
 `;
 
 const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
 
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;

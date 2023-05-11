@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import { Link } from "react-router-dom";
 import useInfinityScroll from "../../../hooks/useInfinityScroll";
 import { collection, getDocs, query } from "firebase/firestore";
@@ -117,8 +116,6 @@ const SearchList = ({ url, text, onListClick }: Props) => {
 
 export default SearchList;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const SearchedListBox = styled.li`
   width: 100%;
   display: flex;
@@ -147,7 +144,7 @@ const SearchedImageBox = styled.div`
   justify-content: center;
   width: 40px;
   height: 40px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
 `;
@@ -182,12 +179,11 @@ const SearchedInfoDesc = styled.p`
 const NotInfoBox = styled.div`
   width: 100%;
   height: 100%;
-  /* margin: 0 auto; */
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;
 
 const NotInfo = styled.p``;

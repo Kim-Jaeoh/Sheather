@@ -3,7 +3,6 @@ import { CurrentUserType, FeedType } from "../../../types/type";
 import { BiCopy } from "react-icons/bi";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import ColorList from "../../../assets/data/ColorList";
 import toast from "react-hot-toast";
 import useToggleBookmark from "../../../hooks/useToggleBookmark";
 
@@ -74,11 +73,9 @@ const DetailFeedInfo = ({ feed, userObj, toggleLike }: Props) => {
 
 export default DetailFeedInfo;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const InfoBox = styled.div`
   padding: 20px;
-  border-top: 1px solid ${fourthColor};
+  border-top: 1px solid var(--fourth-color);
 `;
 
 const TagList = styled.div`
@@ -98,7 +95,7 @@ const Tag = styled(Link)`
   background-color: #f5f5f5;
   padding: 8px 10px;
   font-size: 14px;
-  color: #ff5673;
+  color: var(--feed-color);
 
   cursor: pointer;
   &:hover {
@@ -136,7 +133,7 @@ const UserReactBox = styled.div`
 
 const UserReactNum = styled.p`
   font-size: 14px;
-  color: ${thirdColor};
+  color: ${`var(--third-color)`};
   margin-bottom: 6px;
 `;
 
@@ -153,7 +150,7 @@ const Icon = styled.div`
   width: 30px;
   height: 30px;
   cursor: pointer;
-  color: ${thirdColor};
+  color: ${`var(--third-color)`};
   svg {
     font-size: 24px;
   }

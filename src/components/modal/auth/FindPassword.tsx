@@ -7,7 +7,6 @@ import {
   IoCloseCircleOutline,
 } from "react-icons/io5";
 import { useEffect, useState } from "react";
-import ColorList from "../../../assets/data/ColorList";
 import Deco from "../../leftBar/Deco";
 import { ReactComponent as SheatherLogo } from "../../../assets/image/sheather_logo.svg";
 
@@ -108,8 +107,6 @@ const FindPassword = ({ isMobile }: Props) => {
 
 export default FindPassword;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div``;
 
 const LogoBox = styled.div``;
@@ -122,8 +119,7 @@ const EmailBox = styled.div`
   margin-bottom: 14px;
   width: 100%;
   border-radius: 10px;
-  /* padding: 0 12px; */
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
 `;
 
 const PasswordBox = styled(EmailBox)``;
@@ -132,7 +128,7 @@ const Input = styled.input`
   width: 100%;
   padding: 20px;
   font-size: 16px;
-  color: ${secondColor};
+  color: var(--second-color);
   text-overflow: ellipsis;
   white-space: pre-wrap;
   background-color: transparent;
@@ -149,7 +145,7 @@ const Input = styled.input`
 
   &:focus::placeholder {
     opacity: 0.4;
-    color: ${thirdColor};
+    color: var(--third-color);
     transition: all 0.2s;
   }
 `;
@@ -157,7 +153,6 @@ const Input = styled.input`
 const InputCheckBox = styled.div<{ check?: boolean }>`
   width: 48px;
   height: 48px;
-  /* margin-right: -12px; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -175,7 +170,7 @@ const SignBtnBox = styled.div`
 
 const SignBtn = styled.button`
   cursor: pointer;
-  background-color: #6f4ccf;
+  background-color: var(--profile-color);
   display: block;
   width: 100%;
   height: 50px;

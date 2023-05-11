@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
-import ColorList from "../../assets/data/ColorList";
 import { FeedType } from "../../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -132,8 +131,6 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
 }
 export default FeedPost;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const CardBox = styled.div`
   width: 100%;
   padding: 10px 24px 40px;
@@ -149,13 +146,13 @@ const CardBox = styled.div`
 const CardList = styled.div`
   /* width: 330px; */
   border-radius: 10px;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   overflow: hidden;
   margin-bottom: 30px;
   background: #fff;
 
   > a {
-    border-bottom: 1px solid ${secondColor};
+    border-bottom: 1px solid var(--second-color);
   }
 
   animation-name: slideUp;
@@ -371,5 +368,5 @@ const NotInfoBox = styled.div`
 `;
 
 const NotInfo = styled.span`
-  color: ${secondColor};
+  color: var(--second-color);
 `;

@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import Modal from "@mui/material/Modal";
 import MobileSearchBox from "./MobileSearchBox";
 
@@ -21,8 +20,6 @@ const SearchModal = ({ modalOpen, modalClose }: Props) => {
 
 export default SearchModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   width: 100%;
   height: 100%;
@@ -34,7 +31,7 @@ const Container = styled.div`
   bottom: 0;
   right: 0;
   transform: translate(0, 0);
-  color: ${secondColor};
+  color: var(--second-color);
   background: #fff;
   outline: none;
   overflow-y: auto;

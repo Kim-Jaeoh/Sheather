@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import ColorList from "../../assets/data/ColorList";
 import { MessageReadType, MessageListType } from "../../types/type";
 import { onSnapshot, doc, collection, query } from "firebase/firestore";
 import { useState, useEffect, SetStateAction } from "react";
@@ -49,8 +48,6 @@ const ChatList = ({ data, onListClick }: Props) => {
 
 export default ChatList;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const User = styled.div`
   display: flex;
   align-items: center;
@@ -71,7 +68,7 @@ const User = styled.div`
 const ProfileImageBox = styled.div`
   width: 42px;
   height: 42px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -106,7 +103,7 @@ const ProfileDsName = styled.p`
 
 const ProfileName = styled.p`
   font-size: 12px;
-  color: ${thirdColor};
+  color: var(--third-color);
   width: 120px;
   line-height: 18px;
   overflow: hidden;

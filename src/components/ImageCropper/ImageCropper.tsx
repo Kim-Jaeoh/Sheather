@@ -5,7 +5,6 @@ import { Area, Point } from "react-easy-crop/types";
 import getCroppedImg from "./CropImage";
 import { Modal } from "@mui/material";
 import { BiLeftArrowAlt } from "react-icons/bi";
-import ColorList from "../../assets/data/ColorList";
 
 interface AspectRatio {
   value: number;
@@ -170,8 +169,6 @@ const ImageCropper = ({
 
 export default ImageCropper;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   width: 480px;
   height: 736px;
@@ -183,15 +180,16 @@ const Container = styled.div`
   overflow: hidden;
   outline: none;
   border-radius: 12px;
-  border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px ${mainColor}, 12px 12px #222222;
+  border: 2px solid var(--second-color);
+  box-shadow: 12px 12px 0 -2px var(--weather-color),
+    12px 12px var(--second-color);
 `;
 
 const Header = styled.header`
   height: 52px;
   display: flex;
   align-items: center;
-  border-bottom: 2px solid ${secondColor};
+  border-bottom: 2px solid var(--second-color);
   padding: 0 12px;
   position: sticky;
   background: rgba(255, 255, 255, 0.808);
@@ -204,17 +202,17 @@ const HeaderCategory = styled.button`
   user-select: none;
   margin-left: auto;
   padding: 8px 10px;
-  border: 1px solid ${mainColor};
-  color: ${mainColor};
+  border: 1px solid var(--weather-color);
+  color: var(--weather-color);
   border-radius: 9999px;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 14px;
 
   &:hover {
-    background: ${mainColor};
+    background: var(--weather-color);
     color: #fff;
-    border: 1px solid ${mainColor};
+    border: 1px solid var(--weather-color);
   }
 `;
 
@@ -235,7 +233,7 @@ const CloseBox = styled.div`
 
   &:hover,
   &:focus {
-    color: #48a3ff;
+    color: var(--weather-color);
   }
 
   svg {
@@ -245,7 +243,6 @@ const CloseBox = styled.div`
 
 const CropBox = styled.div`
   position: absolute;
-  /* top: 48px; */
   top: 52px;
   left: 50%;
   right: 0;
@@ -292,11 +289,13 @@ const AspectValue = styled.div<{ select: number; num: number }>`
   font-size: 12px;
   align-items: center;
   justify-content: center;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 2px;
   font-weight: bold;
-  color: ${(props) => (props.select === props.num ? "#fff" : secondColor)};
-  background: ${(props) => (props.select === props.num ? secondColor : "#fff")};
+  color: ${(props) =>
+    props.select === props.num ? "#fff" : `var(--second-color)`};
+  background: ${(props) =>
+    props.select === props.num ? `var(--second-color)` : "#fff"};
   transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
@@ -308,16 +307,16 @@ const ResetBtn = styled.div`
   height: 32px;
   padding: 4px 8px;
   border-radius: 9999px;
-  border: 1px solid ${thirdColor};
-  color: ${thirdColor};
+  border: 1px solid var(--third-color);
+  color: var(--third-color);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${thirdColor};
+    background: var(--third-color);
     color: #fff;
-    border: 1px solid ${thirdColor};
+    border: 1px solid var(--third-color);
   }
 `;
 

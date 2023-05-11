@@ -7,7 +7,6 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import ColorList from "../../assets/data/ColorList";
 import RangeTimeModal from "../modal/feed/RangeTimeModal";
 import moment from "moment";
 import MobileFeedWeatherInfo from "./MobileFeedWeatherInfo";
@@ -352,15 +351,13 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
 
 export default SortFeedCategory;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const InfoBox = styled.div`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 16px;
-  border-bottom: 1px solid ${fourthColor};
+  border-bottom: 1px solid var(--fourth-color);
 `;
 
 const IconBox = styled.button`
@@ -374,7 +371,7 @@ const IconBox = styled.button`
   flex: 0 0 auto;
   cursor: pointer;
   svg {
-    color: ${thirdColor};
+    color: var(--third-color);
     width: 22px;
     height: 22px;
   }
@@ -396,7 +393,7 @@ const SelectDetailTimeBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: end;
-  border-top: 1px solid ${secondColor};
+  border-top: 1px solid var(--second-color);
 
   @media (max-width: 767px) {
     margin: 0;
@@ -422,7 +419,7 @@ const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
   font-weight: ${(props) =>
     props.select === props.category ? "bold" : "normal"};
   cursor: pointer;
-  color: ${secondColor};
+  color: var(--second-color);
   white-space: pre;
 
   @media (max-width: 767px) {
@@ -446,7 +443,7 @@ const SelectDeleteBtn = styled.button`
   padding: 0;
   cursor: pointer;
   svg {
-    color: ${secondColor};
+    color: var(--second-color);
     /* width: 18px; */
     /* height: 18px; */
   }
@@ -463,13 +460,13 @@ const SelectDetailTime = styled.p`
   font-size: 14px;
   display: flex;
   align-items: center;
-  color: ${secondColor};
+  color: var(--second-color);
   white-space: pre;
 
   @media (max-width: 767px) {
     font-size: 10px;
     font-weight: 300;
-    color: ${thirdColor};
+    color: var(--third-color);
   }
 `;
 
@@ -483,7 +480,7 @@ const SelectCategory = styled.div`
 const SelectCategoryTextLink = styled(Link)<{ select: number; num: number }>`
   width: 78px;
   flex: 1;
-  color: ${secondColor};
+  color: var(--second-color);
   background: ${(props) =>
     props.num === props.select ? "#fff" : "transparent"};
   border-radius: 9999px;
@@ -496,7 +493,7 @@ const SelectCategoryTextLink = styled(Link)<{ select: number; num: number }>`
   font-weight: ${(props) => (props.num === props.select ? "700" : "500")};
   box-shadow: ${(props) =>
     props.num === props.select &&
-    `0px 4px 0 -2px ${secondColor}, 0px 4px ${secondColor}
+    `0px 4px 0 -2px var(--second-color), 0px 4px var(--second-color)
     `};
 
   cursor: pointer;

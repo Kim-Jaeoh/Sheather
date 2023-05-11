@@ -7,17 +7,10 @@ import { IoMdClose } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { RootState } from "../../../app/store";
-import ColorList from "../../../assets/data/ColorList";
 import { Spinner } from "../../../assets/spinner/Spinner";
 import { dbService } from "../../../fbase";
 import useToggleFollow from "../../../hooks/useToggleFollow";
 import { FollowerType, FollowingType } from "../../../types/type";
-import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
-
-// interface followInfoType {
-//   displayName: string;
-//   time: number;
-// }
 
 type Props = {
   accountName: string;
@@ -173,8 +166,6 @@ const ProfileFollowModal = ({
 
 export default ProfileFollowModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -182,15 +173,16 @@ const Container = styled.div`
   height: 400px;
   box-sizing: border-box;
   position: absolute;
-  color: ${secondColor};
+  color: var(--second-color);
   outline: none;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   background: #fff;
   border-radius: 20px;
-  border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
+  border: 2px solid var(--second-color);
+  box-shadow: 12px 12px 0 -2px var(--profile-color),
+    12px 12px var(--second-color);
 
   @media (max-width: 767px) {
     left: 0;
@@ -211,7 +203,7 @@ const Header = styled.header`
   min-height: 52px;
   display: flex;
   overflow: hidden;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   position: relative;
 `;
 
@@ -264,7 +256,7 @@ const UserList = styled.li`
 const ProfileImageBox = styled(Link)`
   width: 44px;
   height: 44px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -291,7 +283,7 @@ const ProfileDsName = styled.p`
 const ProfileName = styled.p`
   font-size: 14px;
   margin-top: 4px;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;
 
 const FollowBtnBox = styled.div``;
@@ -305,8 +297,8 @@ const FollowBtn = styled.button`
   padding: 8px 16px;
   color: #fff;
   border-radius: 8px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
+  border: 1px solid var(--second-color);
+  background: var(--second-color);
   cursor: pointer;
   transition: all 0.1s linear;
   &:hover,
@@ -316,13 +308,13 @@ const FollowBtn = styled.button`
 `;
 
 const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
 
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;
 
@@ -346,7 +338,7 @@ const NotInfoCategory = styled.p`
 `;
 
 const IconBox = styled.div`
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 50%;
   width: 70px;
   height: 70px;
@@ -371,7 +363,7 @@ const Icon = styled.div`
     margin-left: 6px;
 
     path:not(:first-of-type) {
-      color: #6f4ccf;
+      color: var(--profile-color);
     }
   }
 `;

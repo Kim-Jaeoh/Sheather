@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/data/ColorList";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -161,8 +160,6 @@ const FollowCategoryList = () => {
 
 export default FollowCategoryList;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div<{ bgColor: string }>`
   display: flex;
   flex-direction: column;
@@ -183,8 +180,8 @@ const CategoryBox = styled.nav`
   display: flex;
   align-items: center;
   justify-content: center;
-  border-top: 2px solid ${secondColor};
-  border-bottom: 2px solid ${secondColor};
+  border-top: 2px solid var(--second-color);
+  border-bottom: 2px solid var(--second-color);
   box-sizing: border-box;
   background: #fff;
   z-index: 20;
@@ -196,8 +193,8 @@ const CategoryBox = styled.nav`
     height: auto;
     padding: 8px 14px;
     border-radius: 9999px;
-    border: 1px solid ${secondColor};
-    box-shadow: 0px 4px ${secondColor};
+    border: 1px solid var(--second-color);
+    box-shadow: 0px 4px var(--second-color);
     background: #fff;
   }
 `;
@@ -234,7 +231,7 @@ const Card = styled.div`
   padding: 12px 16px;
   height: 90px;
   overflow: hidden;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 20px;
   background: #fff;
   transition: all 0.12s linear;
@@ -274,7 +271,7 @@ const User = styled(Link)`
 const ProfileImageBox = styled.div`
   width: 44px;
   height: 44px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -313,7 +310,7 @@ const ProfileDsName = styled.p`
 
 const ProfileName = styled.p`
   font-size: 14px;
-  color: ${thirdColor};
+  color: var(--third-color);
   /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
@@ -353,8 +350,8 @@ const FollowBtn = styled.button`
   padding: 10px 14px;
   color: #fff;
   border-radius: 20px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
+  border: 1px solid var(--second-color);
+  background: var(--second-color);
   cursor: pointer;
   transition: all 0.1s linear;
   &:hover,
@@ -367,12 +364,12 @@ const FollowBtn = styled.button`
 `;
 
 const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
 
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;

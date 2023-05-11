@@ -1,19 +1,10 @@
 import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
-import {
-  onSnapshot,
-  doc,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { onSnapshot, collection, query, where } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { MdGridOn } from "react-icons/md";
-import { Link, useLocation, useParams } from "react-router-dom";
-import ColorList from "../assets/data/ColorList";
+import { Link, useParams } from "react-router-dom";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
 import DeskProfileActInfo from "../components/profile/DeskProfileActInfo";
@@ -263,15 +254,13 @@ const Profile = () => {
 
 export default Profile;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Wrapper = styled.div`
   position: relative;
   overflow: hidden;
   height: 100%;
   padding: 40px;
-  border-top: 2px solid ${secondColor};
-  background: #6f4ccf;
+  border-top: 2px solid var(--second-color);
+  background: var(--profile-color);
 
   @media (max-width: 767px) {
     border: none;
@@ -285,7 +274,7 @@ const Container = styled.div`
   position: relative;
   height: 100%;
   padding: 20px;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 20px;
   overflow: hidden;
   background: #fff;
@@ -300,7 +289,7 @@ const Container = styled.div`
 
   @media (max-width: 767px) {
     padding: 0;
-    border: 1px solid ${secondColor};
+    border: 1px solid var(--second-color);
     box-shadow: none;
   }
 `;
@@ -311,21 +300,21 @@ const CategoryBox = styled.div`
   justify-content: center;
   gap: 40px;
   margin-top: 40px;
-  border-top: 1px solid ${fourthColor};
+  border-top: 1px solid var(--fourth-color);
 
   @media (max-width: 767px) {
     gap: 0px;
     margin-top: 0;
     overflow: hidden;
     justify-content: space-evenly;
-    border-bottom: 1px solid ${fourthColor};
+    border-bottom: 1px solid var(--fourth-color);
   }
 `;
 
 const Category = styled(Link)<{ select: number; num: number }>`
   padding: 16px 0 30px;
   font-weight: ${(props) => props.num === props.select && "bold"};
-  color: ${(props) => props.num !== props.select && thirdColor};
+  color: ${(props) => props.num !== props.select && `var(--third-color)`};
   font-size: 14px;
   cursor: pointer;
   display: flex;
@@ -341,7 +330,8 @@ const Category = styled(Link)<{ select: number; num: number }>`
     top: 0;
     width: 100%;
     height: 2px;
-    background: ${(props) => props.num === props.select && secondColor};
+    background: ${(props) =>
+      props.num === props.select && `var(--second-color)`};
   }
 
   svg {
@@ -352,10 +342,10 @@ const Category = styled(Link)<{ select: number; num: number }>`
   @media (max-width: 767px) {
     width: 33.33%;
     padding: 10px 0;
-    color: ${(props) => (props.num === props.select ? `#4e2fa3` : thirdColor)};
+    color: ${(props) =>
+      props.num === props.select ? `#4e2fa3` : `var(--third-color)`};
 
     svg {
-      /* font-size: 20px; */
       width: 18px;
       height: 18px;
     }

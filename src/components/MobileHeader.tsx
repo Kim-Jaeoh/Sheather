@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../assets/data/ColorList";
-import { FiSearch } from "react-icons/fi";
 import SearchModal from "./modal/search/SearchModal";
-import { SlBell } from "react-icons/sl";
 import NoticeModal from "./modal/notice/NoticeModal";
 import { NoticeArrType } from "../types/type";
 import { onSnapshot, doc } from "firebase/firestore";
@@ -12,11 +9,8 @@ import { RootState } from "../app/store";
 import { dbService } from "../fbase";
 import { ReactComponent as SheatherLogo } from "../assets/image/sheather_logo.svg";
 import { Link } from "react-router-dom";
-import { BiBell, BiSearch } from "react-icons/bi";
 import { VscBell } from "react-icons/vsc";
 import { CiSearch } from "react-icons/ci";
-import { HiOutlineBell, HiOutlineSearch } from "react-icons/hi";
-import { IoSearchOutline } from "react-icons/io5";
 
 type Props = {
   onIsLogin: (callback: () => void) => void;
@@ -86,8 +80,6 @@ const MobileHeader = ({ onIsLogin }: Props) => {
 
 export default MobileHeader;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Header = styled.header`
   width: 100%;
   height: 52px;
@@ -99,8 +91,7 @@ const Header = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* border-bottom: 2px solid ${fourthColor}; */
-  border-bottom: 1px solid ${secondColor};
+  border-bottom: 1px solid var(--second-color);
 `;
 
 const LogoBox = styled(Link)`
@@ -115,7 +106,7 @@ const IconBox = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
-  color: ${secondColor};
+  color: var(--second-color);
 `;
 
 const Icon = styled.button`
@@ -130,7 +121,7 @@ const Icon = styled.button`
   }
 
   svg {
-    color: ${secondColor};
+    color: var(--second-color);
     width: 24px;
     height: 24px;
   }

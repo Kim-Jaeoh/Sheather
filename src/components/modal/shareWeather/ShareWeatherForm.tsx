@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import Emoji from "../../emoji/Emoji";
 import useTag from "../../../hooks/useTag";
 import { IoMdClose } from "react-icons/io";
@@ -105,8 +104,6 @@ const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
 
 export default ShareWeatherForm;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const TextFormBox = styled.div`
   width: 100%;
   /* height: 100%; */
@@ -136,7 +133,7 @@ const TextArea = styled.textarea`
   resize: none;
   outline: none;
   border: none;
-  /* border-bottom: 1px solid ${thirdColor}; */
+  /* border-bottom: 1px solid var(--third-color); */
 
   &::placeholder {
     font-size: 14px;
@@ -148,7 +145,7 @@ const TextArea = styled.textarea`
 
   &:focus::placeholder {
     opacity: 0.4;
-    color: ${thirdColor};
+    color: var(--third-color);
     transition: all 0.15s;
   }
 `;
@@ -182,7 +179,7 @@ const TextAreaLengthColor = styled.span<{ bgColor: string }>`
 const TagBox = styled.div`
   display: flex;
   align-items: center;
-  border-top: 1px solid ${thirdColor};
+  border-top: 1px solid var(--third-color);
   padding: 14px;
 `;
 
@@ -239,7 +236,7 @@ const Input = styled.input`
 
   &:focus::placeholder {
     opacity: 0.4;
-    color: ${thirdColor};
+    color: var(--third-color);
     transition: all 0.15s;
   }
 `;
@@ -276,7 +273,7 @@ const TagButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${secondColor};
+  color: var(--second-color);
 `;
 
 const TagName = styled.div`

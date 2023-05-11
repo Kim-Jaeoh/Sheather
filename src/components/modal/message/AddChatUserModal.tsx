@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { BsPersonPlusFill } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
 import { Link } from "react-router-dom";
-import ColorList from "../../../assets/data/ColorList";
 import { Spinner } from "../../../assets/spinner/Spinner";
 import { dbService } from "../../../fbase";
 import useCreateChat from "../../../hooks/useCreateChat";
@@ -21,24 +20,6 @@ const AddChatUserModal = ({ userObj, modalOpen, modalClose }: Props) => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { onCreateChatClick } = useCreateChat();
-
-  // // 팔로잉 계정 정보 가져오기
-  // useEffect(() => {
-  //   userObj?.following?.forEach((res) => {
-  //     onSnapshot(doc(dbService, "users", res?.email), (doc) => {
-  //       setUsers((prev: CurrentUserType[]) => {
-  //         // 중복 체크
-  //         if (!prev.some((user) => user?.email === doc.data()?.email)) {
-  //           return [...prev, doc.data()];
-  //         } else {
-  //           return prev;
-  //         }
-  //       });
-  //     });
-  //   });
-  //   setIsLoading(true);
-  //   // return () => unsubscribe();
-  // }, [userObj?.following]);
 
   useEffect(() => {
     const unsubscribes: (() => void)[] = [];
@@ -142,8 +123,6 @@ const AddChatUserModal = ({ userObj, modalOpen, modalClose }: Props) => {
 
 export default AddChatUserModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -154,12 +133,13 @@ const Container = styled.div`
   top: 50%;
   transform: translate(-50%, -50%);
   box-sizing: border-box;
-  color: ${secondColor};
+  color: var(--second-color);
   outline: none;
   background: #fff;
   border-radius: 20px;
-  border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px #ff5c1b, 12px 12px ${secondColor};
+  border: 2px solid var(--second-color);
+  box-shadow: 12px 12px 0 -2px var(--message-color),
+    12px 12px var(--second-color);
 
   @media (max-width: 767px) {
     top: 0;
@@ -180,7 +160,7 @@ const Header = styled.header`
   min-height: 52px;
   display: flex;
   overflow: hidden;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   position: relative;
 `;
 
@@ -233,7 +213,7 @@ const UserList = styled.li`
 const ProfileImageBox = styled(Link)`
   width: 44px;
   height: 44px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -260,7 +240,7 @@ const ProfileDsName = styled.p`
 const ProfileName = styled.p`
   font-size: 14px;
   margin-top: 4px;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;
 
 const ProfileDesc = styled.p`
@@ -284,26 +264,26 @@ const FollowBtn = styled.button`
   font-size: 14px;
   padding: 8px 12px;
   border-radius: 20px;
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
 
   cursor: pointer;
   transition: all 0.1s linear;
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;
 
 const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
 
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;
 
@@ -345,7 +325,7 @@ const NotInfoCategory = styled.p`
 `;
 
 const IconBox = styled.div`
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 50%;
   width: 70px;
   height: 70px;

@@ -9,7 +9,6 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { WeathersFiveDataType } from "../../types/type";
-import ColorList from "../../assets/data/ColorList";
 import ShareWeatherModal from "../modal/shareWeather/ShareWeatherModal";
 import Flicking from "@egjs/react-flicking";
 import "../../styles/SlickSliderFlicking.css";
@@ -208,29 +207,27 @@ const WeatherSlider = ({ data }: PropsType) => {
 
 export default React.memo(WeatherSlider);
 
-const { secondColor, thirdColor, fourthColor } = ColorList();
-
 const Wrapper = styled.div`
   background: #fff;
   width: 100%;
   border-radius: 20px;
   overflow: hidden;
   position: relative;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
 
   &:not(:last-of-type) {
     margin-bottom: 30px;
   }
 
   @media (max-width: 767px) {
-    border: 1px solid ${secondColor};
+    border: 1px solid var(--second-color);
   }
 `;
 
 const FlickingBox = styled.ul`
   min-height: 364px;
   li:not(:last-of-type) {
-    border-right: 1px solid ${fourthColor};
+    border-right: 1px solid var(--fourth-color);
   }
 `;
 
@@ -252,7 +249,7 @@ const WeatherInfoBox = styled.div`
 const WeatherInfoBtn = styled.button`
   width: 28px;
   height: 28px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -266,9 +263,9 @@ const WeatherInfoBtn = styled.button`
   }
 
   &:not(:disabled):hover {
-    border: 1px solid #48a3ff;
+    border: 1px solid var(--weather-color);
     svg {
-      color: #48a3ff;
+      color: var(--weather-color);
     }
   }
 `;
@@ -281,12 +278,12 @@ const WeatherDateBox = styled.div`
   justify-content: center;
   background: #fff;
   margin-top: -2px;
-  border-top: 2px solid ${secondColor};
-  border-bottom: 2px solid ${secondColor};
+  border-top: 2px solid var(--second-color);
+  border-bottom: 2px solid var(--second-color);
 
   @media (max-width: 767px) {
     border: none;
-    border-bottom: 1px solid ${secondColor};
+    border-bottom: 1px solid var(--second-color);
   }
 `;
 
@@ -296,7 +293,7 @@ const WeatherDate = styled.span`
   white-space: nowrap;
   padding: 6px 10px;
   border-radius: 9999px;
-  background-color: #48a3ff;
+  background-color: var(--weather-color);
   color: #fff;
   margin: 0 14px;
 `;
@@ -320,7 +317,8 @@ const WeatherDateListBox = styled.div<{ now?: string }>`
   position: absolute;
   left: 50%;
   transform: translate(-50%, 0);
-  border: 1px solid ${(props) => (!props?.now ? "#48a3ff" : "#b3b3b3")};
+  border: 1px solid
+    ${(props) => (!props?.now ? "var(--weather-color)" : "#b3b3b3")};
   border-radius: 9999px;
   margin: 0 auto;
   text-align: center;
@@ -328,7 +326,7 @@ const WeatherDateListBox = styled.div<{ now?: string }>`
 `;
 
 const WeatherDateList = styled.span<{ now?: string }>`
-  color: ${(props) => !props?.now && "#48a3ff"};
+  color: ${(props) => !props?.now && "var(--weather-color)"};
   font-size: 14px;
   font-weight: bold;
   user-select: text;
@@ -391,12 +389,12 @@ const WeatherCategoryIconText = styled.span`
 
 const WeatherCategoryMain = styled.span`
   user-select: text;
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   border-radius: 9999px;
   padding: 2px 6px;
   margin-bottom: 4px;
   font-size: 12px;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;
 
 const WeatherCategorySub = styled.span`
@@ -412,11 +410,11 @@ const ArrowStandard = styled.div`
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 1px solid #48a3ff;
+  border: 1px solid var(--weather-color);
   background-color: #fff;
   z-index: 10;
   transition: all 0.1s;
-  color: #48a3ff;
+  color: var(--weather-color);
   cursor: pointer;
 `;
 
@@ -430,8 +428,8 @@ const ArrowIcon = styled.span`
 
 const NextArrow = styled(ArrowStandard)<{ visible: boolean }>`
   right: 270px;
-  color: ${(props) => !props.visible && fourthColor};
-  border-color: ${(props) => !props.visible && fourthColor};
+  color: ${(props) => !props.visible && `var(--fourth-color)`};
+  border-color: ${(props) => !props.visible && `var(--fourth-color)`};
   cursor: ${(props) => !props.visible && "default"};
   span {
     svg {
@@ -442,8 +440,8 @@ const NextArrow = styled(ArrowStandard)<{ visible: boolean }>`
 
 const PrevArrow = styled(ArrowStandard)<{ visible: boolean }>`
   left: 270px;
-  color: ${(props) => !props.visible && fourthColor};
-  border-color: ${(props) => !props.visible && fourthColor};
+  color: ${(props) => !props.visible && `var(--fourth-color)`};
+  border-color: ${(props) => !props.visible && `var(--fourth-color)`};
   cursor: ${(props) => !props.visible && "default"};
   span {
     svg {

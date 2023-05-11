@@ -1,15 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
-import ColorList from "../../../assets/data/ColorList";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import { HiHashtag } from "react-icons/hi";
 import { Spinner } from "../../../assets/spinner/Spinner";
@@ -177,8 +169,6 @@ const SearchedShowList = ({ searched, setSearched, onListClick }: Props) => {
 
 export default SearchedShowList;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const DeleteAllBox = styled.div`
   width: 100%;
   padding: 12px;
@@ -193,7 +183,7 @@ const DeleteAllBox = styled.div`
 
 const Category = styled.p`
   font-size: 14px;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;
 
 const DeleteAllBtn = styled.button`
@@ -241,7 +231,7 @@ const SearchedImageBox = styled.div`
   justify-content: center;
   width: 40px;
   height: 40px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
 `;
@@ -284,7 +274,7 @@ const Closebox = styled.button`
   outline: none;
   padding: 0;
   margin: 0;
-  color: ${thirdColor};
+  color: var(--third-color);
 
   svg {
     width: 18px;
@@ -298,12 +288,11 @@ const Closebox = styled.button`
 const NotInfoBox = styled.div`
   width: 100%;
   height: 100%;
-  /* margin: 0 auto; */
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;
 
 const NotInfo = styled.p``;

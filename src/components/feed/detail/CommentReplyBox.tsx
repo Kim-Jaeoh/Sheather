@@ -3,7 +3,6 @@ import styled from "@emotion/styled";
 import { onSnapshot, doc } from "firebase/firestore";
 import { IoMdClose } from "react-icons/io";
 import { Link } from "react-router-dom";
-import ColorList from "../../../assets/data/ColorList";
 import { dbService } from "../../../fbase";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { CommentType } from "../../../types/type";
@@ -89,8 +88,6 @@ const CommentReplyBox = ({ data, onClickReply, onDelete }: Props) => {
 
 export default CommentReplyBox;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const UserInfoBox = styled.div`
   position: relative;
   display: flex;
@@ -107,7 +104,7 @@ const UserImageBox = styled(Link)`
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   object-fit: cover;
   cursor: pointer;
 `;
@@ -135,7 +132,7 @@ const BottomInfoBox = styled.div`
 
 const CommentCreatedAt = styled.span`
   font-size: 12px;
-  color: ${thirdColor};
+  color: var(--third-color);
   font-weight: 400;
   margin-right: 12px;
 
@@ -153,7 +150,7 @@ const WriteReply = styled.button`
 const CommentInfoBox = styled.div`
   display: inline;
   align-items: center;
-  color: ${secondColor};
+  color: var(--second-color);
   padding-right: 40px;
 `;
 
@@ -187,14 +184,14 @@ const CloseBox = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: ${thirdColor};
+  color: var(--third-color);
   transition: all 0.12s linear;
   width: 30px;
   height: 30px;
 
   &:hover,
   &:active {
-    color: ${secondColor};
+    color: var(--second-color);
   }
 
   svg {

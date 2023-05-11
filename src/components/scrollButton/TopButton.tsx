@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { BsArrowUp } from "react-icons/bs";
-import ColorList from "../../assets/data/ColorList";
 import useMediaScreen from "../../hooks/useMediaScreen";
 
 type Props = {
@@ -60,23 +59,19 @@ const TopButton = ({ bgColor }: Props) => {
 
 export default TopButton;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const TopButtonBox = styled.div<{ btnStatus: boolean; bgColor: string }>`
   position: fixed;
   width: 48px;
   height: 48px;
   bottom: 24px;
   right: 24px;
-  /* right: 630px; */
-  /* left: 50%; */
-  /* transform: translateX(-50%); */
   background: #fff;
   z-index: 100;
   opacity: ${(props) => (props.btnStatus ? 0.9 : 0)};
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 50%;
-  box-shadow: 4px 4px 0 -2px ${(props) => props.bgColor}, 4px 4px ${secondColor};
+  box-shadow: 4px 4px 0 -2px ${(props) => props.bgColor},
+    4px 4px var(--second-color);
   transition: all 0.15s linear;
 
   @media screen and (max-width: 767px) {
@@ -106,7 +101,7 @@ const Button = styled.button`
   svg {
     width: 24px;
     height: 24px;
-    color: ${secondColor};
+    color: var(--second-color);
   }
 `;
 

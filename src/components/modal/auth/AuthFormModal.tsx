@@ -16,7 +16,6 @@ import {
 import { authService, dbService, createDeviceToken } from "../../../fbase";
 import { currentUser, loginToken } from "../../../app/user";
 import defaultAccount from "../../../assets/image/account_img_default.png";
-import ColorList from "../../../assets/data/ColorList";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 import FindPassword from "./FindPassword";
 import { BsArrowLeftShort } from "react-icons/bs";
@@ -425,8 +424,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
 
 export default AuthFormModal;
 
-const { secondColor, thirdColor } = ColorList();
-
 const Container = styled.div`
   position: absolute;
   left: 50%;
@@ -437,8 +434,9 @@ const Container = styled.div`
   background: #fff;
   border-radius: 20px;
   text-align: center;
-  border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
+  border: 2px solid var(--second-color);
+  box-shadow: 12px 12px 0 -2px var(--profile-color),
+    12px 12px var(--second-color);
   outline: none;
   display: flex;
   flex-direction: column;
@@ -463,7 +461,7 @@ const Header = styled.header`
   display: flex;
   align-items: center;
   overflow: hidden;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   position: relative;
 
   > div:last-of-type {
@@ -491,7 +489,7 @@ const IconBox = styled.div`
 
   &:hover,
   &:active {
-    color: #6f4ccf;
+    color: var(--profile-color);
   }
 
   svg {
@@ -534,7 +532,7 @@ const EmailBox = styled.div`
   margin-bottom: 14px;
   width: 100%;
   border-radius: 10px;
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
 `;
 
 const PasswordBox = styled(EmailBox)``;
@@ -543,7 +541,7 @@ const Input = styled.input`
   width: 100%;
   padding: 20px;
   font-size: 16px;
-  color: ${secondColor};
+  color: var(--second-color);
   text-overflow: ellipsis;
   white-space: pre-wrap;
   background-color: transparent;
@@ -560,7 +558,7 @@ const Input = styled.input`
 
   &:focus::placeholder {
     opacity: 0.4;
-    color: ${thirdColor};
+    color: var(--third-color);
     transition: all 0.2s;
   }
 `;
@@ -585,7 +583,7 @@ const SignBtnBox = styled.div`
 
 const SignBtn = styled.button`
   cursor: pointer;
-  background-color: #6f4ccf;
+  background-color: var(--profile-color);
   display: block;
   width: 100%;
   height: 50px;
@@ -625,7 +623,7 @@ const ErrorText = styled.p`
   display: block;
   text-align: center;
   font-size: 12px;
-  color: rgb(235, 0, 0);
+  color: #eb0000;
   letter-spacing: -0.5px;
   margin-top: 24px;
 `;

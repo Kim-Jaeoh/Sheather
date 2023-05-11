@@ -4,7 +4,6 @@ import { IoMdClose } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import toast from "react-hot-toast";
-import ColorList from "../../../assets/data/ColorList";
 import { useEffect, useRef, useState } from "react";
 import { BsCheck, BsFillImageFill } from "react-icons/bs";
 import { BiLeftArrowAlt } from "react-icons/bi";
@@ -466,8 +465,6 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
 
 export default ShareWeatherModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.form<{ isUpload: boolean }>`
   display: flex;
   outline: none;
@@ -476,14 +473,14 @@ const Container = styled.form<{ isUpload: boolean }>`
   min-height: -webkit-fill-available;
   box-sizing: border-box;
   position: absolute;
-  color: ${secondColor};
+  color: var(--second-color);
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   background: #fff;
   border-radius: 20px;
-  border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px #48a3ff, 12px 12px ${secondColor};
+  border: 2px solid var(--second-color);
+  box-shadow: 12px 12px 0 -2px #48a3ff, 12px 12px var(--second-color);
   &::-webkit-scrollbar {
     display: none;
   }
@@ -508,7 +505,7 @@ const Header = styled.header`
   display: flex;
   align-items: center;
   padding-right: 14px;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   position: sticky;
   top: 0px;
   z-index: 10;
@@ -569,7 +566,7 @@ const ImageBox = styled.div<{ length?: number }>`
   width: 100px;
   height: 100px;
   border-radius: 6px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   overflow: hidden;
   background: #fff;
   &:hover,
@@ -653,7 +650,7 @@ const CropBtn = styled.div`
 
 const ImageRemove = styled.div`
   align-items: center;
-  background-color: ${secondColor};
+  background-color: var(--second-color);
   border-radius: 50%;
   color: #fff;
   cursor: pointer;
@@ -686,7 +683,7 @@ const DateBox = styled.div`
   svg {
     margin-right: 2px;
     font-size: 12px;
-    color: ${thirdColor};
+    color: var(--third-color);
   }
 `;
 
@@ -710,9 +707,9 @@ const NextBtn = styled.button`
   }
 
   &:disabled {
-    color: ${thirdColor};
+    color: var(--third-color);
     cursor: default;
-    border: 1px solid ${thirdColor};
+    border: 1px solid var(--third-color);
   }
 `;
 
@@ -736,9 +733,9 @@ const EditBtn = styled.button`
   }
 
   &:disabled {
-    color: ${thirdColor};
+    color: var(--third-color);
     cursor: default;
-    border: 1px solid ${thirdColor};
+    border: 1px solid var(--third-color);
   }
 `;
 

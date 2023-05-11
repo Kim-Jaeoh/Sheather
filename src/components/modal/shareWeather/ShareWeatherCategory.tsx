@@ -1,9 +1,7 @@
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import TempClothes from "../../../assets/data/TempClothes";
 import Flicking from "@egjs/react-flicking";
-import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 // import "../../../styles/DetailFlicking.css";
 
 type props = {
@@ -340,8 +338,6 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
 
 export default ShareWeatherCategory;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   background: #fff;
   position: relative;
@@ -350,8 +346,7 @@ const Container = styled.div`
 
 const WearInfoBox = styled.section`
   width: 100%;
-  /* border-top: 1px solid ${thirdColor}; */
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
 `;
 
 const WearCondition = styled.div`
@@ -361,23 +356,13 @@ const WearCondition = styled.div`
   overflow: hidden;
   padding: 14px;
   &:not(:last-of-type) {
-    border-bottom: 1px solid ${thirdColor};
+    border-bottom: 1px solid var(--third-color);
   }
 `;
 const FlickingBox = styled.div`
   width: 100%;
   position: relative;
   cursor: pointer;
-  /* &::before {
-    left: 0px;
-    background: linear-gradient(to right, #fafafa, rgba(255, 255, 255, 0));
-    position: absolute;
-    top: 0px;
-    z-index: 10;
-    height: 120%;
-    width: 14px;
-    content: "";
-  } */
 
   &::after {
     right: 0px;
@@ -418,7 +403,7 @@ const TagLabel = styled.label<{
   padding: 6px 8px;
   border: 1px solid
     ${(props) =>
-      props.select === props.value ? props.bgColor : `${fourthColor}`};
+      props.select === props.value ? props.bgColor : `var(--fourth-color)`};
   border-radius: 9999px;
   cursor: pointer;
   color: ${(props) => props.select === props.value && `#fff`};
@@ -433,7 +418,7 @@ const AddTagBox = styled.div`
 const AddTag = styled.div`
   gap: 12px;
   padding: 6px 8px;
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   border-radius: 9999px;
   cursor: pointer;
 `;
@@ -442,7 +427,6 @@ const WearDetailBox = styled.div`
   overflow: hidden;
   padding: 14px;
   &:not(:last-of-type) {
-    /* border-bottom: 2px solid ${thirdColor}; */
   }
 `;
 
@@ -466,11 +450,9 @@ const WearInfoMain = styled.div<{
   color: ${(props) =>
     props.select !== null || props?.select2 === "원피스"
       ? props.bgColor
-      : thirdColor};
+      : `var(--third-color)`};
   text-align: center;
   min-width: 54px;
-  /* padding-right: 6px; */
-  /* border-right: 1px solid ${thirdColor}; */
   font-size: 12px;
   margin-right: 12px;
 `;

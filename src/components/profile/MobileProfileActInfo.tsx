@@ -1,13 +1,11 @@
 import React from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/data/ColorList";
 import { FiLogOut } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useCreateChat from "../../hooks/useCreateChat";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import { CurrentUserType, FollowerType, FollowingType } from "../../types/type";
-import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
 
 type Props = {
   myPost: number;
@@ -135,8 +133,6 @@ const MobileProfileActInfo = ({
 
 export default MobileProfileActInfo;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const ProfileBox = styled.div`
   display: flex;
   align-items: center;
@@ -149,7 +145,7 @@ const ProfileBox = styled.div`
 const ProfileImageBox = styled.div`
   width: 120px;
   height: 120px;
-  border: 2px solid ${fourthColor};
+  border: 2px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -209,7 +205,7 @@ const ProfileName = styled.p`
 const ProfileDesc = styled.p`
   font-size: 14px;
   white-space: pre-wrap;
-  color: ${thirdColor};
+  color: var(--third-color);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   overflow: hidden;
@@ -257,8 +253,8 @@ const LogoutBtn = styled.button`
   width: 34px;
   height: 34px;
   padding: 8px;
-  border: 1px solid ${thirdColor};
-  color: ${thirdColor};
+  border: 1px solid var(--third-color);
+  color: var(--third-color);
   font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
@@ -266,8 +262,8 @@ const LogoutBtn = styled.button`
 
   &:hover,
   &:active {
-    border: 1px solid ${secondColor};
-    background-color: ${secondColor};
+    border: 1px solid var(--second-color);
+    background-color: var(--second-color);
     color: #fff;
   }
 `;
@@ -287,8 +283,8 @@ const FollowBtn = styled.button`
   font-size: 14px;
   width: 100%;
   padding: 8px 10px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
+  border: 1px solid var(--second-color);
+  background: var(--second-color);
   color: #fff;
   border-radius: 8px;
   cursor: pointer;
@@ -302,25 +298,25 @@ const FollowBtn = styled.button`
 `;
 
 const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
 
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;
 
 const MessageBtnBox = styled.div``;
 
 const MessageBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;
 
@@ -328,8 +324,7 @@ const ProfileActBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  /* gap: 30px; */
-  border-top: 1px solid ${fourthColor};
+  border-top: 1px solid var(--fourth-color);
   padding: 8px 0;
 `;
 
@@ -341,14 +336,14 @@ const ProfileAct = styled.div`
   justify-content: center;
   flex-direction: column;
   gap: 4px;
-  color: ${thirdColor};
+  color: var(--third-color);
   white-space: pre;
 
   &:not(:first-of-type) {
     cursor: pointer;
   }
   em {
-    color: ${secondColor};
+    color: var(--second-color);
     font-weight: 500;
   }
 `;

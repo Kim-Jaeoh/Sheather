@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import styled from "@emotion/styled";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +7,6 @@ import { Spinner } from "../../assets/spinner/Spinner";
 import Flicking from "@egjs/react-flicking";
 import "../../styles/DetailFlicking.css";
 import TempClothes from "../../assets/data/TempClothes";
-import ColorList from "../../assets/data/ColorList";
 import { nowWeatherApi, regionApi } from "../../apis/api";
 import { BiErrorCircle } from "react-icons/bi";
 
@@ -116,8 +115,6 @@ const FeedWeatherInfo = () => {
 
 export default FeedWeatherInfo;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.nav`
   position: sticky;
   flex-shrink: 0;
@@ -189,7 +186,6 @@ const WeatherInfo = styled.div`
 `;
 
 const WeatherClothesInfo = styled.div`
-  /* flex: 1; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,7 +205,6 @@ const FlickingCategoryBox = styled.div`
   justify-content: center;
   width: 100%;
   flex: 1;
-  /* height: 44px; */
   cursor: pointer;
   &::after {
     right: 0px;
@@ -238,13 +233,13 @@ const Tag = styled.div`
   padding: 6px 8px;
   display: flex;
   align-items: center;
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   border-radius: 4px;
 
   svg {
     margin-right: 2px;
     font-size: 12px;
-    color: ${secondColor};
+    color: var(--second-color);
   }
 `;
 
@@ -253,7 +248,6 @@ const WeatherIcon = styled.div`
   align-items: center;
   justify-content: center;
   width: 64px;
-  /* height: 50px; */
   flex: 1;
   overflow: hidden;
   img {
@@ -273,7 +267,7 @@ const InfoText = styled.span`
   justify-content: center;
   white-space: nowrap;
   svg {
-    color: ${thirdColor};
+    color: var(--third-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -310,7 +304,7 @@ const NotInfoBox = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: ${secondColor};
+  background: var(--second-color);
 `;
 
 const NotInfo = styled.p`

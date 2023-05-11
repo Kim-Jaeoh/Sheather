@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import { Modal } from "@mui/material";
 
 type Props = {
@@ -45,8 +44,6 @@ const MobileFeedCategoryModal = (props: Props) => {
 
 export default MobileFeedCategoryModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const RangeBox = styled.div`
   position: absolute;
   width: 100px;
@@ -54,7 +51,7 @@ const RangeBox = styled.div`
   top: 100px;
   z-index: 100;
   border-radius: 20px;
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
   overflow: hidden;
   outline: none;
@@ -79,10 +76,10 @@ const Btn = styled.button<{ num: number; select: number }>`
   overflow: hidden;
   padding: 4px 8px;
   font-size: 14px;
-  color: ${secondColor};
+  color: var(--second-color);
   font-weight: ${(props) => (props.num === props.select ? `700` : `400`)};
   cursor: pointer;
   &:not(:last-of-type) {
-    border-bottom: 1px solid ${thirdColor};
+    border-bottom: 1px solid var(--third-color);
   }
 `;

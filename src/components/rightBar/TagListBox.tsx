@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/data/ColorList";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { FeedType } from "../../types/type";
@@ -91,11 +90,9 @@ const TagListBox = ({ modalOpen, modalClose }: Props) => {
 
 export default TagListBox;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.article`
   min-height: 278px;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   margin-top: 30px;
   border-radius: 20px;
   overflow: hidden;
@@ -134,7 +131,7 @@ const AllClick = styled(Link)`
   font-size: 12px;
   padding: 0;
   margin: 0;
-  color: ${mainColor};
+  color: var(--weather-color);
   cursor: pointer;
 
   &:hover,
@@ -155,13 +152,12 @@ const TagList = styled(Link)`
 
   @media (max-width: 956px) {
     padding: 10px 20px;
-    /* padding: 12px 0px; */
   }
 `;
 
 const TagRank = styled.span`
   font-size: 12px;
-  color: ${thirdColor};
+  color: var(--third-color);
   font-weight: 500;
   margin-right: 18px;
 `;
@@ -180,5 +176,5 @@ const TagName = styled.span`
 
 const TagCount = styled.span`
   font-size: 12px;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;

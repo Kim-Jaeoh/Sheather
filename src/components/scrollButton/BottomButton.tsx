@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { BsArrowDown } from "react-icons/bs";
-import ColorList from "../../assets/data/ColorList";
 
 type Props = {
   btnStatus: boolean;
@@ -30,8 +29,6 @@ const BottomButton = ({ btnStatus, bottomListRef }: Props) => {
 
 export default BottomButton;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const BottomButtonBox = styled.div<{ btnStatus: boolean }>`
   width: 40px;
   height: 40px;
@@ -41,7 +38,7 @@ const BottomButtonBox = styled.div<{ btnStatus: boolean }>`
   background: #fff;
   z-index: 100;
   opacity: ${(props) => (props.btnStatus ? 1 : 0)};
-  border: 1px solid ${secondColor};
+  border: 1px solid var(--second-color);
   border-radius: 50%;
   transition: all 0.15s linear;
 
@@ -68,7 +65,7 @@ const Button = styled.button`
   svg {
     width: 24px;
     height: 24px;
-    color: ${secondColor};
+    color: var(--second-color);
   }
 `;
 

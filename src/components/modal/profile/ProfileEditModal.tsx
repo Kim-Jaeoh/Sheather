@@ -10,7 +10,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Point } from "react-easy-crop/types";
 import toast from "react-hot-toast";
 import { BiLeftArrowAlt } from "react-icons/bi";
@@ -19,7 +19,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../../app/store";
 import { currentUser } from "../../../app/user";
-import ColorList from "../../../assets/data/ColorList";
 import getCroppedImg from "../../ImageCropper/CropImage";
 import { Spinner } from "../../../assets/spinner/Spinner";
 import { authService, dbService } from "../../../fbase";
@@ -426,8 +425,6 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
 
 export default ProfileEditModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.form`
   display: flex;
   flex-direction: column;
@@ -435,15 +432,15 @@ const Container = styled.form`
   min-height: 600px;
   box-sizing: border-box;
   position: absolute;
-  color: ${secondColor};
+  color: var(--second-color);
   outline: none;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   background: #fff;
   border-radius: 20px;
-  border: 2px solid ${secondColor};
-  box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px ${secondColor};
+  border: 2px solid var(--second-color);
+  box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px var(--second-color);
   overflow: hidden;
 
   @media (max-width: 767px) {
@@ -466,7 +463,7 @@ const Header = styled.header`
   display: flex;
   align-items: center;
   overflow: hidden;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   position: relative;
 `;
 
@@ -513,9 +510,9 @@ const EditBtn = styled.button`
   }
 
   &:disabled {
-    color: ${thirdColor};
+    color: var(--third-color);
     cursor: default;
-    border: 1px solid ${thirdColor};
+    border: 1px solid var(--third-color);
   }
 `;
 
@@ -572,7 +569,7 @@ const ProfileImagesBox = styled.label`
 const ProfileImageBox = styled.div`
   width: 100%;
   height: 100%;
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   border-radius: 50%;
   overflow: hidden;
 `;
@@ -646,7 +643,8 @@ const ProfileName = styled.input<{ focus: boolean }>`
   font-weight: 400;
   border-radius: 8px;
   padding: 12px;
-  border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
+  border: 1px solid
+    ${(props) => (props.focus ? "#6f4ccf" : `var(--fourth-color)`)};
   transition: all 0.1s linear;
   outline: none;
 `;
@@ -656,7 +654,8 @@ const InputBox = styled.div<{ focus: boolean }>`
   align-items: center;
   width: 100%;
   border-radius: 10px;
-  border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
+  border: 1px solid
+    ${(props) => (props.focus ? "#6f4ccf" : `var(--fourth-color)`)};
   transition: all 0.1s linear;
   overflow: hidden;
 `;
@@ -685,13 +684,14 @@ const ProfileDesc = styled.textarea<{ focus: boolean }>`
   font-weight: 400;
   border-radius: 8px;
   transition: all 0.1s linear;
-  border: 1px solid ${(props) => (props.focus ? "#6f4ccf" : fourthColor)};
+  border: 1px solid
+    ${(props) => (props.focus ? "#6f4ccf" : `var(--fourth-color)`)};
   &::placeholder {
     font-size: 14px;
   }
   &:focus::placeholder {
     opacity: 0.4;
-    color: ${thirdColor};
+    color: var(--third-color);
     transition: all 0.2s;
   }
 `;

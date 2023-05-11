@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/data/ColorList";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useCreateChat from "../../hooks/useCreateChat";
@@ -137,8 +136,6 @@ const DeskProfileActInfo = ({
 
 export default DeskProfileActInfo;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const ProfileBox = styled.div`
   display: flex;
   align-items: center;
@@ -153,7 +150,7 @@ const ProfileBox = styled.div`
 const ProfileImageBox = styled.div`
   width: 120px;
   height: 120px;
-  border: 2px solid ${fourthColor};
+  border: 2px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -218,14 +215,12 @@ const ProfileDsName = styled.p`
 
 const ProfileName = styled.p`
   font-size: 14px;
-  /* margin-top: 4px; */
 `;
 
 const ProfileDesc = styled.p`
-  /* margin-top: 8px; */
   font-size: 14px;
   white-space: pre-wrap;
-  color: ${thirdColor};
+  color: var(--third-color);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   overflow: hidden;
@@ -242,8 +237,8 @@ const BtnBox = styled.div`
 
 const ProfileEditBtn = styled.button`
   padding: 8px 10px;
-  border: 1px solid #6f4ccf;
-  color: #6f4ccf;
+  border: 1px solid var(--profile-color);
+  color: var(--profile-color);
   font-weight: bold;
   white-space: pre;
   border-radius: 8px;
@@ -252,7 +247,7 @@ const ProfileEditBtn = styled.button`
 
   &:hover,
   &:active {
-    background-color: #6f4ccf;
+    background-color: var(--profile-color);
     color: #fff;
   }
 `;
@@ -264,8 +259,8 @@ const LogoutBtn = styled.button`
   width: 34px;
   height: 34px;
   padding: 8px;
-  border: 1px solid ${thirdColor};
-  color: ${thirdColor};
+  border: 1px solid var(--third-color);
+  color: var(--third-color);
   font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
@@ -273,8 +268,8 @@ const LogoutBtn = styled.button`
 
   &:hover,
   &:active {
-    border: 1px solid ${secondColor};
-    background-color: ${secondColor};
+    border: 1px solid var(--second-color);
+    background-color: var(--second-color);
     color: #fff;
   }
 `;
@@ -298,43 +293,38 @@ const FollowBtn = styled.button`
   padding: 8px 16px;
   color: #fff;
   border-radius: 8px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
+  border: 1px solid var(--second-color);
+  background: var(--second-color);
   cursor: pointer;
   transition: all 0.1s linear;
   white-space: pre;
 
   &:hover,
   &:active {
-    background: #000;
+    background: var(--main-color);
   }
-
-  /* @media (max-width: 767px) {
-    font-size: 12px;
-    padding: 6px 14px;
-  } */
 `;
 
 const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
 
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;
 
 const MessageBtnBox = styled.div``;
 
 const MessageBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;
 
@@ -344,14 +334,14 @@ const CategoryBox = styled.div`
   justify-content: center;
   gap: 40px;
   margin-top: 40px;
-  border-top: 1px solid ${fourthColor};
+  border-top: 1px solid var(--fourth-color);
 
   @media (max-width: 767px) {
     gap: 30px;
     margin-top: 0;
     margin-bottom: 20px;
     justify-content: space-evenly;
-    border-bottom: 1px solid ${fourthColor};
+    border-bottom: 1px solid var(--fourth-color);
   }
 `;
 
@@ -364,14 +354,14 @@ const ProfileActBox = styled.div`
 const ProfileAct = styled.div`
   font-size: 14px;
   cursor: default;
-  color: ${thirdColor};
+  color: var(--third-color);
   white-space: pre;
   &:not(:first-of-type) {
     cursor: pointer;
   }
   em {
     margin-left: 4px;
-    color: ${secondColor};
+    color: var(--second-color);
     font-weight: 500;
   }
 `;

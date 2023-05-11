@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import ColorList from "../../assets/data/ColorList";
 import FollowListBox from "./FollowListBox";
 import TagListBox from "./TagListBox";
 import SearchBox from "./search/SearchBox";
@@ -26,8 +25,6 @@ const RightBar = () => {
 
 export default RightBar;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.section`
   flex: 0 1 auto;
   width: 300px;
@@ -35,7 +32,7 @@ const Container = styled.section`
   background: #fff;
   position: sticky;
   top: 0;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-left: none;
   padding: 20px;
   overflow: hidden;

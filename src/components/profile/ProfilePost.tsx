@@ -3,19 +3,17 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FeedType } from "../../types/type";
 import ProfileSkeleton from "../../assets/skeleton/ProfileSkeleton";
-import ColorList from "../../assets/data/ColorList";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { BsQuestionLg } from "react-icons/bs";
-import { ImageList, ImageListItem } from "@mui/material";
+import { ImageList } from "@mui/material";
 
 type props = {
   myPost: FeedType[];
   loading: boolean;
   notInfoText: string;
   onIsLogin: (callback: () => void) => void;
-  // ref: (node?: Element) => void;
 };
 
 const ProfilePost = React.forwardRef<HTMLInputElement, props>(
@@ -102,8 +100,6 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
 
 export default ProfilePost;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const CardBox = styled.div`
   width: 100%;
   display: flex;
@@ -126,10 +122,9 @@ const Card = styled.div`
   cursor: pointer;
   border-radius: 10px;
   display: block;
-  /* flex: 1 0 30%; */
   position: relative;
   overflow: hidden;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   -webkit-user-drag: none;
 
   animation-name: slideUp;
@@ -256,7 +251,7 @@ const NotInfoBox = styled.div`
 `;
 
 const IconBox = styled.div`
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 50%;
   width: 60px;
   height: 60px;
@@ -273,16 +268,11 @@ const Icon = styled.div`
   justify-content: center;
 
   svg {
-    /* width: 100%; */
-    /* height: 100%; */
     font-size: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #6f4ccf;
-
-    path:not(:first-of-type) {
-    }
+    color: var(--profile-color);
   }
 `;
 

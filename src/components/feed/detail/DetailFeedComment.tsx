@@ -1,6 +1,5 @@
 import { useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import { CommentType, replyType } from "../../../types/type";
 import CommentReplyBox from "./CommentReplyBox";
 
@@ -60,8 +59,6 @@ const DetailFeedComment = ({
 
 export default DetailFeedComment;
 
-const { thirdColor } = ColorList();
-
 const CommentBox = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
@@ -85,7 +82,7 @@ const ShowReplyText = styled.span`
 `;
 
 const ShowReplyBar = styled.div`
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   box-sizing: border-box;
   flex-shrink: 0;
   font: inherit;

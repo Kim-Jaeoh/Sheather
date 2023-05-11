@@ -59,6 +59,18 @@
 
 :root {
   --vh: 100%;
+  --main-color: #000;
+  --second-color: #222;
+  --third-color: #888;
+  --fourth-color: #dbdbdb;
+  --feed-color: #ff5c78;
+  --weather-color: #48a3ff;
+  --message-color: #ff5c1b;
+  --search-color: #2cbadd;
+  --notice-color: #cbdd2c;
+  --write-color: #fff048;
+  --profile-color: #6f4ccf;
+  --explore-color: #30c56e;
 }
 
 html,

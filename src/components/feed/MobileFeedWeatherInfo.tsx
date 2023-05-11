@@ -7,7 +7,6 @@ import { Spinner } from "../../assets/spinner/Spinner";
 import Flicking from "@egjs/react-flicking";
 import "../../styles/DetailFlicking.css";
 import TempClothes from "../../assets/data/TempClothes";
-import ColorList from "../../assets/data/ColorList";
 import { IoShirtOutline } from "react-icons/io5";
 import { BsSun } from "react-icons/bs";
 import { nowWeatherApi, regionApi } from "../../apis/api";
@@ -110,15 +109,12 @@ const MobileFeedWeatherInfo = () => {
 
 export default MobileFeedWeatherInfo;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
-  /* padding-right: 16px; */
   overflow: hidden;
-  color: ${thirdColor};
+  color: var(--third-color);
 `;
 
 const WearDetailBox = styled.div`
@@ -126,9 +122,6 @@ const WearDetailBox = styled.div`
   overflow: hidden;
   padding-right: 16px;
   position: relative;
-  /* display: flex;
-  align-items: center;
-  border: 1px solid red; */
 `;
 
 const WearDetail = styled.div`
@@ -157,33 +150,22 @@ const WearInfoMain = styled.div`
   flex: 0 0 auto;
   user-select: text;
   margin-right: 4px;
-  color: ${secondColor};
+  color: var(--second-color);
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
 
   svg {
-    color: ${thirdColor};
+    color: var(--third-color);
     width: 12px;
     height: 12px;
   }
 `;
 
 const FlickingCategoryBox = styled.div`
-  /* position: relative; */
   width: 100%;
   cursor: pointer;
-  /* &::after {
-    right: 0px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), red);
-    position: absolute;
-    top: 0px;
-    z-index: 10;
-    height: 100%;
-    width: 14px;
-    content: "";
-  } */
 `;
 
 const WearInfo = styled.div`
@@ -217,13 +199,13 @@ const CategoryTag = styled.div`
   height: 30px;
   display: flex;
   align-items: center;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 8px;
 
   svg {
     margin-right: 2px;
     font-size: 12px;
-    color: ${thirdColor};
+    color: var(--third-color);
   }
 
   span {

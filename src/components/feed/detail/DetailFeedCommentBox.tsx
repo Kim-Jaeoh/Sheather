@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import { CurrentUserType, FeedType, CommentType } from "../../../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
@@ -152,8 +151,6 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
 
 export default DetailFeedCommentBox;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   padding: 0 16px 16px;
 `;
@@ -164,7 +161,7 @@ const CommentEditBox = styled.form`
   padding-bottom: 8px;
   width: 100%;
   height: 100%;
-  border-top: 1px solid ${fourthColor};
+  border-top: 1px solid var(--fourth-color);
   display: flex;
   align-items: center;
 
@@ -200,13 +197,13 @@ const CommentEditBtn = styled.button`
   border: none;
   outline: none;
   font-weight: 500;
-  color: #ff5673;
+  color: var(--feed-color);
   font-size: 14px;
   cursor: pointer;
 `;
 
 const UserReactNum = styled.p`
   font-size: 14px;
-  color: ${thirdColor};
+  color: var(--third-color);
   margin-bottom: 6px;
 `;

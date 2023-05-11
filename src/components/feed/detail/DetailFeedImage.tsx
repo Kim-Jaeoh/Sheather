@@ -3,7 +3,6 @@ import "../../../styles/DetailFlicking.css";
 import styled from "@emotion/styled";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { Link } from "react-router-dom";
-import ColorList from "../../../assets/data/ColorList";
 import { FeedType } from "../../../types/type";
 import { useState } from "react";
 import useFlickingArrow from "../../../hooks/useFlickingArrow";
@@ -88,8 +87,6 @@ const DetailFeedImage = ({ res }: Props) => {
 };
 
 export default DetailFeedImage;
-
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const FlickingCategoryBox = styled.div`
   width: 100%;
@@ -193,8 +190,9 @@ const ArrowIcon = styled.span`
 
 const NextArrow = styled(Arrow)<{ visible: boolean }>`
   right: 20px;
-  color: ${(props) => (!props.visible ? thirdColor : `#ff5673`)};
-  border-color: ${(props) => (!props.visible ? thirdColor : `#ff5673`)};
+  color: ${(props) => (!props.visible ? `var(--third-color)` : `#ff5673`)};
+  border-color: ${(props) =>
+    !props.visible ? `var(--third-color)` : `#ff5673`};
   cursor: ${(props) => !props.visible && "default"};
   span {
     svg {
@@ -205,8 +203,9 @@ const NextArrow = styled(Arrow)<{ visible: boolean }>`
 
 const PrevArrow = styled(Arrow)<{ visible: boolean }>`
   left: 20px;
-  color: ${(props) => (!props.visible ? thirdColor : "#ff5673")};
-  border-color: ${(props) => (!props.visible ? thirdColor : "#ff5673")};
+  color: ${(props) => (!props.visible ? `var(--third-color)` : "#ff5673")};
+  border-color: ${(props) =>
+    !props.visible ? `var(--third-color)` : "#ff5673"};
   cursor: ${(props) => !props.visible && "default"};
   span {
     svg {

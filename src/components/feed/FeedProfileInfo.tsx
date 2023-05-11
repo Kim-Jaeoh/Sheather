@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
-import ColorList from "../../assets/data/ColorList";
 import useToggleLike from "../../hooks/useToggleLike";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
@@ -96,8 +95,6 @@ const FeedProfileInfo = ({ feed }: Props) => {
 
 export default FeedProfileInfo;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const SkeletonBox = styled.div`
   padding: 8px;
   position: relative;
@@ -114,7 +111,7 @@ const UserImageBox = styled(Link)`
   height: 30px;
   border-radius: 50%;
   overflow: hidden;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   object-fit: cover;
   cursor: pointer;
   position: relative;
@@ -144,7 +141,7 @@ const UserNameBox = styled(Link)`
   white-space: nowrap;
   font-weight: 500;
   letter-spacing: -0.15px;
-  color: ${secondColor};
+  color: var(--second-color);
 
   @media (max-width: 767px) {
     font-size: 12px;
@@ -176,7 +173,7 @@ const UserIcon = styled.div<{ isMobile?: boolean }>`
   width: 20px;
   height: 20px;
   cursor: pointer;
-  color: ${thirdColor};
+  color: var(--third-color);
   svg {
     font-size: 16px;
   }
@@ -189,7 +186,7 @@ const UserIcon = styled.div<{ isMobile?: boolean }>`
 const UserReactNum = styled.p`
   font-size: 14px;
   margin-left: 2px;
-  color: ${thirdColor};
+  color: var(--third-color);
 
   @media (max-width: 767px) {
     font-size: 12px;

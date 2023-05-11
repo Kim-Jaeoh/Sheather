@@ -15,9 +15,7 @@ import {
   onSnapshot,
   query,
   updateDoc,
-  where,
 } from "firebase/firestore";
-import ColorList from "../../assets/data/ColorList";
 import moment from "moment";
 import { Link, useNavigate } from "react-router-dom";
 import Emoji from "../emoji/Emoji";
@@ -34,7 +32,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
 import BottomButton from "../scrollButton/BottomButton";
 import { Spinner } from "../../assets/spinner/Spinner";
-import { debounce, throttle } from "lodash";
+import { throttle } from "lodash";
 
 interface Props {
   users: CurrentUserType;
@@ -463,8 +461,6 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
 
 export default Chat;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Wrapper = styled.div`
   position: relative;
   display: flex;
@@ -481,7 +477,7 @@ const Category = styled.header`
   justify-content: space-between;
   padding: 0 20px;
   gap: 20px;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   @media (max-width: 767px) {
     padding: 0 16px;
   }
@@ -504,7 +500,7 @@ const ProfileImageBox = styled(Link)`
   margin: 0;
   width: 32px;
   height: 32px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -547,7 +543,7 @@ const ProfileDsName = styled.p`
 
 const ProfileName = styled.p`
   font-size: 12px;
-  color: ${thirdColor};
+  color: var(--third-color);
   line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -639,7 +635,7 @@ const SendMessage = styled.p<{ isMine: boolean }>`
 
 const SeneMessageAt = styled.span<{ isMine: boolean }>`
   font-size: 10px;
-  color: ${thirdColor};
+  color: var(--third-color);
   display: flex;
   gap: 2px;
   flex-direction: column;
@@ -656,14 +652,14 @@ const Read = styled.em`
 const ChatBox = styled.div`
   width: 100%;
   position: relative;
-  border-top: 1px solid ${thirdColor};
+  border-top: 1px solid var(--third-color);
   display: flex;
   align-items: center;
   padding: 20px;
 `;
 
 const TextAreaBox = styled.form`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   border-radius: 22px;
   display: flex;
   align-items: center;

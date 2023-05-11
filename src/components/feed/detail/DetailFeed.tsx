@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -217,14 +216,13 @@ const DetailFeed = () => {
 };
 
 export default DetailFeed;
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Wrapper = styled.div`
   position: relative;
   overflow: hidden;
   height: 100%;
   background: #ff5673;
-  border-top: 2px solid ${secondColor};
+  border-top: 2px solid var(--second-color);
   padding: 40px;
 
   @media (max-width: 767px) {
@@ -235,7 +233,7 @@ const Wrapper = styled.div`
 
 const Container = styled.div`
   position: relative;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   height: 100%;
   border-radius: 20px;
   overflow: hidden;
@@ -250,7 +248,7 @@ const Container = styled.div`
   }};
 
   @media (max-width: 767px) {
-    border: 1px solid ${secondColor};
+    border: 1px solid var(--second-color);
     box-shadow: none;
   }
 `;

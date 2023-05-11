@@ -14,7 +14,6 @@ import { AxiosResponse, AxiosError } from "axios";
 import { FiSearch } from "react-icons/fi";
 import { ReactComponent as SheatherLogoSmall } from "../../assets/image/sheather_logo_s.svg";
 import { shareWeather } from "../../app/weather";
-import ColorList from "../../assets/data/ColorList";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { WeatherDataType, MessageType, NoticeArrType } from "../../types/type";
@@ -151,7 +150,7 @@ const LeftBar = ({ onIsLogin }: props) => {
             menu={selectMenu}
             cat="feed"
             onClick={() => setSelectMenu("feed")}
-            color="#ff5673"
+            color="var(--feed-color)"
             to="/feed/following"
           >
             <MenuList>
@@ -164,7 +163,7 @@ const LeftBar = ({ onIsLogin }: props) => {
             menu={selectMenu}
             cat="weather"
             onClick={() => setSelectMenu("weather")}
-            color="#48a3ff"
+            color="var(--weather-color)"
             to="/weather"
           >
             <MenuList>
@@ -177,7 +176,7 @@ const LeftBar = ({ onIsLogin }: props) => {
             menu={selectMenu}
             cat="message"
             onClick={() => onBtnClick("message")}
-            color="#ff5c1b"
+            color="var(--message-color)"
             to={userLogin && "/message"}
           >
             <MenuList>
@@ -193,7 +192,7 @@ const LeftBar = ({ onIsLogin }: props) => {
               style={{ order: 3 }}
               menu={selectMenu}
               cat="search"
-              color="#2cbadd"
+              color="var(--search-color)"
               onClick={() => onBtnClick("search")}
             >
               <MenuList>
@@ -207,7 +206,7 @@ const LeftBar = ({ onIsLogin }: props) => {
               style={{ order: 4 }}
               menu={selectMenu}
               cat="notice"
-              color="#cbdd2c"
+              color="var(--notice-color)"
               onClick={() => onBtnClick("notice")}
             >
               <MenuList>
@@ -223,7 +222,7 @@ const LeftBar = ({ onIsLogin }: props) => {
             style={{ order: isMobile ? 3 : 5 }}
             menu={selectMenu}
             cat="write"
-            color="#fff048"
+            color="var(--write-color)"
             onClick={() => onBtnClick("write")}
           >
             <MenuList>
@@ -237,7 +236,7 @@ const LeftBar = ({ onIsLogin }: props) => {
             cat="profile"
             onClick={() => onBtnClick("profile")}
             to={userLogin && `profile/${userObj?.displayName}/post`}
-            color="#6f4ccf"
+            color="var(--profile-color)"
           >
             <MenuList>
               {userLogin ? (
@@ -263,8 +262,6 @@ const LeftBar = ({ onIsLogin }: props) => {
 
 export default LeftBar;
 
-const { secondColor, fourthColor } = ColorList();
-
 const Container = styled.section`
   width: 70px;
   height: 100vh;
@@ -273,7 +270,7 @@ const Container = styled.section`
   background: #fff;
   user-select: none;
   padding: 30px;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-right: none;
   border-radius: 40px 0 0 40px;
 
@@ -302,7 +299,7 @@ const Container = styled.section`
     padding: 0;
     /* padding: 0 30px; */
     border: 0;
-    border-top: 1px solid ${secondColor};
+    border-top: 1px solid var(--second-color);
     z-index: 100;
 
     h2 {
@@ -367,18 +364,19 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
     font-weight: ${(props) => (props.cat === props.menu ? "bold" : "normal")};
     border: ${(props) =>
       props.cat === props.menu
-        ? `2px solid ${secondColor}`
+        ? `2px solid var(--second-color)`
         : "2px solid transparent"};
     box-shadow: ${(props) =>
       props.cat === props.menu
-        ? `0px 6px 0 -2px ${props.color}, 0px 6px ${secondColor}`
+        ? `0px 6px 0 -2px ${props.color}, 0px 6px var(--second-color)`
         : "0"};
   }
 
   &:hover li:hover,
   &:active li:active {
-    border: 2px solid ${secondColor};
-    box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px ${secondColor};
+    border: 2px solid var(--second-color);
+    box-shadow: 0px 6px 0 -2px ${(props) => props.color},
+      0px 6px var(--second-color);
   }
 
   @media (max-width: 1059px) {
@@ -396,7 +394,7 @@ const MenuLink = styled(Link)<{ cat: string; menu: string; color: string }>`
         width: 20px;
         height: 2px;
         position: absolute;
-        background: ${secondColor};
+        background: var(--second-color);
         left: 50%;
         bottom: 0;
         transform: translateX(-50%);
@@ -429,7 +427,7 @@ const MenuBtn = styled.button<{ cat: string; menu: string; color: string }>`
   width: 100%;
 
   svg {
-    color: ${secondColor};
+    color: var(--second-color);
     font-size: 24px;
   }
 
@@ -437,18 +435,19 @@ const MenuBtn = styled.button<{ cat: string; menu: string; color: string }>`
     font-weight: ${(props) => (props.cat === props.menu ? "bold" : "normal")};
     border: ${(props) =>
       props.cat === props.menu
-        ? `2px solid ${secondColor}`
+        ? `2px solid var(--second-color)`
         : "2px solid transparent"};
     box-shadow: ${(props) =>
       props.cat === props.menu
-        ? `0px 6px 0 -2px ${props.color}, 0px 6px ${secondColor}`
+        ? `0px 6px 0 -2px ${props.color}, 0px 6px var(--second-color)`
         : "0"};
   }
 
   &:hover li:hover,
   &:active li:active {
-    border: 2px solid ${secondColor};
-    box-shadow: 0px 6px 0 -2px ${(props) => props.color}, 0px 6px ${secondColor};
+    border: 2px solid var(--second-color);
+    box-shadow: 0px 6px 0 -2px ${(props) => props.color},
+      0px 6px var(--second-color);
   }
 
   @media (max-width: 1059px) {
@@ -469,7 +468,7 @@ const MenuBtn = styled.button<{ cat: string; menu: string; color: string }>`
         width: 20px;
         height: 2px;
         position: absolute;
-        background: ${secondColor};
+        background: var(--second-color);
         left: 50%;
         bottom: 0;
         transform: translateX(-50%);
@@ -523,7 +522,7 @@ const UserProfileBox = styled.div`
   height: 24px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid ${fourthColor};
+  border: 2px solid var(--fourth-color);
 
   @media (max-width: 767px) {
     border-width: 1px;

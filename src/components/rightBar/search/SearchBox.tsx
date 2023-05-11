@@ -1,10 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { FiSearch } from "react-icons/fi";
 import { IoIosCloseCircleOutline, IoMdArrowDropup } from "react-icons/io";
 import useDebounce from "../../../hooks/useDebounce";
 import SearchList, { localType } from "./SearchList";
-import ColorList from "../../../assets/data/ColorList";
 import SearchedShowList from "./SearchedShowList";
 import { IoSearchOutline } from "react-icons/io5";
 
@@ -149,8 +147,6 @@ const SearchBox = () => {
 
 export default SearchBox;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.article`
   width: 100%;
 `;
@@ -161,7 +157,8 @@ const InputTextBox = styled.form<{ focus: boolean }>`
   display: flex;
   align-items: center;
   overflow: hidden;
-  border: 2px solid ${(props) => (props.focus ? secondColor : fourthColor)};
+  border: 2px solid
+    ${(props) => (props.focus ? `var(--second-color)` : `var(--fourth-color)`)};
   border-radius: 20px;
   padding: 10px 40px 10px 10px;
   transition: all 0.15s linear;
@@ -170,7 +167,8 @@ const InputTextBox = styled.form<{ focus: boolean }>`
 
 const IconBox = styled.label<{ focus: boolean }>`
   margin-right: 10px;
-  color: ${(props) => (props.focus ? secondColor : thirdColor)};
+  color: ${(props) =>
+    props.focus ? `var(--second-color)` : `var(--third-color)`};
   svg {
     width: 20px;
     height: 20px;
@@ -196,7 +194,7 @@ const SearchInput = styled.input`
 
   &:focus::placeholder {
     opacity: 0.4;
-    color: ${thirdColor};
+    color: var(--third-color);
     transition: all 0.15s;
   }
 `;
@@ -212,7 +210,7 @@ const Closebox = styled.button`
   outline: none;
   padding: 0;
   margin: 0;
-  color: ${thirdColor};
+  color: var(--third-color);
 
   svg {
     width: 20px;
@@ -222,7 +220,8 @@ const Closebox = styled.button`
 
 const SearchedBox = styled.div<{ focus: boolean; toggleAnimation: boolean }>`
   border: 2px solid
-    ${(props) => (props.toggleAnimation ? secondColor : fourthColor)};
+    ${(props) =>
+      props.toggleAnimation ? `var(--second-color)` : `var(--fourth-color)`};
   margin-top: 14px;
   height: 300px;
 

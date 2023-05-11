@@ -10,7 +10,6 @@ import {
 } from "../types/type";
 import moment from "moment";
 import WeatherSliderSkeleton from "../assets/skeleton/WeatherSliderSkeleton";
-import ColorList from "../assets/data/ColorList";
 import { nowWeatherApi, weatherApi } from "../apis/api";
 import WeatherSlider from "../components/weather/WeatherSlider";
 
@@ -147,14 +146,12 @@ const Weather = () => {
 
 export default Weather;
 
-const { secondColor } = ColorList();
-
 const Container = styled.main`
   overflow: hidden;
   height: 100%;
-  border-top: 2px solid ${secondColor};
-  border-bottom: 2px solid ${secondColor};
-  background: #48a3ff;
+  border-top: 2px solid var(--second-color);
+  border-bottom: 2px solid var(--second-color);
+  background: var(--weather-color);
 
   @media (max-width: 767px) {
     border: none;

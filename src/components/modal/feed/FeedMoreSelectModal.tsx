@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import ColorList from "../../../assets/data/ColorList";
 import { Modal } from "@mui/material";
 
 type Props = {
@@ -26,8 +25,6 @@ const FeedMoreSelectModal = (props: Props) => {
 
 export default FeedMoreSelectModal;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const RangeBox = styled.div`
   position: absolute;
   top: 50%;
@@ -35,19 +32,19 @@ const RangeBox = styled.div`
   transform: translate(-50%, -50%);
   z-index: 100;
   border-radius: 20px;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   width: 300px;
   background: #fff;
-  box-shadow: 8px 8px 0 -2px #ff5673, 8px 8px ${secondColor};
+  box-shadow: 8px 8px 0 -2px var(--feed-color), 8px 8px var(--second-color);
 
   button:first-of-type {
-    color: #ff5673;
+    color: var(--feed-color);
   }
 
   @media (max-width: 767px) {
     width: 180px;
     border-width: 1px;
-    box-shadow: 6px 6px 0 -1px #ff5673, 6px 6px ${secondColor};
+    box-shadow: 6px 6px 0 -1px var(--feed-color), 6px 6px var(--second-color);
   }
 `;
 
@@ -66,7 +63,7 @@ const ResetBtn = styled.button`
   cursor: pointer;
   font-weight: bold;
   &:not(:last-of-type) {
-    border-bottom: 1px solid ${thirdColor};
+    border-bottom: 1px solid var(--third-color);
   }
   @media (max-width: 767px) {
     font-size: 14px;
@@ -74,6 +71,6 @@ const ResetBtn = styled.button`
 `;
 
 const DoneBtn = styled(ResetBtn)`
-  color: ${secondColor};
+  color: var(--second-color);
   font-weight: 400;
 `;

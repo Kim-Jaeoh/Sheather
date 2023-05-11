@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/data/ColorList";
 import { Link } from "react-router-dom";
 import { query, collection, getDocs, DocumentData } from "firebase/firestore";
 import { dbService } from "../../fbase";
@@ -155,11 +154,9 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
 
 export default FollowListBox;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.article`
   /* max-height: 282px; */
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   margin-top: 30px;
   border-radius: 20px;
   overflow: hidden;
@@ -170,7 +167,7 @@ const Container = styled.article`
     /* padding: 20px; */
     margin-top: 0px;
     border: none;
-    border-top: 1px solid ${fourthColor};
+    border-top: 1px solid var(--fourth-color);
     border-radius: 0;
   }
 `;
@@ -202,7 +199,7 @@ const AllClick = styled(Link)`
   font-size: 12px;
   padding: 0;
   margin: 0;
-  color: ${mainColor};
+  color: var(--weather-color);
   cursor: pointer;
 
   &:hover,
@@ -244,7 +241,7 @@ const User = styled(Link)`
 const ProfileImageBox = styled.div`
   width: 32px;
   height: 32px;
-  border: 1px solid ${fourthColor};
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
@@ -277,7 +274,7 @@ const ProfileDsName = styled.p`
 
 const ProfileName = styled.p`
   font-size: 12px;
-  color: ${thirdColor};
+  color: var(--third-color);
   /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
@@ -312,8 +309,8 @@ const FollowBtn = styled.button`
   padding: 6px 10px;
   color: #fff;
   border-radius: 8px;
-  border: 1px solid ${secondColor};
-  background: ${secondColor};
+  border: 1px solid var(--second-color);
+  background: var(--second-color);
   cursor: pointer;
   transition: all 0.1s linear;
   &:hover,
@@ -323,13 +320,13 @@ const FollowBtn = styled.button`
 `;
 
 const FollowingBtn = styled(FollowBtn)`
-  border: 1px solid ${thirdColor};
+  border: 1px solid var(--third-color);
   background: #fff;
-  color: ${secondColor};
+  color: var(--second-color);
 
   &:hover,
   &:active {
-    background: ${fourthColor};
+    background: var(--fourth-color);
   }
 `;
 
@@ -338,7 +335,7 @@ const NotUser = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  color: ${thirdColor};
+  color: var(--third-color);
   padding: 12px 16px;
   height: 60px;
 `;

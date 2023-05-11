@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { BiMessageAltAdd } from "react-icons/bi";
 import { BsChatDots } from "react-icons/bs";
 import { useLocation, useNavigate } from "react-router-dom";
-import ColorList from "../assets/data/ColorList";
 import MessageUserSkeleton from "../assets/skeleton/MessageUserSkeleton";
 import Chat from "../components/message/Chat";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";
@@ -165,8 +164,6 @@ const Message = (props: Props) => {
 
 export default Message;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Wrapper = styled.div`
   position: relative;
   overflow: hidden;
@@ -174,7 +171,7 @@ const Wrapper = styled.div`
   width: 100%;
   /* height: 100%; */
   height: calc(100vh - 52px);
-  border-top: 2px solid ${secondColor};
+  border-top: 2px solid var(--second-color);
   background: #ff5c1b;
 
   @media (max-width: 767px) {
@@ -188,7 +185,7 @@ const Container = styled.div`
   display: flex;
 
   height: 100%;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   overflow: hidden;
   border-radius: 20px;
   background: #fff;
@@ -202,7 +199,7 @@ const Container = styled.div`
   }};
 
   @media (max-width: 767px) {
-    border: 1px solid ${secondColor};
+    border: 1px solid var(--second-color);
     box-shadow: none;
   }
 `;
@@ -217,7 +214,7 @@ const Category = styled.header`
   font-weight: 700;
   position: relative;
   font-weight: 500;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
 
   @media (max-width: 767px) {
     padding: 0 16px;
@@ -241,7 +238,7 @@ const AddChatBtn = styled.button`
   svg {
     width: 24px;
     height: 24px;
-    color: ${secondColor};
+    color: var(--second-color);
 
     > path:last-of-type {
       color: #ff5c1b;
@@ -260,7 +257,7 @@ const ChatRoomList = styled.article<{
   width: ${(props) => (props.isMobile ? `100%` : `240px`)};
   height: 100%;
   flex: 0 1 auto;
-  border-right: 1px solid ${thirdColor};
+  border-right: 1px solid var(--third-color);
 
   @media (max-width: 767px) {
     border: none;
@@ -299,7 +296,7 @@ const NotInfoCategory = styled.p`
 `;
 
 const IconBox = styled.div`
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 50%;
   width: 70px;
   height: 70px;

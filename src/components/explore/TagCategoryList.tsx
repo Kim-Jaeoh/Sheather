@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
-import ColorList from "../../assets/data/ColorList";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -118,8 +117,6 @@ const TagCategoryList = () => {
 
 export default TagCategoryList;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -140,8 +137,8 @@ const CategoryBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  border-top: 2px solid ${secondColor};
-  border-bottom: 2px solid ${secondColor};
+  border-top: 2px solid var(--second-color);
+  border-bottom: 2px solid var(--second-color);
   box-sizing: border-box;
   background: #fff;
   z-index: 20;
@@ -153,8 +150,8 @@ const CategoryBox = styled.div`
     height: auto;
     padding: 8px 14px;
     border-radius: 9999px;
-    border: 1px solid ${secondColor};
-    box-shadow: 0px 4px ${secondColor};
+    border: 1px solid var(--second-color);
+    box-shadow: 0px 4px var(--second-color);
     background: #fff;
   }
 `;
@@ -178,7 +175,7 @@ const ListBox = styled.div`
 `;
 
 const List = styled.li`
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   flex: 1 1 40%;
   border-radius: 20px;
   background: #fff;
@@ -227,7 +224,7 @@ const ListProfileBox = styled.div`
   overflow: hidden;
   box-sizing: border-box;
   background: #fff;
-  border-right: 2px solid ${secondColor};
+  border-right: 2px solid var(--second-color);
 
   @media (max-width: 767px) {
     border-right-width: 1px;
@@ -254,7 +251,7 @@ const TagRank = styled.div`
   border-radius: 16px 0 0 16px;
   padding: 10px;
   color: #fff;
-  background: ${secondColor};
+  background: var(--second-color);
 `;
 
 const TagInfo = styled.div`
@@ -287,7 +284,7 @@ const TagCount = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 14px;
-  color: ${thirdColor};
+  color: var(--third-color);
   @media (max-width: 767px) {
     font-size: 12px;
   }

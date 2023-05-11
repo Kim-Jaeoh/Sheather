@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import Cropper from "react-easy-crop";
 import { Area, Point } from "react-easy-crop/types";
 import getCroppedImg from "../../ImageCropper/CropImage";
-import ColorList from "../../../assets/data/ColorList";
 import { AspectRatio, ImageType } from "../../../types/type";
 import { FiCrop } from "react-icons/fi";
 import { BiImageAdd } from "react-icons/bi";
@@ -202,8 +201,6 @@ const ShareImageCropper = React.forwardRef<HTMLButtonElement, Props>(
 
 export default ShareImageCropper;
 
-const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
-
 const Container = styled.div`
   width: 100%;
 
@@ -218,7 +215,7 @@ const CropBox = styled.div<{ attachments?: string }>`
   width: 100%;
   height: 476px;
   margin: 0 auto;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   position: relative;
 
   @media (max-width: 767px) {
@@ -242,7 +239,7 @@ const Controls = styled.div`
   align-items: center;
   justify-content: space-between;
   background: #fff;
-  border-bottom: 1px solid ${thirdColor};
+  border-bottom: 1px solid var(--third-color);
   position: relative;
 `;
 
@@ -258,11 +255,13 @@ const AspectValue = styled.div<{ select: number; num: number }>`
   font-size: 12px;
   align-items: center;
   justify-content: center;
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 2px;
   font-weight: bold;
-  color: ${(props) => (props.select === props.num ? "#fff" : secondColor)};
-  background: ${(props) => (props.select === props.num ? secondColor : "#fff")};
+  color: ${(props) =>
+    props.select === props.num ? "#fff" : `var(--second-color)`};
+  background: ${(props) =>
+    props.select === props.num ? `var(--second-color)` : "#fff"};
   transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
@@ -274,16 +273,16 @@ const ResetBtn = styled.div`
   height: 32px;
   padding: 4px 8px;
   border-radius: 9999px;
-  border: 1px solid ${thirdColor};
-  color: ${thirdColor};
+  border: 1px solid var(--third-color);
+  color: var(--third-color);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${thirdColor};
+    background: var(--third-color);
     color: #fff;
-    border: 1px solid ${thirdColor};
+    border: 1px solid var(--third-color);
   }
 `;
 
@@ -296,8 +295,11 @@ const CropBtn = styled.button<{ isCrop?: boolean }>`
   padding: 6px;
   font-size: 16px;
   color: #fff;
-  border: 2px solid ${(props) => (props.isCrop ? mainColor : secondColor)};
-  background: ${(props) => (props.isCrop ? mainColor : secondColor)};
+  border: 2px solid
+    ${(props) =>
+      props.isCrop ? `var(--weather-color)` : `var(--second-color)`};
+  background: ${(props) =>
+    props.isCrop ? `var(--weather-color)` : `var(--second-color)`};
   border-radius: 9999px;
   transition: all 0.2s;
   z-index: 99;
@@ -329,7 +331,7 @@ const NotInfoCategory = styled.p`
 `;
 
 const IconBox = styled.div`
-  border: 2px solid ${secondColor};
+  border: 2px solid var(--second-color);
   border-radius: 50%;
   width: 70px;
   height: 70px;
