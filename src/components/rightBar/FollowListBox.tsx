@@ -44,7 +44,6 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
       const filter = arr.filter(
         (res) => res.displayName !== userObj.displayName
       );
-
       // 2. 1에서 팔로우 안 된 계정 필터링
       const notFollowed = filter.filter(
         (res) =>

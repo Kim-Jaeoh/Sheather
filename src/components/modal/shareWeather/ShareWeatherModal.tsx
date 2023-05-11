@@ -367,7 +367,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
                       <EmojiIcon>
                         <BsFillImageFill
                           style={{
-                            color: `${mainColor}`,
+                            color: `#48a3ff`,
                             width: "24px",
                             height: "24px",
                           }}
@@ -610,7 +610,7 @@ const ImageLength = styled.p`
 `;
 
 const ImageLengthColor = styled.span`
-  color: ${mainColor};
+  color: #48a3ff;
 `;
 
 const ImageContainerBox = styled.div`
@@ -695,17 +695,17 @@ const NextBtn = styled.button`
   padding: 8px 10px;
   margin-left: auto;
   border-radius: 9999px;
-  border: 1px solid ${mainColor};
-  color: ${mainColor};
+  border: 1px solid #48a3ff;
+  color: #48a3ff;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 14px;
 
   &:not(:disabled) {
     &:hover {
-      background: ${mainColor};
+      background: #48a3ff;
       color: #fff;
-      border: 1px solid ${mainColor};
+      border: 1px solid #48a3ff;
     }
   }
 
@@ -720,8 +720,8 @@ const EditBtn = styled.button`
   user-select: none;
   padding: 6px 10px;
   margin-left: auto;
-  border: 1px solid ${mainColor};
-  color: ${mainColor};
+  border: 1px solid #48a3ff;
+  color: #48a3ff;
   border-radius: 9999px;
   cursor: pointer;
   transition: all 0.2s;
@@ -729,9 +729,9 @@ const EditBtn = styled.button`
 
   &:not(:disabled) {
     :hover {
-      background: ${mainColor};
+      background: #48a3ff;
       color: #fff;
-      border: 1px solid ${mainColor};
+      border: 1px solid #48a3ff;
     }
   }
 
@@ -756,7 +756,7 @@ const IconBox = styled.div`
 
   &:hover,
   &:active {
-    color: ${mainColor};
+    color: #48a3ff;
   }
 
   svg {

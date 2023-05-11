@@ -226,7 +226,7 @@ const TagList = styled.ul`
 const Input = styled.input`
   width: 58px;
   max-width: 100%;
-  /* caret-color: ${mainColor}; */
+  /* caret-color: #48a3ff; */
   padding: 8px 10px 8px 24px;
   box-sizing: content-box;
   outline: none;

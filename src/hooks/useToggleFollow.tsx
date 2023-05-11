@@ -116,7 +116,11 @@ const useToggleFollow = ({ user }: props) => {
 
       // 알림 보내기
       if (getToken && user.displayName !== userObj.displayName) {
-        sendActions(`follower`);
+        sendActions(
+          `follower`,
+          null,
+          `${process.env.REACT_APP_PUBLIC_URL}/profile/${user.displayName}/post`
+        );
       }
     }
   };

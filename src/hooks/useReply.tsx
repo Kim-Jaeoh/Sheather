@@ -76,7 +76,6 @@ const useReply = ({
         time: +new Date(),
       },
     });
-    console.log(comment);
     if (userObj.displayName !== comment.displayName) {
       await updateDoc(doc(dbService, "users", comment.email), {
         notice: [
@@ -101,7 +100,11 @@ const useReply = ({
 
     // 알림 보내기
     if (getToken && commentData.displayName !== userObj.displayName) {
-      sendActions(`reply`, replyText);
+      sendActions(
+        `reply`,
+        replyText,
+        `${process.env.REACT_APP_PUBLIC_URL}/feed/detail/${comment.postId}`
+      );
     }
   };
 

@@ -207,7 +207,10 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
 
     // 알림 보내기
     if (users?.email) {
-      sendMessage(trimmedMessage);
+      sendMessage(
+        trimmedMessage,
+        `${process.env.REACT_APP_PUBLIC_URL}/message/${users?.displayName}`
+      );
     }
 
     bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });

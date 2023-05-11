@@ -206,7 +206,6 @@ const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 
 const Container = styled.div`
   width: 100%;
-  /* height: 476px; */
 
   @media (max-width: 767px) {
     flex: 1;
@@ -217,15 +216,12 @@ const Container = styled.div`
 
 const CropBox = styled.div<{ attachments?: string }>`
   width: 100%;
-  /* flex: 1; */
   height: 476px;
-  /* height: ${(props) => (props.attachments ? "476px" : "540px")}; */
   margin: 0 auto;
   border-bottom: 1px solid ${thirdColor};
   position: relative;
 
   @media (max-width: 767px) {
-    /* flex: 1; */
     height: 100%;
   }
 `;
@@ -309,7 +305,7 @@ const CropBtn = styled.button<{ isCrop?: boolean }>`
 
   &:hover,
   &:active {
-    background-color: ${mainColor};
+    background-color: #48a3ff;
   }
 `;
 
@@ -319,13 +315,11 @@ const ResetText = styled.p`
 `;
 
 const NotInfoBox = styled.div`
-  /* width: 100%; */
   height: 100%;
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  /* padding-bottom: 30px; */
 `;
 
 const NotInfoCategory = styled.p`
@@ -344,8 +338,6 @@ const IconBox = styled.div`
 `;
 
 const Icon = styled.div`
-  /* width: 100%; */
-  /* height: 100%; */
   padding: 8px;
   display: flex;
   align-items: center;
@@ -360,7 +352,6 @@ const Icon = styled.div`
     margin-top: 6px;
     margin-left: 4px;
     > path:last-of-type {
-      /* color: #ff5c1b; */
       color: #48a3ff;
     }
   }

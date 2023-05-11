@@ -18,13 +18,9 @@ import useGetMyAccount from "../hooks/useGetMyAccount";
 import ChatList from "../components/message/ChatList";
 import { onSnapshot, doc, collection, query } from "firebase/firestore";
 import { dbService } from "../fbase";
-import ChatTest from "../components/message/ChatTest";
+import InfiniteChat from "../components/message/InfiniteChat";
 
 type Props = {};
-
-interface LocationType {
-  state: CurrentUserType;
-}
 
 const Message = (props: Props) => {
   const [addUserModal, setAddUserMOdal] = useState(false);
@@ -142,7 +138,7 @@ const Message = (props: Props) => {
           {(isTablet || isDesktop || userInfo || clickInfo) && (
             <ChatRoom>
               {userInfo || clickInfo ? (
-                <ChatTest
+                <InfiniteChat
                   users={users}
                   myAccount={myAccount}
                   messageCollection={messageCollection}

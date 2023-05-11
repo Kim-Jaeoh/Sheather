@@ -101,7 +101,11 @@ const useComment = ({
 
     // 알림 보내기
     if (getToken && feed.displayName !== userObj.displayName) {
-      sendActions(`comment`, commentText);
+      sendActions(
+        `comment`,
+        commentText,
+        `${process.env.REACT_APP_PUBLIC_URL}/feed/detail/${feed.id}`
+      );
     }
   };
 

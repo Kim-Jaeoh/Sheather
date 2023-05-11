@@ -71,7 +71,6 @@ const MobileHeader = ({ onIsLogin }: Props) => {
         <IconBox>
           <Icon type="button" onClick={onSearchModal}>
             <CiSearch />
-            {/* <IoSearchOutline /> */}
           </Icon>
           <Icon type="button" onClick={onNoticeModal}>
             <VscBell />
@@ -146,9 +145,9 @@ const NoticeBox = styled.div`
   @media (max-width: 767px) {
     position: absolute;
     top: -2px;
-    left: 9px;
-    width: 10px;
-    height: 10px;
+    left: 10px;
+    width: 12px;
+    height: 12px;
     border: 2px solid #fff;
   }
 `;

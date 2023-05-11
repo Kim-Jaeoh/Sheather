@@ -554,7 +554,7 @@ const NoticeBox = styled.div`
   @media (max-width: 767px) {
     position: absolute;
     top: 14px;
-    left: 31px;
+    left: 30px;
     width: 12px;
     height: 12px;
     border: 2px solid #fff;

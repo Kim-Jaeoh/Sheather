@@ -49,7 +49,7 @@ interface SubCollectionType extends MessageType {
   id: string;
 }
 
-const ChatTest = ({
+const InfiniteChat = ({
   users,
   myAccount,
   messageCollection,
@@ -84,6 +84,7 @@ const ChatTest = ({
   });
   const { sendMessage } = useSendNoticeMessage(users);
 
+  // 채팅방 이탈 시 채팅 리스너 해제
   useEffect(() => {
     if (!pathname.split("/")[2]) {
       onBackClick();
@@ -91,7 +92,6 @@ const ChatTest = ({
   }, [pathname]);
 
   useEffect(() => {
-    console.log(sortMessages);
     // prevScrollHeight 있을 시 현재 전체 스크롤 높이 값 - 과거 전체 스크롤 높이 값
     if (prevScrollHeight) {
       onScrollTo(containerRef.current?.scrollHeight - prevScrollHeight);
@@ -185,7 +185,10 @@ const ChatTest = ({
       }).then(() => {
         // 알림 보내기
         if (users?.email) {
-          sendMessage(trimmedMessage);
+          sendMessage(
+            trimmedMessage,
+            `${process.env.REACT_APP_PUBLIC_URL}/message/${users?.displayName}`
+          );
         }
       });
 
@@ -357,9 +360,6 @@ const ChatTest = ({
                         const date = day.sort(
                           (a, b) => a.createdAt - b.createdAt
                         );
-                        const filter = arr[1].filter(
-                          (me) => me.email === myAccount.email
-                        );
 
                         return (
                           <GroupMessage key={arr[0]}>
@@ -368,10 +368,9 @@ const ChatTest = ({
                             </GroupDateBox>
                             {arr[1]
                               .sort((a, b) => a.createdAt - b.createdAt)
-                              .map((res: DocumentData, idx: number) => {
+                              .map((res: DocumentData, idx: number, row) => {
                                 const isMine =
                                   res?.displayName === myAccount?.displayName;
-
                                 return (
                                   <User key={res.createdAt} isMine={isMine}>
                                     {!isMine && users && (
@@ -398,10 +397,7 @@ const ChatTest = ({
                                           {
                                             // res?.isRead &&
                                             isMine &&
-                                            idx ===
-                                              arr[1].lastIndexOf(
-                                                filter[filter.length - 1]
-                                              ) &&
+                                            idx === row.length - 1 &&
                                             users?.message?.some(
                                               (user) =>
                                                 user.email ===
@@ -470,7 +466,7 @@ const ChatTest = ({
   );
 };
 
-export default ChatTest;
+export default InfiniteChat;
 
 const { mainColor, secondColor, thirdColor, fourthColor } = ColorList();
 

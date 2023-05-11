@@ -363,13 +363,16 @@ const InfoBox = styled.div`
   border-bottom: 1px solid ${fourthColor};
 `;
 
-const IconBox = styled.div`
+const IconBox = styled.button`
   width: 24px;
   height: 24px;
+  margin: 0;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
+  cursor: pointer;
   svg {
     color: ${thirdColor};
     width: 22px;
