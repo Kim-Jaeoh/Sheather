@@ -70,12 +70,12 @@ const App = () => {
     });
   }, []);
 
-  let vh: number = 0;
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty("--vh", `${vh}px`);
-  }, []);
+  // let vh: number = 0;
+  // useEffect(() => {
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   vh = window.innerHeight * 0.01;
+  //   document.documentElement.style.setProperty("--vh", `${vh}px`);
+  // }, []);
 
   return (
     <>

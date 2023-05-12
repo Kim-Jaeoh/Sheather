@@ -168,49 +168,45 @@ const DetailFeed = () => {
 
   return (
     <>
-      {feedData?.length && detailInfo?.length && (
-        <>
-          {detailInfo?.map((res, index) => {
-            return (
-              <Wrapper key={res.id}>
-                {isMore && !isFeedEdit ? (
-                  <FeedMoreSelectModal
-                    modalOpen={isMore}
-                    modalClose={onMoreClick}
-                    onFeedEditClick={onFeedEditClick}
-                    onFeedDelete={onFeedDelete}
-                  />
-                ) : (
-                  <FeedEditModal
-                    modalOpen={isFeedEdit}
-                    modalClose={onFeedEditClick}
-                    feed={res}
-                  />
-                )}
-                <Container>
-                  <DetailFeedHeader
-                    userObj={userObj}
-                    feed={res}
-                    onMoreClick={onMoreClick}
-                  />
-                  <DetailFeedCategory res={res} />
-                  <DetailFeedImage res={res} />
-                  <DetailFeedInfo
-                    feed={res}
-                    userObj={userObj}
-                    toggleLike={toggleLike}
-                  />
-                  <DetailFeedCommentBox
-                    feed={res}
-                    userAccount={userAccount}
-                    onIsLogin={() => onIsLogin(() => null)}
-                  />
-                </Container>
-              </Wrapper>
-            );
-          })}
-        </>
-      )}
+      {detailInfo?.map((res, index) => {
+        return (
+          <Wrapper key={res.id}>
+            {isMore && !isFeedEdit ? (
+              <FeedMoreSelectModal
+                modalOpen={isMore}
+                modalClose={onMoreClick}
+                onFeedEditClick={onFeedEditClick}
+                onFeedDelete={onFeedDelete}
+              />
+            ) : (
+              <FeedEditModal
+                modalOpen={isFeedEdit}
+                modalClose={onFeedEditClick}
+                feed={res}
+              />
+            )}
+            <Container>
+              <DetailFeedHeader
+                userObj={userObj}
+                feed={res}
+                onMoreClick={onMoreClick}
+              />
+              <DetailFeedCategory res={res} />
+              <DetailFeedImage res={res} />
+              <DetailFeedInfo
+                feed={res}
+                userObj={userObj}
+                toggleLike={toggleLike}
+              />
+              <DetailFeedCommentBox
+                feed={res}
+                userAccount={userAccount}
+                onIsLogin={() => onIsLogin(() => null)}
+              />
+            </Container>
+          </Wrapper>
+        );
+      })}
     </>
   );
 };

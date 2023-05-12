@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CurrentUserType, FeedType, CommentType } from "../types/type";
 
 import { doc, getDoc } from "firebase/firestore";
@@ -33,9 +33,11 @@ const useSendNoticeMessage = (
   }, [users?.email]);
 
   // 메세지 알림 보내기
-  const sendMessage = throttle(async (text: string, link: string) => {
+  const sendMessage = async (text: string, link: string) => {
     if (getToken) {
-      saveMessagingDeviceToken(users?.email);
+      throttle(() => {
+        saveMessagingDeviceToken(users?.email);
+      }, 300);
 
       const config: AxiosRequestConfig<PostData> = {
         data: {
@@ -52,44 +54,46 @@ const useSendNoticeMessage = (
         })
         .catch((e) => console.log("에러 ", e));
     }
-  }, 300);
+  };
 
   // 팔로우, 좋아요, 댓글 알림 보내기
-  const sendActions = async (type: string, text?: string, link?: string) => {
-    if (getToken) {
-      let noticeText: string = "";
+  const sendActions = throttle(
+    async (type: string, text?: string, link?: string) => {
+      if (getToken) {
+        let noticeText: string = "";
 
-      if (type === "like") {
-        noticeText = `${userObj.displayName}님이 회원님의 게시물을 좋아합니다.`;
-      }
-      if (type === "comment") {
-        noticeText = `${userObj.displayName}님이 회원님의 게시물에 댓글을 남겼습니다. : ${text}`;
-      }
-      if (type === "reply") {
-        noticeText = `${userObj.displayName}님이 회원님의 게시물에 답글을 남겼습니다. : ${text}`;
-      }
-      if (type === "follower") {
-        noticeText = `${userObj.displayName}님이 회원님을 팔로우하기 시작했습니다.`;
-      }
+        if (type === "like") {
+          noticeText = `${userObj.displayName}님이 회원님의 게시물을 좋아합니다.`;
+        }
+        if (type === "comment") {
+          noticeText = `${userObj.displayName}님이 회원님의 게시물에 댓글을 남겼습니다. : ${text}`;
+        }
+        if (type === "reply") {
+          noticeText = `${userObj.displayName}님이 회원님의 게시물에 답글을 남겼습니다. : ${text}`;
+        }
+        if (type === "follower") {
+          noticeText = `${userObj.displayName}님이 회원님을 팔로우하기 시작했습니다.`;
+        }
 
-      throttle(() => {
         saveMessagingDeviceToken(users?.email);
-      }, 300);
-      const config: AxiosRequestConfig<PostData> = {
-        data: {
-          message: noticeText,
-          token: getToken,
-          link: link,
-        },
-      };
-      await axios
-        .post(`${process.env.REACT_APP_SERVER_PORT}/api/push_send`, config)
-        .then((e) => {
-          console.log("성공 ", e);
-        })
-        .catch((e) => console.log("에러 ", e));
-    }
-  };
+
+        const config: AxiosRequestConfig<PostData> = {
+          data: {
+            message: noticeText,
+            token: getToken,
+            link: link,
+          },
+        };
+        await axios
+          .post(`${process.env.REACT_APP_SERVER_PORT}/api/push_send`, config)
+          .then((e) => {
+            console.log("성공 ", e);
+          })
+          .catch((e) => console.log("에러 ", e));
+      }
+    },
+    300
+  );
 
   return { getToken, sendMessage, sendActions };
 };

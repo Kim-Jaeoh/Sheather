@@ -58,7 +58,7 @@
 }
 
 :root {
-  --vh: 100%;
+  /* --vh: 100%; */
   --main-color: #000;
   --second-color: #222;
   --third-color: #888;
