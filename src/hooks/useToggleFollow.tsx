@@ -1,16 +1,12 @@
-import { updateDoc, doc, getDoc } from "firebase/firestore";
+import { updateDoc, doc } from "firebase/firestore";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store";
 import { currentUser } from "../app/user";
 import { dbService } from "../fbase";
-import { CurrentUserType, FeedType } from "../types/type";
+import { CurrentUserType, FollowingType } from "../types/type";
 import useSendNoticeMessage from "./useSendNoticeMessage";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { debounce, throttle } from "lodash";
-
-type props = {
-  user: CurrentUserType;
-};
+import { useEffect, useState } from "react";
+import useGetMyAccount from "./useGetMyAccount";
 
 const useToggleFollow = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -22,6 +18,7 @@ const useToggleFollow = () => {
   const [isSend, setIsSend] = useState(false);
   const dispatch = useDispatch();
   const { getToken, sendActions } = useSendNoticeMessage(user);
+  const { myAccount } = useGetMyAccount();
 
   useEffect(() => {
     // 알림 보내기
@@ -37,13 +34,13 @@ const useToggleFollow = () => {
   const toggleFollow = async (userInfo: CurrentUserType) => {
     setUser((prev: CurrentUserType) => (prev = userInfo));
 
-    const followingCopy = [...userObj.following];
+    const followingCopy = [...myAccount.following];
     const followingFilter = followingCopy.filter(
       (res) => res.displayName !== userInfo.displayName
     );
     const followerCopy = [...userInfo?.follower];
     const followerFilter = followerCopy.filter(
-      (res) => res.displayName !== userObj.displayName
+      (res) => res.displayName !== myAccount.displayName
     );
     const noticeCopy = [...userInfo?.notice];
     const noticeFilter = noticeCopy.filter(
@@ -57,9 +54,9 @@ const useToggleFollow = () => {
     }
 
     if (
-      userObj.following.filter(
-        (res) => res.displayName === userInfo.displayName
-      ).length !== 0
+      myAccount.following.some(
+        (res: FollowingType) => res.displayName === userInfo.displayName
+      )
     ) {
       setIsSend(false);
       // 본인 팔로잉에 상대방 이름 제거
@@ -92,23 +89,27 @@ const useToggleFollow = () => {
       setIsSend(true);
 
       // 본인 팔로잉에 상대방 이름 추가
-      const updateFollower = updateDoc(doc(dbService, "users", userObj.email), {
-        following: [
-          ...followingCopy,
-          {
-            displayName: userInfo.displayName,
-            email: userInfo.email,
-            time: +new Date(),
-          },
-        ],
-      });
+      const updateFollower = updateDoc(
+        doc(dbService, "users", myAccount.email),
+        {
+          following: [
+            ...followingCopy,
+            {
+              displayName: userInfo.displayName,
+              email: userInfo.email,
+              time: +new Date(),
+            },
+          ],
+        }
+      );
 
       const updateNotice = updateDoc(doc(dbService, "users", userInfo.email), {
         // 상대방 팔로워에 본인 이름 추가
         follower: [
+          ...followerCopy,
           {
-            displayName: userObj.displayName,
-            email: userObj.email,
+            displayName: myAccount.displayName,
+            email: myAccount.email,
             time: +new Date(),
           },
         ],
@@ -125,8 +126,8 @@ const useToggleFollow = () => {
             replyTagEmail: null,
             postImgUrl: null,
             text: null,
-            displayName: userObj.displayName,
-            email: userObj.email,
+            displayName: myAccount.displayName,
+            email: myAccount.email,
             time: +new Date(),
             isRead: false,
           },

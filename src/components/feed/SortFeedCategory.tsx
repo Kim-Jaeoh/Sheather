@@ -27,7 +27,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
     return state.user;
   });
   const [selectCategory, setSelectCategory] = useState(null);
-  const [dateCategory, setDateCategory] = useState(`recent`);
+  const [dateCategory, setDateCategory] = useState(null);
   const [isDate, setIsDate] = useState(false);
   const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
@@ -120,15 +120,22 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
   // 메인 카테고리
   useEffect(() => {
     const pathValue = (type: string) => pathname.includes(type);
-
     if (pathValue("following")) {
       return setSelectCategory(0);
     }
     if (pathValue("explore")) {
       return setSelectCategory(1);
     }
-    if (pathValue("date")) {
-      return setSelectCategory(2);
+  }, [pathname]);
+
+  // 서브 카테고리
+  useEffect(() => {
+    const pathValue = (type: string) => pathname.includes(type);
+    if (pathValue("recent")) {
+      return setDateCategory("recent");
+    }
+    if (pathValue("popular")) {
+      return setDateCategory("popular");
     }
   }, [pathname]);
 
@@ -152,7 +159,13 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
     setIsDetailModal(false);
   };
 
-  // 서브-날짜별 클릭
+  // 서브 카테고리
+  const onDateCategory = (type: string) => {
+    setDateCategory(type);
+    navigate(`${pathname.split("/")[2]}/${type}`);
+  };
+
+  // 날짜별 클릭
   const onSelectCategory2 = () => {
     setIsDate(true);
     setIsDetailModal(true);
@@ -175,17 +188,20 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
   const onDetailModal = () => {
     setIsDetailModal((prev) => !prev);
     setIsDate(false);
+  };
+
+  const onDatePrev = () => {
     // 취소 시 이전 카테고리로 이동
-    if (url.includes("following")) {
+    if (pathname.includes("following")) {
       setSelectCategory(0);
-      // navigate("following");
-      navigate(-1);
+      navigate(`feed/following/${dateCategory}`);
     }
-    if (url.includes("explore")) {
+    if (pathname.includes("explore")) {
       setSelectCategory(1);
-      // navigate("explore/recent");
-      navigate(-1);
+      navigate(`feed/explore/${dateCategory}`);
+      // navigate(-1);
     }
+    setIsDate(false);
   };
 
   // 모바일 버전
@@ -237,32 +253,26 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                 <SelectCategoryBtn
                   select={dateCategory}
                   category={"recent"}
-                  type="button"
-                  to={`${pathname.split("/")[2]}/recent`}
-                  onClick={() => setDateCategory("recent")}
+                  onClick={() => onDateCategory("recent")}
                 >
                   최신순
                 </SelectCategoryBtn>
                 <SelectCategoryBtn
                   select={dateCategory}
                   category={"popular"}
-                  type="button"
-                  to={`${pathname.split("/")[2]}/popular`}
-                  onClick={() => setDateCategory("popular")}
+                  onClick={() => onDateCategory("popular")}
                 >
                   인기순
                 </SelectCategoryBtn>
                 <SelectCategoryDateBtn
                   select={isDate && isDetailDone ? "date" : null}
                   category={"date"}
-                  type="button"
-                  to={`${pathname.split("/")[2]}/date`}
                   onClick={() => onSelectCategory2()}
                 >
                   날짜별
                 </SelectCategoryDateBtn>
                 {isDate && isDetailDone && (
-                  <SelectDeleteBtn onClick={() => setIsDate(false)}>
+                  <SelectDeleteBtn onClick={onDatePrev}>
                     <IoMdClose />
                   </SelectDeleteBtn>
                 )}
@@ -321,32 +331,26 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                   <SelectCategoryBtn
                     select={dateCategory}
                     category={"recent"}
-                    type="button"
-                    to={`${pathname.split("/")[2]}/recent`}
-                    onClick={() => setDateCategory("recent")}
+                    onClick={() => onDateCategory("recent")}
                   >
                     최신순
                   </SelectCategoryBtn>
                   <SelectCategoryBtn
                     select={dateCategory}
                     category={"popular"}
-                    type="button"
-                    to={`${pathname.split("/")[2]}/popular`}
-                    onClick={() => setDateCategory("popular")}
+                    onClick={() => onDateCategory("popular")}
                   >
                     인기순
                   </SelectCategoryBtn>
                   <SelectCategoryDateBtn
                     select={isDate && isDetailDone ? "date" : null}
                     category={"date"}
-                    type="button"
-                    to={`${pathname.split("/")[2]}/date`}
-                    onClick={() => onSelectCategory2()}
+                    onClick={onSelectCategory2}
                   >
                     날짜별
                   </SelectCategoryDateBtn>
                   {isDate && isDetailDone && (
-                    <SelectDeleteBtn onClick={() => setIsDate(false)}>
+                    <SelectDeleteBtn onClick={onDatePrev}>
                       <IoMdClose />
                     </SelectDeleteBtn>
                   )}
@@ -422,12 +426,13 @@ const SelectCategoryBox = styled.div`
   justify-content: end;
 `;
 
-const SelectCategoryBtn = styled(Link)<{ select: string; category: string }>`
+const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
   padding: 0;
   margin-left: 12px;
   transition: all 0.15s linear;
   font-size: 14px;
   font-weight: ${(props) =>
+    // props.select ? "bold" : "normal")};
     props.select === props.category ? "bold" : "normal"};
   cursor: pointer;
   color: var(--second-color);
@@ -439,8 +444,8 @@ const SelectCategoryBtn = styled(Link)<{ select: string; category: string }>`
 `;
 
 const SelectCategoryDateBtn = styled(SelectCategoryBtn)`
-  text-decoration: ${(props) =>
-    props.select === props.category ? `underline` : `none`};
+  text-decoration: ${(props) => (props.select ? `underline` : `none`)};
+
   text-underline-position: under;
 `;
 
