@@ -151,7 +151,7 @@ const LeftBar = ({ onIsLogin }: props) => {
             cat="feed"
             onClick={() => setSelectMenu("feed")}
             color="var(--feed-color)"
-            to="/feed/following"
+            to="/feed/following/recent"
           >
             <MenuList>
               <AiOutlineHome />

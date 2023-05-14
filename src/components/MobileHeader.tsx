@@ -8,9 +8,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import { dbService } from "../fbase";
 import { ReactComponent as SheatherLogo } from "../assets/image/sheather_logo.svg";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { VscBell } from "react-icons/vsc";
 import { CiSearch } from "react-icons/ci";
+import { IoIosArrowBack } from "react-icons/io";
 
 type Props = {
   onIsLogin: (callback: () => void) => void;
@@ -25,6 +26,8 @@ const MobileHeader = ({ onIsLogin }: Props) => {
   const [isSearchModal, setIsSearchModal] = useState(false);
   const [isNoticeModal, setIsNoticeModal] = useState(false);
   const [myAccount, setMyAccount] = useState(null);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   // 본인 계정 정보 가져오기
   useEffect(() => {
@@ -50,6 +53,12 @@ const MobileHeader = ({ onIsLogin }: Props) => {
     });
   };
 
+  const onBackClick = () => {
+    navigate(-1);
+  };
+
+  const history = pathname.includes("detail") || pathname.includes("explore?q");
+
   return (
     <>
       {isSearchModal && (
@@ -59,9 +68,17 @@ const MobileHeader = ({ onIsLogin }: Props) => {
         <NoticeModal modalOpen={isNoticeModal} modalClose={onNoticeModal} />
       )}
       <Header>
-        <LogoBox to="/feed/following">
-          <SheatherLogo width="100%" height="100%" />
-        </LogoBox>
+        {history ? (
+          <IconBox>
+            <Icon type="button" onClick={onBackClick}>
+              <IoIosArrowBack />
+            </Icon>
+          </IconBox>
+        ) : (
+          <LogoBox to="/feed/following">
+            <SheatherLogo width="100%" height="100%" />
+          </LogoBox>
+        )}
         <IconBox>
           <Icon type="button" onClick={onSearchModal}>
             <CiSearch />

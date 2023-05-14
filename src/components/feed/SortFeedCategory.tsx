@@ -23,14 +23,12 @@ type Props = {
 };
 
 const SortFeedCategory = ({ url, setUrl }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
-  const [selectCategory, setSelectCategory] = useState(0);
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
+  const [selectCategory, setSelectCategory] = useState(null);
+  const [dateCategory, setDateCategory] = useState(`recent`);
   const [isDate, setIsDate] = useState(false);
-  const [dateCategory, setDateCategory] = useState("recent");
   const [rangeTime, setRangeTime] = useState<number[]>([0, 23]);
   const [changeValue, setChangeValue] = useState<Date | null>(new Date());
   const [isDetailModal, setIsDetailModal] = useState(false);
@@ -50,15 +48,17 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
 
   useEffect(() => {
     // 팔로잉
-    if (selectCategory === 0) {
+    if (pathname.includes("following")) {
       setCategoryModal(false); // 모바일 카테고리 모달
-      if (dateCategory === "recent") {
+      if (pathname.includes("recent")) {
         // 최신순
+        navigate("following/recent");
         return setUrl(
           `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/recent?users=${followArr}&`
         );
       } else {
         // 인기순
+        navigate("following/popular");
         return setUrl(
           `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/popular?users=${followArr}&`
         );
@@ -66,17 +66,19 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
     }
 
     // 탐색
-    if (selectCategory === 1) {
+    if (pathname.includes("explore")) {
       setCategoryModal(false); // 모바일 카테고리 모달
-      if (dateCategory === "recent") {
+      if (pathname.includes("recent")) {
         // 최신순
+        navigate("explore/recent");
         return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`);
       } else {
         // 인기순
+        navigate("explore/popular");
         return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/popular?`);
       }
     }
-  }, [dateCategory, followArr, selectCategory, setUrl]);
+  }, [dateCategory, followArr, navigate, pathname, setUrl]);
 
   useEffect(() => {
     // 날짜별
@@ -133,7 +135,6 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
   // 세부 카테고리
   useEffect(() => {
     const searchValue = (type: string) => searchParams.get(type);
-
     if (searchValue("cat") === `recent`) {
       return setDateCategory("recent");
     }
@@ -177,9 +178,13 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
     // 취소 시 이전 카테고리로 이동
     if (url.includes("following")) {
       setSelectCategory(0);
+      // navigate("following");
+      navigate(-1);
     }
     if (url.includes("explore")) {
       setSelectCategory(1);
+      // navigate("explore/recent");
+      navigate(-1);
     }
   };
 
@@ -195,7 +200,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
           modalOpen={categoryModal}
           selectCategory={selectCategory}
           modalClose={onCategoryModal}
-          setSelectCategory={setSelectCategory}
+          onSelectCategory={onSelectCategory}
           onSelectCategory2={onSelectCategory2}
         />
       )}
@@ -233,6 +238,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                   select={dateCategory}
                   category={"recent"}
                   type="button"
+                  to={`${pathname.split("/")[2]}/recent`}
                   onClick={() => setDateCategory("recent")}
                 >
                   최신순
@@ -241,6 +247,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                   select={dateCategory}
                   category={"popular"}
                   type="button"
+                  to={`${pathname.split("/")[2]}/popular`}
                   onClick={() => setDateCategory("popular")}
                 >
                   인기순
@@ -249,6 +256,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                   select={isDate && isDetailDone ? "date" : null}
                   category={"date"}
                   type="button"
+                  to={`${pathname.split("/")[2]}/date`}
                   onClick={() => onSelectCategory2()}
                 >
                   날짜별
@@ -268,7 +276,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
           <SelectTimeBox select={selectCategory}>
             <SelectCategory>
               <SelectCategoryTextLink
-                to="following"
+                to="following/recent"
                 onClick={() => onSelectCategory(0)}
                 select={selectCategory}
                 num={0}
@@ -276,7 +284,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                 <SelectCategoryText>팔로잉</SelectCategoryText>
               </SelectCategoryTextLink>
               <SelectCategoryTextLink
-                to="explore"
+                to="explore/recent"
                 onClick={() => onSelectCategory(1)}
                 select={selectCategory}
                 num={1}
@@ -314,6 +322,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                     select={dateCategory}
                     category={"recent"}
                     type="button"
+                    to={`${pathname.split("/")[2]}/recent`}
                     onClick={() => setDateCategory("recent")}
                   >
                     최신순
@@ -322,6 +331,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                     select={dateCategory}
                     category={"popular"}
                     type="button"
+                    to={`${pathname.split("/")[2]}/popular`}
                     onClick={() => setDateCategory("popular")}
                   >
                     인기순
@@ -330,6 +340,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
                     select={isDate && isDetailDone ? "date" : null}
                     category={"date"}
                     type="button"
+                    to={`${pathname.split("/")[2]}/date`}
                     onClick={() => onSelectCategory2()}
                   >
                     날짜별
@@ -411,7 +422,7 @@ const SelectCategoryBox = styled.div`
   justify-content: end;
 `;
 
-const SelectCategoryBtn = styled.button<{ select: string; category: string }>`
+const SelectCategoryBtn = styled(Link)<{ select: string; category: string }>`
   padding: 0;
   margin-left: 12px;
   transition: all 0.15s linear;

@@ -262,6 +262,7 @@ const User = styled(Link)`
   align-items: center;
   gap: 12px;
   margin: 0;
+  flex: 1;
   height: 100%;
 `;
 

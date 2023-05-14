@@ -1,17 +1,18 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
+import { Link } from "react-router-dom";
 
 type Props = {
   modalOpen: boolean;
   selectCategory: number;
   modalClose: () => void;
-  setSelectCategory: React.Dispatch<React.SetStateAction<number>>;
+  onSelectCategory: (e: number) => void;
   onSelectCategory2: () => void;
 };
 
 const MobileFeedCategoryModal = (props: Props) => {
-  const { modalOpen, selectCategory, modalClose, setSelectCategory } = props;
+  const { modalOpen, selectCategory, modalClose, onSelectCategory } = props;
 
   return (
     <Modal
@@ -23,16 +24,18 @@ const MobileFeedCategoryModal = (props: Props) => {
       <RangeBox>
         <Container>
           <Btn
+            to="following/recent"
             select={selectCategory}
             num={0}
-            onClick={() => setSelectCategory(0)}
+            onClick={() => onSelectCategory(0)}
           >
             팔로잉
           </Btn>
           <Btn
+            to="explore/recent"
             select={selectCategory}
             num={1}
-            onClick={() => setSelectCategory(1)}
+            onClick={() => onSelectCategory(1)}
           >
             탐색
           </Btn>
@@ -70,7 +73,10 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-const Btn = styled.button<{ num: number; select: number }>`
+const Btn = styled(Link)<{ num: number; select: number }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 40px;
   overflow: hidden;
