@@ -34,12 +34,13 @@ export const authService = getAuth(app);
 export const dbService = getFirestore(app);
 export const storageService = getStorage(app);
 export const analytics = getAnalytics(app);
+// isSupported()는 Firebase 푸시 알림 지원 여부를 확인
 export const messaging = async () => (await isSupported()) && getMessaging(app);
 
-const isSupport = () =>
-  "Notification" in window &&
-  "serviceWorker" in navigator &&
-  "PushManager" in window;
+// const isSupport = () =>
+//   "Notification" in window &&
+//   "serviceWorker" in navigator &&
+//   "PushManager" in window;
 
 // 알림 여부
 const requestNotificationsPermissions = async (userEmail: string) => {
@@ -49,12 +50,16 @@ const requestNotificationsPermissions = async (userEmail: string) => {
 
   const permission = await Notification.requestPermission();
 
-  if (isSupport()) {
-    if (permission === "granted") {
-      return await saveMessagingDeviceToken(userEmail);
-    } else {
-      return alert("Notification not allowed");
-    }
+  if (permission === "granted") {
+    await updateDoc(doc(dbService, "users", userEmail), {
+      notification: true,
+    });
+    return await saveMessagingDeviceToken(userEmail);
+  } else {
+    await updateDoc(doc(dbService, "users", userEmail), {
+      notification: false,
+    });
+    return alert("Notification not allowed");
   }
 };
 
@@ -82,20 +87,22 @@ export const saveMessagingDeviceToken = async (userEmail: string) => {
   }
 };
 
-// 기기 토큰값 저장
+// 로그인/회원가입 시 기기 토큰값 저장
 export const createDeviceToken = async (userEmail: string) => {
-  if (isSupport()) {
-    const msg = await messaging();
-    const fcmToken = await getToken(msg, {
-      vapidKey: process.env.REACT_APP_VAPID_KEY,
-    });
-    const tokenRef = doc(dbService, `fcmTokens`, userEmail);
-    const checkToken = await getDoc(tokenRef);
-    if (fcmToken && !checkToken.exists()) {
-      await setDoc(tokenRef, { fcmToken });
-    }
-    if (fcmToken && checkToken.exists()) {
-      await updateDoc(tokenRef, { fcmToken });
-    }
+  const msg = await messaging();
+  const fcmToken = await getToken(msg, {
+    vapidKey: process.env.REACT_APP_VAPID_KEY,
+  });
+  const tokenRef = doc(dbService, `fcmTokens`, userEmail);
+  const checkToken = await getDoc(tokenRef);
+
+  // 저장된 토큰값이 없을 때
+  if (fcmToken && !checkToken.exists()) {
+    await setDoc(tokenRef, { fcmToken });
+  }
+
+  // 저장된 토큰값이 있을 때 (다른 기기 접속 시 업데이트)
+  if (fcmToken && checkToken.exists()) {
+    await updateDoc(tokenRef, { fcmToken });
   }
 };

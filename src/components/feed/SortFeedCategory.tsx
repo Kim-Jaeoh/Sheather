@@ -41,41 +41,41 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
 
   // 팔로잉 목록 담기
   const followArr = useMemo(() => {
-    let arr: string[] = [];
-    userObj.following.forEach((res) => arr.push(res.displayName));
-    return arr;
+    return userObj.following.map((res) => res.displayName);
   }, [userObj.following]);
 
   useEffect(() => {
     // 팔로잉
+    const handleFollowing = (type: string) => {
+      const followingUrl = `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/${type}?users=${followArr}&`;
+      navigate(`following/${type}`);
+      setUrl(followingUrl);
+    };
+
+    // 탐색
+    const handleExplore = (type: string) => {
+      const exploreUrl = `${process.env.REACT_APP_SERVER_PORT}/api/feed/${type}?`;
+      navigate(`explore/${type}`);
+      setUrl(exploreUrl);
+    };
+
     if (pathname.includes("following")) {
       setCategoryModal(false); // 모바일 카테고리 모달
       if (pathname.includes("recent")) {
         // 최신순
-        navigate("following/recent");
-        return setUrl(
-          `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/recent?users=${followArr}&`
-        );
+        handleFollowing("recent");
       } else {
         // 인기순
-        navigate("following/popular");
-        return setUrl(
-          `${process.env.REACT_APP_SERVER_PORT}/api/feed/following/popular?users=${followArr}&`
-        );
+        handleFollowing("popular");
       }
-    }
-
-    // 탐색
-    if (pathname.includes("explore")) {
+    } else if (pathname.includes("explore")) {
       setCategoryModal(false); // 모바일 카테고리 모달
       if (pathname.includes("recent")) {
         // 최신순
-        navigate("explore/recent");
-        return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/recent?`);
+        handleExplore("recent");
       } else {
         // 인기순
-        navigate("explore/popular");
-        return setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/feed/popular?`);
+        handleExplore("popular");
       }
     }
   }, [dateCategory, followArr, navigate, pathname, setUrl]);
@@ -86,7 +86,7 @@ const SortFeedCategory = ({ url, setUrl }: Props) => {
       if (isDetailDone) {
         setCategoryModal(false); // 모바일 카테고리 모달
         const value = moment(changeValue).format("YYYYMMDD"); // 날짜 형식
-        if (pathname.split("/")[2] === "following") {
+        if (pathname.includes("following")) {
           // 팔로잉
           navigate(
             `following?value=${value}&min=${rangeTime[0]}&max=${rangeTime[1]}&cat=${dateCategory}`

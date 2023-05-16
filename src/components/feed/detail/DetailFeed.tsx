@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { CurrentUserType, FeedType } from "../../../types/type";
-import useToggleLike from "../../../hooks/useToggleLike";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import FeedEditModal from "../../modal/feed/FeedEditModal";
@@ -27,21 +26,17 @@ import useUserAccount from "../../../hooks/useUserAccount";
 import { feedApi } from "../../../apis/api";
 
 const DetailFeed = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [userAccount, setUserAccount] = useState(null);
   const [detailInfo, setDetailInfo] = useState([]);
   const [documentLike, setDocumentLike] = useState([]);
   const [documentNotice, setDocumentNotice] = useState([]);
   const [isMore, setIsMore] = useState(false);
-  const { isAuthModal, onAuthModal, setIsAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
+  const { onIsLogin } = useUserAccount();
   const [isFeedEdit, setIsFeedEdit] = useState(false);
   const { id: postId } = useParams();
-  const { toggleLike } = useToggleLike({ user: userAccount });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -191,13 +186,9 @@ const DetailFeed = () => {
                 feed={res}
                 onMoreClick={onMoreClick}
               />
-              <DetailFeedCategory res={res} />
-              <DetailFeedImage res={res} />
-              <DetailFeedInfo
-                feed={res}
-                userObj={userObj}
-                toggleLike={toggleLike}
-              />
+              <DetailFeedCategory feed={res} />
+              <DetailFeedImage feed={res} />
+              <DetailFeedInfo feed={res} user={userAccount} />
               <DetailFeedCommentBox
                 feed={res}
                 userAccount={userAccount}

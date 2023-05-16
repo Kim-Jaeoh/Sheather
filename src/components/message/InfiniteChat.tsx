@@ -34,8 +34,9 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
 import BottomButton from "../scrollButton/BottomButton";
 import { Spinner } from "../../assets/spinner/Spinner";
-import { debounce, throttle } from "lodash";
+import { throttle as _throttle } from "lodash";
 import useChatInfiniteScroll from "../../hooks/useChatInfiniteScroll";
+import useThrottle from "../../hooks/useThrottle";
 
 interface Props {
   users: CurrentUserType;
@@ -69,6 +70,7 @@ const InfiniteChat = ({
   const textRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
+  const { throttle } = useThrottle();
   const {
     isLoading,
     day,
@@ -90,6 +92,7 @@ const InfiniteChat = ({
     }
   }, [pathname]);
 
+  // 채팅 불러올 때 이전 스크롤 값 위치 이동
   useEffect(() => {
     // prevScrollHeight 있을 시 현재 전체 스크롤 높이 값 - 과거 전체 스크롤 높이 값
     if (prevScrollHeight) {
@@ -112,7 +115,7 @@ const InfiniteChat = ({
 
   const handleScroll = useMemo(
     () =>
-      throttle((e) => {
+      _throttle((e) => {
         e.preventDefault();
         const totalScrollHeight = containerRef?.current?.scrollHeight; // 전체 스크롤 높이 값
         const clientHeight = containerRef?.current?.clientHeight; // 클라이언트 높이
@@ -133,6 +136,7 @@ const InfiniteChat = ({
     [btnStatus.toBottom]
   );
 
+  // 스크롤 값 계산
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => {
@@ -145,9 +149,9 @@ const InfiniteChat = ({
     if (messageCollection) {
       const docRef = doc(dbService, "messages", messageCollection?.id);
       const subCollectionRef = collection(docRef, "message");
-      const Query = query(subCollectionRef, where("email", "==", users?.email));
+      const q = query(subCollectionRef, where("email", "==", users?.email));
 
-      const unsubscribe = onSnapshot(Query, (doc) => {
+      const unsubscribe = onSnapshot(q, (doc) => {
         const collectionId = doc.docs.map((res) => {
           return { id: res.id, ...res.data() };
         });
@@ -184,9 +188,13 @@ const InfiniteChat = ({
       }).then(() => {
         // 알림 보내기
         if (users?.email) {
-          sendMessage(
-            trimmedMessage,
-            `${process.env.REACT_APP_PUBLIC_URL}/message/${users?.displayName}`
+          throttle(
+            () =>
+              sendMessage(
+                trimmedMessage,
+                `${process.env.REACT_APP_PUBLIC_URL}/message/${users?.displayName}`
+              ),
+            3000
           );
         }
       });

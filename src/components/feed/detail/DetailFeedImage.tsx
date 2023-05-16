@@ -9,10 +9,10 @@ import useFlickingArrow from "../../../hooks/useFlickingArrow";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 
 type Props = {
-  res: FeedType;
+  feed: FeedType;
 };
 
-const DetailFeedImage = ({ res }: Props) => {
+const DetailFeedImage = ({ feed }: Props) => {
   const [onMouse, setOnMouse] = useState(false);
   const { isMobile } = useMediaScreen();
 
@@ -26,13 +26,13 @@ const DetailFeedImage = ({ res }: Props) => {
     onClickArrowPrev,
     onClickArrowNext,
   } = useFlickingArrow({
-    dataLength: res && res.url.length,
+    dataLength: feed && feed.url.length,
     lastLength: 1,
   });
 
   return (
     <>
-      {res.url.length > 1 ? (
+      {feed.url.length > 1 ? (
         <FlickingImageBox
           onMouseOver={() => setOnMouse(true)}
           onMouseLeave={() => setOnMouse(false)}
@@ -61,7 +61,7 @@ const DetailFeedImage = ({ res }: Props) => {
               setSlideIndex(e.index);
             }}
           >
-            {res.url.map((res, index) => {
+            {feed.url.map((res, index) => {
               return (
                 <Card key={index}>
                   <CardImage src={res} alt="" />
@@ -70,7 +70,7 @@ const DetailFeedImage = ({ res }: Props) => {
             })}
           </Flicking>
           <PaginationButton>
-            {Array.from({ length: res.url.length }, (value, index) => (
+            {Array.from({ length: feed.url.length }, (value, index) => (
               <PaginationSpan key={index} slideIndex={slideIndex}>
                 <span />
               </PaginationSpan>
@@ -79,7 +79,7 @@ const DetailFeedImage = ({ res }: Props) => {
         </FlickingImageBox>
       ) : (
         <Card onContextMenu={(e) => e.preventDefault()}>
-          <CardImage src={res.url[0]} alt="" />
+          <CardImage src={feed.url[0]} alt="" />
         </Card>
       )}
     </>

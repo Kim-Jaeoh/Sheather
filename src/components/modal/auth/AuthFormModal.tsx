@@ -176,6 +176,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
           });
           const usersRef = collection(dbService, "users");
           await setDoc(doc(usersRef, user.email), {
+            notification: false,
             uid: user.uid,
             createdAt: Date.now(),
             profileURL: defaultAccount,
@@ -193,6 +194,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
 
           dispatch(
             currentUser({
+              notification: false,
               uid: user.uid,
               createdAt: Date.now(),
               profileURL: defaultAccount,

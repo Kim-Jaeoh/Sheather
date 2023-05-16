@@ -18,12 +18,12 @@ type Props = {
 
 const FeedEditModal = ({ feed, modalOpen, modalClose }: Props) => {
   const [checkTag, setCheckTag] = useState({
-    feel: feed.feel,
-    outer: feed.wearInfo.outer,
-    top: feed.wearInfo.top,
-    innerTop: feed.wearInfo.innerTop,
-    bottom: feed.wearInfo.bottom,
-    etc: feed.wearInfo.etc,
+    feel: feed?.feel,
+    outer: feed?.wearInfo?.outer,
+    top: feed?.wearInfo?.top,
+    innerTop: feed?.wearInfo?.innerTop,
+    bottom: feed?.wearInfo?.bottom,
+    etc: feed?.wearInfo?.etc,
   });
   const [text, setText] = useState(feed.text);
   const [tags, setTags] = useState(feed.tag);

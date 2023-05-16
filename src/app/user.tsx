@@ -17,6 +17,7 @@ const initialState: UserType = {
     message: [],
     follower: [],
     following: [],
+    notification: false,
   },
   newMessage: false,
   newNotice: false,

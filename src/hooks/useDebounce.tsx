@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef } from "react";
 
-const useDebounce = (value: string, delay: number) => {
-  const [debouncedSearchTerm, setDebounceSearchTerm] = useState("");
+const useDebounce = () => {
+  const timerRef = useRef(null);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebounceSearchTerm(value);
-    }, delay);
+  const debounce = (callback: () => void, delay: number) => {
+    if (!timerRef.current) {
+      timerRef.current = setTimeout(callback, delay);
+    } else {
+      clearTimeout(timerRef.current);
+    }
+  };
 
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [value, delay]);
-
-  return debouncedSearchTerm;
+  return { debounce };
 };
 
 export default useDebounce;

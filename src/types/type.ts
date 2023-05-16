@@ -95,6 +95,7 @@ export interface CurrentUserType {
   follower: FollowerType[];
   following: FollowingType[];
   notice: NoticeArrType[];
+  notification?: boolean;
   message?: MessageReadType[];
 }
 
@@ -157,7 +158,7 @@ export interface FeedType {
     displayName: string;
     time: number;
     postId: string;
-    email?: string;
+    email: string;
   }[];
   text: string;
   feel: string;

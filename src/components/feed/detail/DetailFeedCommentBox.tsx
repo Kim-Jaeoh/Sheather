@@ -10,6 +10,8 @@ import useMediaScreen from "../../../hooks/useMediaScreen";
 import useComment from "../../../hooks/useComment";
 import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
 import useReply from "../../../hooks/useReply";
+import useThrottle from "../../../hooks/useThrottle";
+import useDebounce from "../../../hooks/useDebounce";
 
 type Props = {
   userAccount: CurrentUserType;
@@ -28,6 +30,8 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const { getToken } = useSendNoticeMessage(feed);
   const { isMobile } = useMediaScreen();
+  const { throttle } = useThrottle();
+  const { debounce } = useDebounce();
 
   const { commentText, setCommentText, onComment, onCommentDelete } =
     useComment({
@@ -83,9 +87,9 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
       e.preventDefault();
 
       if (isWriteReply) {
-        onReply(replyData);
+        throttle(() => onReply(replyData), 5000);
       } else {
-        onComment(feed);
+        throttle(() => onComment(feed), 5000);
       }
     }
   };

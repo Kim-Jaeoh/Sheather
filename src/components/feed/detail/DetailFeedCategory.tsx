@@ -8,11 +8,11 @@ import { FeedType } from "../../../types/type";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  res: FeedType;
+  feed: FeedType;
 };
 
-const DetailFeedCategory = ({ res }: Props) => {
-  const { outer, top, innerTop, bottom, etc } = res.wearInfo;
+const DetailFeedCategory = ({ feed }: Props) => {
+  const { outer, top, innerTop, bottom, etc } = feed?.wearInfo;
   const categoryTags = [
     { name: "outer", type: "outer", detail: outer },
     { name: "top", type: "top", detail: top },
@@ -53,44 +53,44 @@ const DetailFeedCategory = ({ res }: Props) => {
                       <BsSun />
                     </WearInfoMain>
                     <CategoryTag
-                      onClick={() => onRegionClick("region", res.region)}
+                      onClick={() => onRegionClick("region", feed.region)}
                     >
                       <MdPlace />
-                      {res.region}
+                      {feed.region}
                     </CategoryTag>
                     <CategoryTag
                       onClick={() =>
-                        onWeatherClick("weather", res.weatherInfo.weather)
+                        onWeatherClick("weather", feed.weatherInfo.weather)
                       }
                     >
                       <WeatherIcon>
                         <img
-                          src={`/image/weather/${res.weatherInfo.weatherIcon}.png`}
-                          // src={`https://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
+                          src={`/image/weather/${feed.weatherInfo.weatherIcon}.png`}
+                          // src={`https://openweathermap.org/img/wn/${feed.weatherInfo.weatherIcon}@2x.png`}
                           alt="weather icon"
                         />
                       </WeatherIcon>
-                      {res.weatherInfo.weather}
+                      {feed.weatherInfo.weather}
                     </CategoryTag>
                     <CategoryTag
                       onClick={() =>
-                        onWeatherClick("temp", res.weatherInfo.temp)
+                        onWeatherClick("temp", feed.weatherInfo.temp)
                       }
                     >
-                      {res.weatherInfo.temp}º
+                      {feed.weatherInfo.temp}º
                     </CategoryTag>
                     <CategoryTag
                       onClick={() =>
-                        onWeatherClick("wind", res.weatherInfo.wind)
+                        onWeatherClick("wind", feed.weatherInfo.wind)
                       }
                     >
-                      {res.weatherInfo.wind}
+                      {feed.weatherInfo.wind}
                       <span>m/s</span>
                     </CategoryTag>
                     <WearInfoMain style={{ marginLeft: `4px` }}>
                       <IoShirtOutline />
                     </WearInfoMain>
-                    <CategoryTag>{res.feel}</CategoryTag>
+                    <CategoryTag>{feed.feel}</CategoryTag>
                     {categoryTags.map((tag) =>
                       tag.detail ? (
                         <CategoryTag
@@ -124,38 +124,38 @@ const DetailFeedCategory = ({ res }: Props) => {
                   <WearInfo>
                     <CategoryTagBox>
                       <CategoryTag
-                        onClick={() => onRegionClick("region", res.region)}
+                        onClick={() => onRegionClick("region", feed.region)}
                       >
                         <MdPlace />
-                        {res.region}
+                        {feed.region}
                       </CategoryTag>
                       <CategoryTag
                         onClick={() =>
-                          onWeatherClick("weather", res.weatherInfo.weather)
+                          onWeatherClick("weather", feed.weatherInfo.weather)
                         }
                       >
                         <WeatherIcon>
                           <img
-                            src={`/image/weather/${res.weatherInfo.weatherIcon}.png`}
-                            // src={`http://openweathermap.org/img/wn/${res.weatherInfo.weatherIcon}@2x.png`}
+                            src={`/image/weather/${feed.weatherInfo.weatherIcon}.png`}
+                            // src={`http://openweathermap.org/img/wn/${feed.weatherInfo.weatherIcon}@2x.png`}
                             alt="weather icon"
                           />
                         </WeatherIcon>
-                        {res.weatherInfo.weather}
+                        {feed.weatherInfo.weather}
                       </CategoryTag>
                       <CategoryTag
                         onClick={() =>
-                          onWeatherClick("temp", res.weatherInfo.temp)
+                          onWeatherClick("temp", feed.weatherInfo.temp)
                         }
                       >
-                        {res.weatherInfo.temp}º
+                        {feed.weatherInfo.temp}º
                       </CategoryTag>
                       <CategoryTag
                         onClick={() =>
-                          onWeatherClick("wind", res.weatherInfo.wind)
+                          onWeatherClick("wind", feed.weatherInfo.wind)
                         }
                       >
-                        {res.weatherInfo.wind}
+                        {feed.weatherInfo.wind}
                         <span>m/s</span>
                       </CategoryTag>
                     </CategoryTagBox>
@@ -178,7 +178,7 @@ const DetailFeedCategory = ({ res }: Props) => {
                 >
                   <WearInfo>
                     <CategoryTagBox>
-                      <CategoryTag>{res.feel}</CategoryTag>
+                      <CategoryTag>{feed.feel}</CategoryTag>
                       {categoryTags.map((tag) =>
                         tag.detail ? (
                           <CategoryTag

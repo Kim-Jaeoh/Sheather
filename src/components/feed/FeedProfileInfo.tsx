@@ -69,7 +69,9 @@ const FeedProfileInfo = ({ feed }: Props) => {
       <UserReactBox>
         <UserIconBox>
           <UserIcon onClick={() => toggleLike(feed)}>
-            {userObj?.like?.filter((id) => id === feed.id).length > 0 ? (
+            {feed?.like?.some(
+              (res) => res.displayName === userObj.displayName
+            ) ? (
               <FaHeart style={{ color: "#FF5673" }} />
             ) : (
               <FaRegHeart />

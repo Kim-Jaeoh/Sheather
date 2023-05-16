@@ -94,7 +94,7 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                   <Tag key={index}>
                     <TagInput
                       id={index.toString()}
-                      name="range"
+                      name="tag"
                       type="radio"
                       style={{
                         marginTop: "2px",
@@ -136,7 +136,7 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                       <Tag key={index}>
                         <TagInput
                           id={index.toString()}
-                          name="range"
+                          name="tag"
                           type="radio"
                         />
                         <TagLabel
@@ -179,7 +179,7 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                       <Tag key={index}>
                         <TagInput
                           id={index.toString()}
-                          name="range"
+                          name="tag"
                           type="radio"
                         />
                         <TagLabel
@@ -214,7 +214,7 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                       <Tag key={index}>
                         <TagInput
                           id={index.toString()}
-                          name="range"
+                          name="tag"
                           type="radio"
                         />
                         <TagLabel
@@ -261,7 +261,7 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                       <Tag key={index}>
                         <TagInput
                           id={index.toString()}
-                          name="range"
+                          name="tag"
                           type="radio"
                         />
                         <TagLabel
@@ -305,7 +305,7 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                         <Tag key={index}>
                           <TagInput
                             id={index.toString()}
-                            name="range"
+                            name="tag"
                             type="radio"
                           />
                           <TagLabel

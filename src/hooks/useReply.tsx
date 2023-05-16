@@ -1,16 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import React, { useMemo, useState } from "react";
-import {
-  CurrentUserType,
-  FeedType,
-  CommentType,
-  replyType,
-} from "../types/type";
+import { CurrentUserType, CommentType, replyType } from "../types/type";
 import { dbService } from "../fbase";
 import { updateDoc, doc } from "firebase/firestore";
 import useSendNoticeMessage from "./useSendNoticeMessage";
 import { toast } from "react-hot-toast";
+import useThrottle from "./useThrottle";
 
 type Props = {
   userObj: CurrentUserType;
@@ -133,7 +129,6 @@ const useReply = ({
         (notice) =>
           notice.replyId !== replyData.replyId || notice.type !== "reply"
       );
-      console.log(replyData);
       mutateReplyDelete({
         commentId: replyData.commentId,
         reply: replyData,

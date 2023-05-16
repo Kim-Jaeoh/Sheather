@@ -5,15 +5,34 @@ import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import useToggleBookmark from "../../../hooks/useToggleBookmark";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../app/store";
+import useToggleLike from "../../../hooks/useToggleLike";
+import { useEffect, useState } from "react";
+import { onSnapshot, doc } from "firebase/firestore";
+import { dbService } from "../../../fbase";
 
 type Props = {
   feed: FeedType;
-  userObj: CurrentUserType;
-  toggleLike: (feed: FeedType) => void;
+  user: CurrentUserType;
 };
 
-const DetailFeedInfo = ({ feed, userObj, toggleLike }: Props) => {
+const DetailFeedInfo = ({ feed, user }: Props) => {
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
+
+  const [account, setAccount] = useState(null);
   const { toggleBookmark } = useToggleBookmark();
+  const { toggleLike } = useToggleLike({ user: account });
+
+  // 계정 정보 가져오기
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(dbService, "users", feed.email), (doc) =>
+      setAccount(doc.data())
+    );
+    return () => unsubscribe();
+  }, [feed]);
 
   // 복사
   const handleCopyClipBoard = async () => {
@@ -27,47 +46,51 @@ const DetailFeedInfo = ({ feed, userObj, toggleLike }: Props) => {
   };
 
   return (
-    <InfoBox>
-      <TextBox>
-        <UserReactBox>
-          <IconBox>
-            <Icon onClick={() => toggleLike(feed)}>
-              {userObj?.like?.filter((id) => id === feed.id).length > 0 ? (
-                <FaHeart style={{ color: `#ff5673` }} />
-              ) : (
-                <FaRegHeart />
-              )}
-            </Icon>
-            <Icon onClick={() => toggleBookmark(feed.id)}>
-              {userObj?.bookmark?.filter((id) => id === feed.id).length > 0 ? (
-                <FaBookmark style={{ color: `#ff5673` }} />
-              ) : (
-                <FaRegBookmark />
-              )}
-            </Icon>
-          </IconBox>
-          <Icon onClick={() => handleCopyClipBoard()}>
-            <BiCopy />
-          </Icon>
-        </UserReactBox>
-        <UserReactNum>공감 {feed.like.length}개</UserReactNum>
-        <UserTextBox>
-          <UserText>{feed.text}</UserText>
-        </UserTextBox>
-        {feed?.tag.length > 0 && (
-          <TagList>
-            {feed?.tag?.map((tag, index) => {
-              return (
-                <Tag key={index} to={`/explore/search?keyword=${tag}`}>
-                  <span>#</span>
-                  <TagName>{tag}</TagName>
-                </Tag>
-              );
-            })}
-          </TagList>
-        )}
-      </TextBox>
-    </InfoBox>
+    <>
+      {feed && (
+        <InfoBox>
+          <TextBox>
+            <UserReactBox>
+              <IconBox>
+                <Icon onClick={() => toggleLike(feed)}>
+                  {userObj.like.some((res) => res === feed.id) ? (
+                    <FaHeart style={{ color: `#ff5673` }} />
+                  ) : (
+                    <FaRegHeart />
+                  )}
+                </Icon>
+                <Icon onClick={() => toggleBookmark(feed.id)}>
+                  {userObj?.bookmark?.some((id) => id === feed.id) ? (
+                    <FaBookmark style={{ color: `#ff5673` }} />
+                  ) : (
+                    <FaRegBookmark />
+                  )}
+                </Icon>
+              </IconBox>
+              <Icon onClick={() => handleCopyClipBoard()}>
+                <BiCopy />
+              </Icon>
+            </UserReactBox>
+            <UserReactNum>공감 {feed?.like?.length}개</UserReactNum>
+            <UserTextBox>
+              <UserText>{feed?.text}</UserText>
+            </UserTextBox>
+            {feed?.tag?.length > 0 && (
+              <TagList>
+                {feed?.tag?.map((tag, index) => {
+                  return (
+                    <Tag key={index} to={`/explore/search?keyword=${tag}`}>
+                      <span>#</span>
+                      <TagName>{tag}</TagName>
+                    </Tag>
+                  );
+                })}
+              </TagList>
+            )}
+          </TextBox>
+        </InfoBox>
+      )}
+    </>
   );
 };
 

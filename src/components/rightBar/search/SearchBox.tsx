@@ -1,40 +1,29 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { IoIosCloseCircleOutline, IoMdArrowDropup } from "react-icons/io";
-import useDebounce from "../../../hooks/useDebounce";
+import useTagDebounce from "../../../hooks/useTagDebounce";
 import SearchList, { localType } from "./SearchList";
 import SearchedShowList from "./SearchedShowList";
 import { IoSearchOutline } from "react-icons/io5";
+import { debounce } from "lodash";
 
 const SearchBox = () => {
   const [focus, setFocus] = useState(false);
   const [text, setText] = useState("");
-  const [debounceText, setDebounceText] = useState("");
   const [toggleAnimation, setToggleAnimation] = useState(false);
   const [url, setUrl] = useState(``);
   const [searched, setSearched] = useState<localType[]>(
     JSON.parse(localStorage.getItem("keywords")) || []
   );
-  const debouncedSearchTerm = useDebounce(text, 200);
+  const inputRef = useRef(null);
 
   // 검색 목록 api
   useEffect(() => {
-    const isHashtag = debounceText.includes("#")
-      ? debounceText.split("#")[1]
-      : debounceText; // 해시태그 유무
+    const isHashtag = text.includes("#") ? text.split("#")[1] : text; // 해시태그 유무
     setUrl(
       `${process.env.REACT_APP_SERVER_PORT}/api/search?keyword=${isHashtag}&`
     );
-  }, [debounceText]);
-
-  // debounce된 text 유무
-  useEffect(() => {
-    if (debouncedSearchTerm) {
-      setDebounceText(debouncedSearchTerm);
-    } else {
-      setDebounceText("");
-    }
-  }, [debouncedSearchTerm]);
+  }, [text]);
 
   useEffect(() => {
     if (localStorage?.getItem("keywords")?.length) {
@@ -50,20 +39,21 @@ const SearchBox = () => {
     }
   }, [searched, text]);
 
-  const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeText = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
     } = e;
     setText(value);
-  };
+  }, 150);
 
   const onSubmitText = (e: React.FormEvent) => {
     e.preventDefault();
   };
 
-  const onDeleteText = useCallback(() => {
+  const onDeleteText = () => {
     setText("");
-  }, []);
+    inputRef.current.value = "";
+  };
 
   const onListClick = (type: string, word: string, name: string) => {
     if (type === "tag") {
@@ -101,6 +91,7 @@ const SearchBox = () => {
           <IoSearchOutline />
         </IconBox>
         <SearchInput
+          ref={inputRef}
           spellCheck="false"
           onFocus={onListOpen}
           // onBlur={onListClose}
@@ -108,7 +99,7 @@ const SearchBox = () => {
           id="search"
           autoComplete="off"
           maxLength={12}
-          value={text}
+          // value={text}
           onChange={onChangeText}
           placeholder="검색어를 입력하세요"
         />
@@ -126,12 +117,8 @@ const SearchBox = () => {
 
       {focus && (
         <SearchedBox focus={focus} toggleAnimation={toggleAnimation}>
-          {debounceText !== "" ? (
-            <SearchList
-              text={debounceText}
-              url={url}
-              onListClick={onListClick}
-            />
+          {text !== "" ? (
+            <SearchList text={text} url={url} onListClick={onListClick} />
           ) : (
             <SearchedShowList
               searched={searched}

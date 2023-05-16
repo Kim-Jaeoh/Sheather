@@ -35,11 +35,9 @@ firebase.initializeApp(firebaseConfig);
 
 // eslint-disable-next-line no-undef
 const isSupported = firebase.messaging.isSupported();
-
 if (isSupported) {
   // eslint-disable-next-line no-undef
   const messaging = firebase.messaging();
-
   //백그라운드 서비스워커 설정
   messaging.onBackgroundMessage(messaging, (payload) => {
     console.log(

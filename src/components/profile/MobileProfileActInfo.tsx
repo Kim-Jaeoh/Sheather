@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
-import { FiLogOut } from "react-icons/fi";
+import { FiLogOut, FiSettings } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useCreateChat from "../../hooks/useCreateChat";
 import useToggleFollow from "../../hooks/useToggleFollow";
 import { CurrentUserType, FollowerType, FollowingType } from "../../types/type";
+import ProfileSettingModal from "../modal/profile/ProfileSettingModal";
 
 type Props = {
   myPost: number;
@@ -31,6 +32,7 @@ const MobileProfileActInfo = ({
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
+  const [isSet, setIsSet] = useState(false);
   const { toggleFollow } = useToggleFollow();
   const { onCreateChatClick } = useCreateChat();
 
@@ -53,8 +55,15 @@ const MobileProfileActInfo = ({
     onIsLogin(() => toggleFollow(user));
   };
 
+  const onSettingClick = () => {
+    setIsSet((prev) => !prev);
+  };
+
   return (
     <>
+      {isSet && (
+        <ProfileSettingModal modalOpen={isSet} modalClose={onSettingClick} />
+      )}
       <ProfileBox>
         <ProfileImageBox>
           <ProfileImage
@@ -73,6 +82,9 @@ const MobileProfileActInfo = ({
                 <ProfileEditBtn onClick={onEditModalClick}>
                   프로필 수정
                 </ProfileEditBtn>
+                <SetBtn onClick={onSettingClick}>
+                  <FiSettings />
+                </SetBtn>
                 <LogoutBtn onClick={onLogOutClick}>
                   <FiLogOut />
                 </LogoutBtn>
@@ -265,6 +277,8 @@ const LogoutBtn = styled.button`
     color: #fff;
   }
 `;
+
+const SetBtn = styled(LogoutBtn)``;
 
 const ActBtnBox = styled(ProfileBtnBox)``;
 
