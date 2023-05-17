@@ -37,11 +37,14 @@ const FeedWeatherInfo = () => {
 
   const filterTempClothes = useMemo(() => {
     const temp = weatherData?.data?.main.temp;
+
     return tempClothes.filter(
       (info) =>
-        info.tempMax >= Math.round(temp) && info.tempMin <= Math.round(temp)
+        // ex) min: 23, max: 27, currentTemp: `23` (22.66 반올림)
+        // 23(min) <= `23` <= 27(max)
+        info.tempMin <= Math.round(temp) && Math.round(temp) <= info.tempMax
     );
-  }, [weatherData?.data?.main.temp]);
+  }, [tempClothes, weatherData?.data?.main.temp]);
 
   return (
     <Container>
@@ -84,16 +87,13 @@ const FeedWeatherInfo = () => {
                 onChanged={(e) => console.log(e)}
                 moveType="freeScroll"
                 bound={true}
-                // bounce={0}
                 align="prev"
               >
-                {/* <WearInfo> */}
                 <TagBox>
                   {filterTempClothes[0]?.clothes?.map((res, index) => {
                     return <Tag key={index}>{res}</Tag>;
                   })}
                 </TagBox>
-                {/* </WearInfo> */}
               </Flicking>
             </FlickingCategoryBox>
           </WeatherClothesInfo>

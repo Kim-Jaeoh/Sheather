@@ -6,7 +6,6 @@ import {
   IoMdArrowDropup,
   IoMdClose,
 } from "react-icons/io";
-import useTagDebounce from "../../../hooks/useTagDebounce";
 import FollowListBox from "../../rightBar/FollowListBox";
 import TagListBox from "../../rightBar/TagListBox";
 import SearchList, { localType } from "../../rightBar/search/SearchList";
@@ -21,6 +20,7 @@ type Props = {
 };
 
 const MobileSearchBox = ({ modalOpen, modalClose }: Props) => {
+  const [isClick, setIsClick] = useState(false);
   const [focus, setFocus] = useState(false);
   const [text, setText] = useState("");
   const [toggleAnimation, setToggleAnimation] = useState(false);
@@ -48,11 +48,19 @@ const MobileSearchBox = ({ modalOpen, modalClose }: Props) => {
           index ===
           self.findIndex((t) => t.type === obj.type && t.search === obj.search)
       );
-      return localStorage.setItem("keywords", JSON.stringify(uniqueArr));
+      localStorage.setItem("keywords", JSON.stringify(uniqueArr));
     } else {
-      return localStorage.setItem("keywords", JSON.stringify([]));
+      localStorage.setItem("keywords", JSON.stringify([]));
     }
   }, [searched, text]);
+
+  // 리스트 클릭 시 창 닫기
+  // 클릭 이벤트에서 modalClose() 시 localStorage에 저장되지 않기 때문
+  useEffect(() => {
+    if (isClick) {
+      modalClose();
+    }
+  }, [isClick, modalClose]);
 
   const onChangeText = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -84,7 +92,7 @@ const MobileSearchBox = ({ modalOpen, modalClose }: Props) => {
       ]);
     }
     setFocus(false);
-    modalClose();
+    setIsClick(true);
   };
 
   // 검색 리스트 노출할 때 애니메이션

@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { IoIosCloseCircleOutline, IoMdArrowDropup } from "react-icons/io";
-import useTagDebounce from "../../../hooks/useTagDebounce";
 import SearchList, { localType } from "./SearchList";
 import SearchedShowList from "./SearchedShowList";
 import { IoSearchOutline } from "react-icons/io5";
@@ -33,9 +32,9 @@ const SearchBox = () => {
           index ===
           self.findIndex((t) => t.type === obj.type && t.search === obj.search)
       );
-      return localStorage.setItem("keywords", JSON.stringify(uniqueArr));
+      localStorage.setItem("keywords", JSON.stringify(uniqueArr));
     } else {
-      return localStorage.setItem("keywords", JSON.stringify([]));
+      localStorage.setItem("keywords", JSON.stringify([]));
     }
   }, [searched, text]);
 

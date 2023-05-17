@@ -47,7 +47,8 @@ const RangeTimeModal = (props: Props) => {
   };
 
   const handleSliderChange = (value: number | number[]) => {
-    setRangeTime(Array.isArray(value) ? value : [value]); // setRangeTime 함수를 이용해 상태 업데이트
+    // setRangeTime 함수를 이용해 상태 업데이트
+    setRangeTime(Array.isArray(value) ? value : [value]);
   };
 
   return (

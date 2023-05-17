@@ -33,8 +33,8 @@ const useCurrentLocation = () => {
     const { geolocation } = navigator; // window.navigator.geolocation
     // 옵션
     const options = {
-      enableHighAccuracy: true,
-      maximumAge: 1000 * 60 * 1, //1000 * 60 * 1, // 불러온 값을 캐싱하는 시간 (1분)
+      enableHighAccuracy: true, // 위치 정확도
+      maximumAge: 1000 * 60 * 1, // 1000 * 60 * 1, // 불러온 값을 캐싱하는 시간 (1분)
       timeout: 5000, // API 최대 요청 시간
     };
     if (!geolocation) {

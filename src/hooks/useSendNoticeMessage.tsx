@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { CurrentUserType, FeedType, CommentType } from "../types/type";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { dbService, saveMessagingDeviceToken } from "../fbase";
-// import useThrottle from "./useThrottle";
 import axios, { AxiosRequestConfig } from "axios";
 import useGetMyAccount from "./useGetMyAccount";
 
@@ -15,11 +14,9 @@ interface PostData {
 const useSendNoticeMessage = (
   users: CurrentUserType | FeedType | CommentType
 ) => {
-  // const { throttle } = useThrottle();
   const [getToken, setGetToken] = useState(null);
   const [userNotification, setUserNotification] = useState(null);
   const { userObj } = useGetMyAccount();
-  const { myAccount } = useGetMyAccount();
 
   // 상대방 기기 토큰값 가져오기
   useEffect(() => {
@@ -64,7 +61,7 @@ const useSendNoticeMessage = (
       };
 
       await axios
-        .post(`${process.env.REACT_APP_SERVER_PORT}/api/push_send`, config)
+        .post(`${process.env.REACT_APP_SERVER_PORT}/api/push-send`, config)
         .then((e) => {
           console.log("성공 ", e);
         })
@@ -100,7 +97,7 @@ const useSendNoticeMessage = (
         },
       };
       await axios
-        .post(`${process.env.REACT_APP_SERVER_PORT}/api/push_send`, config)
+        .post(`${process.env.REACT_APP_SERVER_PORT}/api/push-send`, config)
         .then((e) => {
           console.log("성공 ", e);
         })

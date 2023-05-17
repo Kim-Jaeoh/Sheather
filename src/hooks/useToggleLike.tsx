@@ -13,6 +13,16 @@ type props = {
   user: CurrentUserType;
 };
 
+interface LikeType {
+  id: string;
+  like: {
+    displayName: string;
+    time: number;
+    postId: string;
+    email: string;
+  }[];
+}
+
 const useToggleLike = ({ user }: props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
@@ -78,16 +88,6 @@ const useToggleLike = ({ user }: props) => {
     }
   };
 
-  interface LikeType {
-    id: string;
-    like: {
-      displayName: string;
-      time: number;
-      postId: string;
-      email: string;
-    }[];
-  }
-
   // 좋아요 api mutate
   const { mutate } = useMutation(
     (response: LikeType) =>
@@ -103,10 +103,7 @@ const useToggleLike = ({ user }: props) => {
             return [];
           }
           const filter = old.filter((oldRes) => oldRes.id === res.id);
-          if (filter.length > 0) {
-            filter[0].like = res.like;
-          }
-          return old;
+          filter[0].like = res.like;
         });
 
         return { previousResponse };
