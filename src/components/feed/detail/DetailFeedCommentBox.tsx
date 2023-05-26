@@ -11,7 +11,9 @@ import useComment from "../../../hooks/useComment";
 import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
 import useReply from "../../../hooks/useReply";
 import useThrottle from "../../../hooks/useThrottle";
-import useDebounce from "../../../hooks/useDebounce";
+import { debounce } from "lodash";
+import { onSnapshot, doc } from "firebase/firestore";
+import { dbService } from "../../../fbase";
 
 type Props = {
   userAccount: CurrentUserType;
@@ -24,6 +26,7 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
     return state.user;
   });
   const [isWriteReply, setIsWriteReply] = useState(false);
+  const [commentUser, setCommentUser] = useState(null);
   const [dataSort, setDataSort] = useState(null);
   const [replyData, setReplyData] = useState(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -31,7 +34,6 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
   const { getToken } = useSendNoticeMessage(feed);
   const { isMobile } = useMediaScreen();
   const { throttle } = useThrottle();
-  const { debounce } = useDebounce();
 
   const { commentText, setCommentText, onComment, onCommentDelete } =
     useComment({
@@ -44,7 +46,7 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
 
   const { replyText, setReplyText, onReply, onReplyDelete } = useReply({
     userObj,
-    userAccount,
+    userAccount: commentUser,
     commentData: replyData,
     textRef,
     getToken,
@@ -57,6 +59,20 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
     );
     setDataSort(sort);
   }, [feed?.comment]);
+
+  // 답글 유저 정보 가져오기
+  useEffect(() => {
+    if (replyData) {
+      const unsubscribe = onSnapshot(
+        doc(dbService, "users", replyData.email),
+        (doc) => {
+          setCommentUser(doc.data());
+        }
+      );
+
+      return () => unsubscribe();
+    }
+  }, [replyData]);
 
   // 답글 (@아이디) 지울 시 댓글 쓰기로 변경
   useEffect(() => {
@@ -87,9 +103,9 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
       e.preventDefault();
 
       if (isWriteReply) {
-        throttle(() => onReply(replyData), 5000);
+        onReply(replyData);
       } else {
-        throttle(() => onComment(feed), 5000);
+        onComment(feed);
       }
     }
   };

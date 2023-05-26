@@ -9,6 +9,7 @@ import "../../styles/DetailFlicking.css";
 import TempClothes from "../../assets/data/TempClothes";
 import { nowWeatherApi, regionApi } from "../../apis/api";
 import { BiErrorCircle } from "react-icons/bi";
+import React from "react";
 
 const FeedWeatherInfo = () => {
   const { location } = useCurrentLocation();

@@ -1,4 +1,4 @@
-import React from "react";
+import moment from "moment";
 
 const useTimeFormat = () => {
   const timeToString = (timestamp: number) => {
@@ -29,8 +29,8 @@ const useTimeFormat = () => {
 
   const timeToString2 = (timestamp: number) => {
     let date = new Date(timestamp);
-    let hours = date.getHours();
-    let minutes = ("0" + date.getMinutes()).slice(-2);
+    let hours = Number(moment(date).format("hh"));
+    let minutes = Number(moment(date).format("mm"));
     let amPm = "오전";
 
     if (hours >= 12) {

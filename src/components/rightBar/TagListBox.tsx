@@ -6,10 +6,6 @@ import { FeedType } from "../../types/type";
 import TagListSkeleton from "../../assets/skeleton/TagListSkeleton";
 import { feedApi } from "../../apis/api";
 
-interface Count {
-  [key: string]: number;
-}
-
 type Props = {
   modalOpen?: boolean;
   modalClose?: () => void;
@@ -17,15 +13,11 @@ type Props = {
 
 const TagListBox = ({ modalOpen, modalClose }: Props) => {
   // 피드 리스트 가져오기
-  const { data: feedData, isLoading } = useQuery<FeedType[]>(
-    ["feed"],
-    feedApi,
-    {
-      refetchOnWindowFocus: false,
-      refetchInterval: 1000 * 60 * 5, // 5분
-      onError: (e) => console.log(e),
-    }
-  );
+  const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {
+    refetchOnWindowFocus: false,
+    refetchInterval: 1000 * 60 * 5, // 5분
+    onError: (e) => console.log(e),
+  });
 
   // 태그 숫자
   const tagList = useMemo(() => {
@@ -34,20 +26,19 @@ const TagListBox = ({ modalOpen, modalClose }: Props) => {
       return null;
     }
 
-    const result = arr?.reduce((accu: Count, curr: string) => {
-      accu[curr] = (accu[curr] || 0) + 1;
+    const result = arr?.reduce((accu, curr) => {
+      const index = accu?.findIndex((res) => res.name === curr);
+
+      if (index !== -1) {
+        accu[index].count += 1;
+      } else {
+        accu.push({ name: curr, count: 1 });
+      }
+
       return accu;
-    }, {});
+    }, []);
 
-    // 키, 값 배열로 담기
-    const arrayMap = Object.entries(result);
-
-    return arrayMap
-      .map((res) => ({
-        name: res[0],
-        count: res[1],
-      }))
-      .sort((a, b) => b.count - a.count);
+    return result.sort((a, b) => b.count - a.count);
   }, [feedData]);
 
   const onClick = () => {
@@ -65,22 +56,21 @@ const TagListBox = ({ modalOpen, modalClose }: Props) => {
         </AllClick>
       </CategoryBox>
       {tagList ? (
-        tagList?.map((res: { name: string; count: number }, index) => (
-          <div key={res.name}>
-            {index < 5 && (
-              <TagList
-                to={`/explore/search?keyword=${res.name}`}
-                onClick={onClick}
-              >
-                <TagRank>{index + 1}</TagRank>
-                <TagInfo>
-                  <TagName>#{res.name}</TagName>
-                  <TagCount>{res.count} 피드</TagCount>
-                </TagInfo>
-              </TagList>
-            )}
-          </div>
-        ))
+        tagList
+          ?.slice(0, 5)
+          ?.map((res: { name: string; count: number }, index) => (
+            <TagList
+              to={`/explore/search?keyword=${res.name}`}
+              onClick={onClick}
+              key={res.name}
+            >
+              <TagRank>{index + 1}</TagRank>
+              <TagInfo>
+                <TagName>#{res.name}</TagName>
+                <TagCount>{res.count} 피드</TagCount>
+              </TagInfo>
+            </TagList>
+          ))
       ) : (
         <TagListSkeleton />
       )}

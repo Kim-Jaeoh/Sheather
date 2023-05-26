@@ -12,7 +12,7 @@ import { ImageList } from "@mui/material";
 
 const InfoCategory = () => {
   const [url, setUrl] = useState("");
-  const [randomFeed, setRandomFeed] = useState(null);
+  const [feed, setFeed] = useState(null);
   const [dateCategory, setDateCategory] = useState("recent");
   const { search } = useLocation();
   const [searchParams] = useSearchParams();
@@ -47,31 +47,14 @@ const InfoCategory = () => {
 
   //  랜덤화
   useEffect(() => {
-    // 객체 깊은 복사
-    let arr = dataList?.pages?.flat(); // 렌더링이 2번 돼서 cloneDeep으로 해결
-    // let arr = cloneDeep(dataList?.pages?.flat()); // 렌더링이 2번 돼서 cloneDeep으로 해결
-
-    // const randomArray = (array: FeedType[]) => {
-    //   // (피셔-예이츠)
-    //   for (let index = array?.length - 1; index > 0; index--) {
-    //     // 무작위 index 값을 만든다. (0 이상의 배열 길이 값)
-    //     const randomPosition = Math.floor(Math.random() * (index + 1));
-
-    //     // 임시로 원본 값을 저장하고, randomPosition을 사용해 배열 요소를 섞는다.
-    //     const temporary = array[index];
-    //     array[index] = array[randomPosition];
-    //     array[randomPosition] = temporary;
-    //   }
-    // };
-
-    // randomArray(arr);
+    let arr = dataList?.pages?.flat();
 
     if (dateCategory === "recent") {
       const sort = arr?.sort((a, b) => b.createdAt - a.createdAt);
-      return setRandomFeed(sort);
+      return setFeed(sort);
     } else {
       const sort = arr?.sort((a, b) => b.like.length - a.like.length);
-      return setRandomFeed(sort);
+      return setFeed(sort);
     }
   }, [dataList?.pages, dateCategory]);
 
@@ -147,13 +130,13 @@ const InfoCategory = () => {
                 </SelectCategoryBtn>
               </SelectCategoryBox>
             </SelectDetailTimeBox>
-            {randomFeed?.length !== 0 ? (
+            {feed?.length !== 0 ? (
               <ImageList
                 sx={{ overflow: "hidden" }}
                 cols={3}
                 gap={!isMobile ? 20 : 10}
               >
-                {randomFeed?.map((res: FeedType, index: number) => {
+                {feed?.map((res: FeedType, index: number) => {
                   return (
                     <CardList key={index} onClick={() => onClick(res)}>
                       <Card>

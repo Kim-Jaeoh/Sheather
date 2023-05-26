@@ -17,15 +17,12 @@ type Props = {
 };
 
 const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toggleFollow } = useToggleFollow();
-  const usersArr = useRef([]);
 
   // 계정 정보 가져오기
   useEffect(() => {
@@ -51,7 +48,6 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
 
       // 렌더링이 2번 돼서 cloneDeep으로 해결
       let cloneArr = cloneDeep(notFollowed);
-      usersArr.current.push(...cloneArr);
       randomArray(cloneArr); // 배열 랜덤
       setUsers(cloneArr);
       setIsLoading(true);
@@ -73,8 +69,6 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
   };
 
   const onClick = () => {
-    // onIsLogin(() => {
-    // });
     if (modalOpen) {
       modalClose();
     }
@@ -99,40 +93,33 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
         </CategoryBox>
         <UserListBox>
           {isLoading ? (
-            users.map((res, index) => (
-              <li key={index}>
-                {index < 5 && (
-                  <UserList onClick={onClick}>
-                    <User
-                      to={`/profile/${res.displayName}/post`}
-                      state={res.email}
-                    >
-                      <ProfileImageBox>
-                        <ProfileImage
-                          onContextMenu={(e) => e.preventDefault()}
-                          src={res.profileURL}
-                          alt="profile image"
-                        />
-                      </ProfileImageBox>
-                      <ProfileInfoBox>
-                        <ProfileDsName>{res.displayName}</ProfileDsName>
-                        {res.name && <ProfileName>{res.name}</ProfileName>}
-                      </ProfileInfoBox>
-                    </User>
-                    {res?.email !== userObj.email && (
-                      <FollowBtnBox onClick={() => onFollowClick(res, index)}>
-                        {userObj?.following?.filter((obj) =>
-                          obj?.displayName?.includes(res?.displayName)
-                        ).length !== 0 ? (
-                          <FollowingBtn>팔로잉</FollowingBtn>
-                        ) : (
-                          <FollowBtn>팔로우</FollowBtn>
-                        )}
-                      </FollowBtnBox>
+            users.slice(0, 5).map((res, index) => (
+              <UserList key={res.email} onClick={onClick}>
+                <User to={`/profile/${res.displayName}/post`} state={res.email}>
+                  <ProfileImageBox>
+                    <ProfileImage
+                      onContextMenu={(e) => e.preventDefault()}
+                      src={res.profileURL}
+                      alt="profile image"
+                    />
+                  </ProfileImageBox>
+                  <ProfileInfoBox>
+                    <ProfileDsName>{res.displayName}</ProfileDsName>
+                    {res.name && <ProfileName>{res.name}</ProfileName>}
+                  </ProfileInfoBox>
+                </User>
+                {res?.email !== userObj.email && (
+                  <FollowBtnBox onClick={() => onFollowClick(res, index)}>
+                    {userObj?.following?.filter((obj) =>
+                      obj?.displayName?.includes(res?.displayName)
+                    ).length !== 0 ? (
+                      <FollowingBtn>팔로잉</FollowingBtn>
+                    ) : (
+                      <FollowBtn>팔로우</FollowBtn>
                     )}
-                  </UserList>
+                  </FollowBtnBox>
                 )}
-              </li>
+              </UserList>
             ))
           ) : (
             <FollowListSkeleton />
@@ -204,7 +191,7 @@ const AllClick = styled(Link)`
 
 const UserListBox = styled.ul``;
 
-const UserList = styled.div`
+const UserList = styled.li`
   position: relative;
   display: flex;
   align-items: center;

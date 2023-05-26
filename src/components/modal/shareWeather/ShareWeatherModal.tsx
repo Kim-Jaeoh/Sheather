@@ -366,7 +366,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
                       <EmojiIcon>
                         <BsFillImageFill
                           style={{
-                            color: `#48a3ff`,
+                            color: `var(--weather-color)`,
                             width: "24px",
                             height: "24px",
                           }}
@@ -480,7 +480,8 @@ const Container = styled.form<{ isUpload: boolean }>`
   background: #fff;
   border-radius: 20px;
   border: 2px solid var(--second-color);
-  box-shadow: 12px 12px 0 -2px #48a3ff, 12px 12px var(--second-color);
+  box-shadow: 12px 12px 0 -2px var(--weather-color),
+    12px 12px var(--second-color);
   &::-webkit-scrollbar {
     display: none;
   }
@@ -607,7 +608,7 @@ const ImageLength = styled.p`
 `;
 
 const ImageLengthColor = styled.span`
-  color: #48a3ff;
+  color: var(--weather-color);
 `;
 
 const ImageContainerBox = styled.div`
@@ -692,17 +693,17 @@ const NextBtn = styled.button`
   padding: 8px 10px;
   margin-left: auto;
   border-radius: 9999px;
-  border: 1px solid #48a3ff;
-  color: #48a3ff;
+  border: 1px solid var(--weather-color);
+  color: var(--weather-color);
   cursor: pointer;
   transition: all 0.2s;
   font-size: 14px;
 
   &:not(:disabled) {
     &:hover {
-      background: #48a3ff;
+      background: var(--weather-color);
       color: #fff;
-      border: 1px solid #48a3ff;
+      border: 1px solid var(--weather-color);
     }
   }
 
@@ -717,8 +718,8 @@ const EditBtn = styled.button`
   user-select: none;
   padding: 6px 10px;
   margin-left: auto;
-  border: 1px solid #48a3ff;
-  color: #48a3ff;
+  border: 1px solid var(--weather-color);
+  color: var(--weather-color);
   border-radius: 9999px;
   cursor: pointer;
   transition: all 0.2s;
@@ -726,9 +727,9 @@ const EditBtn = styled.button`
 
   &:not(:disabled) {
     :hover {
-      background: #48a3ff;
+      background: var(--weather-color);
       color: #fff;
-      border: 1px solid #48a3ff;
+      border: 1px solid var(--weather-color);
     }
   }
 
@@ -753,7 +754,7 @@ const IconBox = styled.div`
 
   &:hover,
   &:active {
-    color: #48a3ff;
+    color: var(--weather-color);
   }
 
   svg {

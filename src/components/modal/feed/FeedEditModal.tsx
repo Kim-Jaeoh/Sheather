@@ -30,10 +30,6 @@ const FeedEditModal = ({ feed, modalOpen, modalClose }: Props) => {
   const { pathname } = useLocation();
   const queryClient = useQueryClient();
 
-  const onPrevClick = () => {
-    return modalClose();
-  };
-
   // 피드 업로드
   const { mutate } = useMutation(
     (response: FeedType) =>
@@ -66,6 +62,10 @@ const FeedEditModal = ({ feed, modalOpen, modalClose }: Props) => {
       editAt: +new Date(),
       tag: tags,
     });
+  };
+
+  const onPrevClick = () => {
+    modalClose();
   };
 
   const bgColor = useMemo(() => {

@@ -7,6 +7,7 @@ import { CurrentUserType, FollowingType } from "../types/type";
 import useSendNoticeMessage from "./useSendNoticeMessage";
 import { useEffect, useState } from "react";
 import useGetMyAccount from "./useGetMyAccount";
+import useThrottle from "./useThrottle";
 
 const useToggleFollow = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -19,14 +20,19 @@ const useToggleFollow = () => {
   const dispatch = useDispatch();
   const { getToken, sendActions } = useSendNoticeMessage(user);
   const { myAccount } = useGetMyAccount();
+  const { throttle } = useThrottle();
 
   useEffect(() => {
     // 알림 보내기
     if (getToken && isSend) {
-      sendActions(
-        `follower`,
-        null,
-        `${process.env.REACT_APP_PUBLIC_URL}/profile/${user?.displayName}/post`
+      throttle(
+        () =>
+          sendActions(
+            `follower`,
+            null,
+            `${process.env.REACT_APP_PUBLIC_URL}/profile/${user?.displayName}/post`
+          ),
+        5000
       );
     }
   }, [getToken, isSend, user?.displayName]);

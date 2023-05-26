@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useInfinityScroll from "../../hooks/useInfinityScroll";
 import HomeSkeleton from "../../assets/skeleton/HomeSkeleton";
-import { useState } from "react";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import FeedProfileInfo from "./FeedProfileInfo";
 import Masonry from "@mui/lab/Masonry";

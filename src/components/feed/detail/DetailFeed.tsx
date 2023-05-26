@@ -54,7 +54,6 @@ const DetailFeed = () => {
         toast.error("존재하지 않는 글입니다.", {
           id: `not-cropped`, // 중복 방지
         });
-        // return null;
       } else {
         setDetailInfo(filterData);
       }
@@ -107,7 +106,6 @@ const DetailFeed = () => {
     }
     if (type === "like") {
       const likeFilter = user.like.filter((res) => res !== postId);
-      console.log(likeFilter);
       await updateDoc(doc(dbService, "users", user.email), {
         like: likeFilter,
       });

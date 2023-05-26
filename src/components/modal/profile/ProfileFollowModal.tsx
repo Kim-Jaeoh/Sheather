@@ -15,6 +15,7 @@ import {
   FollowerType,
   FollowingType,
 } from "../../../types/type";
+import React from "react";
 
 type Props = {
   accountName: string;
@@ -33,14 +34,11 @@ const ProfileFollowModal = ({
   followLength,
   modalClose,
 }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [account, setAccount] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [clickIndex, setClickIndex] = useState(0);
   const { toggleFollow } = useToggleFollow();
 
   // 계정 정보 가져오기 (병렬 처리 = 한 번에 가져오기 위함)
@@ -53,19 +51,17 @@ const ProfileFollowModal = ({
     const promiseList = async () => {
       const list = await Promise.all(
         followInfo.map((res) => {
-          setIsLoading(true);
           return getList(res);
         })
       );
       setAccount(list);
     };
 
-    promiseList();
+    promiseList().then(() => setIsLoading(true));
   }, [followInfo]);
 
   const onFollowClick = (user: CurrentUserType, index: number) => {
     toggleFollow(user);
-    setClickIndex(index);
   };
 
   return (
@@ -80,7 +76,7 @@ const ProfileFollowModal = ({
           </CloseBox>
         </Header>
         <UserListBox>
-          {followLength !== 0 ? (
+          {followLength ? (
             <>
               {isLoading ? (
                 account?.map((res, index) => {
@@ -98,7 +94,6 @@ const ProfileFollowModal = ({
                       </ProfileImageBox>
                       <ProfileInfoBox
                         to={`/profile/${res.displayName}/post`}
-                        state={res.displayName}
                         onClick={modalClose}
                       >
                         <ProfileDsName>{res.displayName}</ProfileDsName>

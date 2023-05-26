@@ -1,16 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   CurrentUserType,
   FeedType,
   CommentType,
   replyType,
+  NoticeArrType,
 } from "../types/type";
 import { dbService } from "../fbase";
 import { updateDoc, doc } from "firebase/firestore";
 import useSendNoticeMessage from "./useSendNoticeMessage";
 import { toast } from "react-hot-toast";
+import useThrottle from "./useThrottle";
+import useGetMyAccount from "./useGetMyAccount";
 
 type Props = {
   feed: FeedType;
@@ -33,12 +36,15 @@ const useComment = ({
   getToken,
 }: Props) => {
   const [commentText, setCommentText] = useState("");
+  const [noticeCopy, setNoticeCopy] = useState<NoticeArrType[]>([]);
+  const { myAccount } = useGetMyAccount();
   const queryClient = useQueryClient();
   const { sendActions } = useSendNoticeMessage(feed);
+  const { throttle } = useThrottle();
 
-  const noticeCopy = useMemo(() => {
+  useEffect(() => {
     if (userAccount) {
-      return [...userAccount?.notice];
+      setNoticeCopy([...userAccount?.notice]);
     }
   }, [userAccount]);
 
@@ -101,10 +107,14 @@ const useComment = ({
 
     // 알림 보내기
     if (getToken && feed.displayName !== userObj.displayName) {
-      sendActions(
-        `comment`,
-        commentText,
-        `${process.env.REACT_APP_PUBLIC_URL}/feed/detail/${feed.id}`
+      throttle(
+        () =>
+          sendActions(
+            `comment`,
+            commentText,
+            `${process.env.REACT_APP_PUBLIC_URL}/feed/detail/${feed.id}`
+          ),
+        5000
       );
     }
   };
@@ -133,10 +143,15 @@ const useComment = ({
       const filter = feed.comment.filter(
         (info) => info.text !== commentData.text
       );
-      const noticeFilter = noticeCopy.filter(
-        (notice) =>
-          notice.commentId !== commentData.commentId ||
-          (notice.type !== "comment" && notice.type !== "reply")
+      const feedUserNoticeFilter = noticeCopy.filter(
+        (notice) => notice.commentId !== commentData.commentId
+      );
+      const myNoticeFilter = myAccount.notice.filter(
+        (notice: NoticeArrType) => notice.commentId !== commentData.commentId
+      );
+      const replyUserFilter = myAccount.notice.filter(
+        (notice: NoticeArrType) =>
+          notice.commentId !== commentData.commentId && notice.type !== "reply"
       );
 
       mutateCommentDelete({
@@ -144,19 +159,26 @@ const useComment = ({
         comment: [...filter],
       });
 
+      // if (userObj.displayName !== feed.displayName) {
       // 상대 알림에서 답글 및 댓글 제거
-      if (userObj.displayName !== feed.displayName) {
-        await updateDoc(doc(dbService, "users", userAccount.email), {
-          notice: noticeFilter,
-        });
-      }
+      const feedUser = updateDoc(doc(dbService, "users", userAccount.email), {
+        notice: feedUserNoticeFilter,
+      });
+      // }
 
-      // 본인 댓글 알림 중 상대 답글 제거
-      if (userObj.displayName !== feed.displayName) {
-        await updateDoc(doc(dbService, "users", userObj.email), {
-          notice: noticeFilter,
+      // // 본인 댓글 알림 중 상대 답글 제거
+      const userFilter = updateDoc(doc(dbService, "users", userObj.email), {
+        notice: myNoticeFilter,
+      });
+
+      const replyFilter = commentData.reply.map((res) => {
+        return updateDoc(doc(dbService, "users", res.email), {
+          notice: replyUserFilter,
         });
-      }
+      });
+
+      await Promise.all([feedUser, userFilter, ...replyFilter]); // 병렬 처리
+      // }
     }
   };
 

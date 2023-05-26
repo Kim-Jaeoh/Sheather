@@ -35,38 +35,36 @@ const DetailFeedCategory = ({ feed }: Props) => {
     navigate(`/explore?q=region&cat=${cat}&detail=${detail}&sort=recent`);
   };
 
+  const onClick = (q: string, cat: string, detail: string | number) => {
+    navigate(`/explore?q=${q}&cat=${cat}&detail=${detail}&sort=recent`);
+  };
+
   return (
     <WearDetailBox>
       {isMobile ? (
         <WearDetail>
           <WearInfoBox>
             <FlickingCategoryBox>
-              <Flicking
-                onChanged={(e) => console.log(e)}
-                moveType="freeScroll"
-                bound={true}
-                align="prev"
-              >
+              <Flicking moveType="freeScroll" bound={true} align="prev">
                 <WearInfo>
                   <CategoryTagBox>
                     <WearInfoMain>
                       <BsSun />
                     </WearInfoMain>
                     <CategoryTag
-                      onClick={() => onRegionClick("region", feed.region)}
+                      onClick={() => onClick("region", "region", feed.region)}
                     >
                       <MdPlace />
                       {feed.region}
                     </CategoryTag>
                     <CategoryTag
                       onClick={() =>
-                        onWeatherClick("weather", feed.weatherInfo.weather)
+                        onClick("weather", "weather", feed.weatherInfo.weather)
                       }
                     >
                       <WeatherIcon>
                         <img
                           src={`/image/weather/${feed.weatherInfo.weatherIcon}.png`}
-                          // src={`https://openweathermap.org/img/wn/${feed.weatherInfo.weatherIcon}@2x.png`}
                           alt="weather icon"
                         />
                       </WeatherIcon>
@@ -74,14 +72,14 @@ const DetailFeedCategory = ({ feed }: Props) => {
                     </CategoryTag>
                     <CategoryTag
                       onClick={() =>
-                        onWeatherClick("temp", feed.weatherInfo.temp)
+                        onClick("weather", "temp", feed.weatherInfo.temp)
                       }
                     >
                       {feed.weatherInfo.temp}º
                     </CategoryTag>
                     <CategoryTag
                       onClick={() =>
-                        onWeatherClick("wind", feed.weatherInfo.wind)
+                        onClick("weather", "wind", feed.weatherInfo.wind)
                       }
                     >
                       {feed.weatherInfo.wind}
@@ -115,12 +113,7 @@ const DetailFeedCategory = ({ feed }: Props) => {
                 <BsSun />
               </WearInfoMain>
               <FlickingCategoryBox>
-                <Flicking
-                  onChanged={(e) => console.log(e)}
-                  moveType="freeScroll"
-                  bound={true}
-                  align="prev"
-                >
+                <Flicking moveType="freeScroll" bound={true} align="prev">
                   <WearInfo>
                     <CategoryTagBox>
                       <CategoryTag
@@ -131,13 +124,16 @@ const DetailFeedCategory = ({ feed }: Props) => {
                       </CategoryTag>
                       <CategoryTag
                         onClick={() =>
-                          onWeatherClick("weather", feed.weatherInfo.weather)
+                          onClick(
+                            "weather",
+                            "weather",
+                            feed.weatherInfo.weather
+                          )
                         }
                       >
                         <WeatherIcon>
                           <img
                             src={`/image/weather/${feed.weatherInfo.weatherIcon}.png`}
-                            // src={`http://openweathermap.org/img/wn/${feed.weatherInfo.weatherIcon}@2x.png`}
                             alt="weather icon"
                           />
                         </WeatherIcon>
@@ -145,14 +141,14 @@ const DetailFeedCategory = ({ feed }: Props) => {
                       </CategoryTag>
                       <CategoryTag
                         onClick={() =>
-                          onWeatherClick("temp", feed.weatherInfo.temp)
+                          onClick("weather", "temp", feed.weatherInfo.temp)
                         }
                       >
                         {feed.weatherInfo.temp}º
                       </CategoryTag>
                       <CategoryTag
                         onClick={() =>
-                          onWeatherClick("wind", feed.weatherInfo.wind)
+                          onClick("weather", "wind", feed.weatherInfo.wind)
                         }
                       >
                         {feed.weatherInfo.wind}
@@ -170,12 +166,7 @@ const DetailFeedCategory = ({ feed }: Props) => {
                 <IoShirtOutline />
               </WearInfoMain>
               <FlickingCategoryBox>
-                <Flicking
-                  onChanged={(e) => console.log(e)}
-                  moveType="freeScroll"
-                  bound={true}
-                  align="prev"
-                >
+                <Flicking moveType="freeScroll" bound={true} align="prev">
                   <WearInfo>
                     <CategoryTagBox>
                       <CategoryTag>{feed.feel}</CategoryTag>

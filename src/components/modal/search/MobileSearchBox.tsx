@@ -32,14 +32,6 @@ const MobileSearchBox = ({ modalOpen, modalClose }: Props) => {
     useUserAccount();
   const inputRef = useRef(null);
 
-  // 검색 목록 api
-  useEffect(() => {
-    const isHashtag = text.includes("#") ? text.split("#")[1] : text; // 해시태그 유무
-    setUrl(
-      `${process.env.REACT_APP_SERVER_PORT}/api/search?keyword=${isHashtag}&`
-    );
-  }, [text]);
-
   useEffect(() => {
     if (localStorage?.getItem("keywords")?.length) {
       // 중복 제거
@@ -67,17 +59,19 @@ const MobileSearchBox = ({ modalOpen, modalClose }: Props) => {
       target: { value },
     } = e;
     setText(value);
+
+    //  검색 목록 api
+    setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/search?keyword=${value}&`);
   }, 150);
 
   const onSubmitText = (e: React.FormEvent) => {
     e.preventDefault();
-    return false;
   };
 
-  const onDeleteText = useCallback(() => {
+  const onDeleteText = () => {
     setText("");
     inputRef.current.value = "";
-  }, []);
+  };
 
   const onListClick = (type: string, word: string, name: string) => {
     if (type === "tag") {

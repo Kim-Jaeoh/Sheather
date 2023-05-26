@@ -1,20 +1,16 @@
 import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
-import { FrameGrid } from "@egjs/react-grid";
 import useMediaScreen from "../../hooks/useMediaScreen";
+import { ImageList } from "@mui/material";
 
 const ExploreSkeleton = () => {
   const { isMobile } = useMediaScreen();
 
   return (
-    <FrameGrid
-      className="container"
-      gap={isMobile ? 10 : 20}
-      defaultDirection={"end"}
-      frame={[
-        [1, 1, 2, 2, 3, 3],
-        [1, 1, 2, 2, 3, 3],
-      ]}
+    <ImageList
+      sx={{ padding: `${isMobile && "10px"}`, overflow: "hidden" }}
+      cols={3}
+      gap={!isMobile ? 20 : 10}
     >
       {Array.from({ length: 10 }).map((res, index) => {
         return (
@@ -25,7 +21,7 @@ const ExploreSkeleton = () => {
           </CardList>
         );
       })}
-    </FrameGrid>
+    </ImageList>
   );
 };
 

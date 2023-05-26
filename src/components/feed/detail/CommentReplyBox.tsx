@@ -24,7 +24,7 @@ const CommentReplyBox = ({ data, onClickReply, onDelete }: Props) => {
   const [replyCreatorInfo, setReplyCreatorInfo] = useState(null);
   const { timeToString } = useTimeFormat();
 
-  //  map 처리 된 유저 정보들
+  //  map 처리된 유저 정보들
   useEffect(() => {
     const unsubscribe = onSnapshot(
       doc(dbService, "users", data.email),

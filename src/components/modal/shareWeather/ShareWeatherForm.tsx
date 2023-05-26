@@ -18,22 +18,21 @@ const ShareWeatherForm = ({ bgColor, text, tags, setText, setTags }: Props) => {
   const textRef = useRef<HTMLTextAreaElement>();
   const { isMobile } = useMediaScreen();
 
-  const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(e.target.value);
-  }, []);
-
   const {
     currentNewTag,
     currentTags,
     onChangeCurrent,
     onKeyPressCurrent,
     onDeleteCurrentTag,
-    onDeleteCurrentText,
   } = useTag(tags);
 
   useEffect(() => {
     setTags(currentTags);
   }, [currentTags, setTags]);
+
+  const onChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value);
+  }, []);
 
   return (
     <TextFormBox>

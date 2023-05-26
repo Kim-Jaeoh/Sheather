@@ -8,27 +8,20 @@ import { debounce } from "lodash";
 
 const SearchBox = () => {
   const [focus, setFocus] = useState(false);
-  const [text, setText] = useState("");
   const [toggleAnimation, setToggleAnimation] = useState(false);
+  const [text, setText] = useState("");
   const [url, setUrl] = useState(``);
   const [searched, setSearched] = useState<localType[]>(
     JSON.parse(localStorage.getItem("keywords")) || []
   );
   const inputRef = useRef(null);
 
-  // 검색 목록 api
-  useEffect(() => {
-    const isHashtag = text.includes("#") ? text.split("#")[1] : text; // 해시태그 유무
-    setUrl(
-      `${process.env.REACT_APP_SERVER_PORT}/api/search?keyword=${isHashtag}&`
-    );
-  }, [text]);
-
   useEffect(() => {
     if (localStorage?.getItem("keywords")?.length) {
       // 중복 제거
       const uniqueArr = searched.filter(
         (obj, index, self) =>
+          // obj = 처리할 현재 요소 / index = 처리할 현재 요소의 인덱스 / self = 순회하는 대상 배열
           index ===
           self.findIndex((t) => t.type === obj.type && t.search === obj.search)
       );
@@ -43,6 +36,9 @@ const SearchBox = () => {
       target: { value },
     } = e;
     setText(value);
+
+    //  검색 목록 api
+    setUrl(`${process.env.REACT_APP_SERVER_PORT}/api/search?keyword=${value}&`);
   }, 150);
 
   const onSubmitText = (e: React.FormEvent) => {
