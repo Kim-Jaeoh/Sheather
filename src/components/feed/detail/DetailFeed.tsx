@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { CurrentUserType, FeedType } from "../../../types/type";
+import { CurrentUserType, FeedType, NoticeArrType } from "../../../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import FeedEditModal from "../../modal/feed/FeedEditModal";
@@ -24,6 +24,12 @@ import DetailFeedImage from "./DetailFeedImage";
 import DetailFeedInfo from "./DetailFeedInfo";
 import useUserAccount from "../../../hooks/useUserAccount";
 import { feedApi } from "../../../apis/api";
+
+interface DocsType {
+  id: string;
+  like: string[];
+  notice: NoticeArrType[];
+}
 
 const DetailFeed = () => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
@@ -75,12 +81,11 @@ const DetailFeed = () => {
 
   // 1-1. 해당 글 값 가지고 있는 필드 값 검색
   useEffect(() => {
-    const userCollection = collection(dbService, "users");
-    const q = query(userCollection);
+    const q = query(collection(dbService, "users"));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const data: CurrentUserType[] = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() } as unknown as CurrentUserType;
+      const data: DocsType[] = querySnapshot.docs.map((doc) => {
+        return { id: doc.id, like: doc.data().like, notice: doc.data().notice };
       });
       const likeFilter = data.filter((res) =>
         res.like.some((id) => id === postId)
@@ -130,6 +135,7 @@ const DetailFeed = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
+        toast.success("삭제가 완료 되었습니다.");
         onFbFieldDelete();
         onMoreClick();
         navigate("/");
@@ -143,7 +149,6 @@ const DetailFeed = () => {
       const ok = window.confirm("게시물을 삭제하시겠어요?");
       if (ok) {
         mutateFeedDelete();
-        toast.success("삭제가 완료 되었습니다.");
       }
     }
   };

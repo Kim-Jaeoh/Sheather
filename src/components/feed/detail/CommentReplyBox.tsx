@@ -17,11 +17,9 @@ type Props = {
 
 const CommentReplyBox = ({ data, onClickReply, onDelete }: Props) => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
+    (state: RootState) => state.user
   );
-  const [replyCreatorInfo, setReplyCreatorInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
   const { timeToString } = useTimeFormat();
 
   //  map 처리된 유저 정보들
@@ -29,14 +27,14 @@ const CommentReplyBox = ({ data, onClickReply, onDelete }: Props) => {
     const unsubscribe = onSnapshot(
       doc(dbService, "users", data.email),
       (doc) => {
-        setReplyCreatorInfo(doc.data());
+        setUserInfo(doc.data());
       }
     );
     return () => unsubscribe();
   }, [data.email]);
 
   const replyDpName = useMemo(() => {
-    const match = data?.text?.match(/@\w+/);
+    const match = data?.text?.match(/@\w+(\.[a-z]+)*/g);
     if (match) {
       return match;
     }
@@ -45,27 +43,23 @@ const CommentReplyBox = ({ data, onClickReply, onDelete }: Props) => {
 
   return (
     <UserInfoBox>
-      <UserImageBox
-        to={userLogin && `/profile/${replyCreatorInfo?.displayName}/post`}
-      >
-        <UserImage src={replyCreatorInfo?.profileURL} alt="" />
+      <UserImageBox to={userLogin && `/profile/${userInfo?.displayName}/post`}>
+        <UserImage src={userInfo?.profileURL} alt="" />
       </UserImageBox>
       <UserWriteInfo>
         <CommentInfoBox>
-          <CommentId
-            to={userLogin && `/profile/${replyCreatorInfo?.displayName}/post`}
-          >
+          <CommentId to={userLogin && `/profile/${userInfo?.displayName}/post`}>
             {data.displayName}
           </CommentId>
           <CommentText>
             {replyDpName ? (
               <>
                 <CommentDpName
-                  to={`/profile/${replyDpName[0].split("@")[1]}/post`}
+                  to={`/profile/${replyDpName[0]?.split("@")[1]}/post`}
                 >
                   {`${replyDpName[0]} `}
                 </CommentDpName>
-                {replyDpName["input"].split(replyDpName[0])[1]}
+                {data?.text?.split(replyDpName[0])[1]}
               </>
             ) : (
               data?.text

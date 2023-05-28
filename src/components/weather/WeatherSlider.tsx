@@ -154,7 +154,6 @@ const WeatherSlider = ({ data }: PropsType) => {
                         <WeatherCategoryIcon>
                           <img
                             src={`/image/weather/${res?.weather[0].icon}.png`}
-                            // src={`https://openweathermap.org/img/wn/${res?.weather[0]?.icon}@2x.png`}
                             alt="weather icon"
                           />
                         </WeatherCategoryIcon>
@@ -171,17 +170,17 @@ const WeatherSlider = ({ data }: PropsType) => {
                             </WeatherCategorySub>
                           </WeatherCategoryText>
                           <WeatherCategoryText>
-                            <WeatherCategoryMain>최저</WeatherCategoryMain>
+                            <WeatherCategoryMain>체감</WeatherCategoryMain>
                             <WeatherCategorySub>
-                              {Math.round(res?.main.temp_min)}º
+                              {Math.round(res?.main?.feels_like)}º
                             </WeatherCategorySub>
                           </WeatherCategoryText>
                         </WeatherCategory>
                         <WeatherCategory>
                           <WeatherCategoryText>
-                            <WeatherCategoryMain>체감</WeatherCategoryMain>
+                            <WeatherCategoryMain>최저</WeatherCategoryMain>
                             <WeatherCategorySub>
-                              {Math.round(res?.main?.feels_like)}º
+                              {Math.round(res?.main.temp_min)}º
                             </WeatherCategorySub>
                           </WeatherCategoryText>
                           <WeatherCategoryText>
@@ -358,7 +357,7 @@ const WeatherCategoryIconBox = styled.span`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 26px;
+  margin-bottom: 20px;
 `;
 
 const WeatherCategoryIcon = styled.div`
@@ -366,8 +365,8 @@ const WeatherCategoryIcon = styled.div`
   align-items: center;
   justify-content: center;
   margin: -4px 0 2px;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
 
   img {
     display: block;

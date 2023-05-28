@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { CurrentUserType, FeedType, CommentType } from "../../../types/type";
 import { useSelector } from "react-redux";
@@ -10,8 +10,6 @@ import useMediaScreen from "../../../hooks/useMediaScreen";
 import useComment from "../../../hooks/useComment";
 import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
 import useReply from "../../../hooks/useReply";
-import useThrottle from "../../../hooks/useThrottle";
-import { debounce } from "lodash";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 
@@ -27,17 +25,14 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
   });
   const [isWriteReply, setIsWriteReply] = useState(false);
   const [commentUser, setCommentUser] = useState(null);
-  const [dataSort, setDataSort] = useState(null);
   const [replyData, setReplyData] = useState(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const { handleResizeHeight } = useHandleResizeTextArea(textRef);
   const { getToken } = useSendNoticeMessage(feed);
   const { isMobile } = useMediaScreen();
-  const { throttle } = useThrottle();
 
   const { commentText, setCommentText, onComment, onCommentDelete } =
     useComment({
-      userObj,
       userAccount,
       feed,
       textRef,
@@ -51,14 +46,6 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
     textRef,
     getToken,
   });
-
-  // 댓글 시간별로 가져오기
-  useEffect(() => {
-    const sort = feed?.comment?.sort(
-      (a: { time: number }, b: { time: number }) => b?.time - a?.time
-    );
-    setDataSort(sort);
-  }, [feed?.comment]);
 
   // 답글 유저 정보 가져오기
   useEffect(() => {
@@ -82,16 +69,13 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
     }
   }, [replyText]);
 
-  const onChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      if (isWriteReply) {
-        setReplyText(e.target.value);
-      } else {
-        setCommentText(e.target.value);
-      }
-    },
-    [isWriteReply, setCommentText, setReplyText]
-  );
+  const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (isWriteReply) {
+      setReplyText(e.target.value);
+    } else {
+      setCommentText(e.target.value);
+    }
+  };
 
   // Enter 전송 / Shift + Enter 줄바꿈
   const onKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -122,7 +106,7 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
       {feed.comment.length > 0 && (
         <>
           <UserReactNum>댓글 {feed?.comment?.length}개</UserReactNum>
-          {dataSort?.map((data: CommentType, index: number) => {
+          {feed?.comment?.map((data: CommentType, index: number) => {
             return (
               <DetailFeedComment
                 key={data?.time}

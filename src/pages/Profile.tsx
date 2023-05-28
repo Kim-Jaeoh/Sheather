@@ -1,10 +1,18 @@
 import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
-import { onSnapshot, collection, query, where } from "firebase/firestore";
+import {
+  onSnapshot,
+  collection,
+  query,
+  where,
+  getDoc,
+  getDocs,
+  doc,
+} from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
 import { MdGridOn } from "react-icons/md";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import ProfileEditModal from "../components/modal/profile/ProfileEditModal";
 import ProfileFollowModal from "../components/modal/profile/ProfileFollowModal";
 import DeskProfileActInfo from "../components/profile/DeskProfileActInfo";
@@ -20,13 +28,12 @@ import { Spinner } from "../assets/spinner/Spinner";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import { feedApi } from "../apis/api";
+import toast from "react-hot-toast";
 
 const Profile = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [selectCategory, setSelectCategory] = useState(0);
   const [post, setPost] = useState(null);
   const [notInfoText, setNotInfoText] = useState("");
@@ -47,6 +54,7 @@ const Profile = () => {
   const { isMobile } = useMediaScreen();
   const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
+  const navigate = useNavigate();
 
   // 피드 리스트 가져오기
   const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {
@@ -67,14 +75,29 @@ const Profile = () => {
       where(`displayName`, "==", userDpName)
     );
 
+    // 유저 정보 없을 시 뒤로 이동
+    const checkUser = async () => {
+      const getDoc = await getDocs(q);
+      const isExists = getDoc.docs.some((res) => res.data());
+      if (!isExists) {
+        toast.error("사용자를 찾을 수 없습니다.");
+        return navigate(-1);
+      }
+    };
+    checkUser();
+
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      querySnapshot.forEach((doc) => setAccount(doc.data()));
+      querySnapshot.forEach((doc) => {
+        if (!doc.exists()) {
+        }
+        setAccount(doc.data());
+      });
     });
 
     return () => {
       unsubscribe();
     };
-  }, [userDpName]);
+  }, [navigate, userDpName]);
 
   useEffect(() => {
     if (type === "post") {
@@ -118,13 +141,7 @@ const Profile = () => {
 
       return setPost(bookmarkFilter);
     }
-  }, [
-    account?.bookmark,
-    account?.email,
-    account?.like,
-    feedArray?.pages,
-    selectCategory,
-  ]);
+  }, [account, feedArray?.pages, navigate, selectCategory]);
 
   useEffect(() => {
     if (myPost?.length === 0) {
@@ -152,30 +169,30 @@ const Profile = () => {
       {isAuthModal && (
         <AuthFormModal modalOpen={isAuthModal} modalClose={onAuthModal} />
       )}
+      {editModalOpen && (
+        <ProfileEditModal
+          modalOpen={editModalOpen}
+          modalClose={onEditModalClick}
+        />
+      )}
+      {followModalOpen && (
+        <ProfileFollowModal
+          accountName={account?.displayName}
+          modalOpen={followModalOpen}
+          followInfo={followInfo}
+          followLength={
+            followCategory === "팔로워"
+              ? account?.follower.length
+              : account?.following.length
+          }
+          followCategory={followCategory}
+          modalClose={onModalClick}
+        />
+      )}
       <Wrapper>
-        {account ? (
-          <>
-            {editModalOpen && (
-              <ProfileEditModal
-                modalOpen={editModalOpen}
-                modalClose={onEditModalClick}
-              />
-            )}
-            {followModalOpen && (
-              <ProfileFollowModal
-                accountName={account?.displayName}
-                modalOpen={followModalOpen}
-                followInfo={followInfo}
-                followLength={
-                  followCategory === "팔로워"
-                    ? account?.follower.length
-                    : account?.following.length
-                }
-                followCategory={followCategory}
-                modalClose={onModalClick}
-              />
-            )}
-            <Container>
+        <Container>
+          {account ? (
+            <>
               {!isMobile ? (
                 <DeskProfileActInfo
                   myPost={myPost?.length}
@@ -242,11 +259,11 @@ const Profile = () => {
                 onIsLogin={onIsLogin}
                 ref={ref}
               />
-            </Container>
-          </>
-        ) : (
-          <Spinner />
-        )}
+            </>
+          ) : (
+            <Spinner />
+          )}
+        </Container>
       </Wrapper>
     </>
   );
