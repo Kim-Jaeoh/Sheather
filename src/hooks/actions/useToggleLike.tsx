@@ -2,12 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { updateDoc, doc } from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../app/store";
-import { currentUser } from "../app/user";
-import { dbService } from "../fbase";
-import { CurrentUserType, FeedType } from "../types/type";
+import { RootState } from "../../app/store";
+import { currentUser } from "../../app/user";
+import { dbService } from "../../fbase";
+import { CurrentUserType, FeedType } from "../../types/type";
 import useSendNoticeMessage from "./useSendNoticeMessage";
-import useThrottle from "./useThrottle";
+import useThrottle from "../useThrottle";
 
 type props = {
   user: CurrentUserType;

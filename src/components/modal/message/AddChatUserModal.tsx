@@ -7,7 +7,7 @@ import { IoMdClose } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { Spinner } from "../../../assets/spinner/Spinner";
 import { dbService } from "../../../fbase";
-import useCreateChat from "../../../hooks/useCreateChat";
+import useCreateChat from "../../../hooks/actions/useCreateChat";
 import { CurrentUserType } from "../../../types/type";
 
 type Props = {

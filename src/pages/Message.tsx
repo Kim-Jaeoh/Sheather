@@ -1,12 +1,11 @@
 import styled from "@emotion/styled";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { BiMessageAltAdd } from "react-icons/bi";
 import { BsChatDots } from "react-icons/bs";
 import { useLocation, useNavigate } from "react-router-dom";
 import MessageUserSkeleton from "../assets/skeleton/MessageUserSkeleton";
-import Chat from "../components/message/Chat";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";
-import useCreateChat from "../hooks/useCreateChat";
+import useCreateChat from "../hooks/actions/useCreateChat";
 import useMediaScreen from "../hooks/useMediaScreen";
 import {
   CurrentUserType,
@@ -19,9 +18,7 @@ import { onSnapshot, doc, collection, query } from "firebase/firestore";
 import { dbService } from "../fbase";
 import InfiniteChat from "../components/message/InfiniteChat";
 
-type Props = {};
-
-const Message = (props: Props) => {
+const Message = () => {
   const [addUserModal, setAddUserMOdal] = useState(false);
   const [users, setUsers] = useState(null);
   const [messageCollection, setMessageCollection] = useState(null);

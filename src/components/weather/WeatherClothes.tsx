@@ -47,7 +47,8 @@ const Container = styled.div`
   height: 100%;
   margin: -14px;
   padding: 14px;
-  background-color: rgba(72, 163, 255, 1);
+  background-color: #174b87;
+  /* background-color: rgba(72, 163, 255, 1); */
   animation-name: slideUp;
   animation-duration: 0.2s;
   animation-timing-function: ease-in-out;
@@ -102,13 +103,17 @@ const WeatherInfoBtn = styled.button`
 
   &:hover,
   &:focus {
-    border: 1px solid #48a3ff;
+    /* border: 1px solid var(--weather-color); */
+    border: 1px solid #174b87;
     svg {
-      color: #48a3ff;
+      /* color: var(--weather-color); */
+      color: #174b87;
     }
   }
   svg {
-    font-size: 24px;
+    width: 14px;
+    height: 14px;
+    /* font-size: 24px; */
   }
 `;
 
@@ -122,11 +127,14 @@ const WeatherDateListBox = styled.div`
 
 const WeatherDateListMain = styled.p`
   user-select: text;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid #fff;
   font-weight: bold;
   background: #fff;
   border-radius: 9999px;
-  color: #48a3ff;
+  color: #174b87;
   font-size: 14px;
   font-weight: bold;
   text-align: center;

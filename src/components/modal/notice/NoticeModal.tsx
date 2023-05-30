@@ -8,7 +8,7 @@ import { dbService } from "../../../fbase";
 import { NoticeArrType } from "../../../types/type";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { SlBell } from "react-icons/sl";
-import useNoticeCheck from "../../../hooks/useNoticeCheck";
+import useNoticeCheck from "../../../hooks/actions/useNoticeCheck";
 import { useEffect } from "react";
 import useGetMyAccount from "../../../hooks/useGetMyAccount";
 

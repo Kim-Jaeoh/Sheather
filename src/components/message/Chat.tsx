@@ -29,7 +29,7 @@ import { toast } from "react-hot-toast";
 import { IoIosArrowBack } from "react-icons/io";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
+import useSendNoticeMessage from "../../hooks/actions/useSendNoticeMessage";
 import BottomButton from "../scrollButton/BottomButton";
 import { Spinner } from "../../assets/spinner/Spinner";
 import { throttle } from "lodash";

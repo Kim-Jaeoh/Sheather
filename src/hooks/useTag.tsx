@@ -19,17 +19,22 @@ const useTag = (tags?: string[]) => {
 
   const onKeyPressCurrent = (e: React.KeyboardEvent<HTMLElement>) => {
     const pattern = /([^가-힣a-zA-Z\x20])/i; // 자음, 모음 검사
+
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault(); // 텍스트 전체 선택 안 돼서 주석 처리
       if (pattern.test(currentNewTag)) {
         toast.error("자음, 모음, 특수문자가 포함된 글자는 입력할 수 없습니다.");
-      } else {
-        if (currentTags.includes(currentNewTag)) {
-          // 태그가 중복일 때
-          toast.error("이미 추가된 태그입니다.");
-        } else if (currentNewTag !== "") {
-          onAddTag();
-        }
+        return;
+      }
+
+      if (currentTags.includes(currentNewTag)) {
+        // 태그가 중복일 때
+        toast.error("이미 추가된 태그입니다.");
+        return;
+      }
+
+      if (currentNewTag !== "") {
+        onAddTag();
       }
     }
   };

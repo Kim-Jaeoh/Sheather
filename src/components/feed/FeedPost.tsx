@@ -23,19 +23,6 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
   const { ref, isLoading, dataList } = useInfinityScroll({ url, count: 6 });
   const { isMobile } = useMediaScreen();
 
-  let checkAspect: number;
-  const sizeAspect = (aspect: string) => {
-    if (aspect === "4/3") {
-      return (checkAspect = 74.8);
-    }
-    if (aspect === "1/1") {
-      return (checkAspect = 100);
-    }
-    if (aspect === "3/4") {
-      return (checkAspect = 132.8);
-    }
-  };
-
   return (
     <>
       {!isLoading ? (
@@ -48,15 +35,13 @@ const FeedPost = ({ url, onIsLogin }: Props) => {
                 spacing={!isMobile ? 3.7 : 1.5}
               >
                 {dataList?.pages?.flat().map((res: FeedType, index: number) => {
-                  sizeAspect(res.imgAspect);
-
                   return (
                     <CardList
                       key={res.id}
                       onClick={() => onIsLogin(() => null)}
                     >
                       <Card
-                        aspect={checkAspect}
+                        aspect={res.imgAspect}
                         to={userLogin && `/feed/detail/${res.id}`}
                       >
                         <WeatherEmojiBox>

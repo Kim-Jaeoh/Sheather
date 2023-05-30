@@ -6,13 +6,13 @@ import {
   CommentType,
   replyType,
   NoticeArrType,
-} from "../types/type";
-import { dbService } from "../fbase";
+} from "../../types/type";
+import { dbService } from "../../fbase";
 import { updateDoc, doc } from "firebase/firestore";
 import useSendNoticeMessage from "./useSendNoticeMessage";
 import { toast } from "react-hot-toast";
-import useThrottle from "./useThrottle";
 import { useNavigate } from "react-router-dom";
+import useThrottle from "../useThrottle";
 
 type Props = {
   userObj: CurrentUserType;

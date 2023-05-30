@@ -1,8 +1,8 @@
 import { updateDoc, doc } from "firebase/firestore";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../app/store";
-import { currentUser } from "../app/user";
-import { dbService } from "../fbase";
+import { RootState } from "../../app/store";
+import { currentUser } from "../../app/user";
+import { dbService } from "../../fbase";
 
 const useToggleBookmark = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -15,7 +15,7 @@ const useToggleBookmark = () => {
 
   const toggleBookmark = async (resId: string) => {
     if (!userLogin) {
-      return alert("로그인하기~~");
+      return alert("로그인을 해주세요.");
     }
     if (userObj.bookmark?.includes(resId)) {
       const copy = [...userObj.bookmark];

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { CurrentUserType, FeedType, CommentType } from "../types/type";
+import { CurrentUserType, FeedType, CommentType } from "../../types/type";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
-import { dbService, saveMessagingDeviceToken } from "../fbase";
+import { dbService, saveMessagingDeviceToken } from "../../fbase";
 import axios, { AxiosRequestConfig } from "axios";
-import useGetMyAccount from "./useGetMyAccount";
+import useGetMyAccount from "../useGetMyAccount";
 
 interface PostData {
   message: string;

@@ -5,7 +5,7 @@ import Skeleton from "@mui/material/Skeleton";
 const ProfileSkeleton = () => {
   return (
     <>
-      {Array.from({ length: 6 }).map((res, index) => {
+      {Array.from({ length: 9 }).map((res, index) => {
         return (
           <CardList key={index}>
             <div>

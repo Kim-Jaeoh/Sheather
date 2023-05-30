@@ -1,7 +1,5 @@
 import { useMemo } from "react";
 import styled from "@emotion/styled";
-import useCurrentLocation from "../../hooks/useCurrentLocation";
-import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import { Spinner } from "../../assets/spinner/Spinner";
 import Flicking from "@egjs/react-flicking";
@@ -9,33 +7,13 @@ import "../../styles/DetailFlicking.css";
 import TempClothes from "../../assets/data/TempClothes";
 import { IoShirtOutline } from "react-icons/io5";
 import { BsSun } from "react-icons/bs";
-import { nowWeatherApi, regionApi } from "../../apis/api";
+import useRegionQuery from "../../hooks/useQuery/useRegionQuery";
+import useWeatherQuery from "../../hooks/useQuery/useWeatherQuery";
 
 const MobileFeedWeatherInfo = () => {
-  const { location } = useCurrentLocation();
+  const { weatherData } = useWeatherQuery();
   const { tempClothes } = TempClothes(); // 옷 정보
-
-  // 날씨 정보 받아오기
-  const { data: weatherData, isLoading } = useQuery(
-    ["Weather", location],
-    () => nowWeatherApi(location),
-    {
-      refetchOnWindowFocus: false,
-      onError: (e) => console.log(e),
-      enabled: Boolean(location),
-    }
-  );
-
-  // 현재 주소 받아오기
-  const { data: regionData, isLoading: isLoading2 } = useQuery(
-    ["Region", weatherData?.data],
-    () => regionApi(location),
-    {
-      refetchOnWindowFocus: false,
-      onError: (e) => console.log(e),
-      enabled: Boolean(weatherData?.data),
-    }
-  );
+  const { region, isRegionLoading } = useRegionQuery();
 
   const filterTempClothes = useMemo(() => {
     const temp = weatherData?.data?.main.temp;
@@ -47,7 +25,7 @@ const MobileFeedWeatherInfo = () => {
 
   return (
     <Container>
-      {!isLoading2 ? (
+      {!isRegionLoading ? (
         <WearDetailBox>
           <WearDetail>
             <WearInfoBox>
@@ -65,10 +43,8 @@ const MobileFeedWeatherInfo = () => {
                       </WearInfoMain>
                       <CategoryTag>
                         <MdPlace />
-                        {
-                          regionData?.data?.documents[0]?.address
-                            ?.region_3depth_name
-                        }
+                        {region?.region_1depth_name}{" "}
+                        {region?.region_3depth_name}
                       </CategoryTag>
                       <CategoryTag>
                         <WeatherIcon>

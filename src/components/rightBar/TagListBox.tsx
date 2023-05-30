@@ -1,10 +1,8 @@
 import { useMemo } from "react";
 import styled from "@emotion/styled";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { FeedType } from "../../types/type";
 import TagListSkeleton from "../../assets/skeleton/TagListSkeleton";
-import { feedApi } from "../../apis/api";
+import useFeedQuery from "../../hooks/useQuery/useFeedQuery";
 
 type Props = {
   modalOpen?: boolean;
@@ -12,12 +10,7 @@ type Props = {
 };
 
 const TagListBox = ({ modalOpen, modalClose }: Props) => {
-  // 피드 리스트 가져오기
-  const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {
-    refetchOnWindowFocus: false,
-    refetchInterval: 1000 * 60 * 5, // 5분
-    onError: (e) => console.log(e),
-  });
+  const { feedData } = useFeedQuery({ refetch: true });
 
   // 태그 숫자
   const tagList = useMemo(() => {
@@ -27,6 +20,7 @@ const TagListBox = ({ modalOpen, modalClose }: Props) => {
     }
 
     const result = arr?.reduce((accu, curr) => {
+      // 저장된 값(accu)에 현재 값(curr)이 존재하는지 체크. 없다면 -1 반환
       const index = accu?.findIndex((res) => res.name === curr);
 
       if (index !== -1) {

@@ -4,13 +4,13 @@ import { BiCopy } from "react-icons/bi";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import useToggleBookmark from "../../../hooks/useToggleBookmark";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
-import useToggleLike from "../../../hooks/useToggleLike";
 import { useEffect, useState } from "react";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../../fbase";
+import useToggleBookmark from "../../../hooks/actions/useToggleBookmark";
+import useToggleLike from "../../../hooks/actions/useToggleLike";
 
 type Props = {
   feed: FeedType;

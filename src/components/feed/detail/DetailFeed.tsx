@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { CurrentUserType, FeedType, NoticeArrType } from "../../../types/type";
+import { CurrentUserType, NoticeArrType } from "../../../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import FeedEditModal from "../../modal/feed/FeedEditModal";
@@ -23,7 +23,7 @@ import DetailFeedCommentBox from "./DetailFeedCommentBox";
 import DetailFeedImage from "./DetailFeedImage";
 import DetailFeedInfo from "./DetailFeedInfo";
 import useUserAccount from "../../../hooks/useUserAccount";
-import { feedApi } from "../../../apis/api";
+import useFeedQuery from "../../../hooks/useQuery/useFeedQuery";
 
 interface DocsType {
   id: string;
@@ -40,17 +40,12 @@ const DetailFeed = () => {
   const [documentLike, setDocumentLike] = useState([]);
   const [documentNotice, setDocumentNotice] = useState([]);
   const [isMore, setIsMore] = useState(false);
-  const { onIsLogin } = useUserAccount();
   const [isFeedEdit, setIsFeedEdit] = useState(false);
+  const { onIsLogin } = useUserAccount();
+  const { feedData } = useFeedQuery({ refetch: false });
   const { id: postId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  // 피드 리스트 가져오기
-  const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {
-    refetchOnWindowFocus: false,
-    onError: (e) => console.log(e),
-  });
 
   useEffect(() => {
     if (feedData?.length) {
@@ -58,7 +53,7 @@ const DetailFeed = () => {
       if (!filterData.length) {
         navigate("/feed/following");
         toast.error("존재하지 않는 글입니다.", {
-          id: `not-cropped`, // 중복 방지
+          id: `not-feed`, // 중복 방지
         });
       } else {
         setDetailInfo(filterData);
@@ -138,7 +133,7 @@ const DetailFeed = () => {
         toast.success("삭제가 완료 되었습니다.");
         onFbFieldDelete();
         onMoreClick();
-        navigate("/");
+        navigate(-1);
       },
     }
   );

@@ -1,40 +1,21 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import { useQuery } from "@tanstack/react-query";
-import { FeedType } from "../../types/type";
 import useUserAccount from "../../hooks/useUserAccount";
 import AuthFormModal from "../modal/auth/AuthFormModal";
-import { feedApi } from "../../apis/api";
 import { ImageList } from "@mui/material";
 import useMediaScreen from "../../hooks/useMediaScreen";
-
-interface Count {
-  [key: string]: number;
-}
+import useFeedQuery from "../../hooks/useQuery/useFeedQuery";
 
 const TagCategoryList = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { loginToken: userLogin } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const { isMobile } = useMediaScreen();
-  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
-
-  // 피드 리스트 가져오기
-  const { data: feedData, isLoading } = useQuery<FeedType[]>(
-    ["feed"],
-    feedApi,
-    {
-      refetchOnWindowFocus: false,
-      refetchInterval: 1000 * 60, // 1분
-      onError: (e) => console.log(e),
-    }
-  );
+  const { feedData } = useFeedQuery({ refetch: true });
+  const { isAuthModal, onAuthModal, onIsLogin } = useUserAccount();
 
   // 태그 숫자
   const tagList = useMemo(() => {
@@ -43,21 +24,20 @@ const TagCategoryList = () => {
       return null;
     }
 
-    // 중복 값 개수 구하기
-    const result = arr?.reduce((accu: Count, curr: string) => {
-      accu[curr] = (accu[curr] || 0) + 1;
+    const result = arr?.reduce((accu, curr) => {
+      // 저장된 값(accu)에 현재 값(curr)이 존재하는지 체크. 없다면 -1 반환
+      const index = accu?.findIndex((res) => res.name === curr);
+
+      if (index !== -1) {
+        accu[index].count += 1;
+      } else {
+        accu.push({ name: curr, count: 1 });
+      }
+
       return accu;
-    }, {});
+    }, []);
 
-    // 키, 값 배열로 객체에 담기
-    const arrayMap = Object.entries(result);
-
-    return arrayMap
-      .map((res) => ({
-        name: res[0],
-        count: res[1],
-      }))
-      .sort((a, b) => b.count - a.count);
+    return result.sort((a, b) => b.count - a.count);
   }, [feedData]);
 
   return (

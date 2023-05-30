@@ -151,7 +151,7 @@ export interface FeedType {
   url: string[];
   name?: string;
   displayName: string;
-  imgAspect: string;
+  imgAspect: number;
   email: string;
   createdAt: number;
   like: {

@@ -58,7 +58,7 @@ const Header = styled.header`
 
 const SliderBox = styled.ul`
   display: flex;
-  height: 356px;
+  height: 376px;
   gap: 6px;
   padding: 12px;
 `;

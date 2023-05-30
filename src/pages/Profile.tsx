@@ -1,13 +1,10 @@
 import styled from "@emotion/styled";
-import { useQuery } from "@tanstack/react-query";
 import {
   onSnapshot,
   collection,
   query,
   where,
-  getDoc,
   getDocs,
-  doc,
 } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { FaRegBookmark, FaRegHeart } from "react-icons/fa";
@@ -27,8 +24,8 @@ import useUserAccount from "../hooks/useUserAccount";
 import { Spinner } from "../assets/spinner/Spinner";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
-import { feedApi } from "../apis/api";
 import toast from "react-hot-toast";
+import useFeedQuery from "../hooks/useQuery/useFeedQuery";
 
 const Profile = () => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
@@ -52,15 +49,10 @@ const Profile = () => {
     count: 9,
   });
   const { isMobile } = useMediaScreen();
-  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
+  const { feedData } = useFeedQuery({ refetch: false });
+  const { isAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
     useUserAccount();
   const navigate = useNavigate();
-
-  // 피드 리스트 가져오기
-  const { data: feedData } = useQuery<FeedType[]>(["feed"], feedApi, {
-    refetchOnWindowFocus: false,
-    onError: (e) => console.log(e),
-  });
 
   // 게시글 숫자
   const myPost: FeedType[] = useMemo(() => {

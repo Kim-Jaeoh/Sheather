@@ -5,7 +5,7 @@ import { dbService } from "../../../fbase";
 import { CurrentUserType, FeedType } from "../../../types/type";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import useToggleFollow from "../../../hooks/useToggleFollow";
+import useToggleFollow from "../../../hooks/actions/useToggleFollow";
 import useTimeFormat from "../../../hooks/useTimeFormat";
 import { Skeleton } from "@mui/material";
 

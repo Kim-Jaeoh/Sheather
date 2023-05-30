@@ -6,18 +6,19 @@ import {
   FeedType,
   CommentType,
   NoticeArrType,
-} from "../types/type";
-import { dbService } from "../fbase";
+} from "../../types/type";
+import { dbService } from "../../fbase";
 import { updateDoc, doc } from "firebase/firestore";
 import useSendNoticeMessage from "./useSendNoticeMessage";
 import { toast } from "react-hot-toast";
-import useThrottle from "./useThrottle";
-import useGetMyAccount from "./useGetMyAccount";
+import useThrottle from "../useThrottle";
+import useGetMyAccount from "../useGetMyAccount";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
   feed: FeedType;
   userAccount: CurrentUserType;
+  commentData: CommentType;
   textRef: React.MutableRefObject<HTMLTextAreaElement>;
   getToken: string;
 };
@@ -27,7 +28,13 @@ export type CommentPayload = {
   comment: CommentType;
 };
 
-const useComment = ({ feed, userAccount, textRef, getToken }: Props) => {
+const useComment = ({
+  feed,
+  userAccount,
+  commentData,
+  textRef,
+  getToken,
+}: Props) => {
   const [commentText, setCommentText] = useState("");
   const [noticeCopy, setNoticeCopy] = useState<NoticeArrType[]>([]);
   const { myAccount, userObj } = useGetMyAccount();
@@ -79,7 +86,7 @@ const useComment = ({ feed, userAccount, textRef, getToken }: Props) => {
     });
 
     if (userObj.displayName !== feed.displayName) {
-      await updateDoc(doc(dbService, "users", userAccount.email), {
+      await updateDoc(doc(dbService, "users", userAccount?.email), {
         notice: [
           ...noticeCopy,
           {
@@ -97,9 +104,11 @@ const useComment = ({ feed, userAccount, textRef, getToken }: Props) => {
         ],
       });
     }
-
     // 알림 보내기
-    if (getToken && feed.displayName !== userObj.displayName) {
+    if (
+      (getToken && feed.displayName !== userObj.displayName) ||
+      commentData?.displayName !== userObj.displayName
+    ) {
       throttle(
         () =>
           sendActions(

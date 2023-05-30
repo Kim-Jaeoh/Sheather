@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { RootState } from "../../../app/store";
 import { Spinner } from "../../../assets/spinner/Spinner";
 import { dbService } from "../../../fbase";
-import useToggleFollow from "../../../hooks/useToggleFollow";
+import useToggleFollow from "../../../hooks/actions/useToggleFollow";
 import {
   CurrentUserType,
   FollowerType,

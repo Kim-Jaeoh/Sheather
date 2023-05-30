@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import useCreateChat from "../../hooks/useCreateChat";
-import useToggleFollow from "../../hooks/useToggleFollow";
+import useCreateChat from "../../hooks/actions/useCreateChat";
+import useToggleFollow from "../../hooks/actions/useToggleFollow";
 import { FiLogOut, FiSettings } from "react-icons/fi";
 import { CurrentUserType, FollowerType, FollowingType } from "../../types/type";
-import useSendNoticeMessage from "../../hooks/useSendNoticeMessage";
-import { IoSettingsOutline } from "react-icons/io5";
 import ProfileSettingModal from "../modal/profile/ProfileSettingModal";
 
 type Props = {

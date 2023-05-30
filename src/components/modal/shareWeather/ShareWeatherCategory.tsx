@@ -93,8 +93,7 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                 {currentEmoji.map((res, index) => (
                   <Tag key={index}>
                     <TagInput
-                      id={index.toString()}
-                      name="tag"
+                      id={index.toString() + "a"}
                       type="radio"
                       style={{
                         marginTop: "2px",
@@ -107,7 +106,7 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                       select={select}
                       value={res}
                       onClick={() => onClick(res, "current")}
-                      htmlFor={index.toString()}
+                      htmlFor={index.toString() + "a"}
                     >
                       {res}
                     </TagLabel>
@@ -134,17 +133,13 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                   <TagBox>
                     {ClothesCategory.outer.map((res, index) => (
                       <Tag key={index}>
-                        <TagInput
-                          id={index.toString()}
-                          name="tag"
-                          type="radio"
-                        />
+                        <TagInput id={index.toString() + "b"} type="radio" />
                         <TagLabel
                           bgColor={bgColor}
                           select={outerCheck}
                           value={res}
                           onClick={() => onClick(res, "outer")}
-                          htmlFor={index.toString()}
+                          htmlFor={index.toString() + "b"}
                         >
                           {res}
                         </TagLabel>
@@ -177,17 +172,13 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                     .filter((el) => el !== "없음")
                     .map((res, index) => (
                       <Tag key={index}>
-                        <TagInput
-                          id={index.toString()}
-                          name="tag"
-                          type="radio"
-                        />
+                        <TagInput id={index.toString() + "c"} type="radio" />
                         <TagLabel
                           bgColor={bgColor}
                           select={topCheck}
                           value={res}
                           onClick={() => onClick(res, "top")}
-                          htmlFor={index.toString()}
+                          htmlFor={index.toString() + "c"}
                         >
                           {res}
                         </TagLabel>
@@ -212,17 +203,13 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                   <TagBox>
                     {ClothesCategory.innerTop.map((res, index) => (
                       <Tag key={index}>
-                        <TagInput
-                          id={index.toString()}
-                          name="tag"
-                          type="radio"
-                        />
+                        <TagInput id={index.toString() + "d"} type="radio" />
                         <TagLabel
                           bgColor={bgColor}
                           select={innerTopCheck}
                           value={res}
                           onClick={() => onClick(res, "innerTop")}
-                          htmlFor={index.toString()}
+                          htmlFor={index.toString() + "d"}
                         >
                           {res}
                         </TagLabel>
@@ -259,17 +246,13 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                   <TagBox>
                     {ClothesCategory.bottom.map((res, index) => (
                       <Tag key={index}>
-                        <TagInput
-                          id={index.toString()}
-                          name="tag"
-                          type="radio"
-                        />
+                        <TagInput id={index.toString() + "e"} type="radio" />
                         <TagLabel
                           bgColor={bgColor}
                           select={bottomCheck}
                           value={res}
                           onClick={() => onClick(res, "bottom")}
-                          htmlFor={index.toString()}
+                          htmlFor={index.toString() + "e"}
                         >
                           {res}
                         </TagLabel>
@@ -303,17 +286,13 @@ const ShareWeatherCategory = ({ bgColor, checkTag, setCheckTag }: props) => {
                     {ClothesCategory &&
                       ClothesCategory.etc.map((res, index) => (
                         <Tag key={index}>
-                          <TagInput
-                            id={index.toString()}
-                            name="tag"
-                            type="radio"
-                          />
+                          <TagInput id={index.toString() + "f"} type="radio" />
                           <TagLabel
                             bgColor={bgColor}
                             select={etcCheck}
                             value={res}
                             onClick={() => onClick(res, "etc")}
-                            htmlFor={index.toString()}
+                            htmlFor={index.toString() + "f"}
                           >
                             {res}
                           </TagLabel>

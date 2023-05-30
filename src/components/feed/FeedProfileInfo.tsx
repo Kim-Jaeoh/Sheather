@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
-import useToggleLike from "../../hooks/useToggleLike";
+import useToggleLike from "../../hooks/actions/useToggleLike";
+import useToggleBookmark from "../../hooks/actions/useToggleBookmark";
+import useMediaScreen from "../../hooks/useMediaScreen";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { FeedType } from "../../types/type";
-import useToggleBookmark from "../../hooks/useToggleBookmark";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import { Skeleton } from "@mui/material";
-import useMediaScreen from "../../hooks/useMediaScreen";
 
 type Props = {
   feed: FeedType;

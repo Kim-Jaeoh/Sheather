@@ -10,7 +10,6 @@ import { BiImageAdd } from "react-icons/bi";
 type Props = {
   attachments?: ImageType[];
   selectedImage?: ImageType;
-
   setCroppedImageFor?: (
     name: string,
     crop?: Point,
@@ -21,7 +20,7 @@ type Props = {
 };
 
 const aspectRatios = [
-  // padding-top 계산 = (세로/가로 * 100)
+  // ex). padding-top 계산 = (세로/가로 * 100)
   { value: 1 / 1, text: "1/1", paddingTop: 100 },
   { value: 3 / 4, text: "3/4", paddingTop: 132.8 },
   { value: 4 / 3, text: "4/3", paddingTop: 74.8 },
@@ -29,10 +28,12 @@ const aspectRatios = [
 
 const ShareImageCropper = React.forwardRef<HTMLButtonElement, Props>(
   ({ attachments, selectedImage, setCroppedImageFor }, ref) => {
-    const imageUrl = selectedImage?.imageUrl;
-    const zoomInit = selectedImage?.zoom;
-    const cropInit = selectedImage?.crop;
-    const aspectInit = selectedImage?.aspect;
+    const {
+      imageUrl,
+      zoom: zoomInit,
+      crop: cropInit,
+      aspect: aspectInit,
+    } = selectedImage || {}; // selectedImage null인 경우 빈 객체로 설정
     const [zoom, setZoom] = useState(zoomInit);
     const [crop, setCrop] = useState<Point>(cropInit);
     const [aspect, setAspect] = useState<AspectRatio>(aspectInit);
@@ -44,14 +45,11 @@ const ShareImageCropper = React.forwardRef<HTMLButtonElement, Props>(
     });
     const [num, setNum] = useState(0);
 
+    // 비율 통일
     useEffect(() => {
-      // 비율 통일
       if (attachments) {
         attachments?.map((res) => {
           return (res.aspect = aspect);
-          // res.crop = crop;
-          // res.zoom = zoom;
-          // return (res.aspect = aspect);
         });
       }
     }, [aspect, attachments]);
@@ -117,18 +115,13 @@ const ShareImageCropper = React.forwardRef<HTMLButtonElement, Props>(
           {imageUrl ? (
             <Cropper
               image={imageUrl}
-              // objectFit={
-              //   "vertical-cover"
-              //   // "auto-cover"
-              //   // getImageSize?.width >= getImageSize?.height ? "vertical-cover" : "horizontal-cover"
-              // }
               crop={crop}
               zoom={zoom}
               aspect={aspect?.value}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
-              onInteractionEnd={SetImageInfo}
+              onInteractionEnd={SetImageInfo} // 상호작용(크롭 영역 이동 또는 크기 조정 등)이 끝났을 때
             />
           ) : (
             <NotInfoBox>

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { getDoc, doc } from "firebase/firestore";
-import { dbService } from "../fbase";
-import { NoticeArrType } from "../types/type";
-import useGetMyAccount from "./useGetMyAccount";
+import { dbService } from "../../fbase";
+import { NoticeArrType } from "../../types/type";
+import useGetMyAccount from "../useGetMyAccount";
 
 const useNoticeCheck = () => {
   const [result, setResult] = useState<NoticeArrType[]>([]);

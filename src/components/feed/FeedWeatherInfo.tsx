@@ -1,40 +1,21 @@
+import React from "react";
 import { useMemo } from "react";
 import styled from "@emotion/styled";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
-import { useQuery } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import { Spinner } from "../../assets/spinner/Spinner";
 import Flicking from "@egjs/react-flicking";
 import "../../styles/DetailFlicking.css";
 import TempClothes from "../../assets/data/TempClothes";
-import { nowWeatherApi, regionApi } from "../../apis/api";
 import { BiErrorCircle } from "react-icons/bi";
-import React from "react";
+import useWeatherQuery from "../../hooks/useQuery/useWeatherQuery";
+import useRegionQuery from "../../hooks/useQuery/useRegionQuery";
 
 const FeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
   const { tempClothes } = TempClothes(); // 옷 정보
-
-  // 날씨 정보 받아오기
-  const { data: weatherData, isLoading } = useQuery(
-    ["Weather", location],
-    () => nowWeatherApi(location),
-    {
-      refetchOnWindowFocus: false,
-      onError: (e) => console.log(e),
-      enabled: Boolean(location?.coordinates?.acc),
-    }
-  );
-  // 현재 주소 받아오기
-  const { data: regionData, isLoading: isLoading2 } = useQuery(
-    ["Region", location],
-    () => regionApi(location),
-    {
-      refetchOnWindowFocus: false,
-      onError: (e) => console.log(e),
-      enabled: Boolean(location?.coordinates?.acc),
-    }
-  );
+  const { weatherData } = useWeatherQuery();
+  const { region, isRegionLoading } = useRegionQuery();
 
   const filterTempClothes = useMemo(() => {
     const temp = weatherData?.data?.main.temp;
@@ -49,7 +30,7 @@ const FeedWeatherInfo = () => {
 
   return (
     <Container>
-      {!isLoading2 ? (
+      {!isRegionLoading ? (
         <WeatherBox>
           <NowBox>
             <p>NOW</p>
@@ -57,9 +38,7 @@ const FeedWeatherInfo = () => {
           <WeatherInfo>
             <InfoText>
               <MdPlace />
-              <span>
-                {regionData?.data?.documents[0]?.address?.region_3depth_name}
-              </span>
+              {region?.region_1depth_name} {region?.region_3depth_name}
             </InfoText>
             <WeatherIcon>
               <img

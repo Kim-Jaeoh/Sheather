@@ -7,9 +7,9 @@ import DetailFeedComment from "./DetailFeedComment";
 import { useHandleResizeTextArea } from "../../../hooks/useHandleResizeTextArea";
 import Emoji from "../../emoji/Emoji";
 import useMediaScreen from "../../../hooks/useMediaScreen";
-import useComment from "../../../hooks/useComment";
-import useSendNoticeMessage from "../../../hooks/useSendNoticeMessage";
-import useReply from "../../../hooks/useReply";
+import useComment from "../../../hooks/actions/useComment";
+import useSendNoticeMessage from "../../../hooks/actions/useSendNoticeMessage";
+import useReply from "../../../hooks/actions/useReply";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 
@@ -33,8 +33,9 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
 
   const { commentText, setCommentText, onComment, onCommentDelete } =
     useComment({
-      userAccount,
       feed,
+      userAccount,
+      commentData: replyData,
       textRef,
       getToken,
     });
@@ -122,6 +123,7 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
       <CommentEditBox onSubmit={() => onComment(feed)} onClick={onIsLogin}>
         <CommentEditText
           spellCheck="false"
+          name="comment"
           maxLength={120}
           value={isWriteReply ? replyText : commentText}
           ref={textRef}

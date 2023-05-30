@@ -1,49 +1,29 @@
 import { useEffect, useState, useMemo } from "react";
-import useCurrentLocation from "../hooks/useCurrentLocation";
 import styled from "@emotion/styled";
-import { AxiosError, AxiosResponse } from "axios";
-import { useQuery } from "@tanstack/react-query";
-import {
-  WeatherDataType,
-  WeatherMapDataType,
-  WeathersFiveDataType,
-} from "../types/type";
+import { WeathersFiveDataType } from "../types/type";
 import moment from "moment";
 import WeatherSliderSkeleton from "../assets/skeleton/WeatherSliderSkeleton";
-import { nowWeatherApi, weatherApi } from "../apis/api";
 import WeatherSlider from "../components/weather/WeatherSlider";
+import useWeatherQuery from "../hooks/useQuery/useWeatherQuery";
+import useRegionQuery from "../hooks/useQuery/useRegionQuery";
+import { MdPlace } from "react-icons/md";
+import Skeleton from "@mui/material/Skeleton";
 
 const Weather = () => {
   const [weather, setWeather] = useState<WeathersFiveDataType | null>(null);
   const [weatherArray, setWeatherArray] = useState<
     WeathersFiveDataType[] | null
   >(null);
-  const [filterData1, setFilterData1] = useState<WeathersFiveDataType[]>([]);
-  const [filterData2, setFilterData2] = useState<WeathersFiveDataType[]>([]);
-  const [filterData3, setFilterData3] = useState<WeathersFiveDataType[]>([]);
-  const [filterData4, setFilterData4] = useState<WeathersFiveDataType[]>([]);
-  const [filterData5, setFilterData5] = useState<WeathersFiveDataType[]>([]);
-  const { location } = useCurrentLocation();
-
-  // 단기 예보 정보 가져오기
-  const { data: weathersData, isLoading } = useQuery<
-    AxiosResponse<WeatherMapDataType>,
-    AxiosError
-  >(["Weathers", location], () => weatherApi(location), {
-    refetchOnWindowFocus: false,
-    onError: (e) => console.log(e),
-    enabled: Boolean(location),
+  const [filterData, setFilterData] = useState({
+    today: [],
+    dayPlusOne: [],
+    dayPlusTwo: [],
+    dayPlusThree: [],
+    dayPlusFour: [],
   });
-
-  // 현재 날씨 정보 가져오기
-  const { data: weatherData } = useQuery<
-    AxiosResponse<WeatherDataType>,
-    AxiosError
-  >(["Weather", location], () => nowWeatherApi(location), {
-    refetchOnWindowFocus: false,
-    onError: (e) => console.log(e),
-    enabled: Boolean(location),
-  });
+  const { weatherData, weathersData, isWeathersLoading } = useWeatherQuery();
+  const { region } = useRegionQuery();
+  const time = new Date();
 
   // 현재 예보 시간 계산
   useEffect(() => {
@@ -65,82 +45,103 @@ const Weather = () => {
     }
   }, [weathersData]);
 
-  // 날짜 가져온 뒤 배열에 담기
+  // 1. 날씨 정보 가져온 뒤 배열에 날짜 담기
   const dateArray = useMemo(() => {
     const checkDate = weatherArray?.map((res) => moment(res?.dt).format("DD"));
     const filter = new Set(checkDate); // 중복 제거
     return Array.from(filter);
   }, [weatherArray]);
 
-  // 해당 날짜 맞는지 체크
-  const GetDate = (dateStr: string, weatherArray: WeathersFiveDataType[]) => {
-    return useMemo(
-      () =>
-        weatherArray?.filter((res) => moment(res?.dt).format("DD") === dateStr),
-      [dateStr, weatherArray]
-    );
+  // 2-1. 해당 날짜 맞는지 체크
+  const getDataFilter = (
+    date: string,
+    weatherArray: WeathersFiveDataType[]
+  ) => {
+    return weatherArray?.filter((res) => moment(res?.dt).format("DD") === date);
   };
 
-  const date1 = GetDate(dateArray[0], weatherArray);
-  const date2 = GetDate(dateArray[1], weatherArray);
-  const date3 = GetDate(dateArray[2], weatherArray);
-  const date4 = GetDate(dateArray[3], weatherArray);
-  const date5 = GetDate(dateArray[4], weatherArray);
+  // 2-2. 반환된 함수의 값을 useMemo로 메모이제이션
+  const filteredDates = useMemo(
+    () => dateArray.map((date) => getDataFilter(date, weatherArray)),
+    [dateArray, weatherArray]
+  );
 
-  // 오늘 날짜 체크
-  const dayCheck = useMemo(() => {
-    const time = new Date();
-    if (filterData1) {
-      const checkDate = moment(filterData1[0]?.dt).format("DD");
-      return time.getDate() === Number(checkDate); // 오늘 날짜와 day 날짜가 다르면 false
-    }
-  }, [filterData1]);
+  // 3. 배열로 이루어진 날씨 추출
+  const [date1, date2, date3, date4, date5] = filteredDates;
 
-  // day+1 날짜 체크
-  const dayPlusCheck = useMemo(() => {
-    const time = new Date();
-    if (date2) {
-      const checkPlusDate = moment(date2[0]?.dt).format("DD");
-      return time.getDate() === Number(checkPlusDate); // 오늘 날짜와 day+1 날짜가 다르면 false
-    }
-  }, [date2]);
+  // 오늘 날짜 체크 (오늘 날짜와 day 날짜가 같은지 체크)
+  const dayCheck = filterData.today
+    ? time.getDate() === Number(moment(filterData.today[0]?.dt).format("DD"))
+    : false;
+
+  // day+1 날짜 체크 (오늘 날짜와 day+1 날짜가 같은지 체크)
+  const dayPlusCheck = date2
+    ? time.getDate() === Number(moment(date2[0]?.dt).format("DD"))
+    : false;
 
   useEffect(() => {
     if (weather && date1 && date2 && date3 && date4 && date5) {
-      setFilterData1([weather, ...date1]);
-      if (dayPlusCheck) {
-        setFilterData2([weather, ...date2]);
-      } else {
-        setFilterData2(date2);
-      }
-      setFilterData3(date3);
-      setFilterData4(date4);
-      setFilterData5(date5);
+      // 21시까지 유지 및 21시 이후 사라짐 -> 자정 지나면 다시 생성
+      setFilterData((prev) => ({ ...prev, today: [weather, ...date1] }));
+      // true = 예보가 21시까지밖에 없기에 21시 지나면 다음 날 예보와 현재 예보 합침 (오늘 ~ '다음 날')
+      // false = 자정되면 다음 날 예보(api)로 넘어가기에 다시 오늘 예보 생성 (오늘)
+      setFilterData((prev) => ({
+        ...prev,
+        dayPlusOne: dayPlusCheck ? [weather, ...date2] : date2,
+      }));
+      setFilterData((prev) => ({ ...prev, dayPlusTwo: [weather, ...date3] }));
+      setFilterData((prev) => ({ ...prev, dayPlusThree: [weather, ...date4] }));
+      setFilterData((prev) => ({ ...prev, dayPlusFour: [weather, ...date5] }));
     }
   }, [date1, date2, date3, date4, date5, dayPlusCheck, weather]);
 
   return (
-    <Container>
-      <WeatherBox>
-        <Box>
-          {!isLoading ? (
-            <>
-              {dayCheck && <WeatherSlider data={filterData1} />}
-              <WeatherSlider data={filterData2} />
-              <WeatherSlider data={filterData3} />
-              <WeatherSlider data={filterData4} />
-              <WeatherSlider data={filterData5} />
-            </>
+    <>
+      <Container>
+        <CurrentPlaceBox>
+          {region ? (
+            <RoundBox>
+              <IconBox>
+                <MdPlace />
+              </IconBox>
+              <InfoTextBox>
+                현재 위치는
+                <InfoText>
+                  {region?.region_1depth_name} {region?.region_3depth_name}
+                </InfoText>
+                입니다.
+              </InfoTextBox>
+            </RoundBox>
           ) : (
-            <>
-              {Array.from({ length: 4 }).map((res, index) => (
-                <WeatherSliderSkeleton key={index} />
-              ))}
-            </>
+            <Skeleton
+              sx={{ borderRadius: "9999px" }}
+              width={"216px"}
+              height={"32px"}
+              variant="rounded"
+            />
           )}
-        </Box>
-      </WeatherBox>
-    </Container>
+        </CurrentPlaceBox>
+        <WeatherBox>
+          <Box>
+            {!isWeathersLoading ? (
+              <>
+                {dayCheck && <WeatherSlider data={filterData.today} />}
+                <WeatherSlider data={filterData.dayPlusOne} />
+                <WeatherSlider data={filterData.dayPlusTwo} />
+                <WeatherSlider data={filterData.dayPlusThree} />
+                <WeatherSlider data={filterData.dayPlusFour} />
+              </>
+            ) : (
+              <>
+                {Array.from({ length: 4 }).map((res, index) => (
+                  <WeatherSliderSkeleton key={index} />
+                ))}
+              </>
+            )}
+          </Box>
+        </WeatherBox>
+      </Container>
+    </>
   );
 };
 
@@ -148,6 +149,7 @@ export default Weather;
 
 const Container = styled.main`
   overflow: hidden;
+  position: relative;
   height: 100%;
   border-top: 2px solid var(--second-color);
   border-bottom: 2px solid var(--second-color);
@@ -156,6 +158,64 @@ const Container = styled.main`
   @media (max-width: 767px) {
     border: none;
   }
+`;
+
+const CurrentPlaceBox = styled.div`
+  width: 100%;
+  /* height: 80px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-top: 20px;
+  margin-bottom: -20px;
+
+  @media (max-width: 767px) {
+    margin-bottom: 8px;
+  }
+`;
+
+const RoundBox = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: #fff;
+  background: #174b87;
+  svg {
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+const IconBox = styled.div`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const InfoTextBox = styled.div`
+  padding: 8px 14px 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const InfoText = styled.em`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 4px;
+  white-space: nowrap;
+  font-weight: 600;
+  color: #ff9700;
 `;
 
 const WeatherBox = styled.div`

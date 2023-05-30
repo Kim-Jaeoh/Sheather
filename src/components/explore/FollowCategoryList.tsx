@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { cloneDeep } from "lodash";
 import { dbService } from "../../fbase";
-import useToggleFollow from "../../hooks/useToggleFollow";
+import useToggleFollow from "../../hooks/actions/useToggleFollow";
 import useUserAccount from "../../hooks/useUserAccount";
 import AuthFormModal from "../modal/auth/AuthFormModal";
 import useMediaScreen from "../../hooks/useMediaScreen";

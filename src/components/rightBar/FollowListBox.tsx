@@ -5,7 +5,7 @@ import { query, collection, getDocs, DocumentData } from "firebase/firestore";
 import { dbService } from "../../fbase";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import useToggleFollow from "../../hooks/useToggleFollow";
+import useToggleFollow from "../../hooks/actions/useToggleFollow";
 import { cloneDeep } from "lodash";
 import FollowListSkeleton from "../../assets/skeleton/FollowListSkeleton";
 import { CurrentUserType } from "../../types/type";

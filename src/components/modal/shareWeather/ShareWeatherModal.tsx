@@ -12,15 +12,14 @@ import { Point } from "react-easy-crop/types";
 import imageCompression from "browser-image-compression";
 import ShareWeatherCategory from "./ShareWeatherCategory";
 import axios from "axios";
-import useCurrentLocation from "../../../hooks/useCurrentLocation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MdPlace } from "react-icons/md";
 import uuid from "react-uuid";
 import ShareWeatherForm from "./ShareWeatherForm";
 import { FeedType } from "../../../types/type";
 import Flicking from "@egjs/react-flicking";
-import { regionApi } from "../../../apis/api";
 import { Spinner } from "../../../assets/spinner/Spinner";
+import useRegionQuery from "../../../hooks/useQuery/useRegionQuery";
 
 type Props = {
   shareBtn: boolean;
@@ -53,20 +52,9 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   const [text, setText] = useState("");
   const [isNextClick, setIsNextClick] = useState(false);
   const fileInput = useRef<HTMLInputElement>();
-  const { location } = useCurrentLocation();
+  const { region, isRegionLoading } = useRegionQuery();
   const queryClient = useQueryClient();
   const cropRef = useRef(null);
-
-  // 현재 주소 받아오기
-  const { data: regionData, isLoading: isLoading2 } = useQuery(
-    ["RegionApi", location],
-    () => regionApi(location),
-    {
-      refetchOnWindowFocus: false,
-      onError: (e) => console.log(e),
-      enabled: Boolean(location),
-    }
-  );
 
   // 이미지 추가 시 view 렌더 시 이미지 노출
   useEffect(() => {
@@ -116,12 +104,15 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
           },
         ]);
       };
+
+      // 중복 방지
       setFileName((prev) => {
         return [...prev, files[i].name];
       });
     }
   };
 
+  // attachments 배열에서 name이 일치하는 객체를 찾아 해당 객체의 속성들을 업데이트한 후, 새로운 배열로 업데이트
   const setCroppedImageFor = async (
     name: string,
     crop?: Point,
@@ -129,21 +120,28 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     aspect?: { value: number; text: string },
     croppedImageUrl?: string
   ) => {
+    // 1) 기존 이미지 배열(O)을 새로운 배열(N)로 복사
     const newAttachmentList = [...attachments];
+
+    // 2) 기존 이미지 배열(O)에서 name이 일치하는 요소의 인덱스 찾기
     const attachmentIndex = attachments.findIndex((x) => x?.name === name);
+
+    // 3) 2)에서 반환된 해당 인덱스의 요소를 attachment 변수에 할당
     const attachment = attachments[attachmentIndex];
+
+    // 4) attachment 객체의 속성인 name, crop, zoom, aspect, croppedImageUrl을 업데이트하는 새로운 객체 newAttachment를 생성
     const newAttachment = {
       ...attachment,
       name,
       crop,
       zoom,
       aspect,
-      croppedImageUrl: croppedImageUrl,
+      croppedImageUrl,
     };
+
+    // 5) 4)에서 생성된 새로운 객체를 새로 복사된 배열(N)의 name이 일치하는 위치에 할당
     newAttachmentList[attachmentIndex] = newAttachment;
     setAttachments(newAttachmentList);
-
-    // setSelectedImage(null);
   };
 
   // 이미지 삭제
@@ -191,6 +189,10 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
         setIsUpload(false);
         setShareBtn(false);
       },
+      onError: () => {
+        toast.error("피드를 업로드 할 수 없습니다.");
+        setIsUpload(false);
+      },
     }
   );
 
@@ -199,7 +201,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
     const compressed = async (croppedImage: string) => {
       const options = {
         maxSizeMB: 1,
-        maxWidthOrHeight: 1120,
+        maxWidthOrHeight: 1280,
         useWebWorker: true,
       };
 
@@ -225,6 +227,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
       }
     };
 
+    // 병렬 처리 후 반환된 값으로 mutate 진행
     const promiseCompressed = async () => {
       await Promise.all(
         attachments?.map((res) => {
@@ -233,8 +236,8 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
       ).then((croppedImage) => {
         mutate({
           id: uuid(),
-          url: croppedImage,
-          imgAspect: attachments[0].aspect.text,
+          url: croppedImage, // 압축된 이미지
+          imgAspect: attachments[0].aspect.paddingTop,
           displayName: userObj.displayName,
           email: userObj.email,
           createdAt: +new Date(),
@@ -254,7 +257,7 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
             weatherIcon: shareWeatherData?.weather[0].icon,
             weather: shareWeatherData?.weather[0].description,
           },
-          region: regionData?.data?.documents[0]?.address?.region_1depth_name,
+          region: region?.region_1depth_name,
           comment: [],
           tag: tags,
         });
@@ -298,19 +301,21 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
               <DateBox>
                 <MdPlace />
                 <WeatherCategorySub>
-                  {!isLoading2 &&
-                    regionData?.data?.documents[0]?.address?.region_1depth_name}
+                  {!isRegionLoading &&
+                    `${region?.region_1depth_name} ${region?.region_3depth_name}`}
                 </WeatherCategorySub>
               </DateBox>
-              <WeatherIcon>
-                <img
-                  src={`/image/weather/${shareWeatherData?.weather[0].icon}.png`}
-                  alt="weather icon"
-                />
-              </WeatherIcon>
-              <WeatherCategorySub>
-                {shareWeatherData?.weather[0].description}
-              </WeatherCategorySub>
+              <div>
+                <WeatherIcon>
+                  <img
+                    src={`/image/weather/${shareWeatherData?.weather[0].icon}.png`}
+                    alt="weather icon"
+                  />
+                </WeatherIcon>
+                <WeatherCategorySub>
+                  {shareWeatherData?.weather[0].description}
+                </WeatherCategorySub>
+              </div>
               <WeatherCategorySub>
                 {Math.round(shareWeatherData?.main.temp)}º
               </WeatherCategorySub>
@@ -523,13 +528,12 @@ const WeatherInfoBox = styled.div`
     justify-content: center;
     letter-spacing: -0.8px;
   }
-  margin-left: 4px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   user-select: none;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 `;
 
 const ImageWrapper = styled.div<{ length?: number }>`
@@ -768,7 +772,7 @@ const WeatherIcon = styled.div`
   justify-content: center;
   width: 34px;
   height: 34px;
-  margin: 0 -14px 0 -10px;
+  margin-left: -8px;
   img {
     display: block;
     width: 100%;
@@ -778,12 +782,12 @@ const WeatherIcon = styled.div`
 const WeatherCategorySub = styled.span`
   user-select: text;
 
-  font-size: 14px;
+  font-size: 142x;
   svg {
     font-size: 20px;
   }
   span {
-    font-size: 12px;
+    font-size: 10px;
   }
 `;
 

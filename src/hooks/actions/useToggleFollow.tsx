@@ -1,13 +1,13 @@
 import { updateDoc, doc } from "firebase/firestore";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../app/store";
-import { currentUser } from "../app/user";
-import { dbService } from "../fbase";
-import { CurrentUserType, FollowingType } from "../types/type";
-import useSendNoticeMessage from "./useSendNoticeMessage";
+import { RootState } from "../../app/store";
+import { currentUser } from "../../app/user";
+import { dbService } from "../../fbase";
+import { CurrentUserType, FollowingType } from "../../types/type";
 import { useEffect, useState } from "react";
-import useGetMyAccount from "./useGetMyAccount";
-import useThrottle from "./useThrottle";
+import useGetMyAccount from "../useGetMyAccount";
+import useThrottle from "../useThrottle";
+import useSendNoticeMessage from "./useSendNoticeMessage";
 
 const useToggleFollow = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(

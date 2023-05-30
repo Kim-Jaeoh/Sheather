@@ -52,7 +52,6 @@ const WeatherSlider = ({ data }: PropsType) => {
   } = useFlickingArrow({
     dataLength: data.length,
     lastLength: isMobile ? 2 : data.length < 4 ? data.length : 4,
-    // lastLength: data.length < 4 ? data.length : 4,
   });
 
   // 오늘 날짜인지 boolean 체크, 날짜 입력값
@@ -155,6 +154,7 @@ const WeatherSlider = ({ data }: PropsType) => {
                           <img
                             src={`/image/weather/${res?.weather[0].icon}.png`}
                             alt="weather icon"
+                            loading="lazy"
                           />
                         </WeatherCategoryIcon>
                         <WeatherCategoryIconText>
@@ -207,7 +207,7 @@ const WeatherSlider = ({ data }: PropsType) => {
 export default React.memo(WeatherSlider);
 
 const Wrapper = styled.div`
-  background: #fff;
+  /* background: #fff; */
   width: 100%;
   border-radius: 20px;
   overflow: hidden;
@@ -224,7 +224,8 @@ const Wrapper = styled.div`
 `;
 
 const FlickingBox = styled.ul`
-  min-height: 364px;
+  background: #fff;
+  min-height: 376px;
   li:not(:last-of-type) {
     border-right: 1px solid var(--fourth-color);
   }
@@ -261,10 +262,17 @@ const WeatherInfoBtn = styled.button`
     cursor: default;
   }
 
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
   &:not(:disabled):hover {
-    border: 1px solid var(--weather-color);
+    /* border: 1px solid var(--weather-color); */
+    border: 1px solid #174b87;
     svg {
-      color: var(--weather-color);
+      /* color: var(--weather-color); */
+      color: #174b87;
     }
   }
 `;
@@ -275,25 +283,30 @@ const WeatherDateBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: #174b87;
   margin-top: -2px;
-  border-top: 2px solid var(--second-color);
-  border-bottom: 2px solid var(--second-color);
+  /* background: #fff; */
+  /* border-top: 2px solid var(--second-color); */
+  border-bottom: 1px solid var(--second-color);
 
-  @media (max-width: 767px) {
+  /* @media (max-width: 767px) {
     border: none;
     border-bottom: 1px solid var(--second-color);
-  }
+  } */
 `;
 
 const WeatherDate = styled.span`
   font-size: 14px;
+  cursor: default;
+  user-select: none;
   font-weight: bold;
   white-space: nowrap;
   padding: 6px 10px;
   border-radius: 9999px;
-  background-color: var(--weather-color);
-  color: #fff;
+  /* background-color: var(--weather-color); */
+  /* color: #fff; */
+  background-color: #fff;
+  color: #174b87;
   margin: 0 14px;
 `;
 
@@ -316,8 +329,9 @@ const WeatherDateListBox = styled.div<{ now?: string }>`
   position: absolute;
   left: 50%;
   transform: translate(-50%, 0);
-  border: 1px solid
-    ${(props) => (!props?.now ? "var(--weather-color)" : "#b3b3b3")};
+  /* border: 1px solid
+    ${(props) => (!props?.now ? "var(--weather-color)" : "#b3b3b3")}; */
+  border: 1px solid ${(props) => (!props?.now ? "#174b87" : "#b3b3b3")};
   border-radius: 9999px;
   margin: 0 auto;
   text-align: center;
@@ -325,7 +339,10 @@ const WeatherDateListBox = styled.div<{ now?: string }>`
 `;
 
 const WeatherDateList = styled.span<{ now?: string }>`
-  color: ${(props) => !props?.now && "var(--weather-color)"};
+  user-select: none;
+  cursor: default;
+  color: ${(props) => !props?.now && "#174b87"};
+  /* color: ${(props) => !props?.now && "var(--weather-color)"}; */
   font-size: 14px;
   font-weight: bold;
   user-select: text;
@@ -409,11 +426,12 @@ const ArrowStandard = styled.div`
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 1px solid var(--weather-color);
+  /* border: 1px solid var(--weather-color); */
   background-color: #fff;
   z-index: 10;
   transition: all 0.1s;
-  color: var(--weather-color);
+  color: #174b87;
+  /* color: var(--weather-color); */
   cursor: pointer;
 `;
 

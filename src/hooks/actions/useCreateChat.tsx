@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { doc, addDoc, collection, updateDoc } from "firebase/firestore";
-import { dbService } from "../fbase";
+import { dbService } from "../../fbase";
 import { useNavigate } from "react-router-dom";
-import { CurrentUserType, MessageReadType } from "../types/type";
-import useGetMyAccount from "./useGetMyAccount";
-
-type Props = {};
+import { CurrentUserType, MessageReadType } from "../../types/type";
+import useGetMyAccount from "../useGetMyAccount";
 
 const useCreateChat = () => {
   const [clickInfo, setClickInfo] = useState(null);
