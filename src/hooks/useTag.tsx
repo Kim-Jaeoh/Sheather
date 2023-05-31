@@ -18,18 +18,26 @@ const useTag = (tags?: string[]) => {
   };
 
   const onKeyPressCurrent = (e: React.KeyboardEvent<HTMLElement>) => {
-    const pattern = /([^가-힣a-zA-Z\x20])/i; // 자음, 모음 검사
+    // 한글, 영문 대/소문자, 숫자를 제외한 모든 문자 체크
+    const pattern = /([^가-힣a-zA-Z\x200-9])/i;
 
     if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault(); // 텍스트 전체 선택 안 돼서 주석 처리
+      e.preventDefault();
       if (pattern.test(currentNewTag)) {
-        toast.error("자음, 모음, 특수문자가 포함된 글자는 입력할 수 없습니다.");
+        toast.error(
+          "자음, 모음, 특수문자가 포함된 글자는 입력할 수 없습니다.",
+          {
+            id: "not-enter",
+          }
+        );
         return;
       }
 
       if (currentTags.includes(currentNewTag)) {
         // 태그가 중복일 때
-        toast.error("이미 추가된 태그입니다.");
+        toast.error("이미 추가된 태그입니다.", {
+          id: "nested",
+        });
         return;
       }
 
@@ -46,16 +54,13 @@ const useTag = (tags?: string[]) => {
         currentTags: [...currentTags, currentNewTag.trim()], // 글자 공백 제거
       });
     } else {
-      toast.error("최대 8개까지만 추가 가능합니다.");
+      toast.error("최대 8개까지만 추가 가능합니다.", {
+        id: "limit-tag",
+      });
     }
 
     // 글자 지우기
-    setInputs((prev) => {
-      return {
-        ...prev,
-        currentNewTag: "",
-      };
-    });
+    onDeleteCurrentText();
   };
 
   const onDeleteCurrentTag = (myTag: number | string) => {

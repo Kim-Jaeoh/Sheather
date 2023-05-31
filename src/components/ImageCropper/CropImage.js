@@ -23,6 +23,7 @@ export default async function getCroppedImg(imageSrc, pixelCrop, rotation = 0) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
+  // 너비와 높이를 2로 나눔 (모바일 검은화면 현상 해결)
   image.width = image.width / 2;
   image.height = image.height / 2;
 

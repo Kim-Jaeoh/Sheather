@@ -40,8 +40,13 @@ const FeedEditModal = ({ feed, modalOpen, modalClose }: Props) => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["feed"]);
-        toast.success("수정이 완료 되었습니다.");
+        toast.success("수정이 완료되었습니다.");
         modalClose();
+      },
+      onError: () => {
+        toast.success("피드를 수정 할 수 없습니다.", {
+          id: "not-edit",
+        });
       },
     }
   );

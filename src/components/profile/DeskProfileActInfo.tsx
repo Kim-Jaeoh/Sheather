@@ -149,61 +149,47 @@ const ProfileBox = styled.div`
   display: flex;
   align-items: center;
   gap: 30px;
-  height: 120px;
+  height: 126px;
   position: relative;
-  @media (max-width: 767px) {
-    padding: 20px;
-  }
 `;
 
 const ProfileImageBox = styled.div`
-  width: 120px;
-  height: 120px;
+  width: 126px;
+  height: 126px;
   border: 2px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
-
-  @media (max-width: 767px) {
-    width: 80px;
-    height: 80px;
-  }
 `;
 
 const ProfileImage = styled.img`
   display: block;
   width: 100%;
+  height: 100%;
   object-fit: cover;
 `;
 
 const ProfileDetailBox = styled.div`
   display: flex;
   flex-direction: column;
+  /* justify-content: space-between; */
   gap: 14px;
   flex: 1;
   height: 100%;
-
-  @media (max-width: 767px) {
-    gap: 0;
-  }
 `;
 
 const ProfileDetail = styled.div`
   display: flex;
   align-items: flex-start;
   position: relative;
-
-  @media (max-width: 767px) {
-    align-items: center;
-  }
 `;
 
 const ProfileInfoBox = styled.div`
   flex: 1;
-  padding-right: 20px;
+  /* padding-right: 20px; */
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 `;
 
 const ProfileIntroBox = styled.div`
@@ -216,10 +202,6 @@ const ProfileDsName = styled.p`
   font-size: 18px;
   line-height: 34px;
   font-weight: 500;
-
-  @media (max-width: 767px) {
-    font-size: 16px;
-  }
 `;
 
 const ProfileName = styled.p`
@@ -227,12 +209,14 @@ const ProfileName = styled.p`
 `;
 
 const ProfileDesc = styled.p`
-  font-size: 14px;
+  font-size: 12px;
   white-space: pre-wrap;
   color: var(--third-color);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   overflow: hidden;
+  word-break: keep-all;
+  padding-right: 20px;
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
 `;
@@ -245,7 +229,8 @@ const BtnBox = styled.div`
 `;
 
 const ProfileEditBtn = styled.button`
-  padding: 8px 10px;
+  padding: 8px 16px;
+  font-size: 14px;
   border: 1px solid var(--profile-color);
   color: var(--profile-color);
   white-space: pre;
@@ -279,6 +264,11 @@ const LogoutBtn = styled.button`
     border: 1px solid var(--second-color);
     background-color: var(--second-color);
     color: #fff;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -334,23 +324,6 @@ const MessageBtn = styled(FollowBtn)`
   &:hover,
   &:active {
     background: var(--fourth-color);
-  }
-`;
-
-const CategoryBox = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 40px;
-  margin-top: 40px;
-  border-top: 1px solid var(--fourth-color);
-
-  @media (max-width: 767px) {
-    gap: 30px;
-    margin-top: 0;
-    margin-bottom: 20px;
-    justify-content: space-evenly;
-    border-bottom: 1px solid var(--fourth-color);
   }
 `;
 

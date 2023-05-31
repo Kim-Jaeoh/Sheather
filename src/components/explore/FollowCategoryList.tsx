@@ -309,9 +309,9 @@ const ProfileDsName = styled.p`
   white-space: nowrap;
 
   @media (max-width: 767px) {
+    font-size: 12px;
     margin: 16px;
     text-align: center;
-    font-size: 14px;
   }
 `;
 

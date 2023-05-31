@@ -120,7 +120,7 @@ const MobileProfileActInfo = ({
       )}
       <ProfileActBox>
         <ProfileAct>
-          게시글 <em>{myPost}</em>
+          게시글 <em>{myPost ? myPost : 0}</em>
         </ProfileAct>
         <ProfileAct
           onClick={() => {
@@ -153,17 +153,12 @@ const ProfileBox = styled.div`
 `;
 
 const ProfileImageBox = styled.div`
-  width: 120px;
-  height: 120px;
-  border: 2px solid var(--fourth-color);
+  width: 80px;
+  height: 80px;
+  border: 1px solid var(--fourth-color);
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
-
-  @media (max-width: 767px) {
-    width: 80px;
-    height: 80px;
-  }
 `;
 
 const ProfileImage = styled.img`
@@ -202,23 +197,24 @@ const ProfileIntroBox = styled.div`
 `;
 
 const ProfileDsName = styled.p`
-  font-size: 16px;
+  font-size: 14px;
   line-height: 34px;
   font-weight: 500;
 `;
 
 const ProfileName = styled.p`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
 `;
 
 const ProfileDesc = styled.p`
-  font-size: 14px;
+  font-size: 12px;
   white-space: pre-wrap;
   color: var(--third-color);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   overflow: hidden;
+  word-break: keep-all;
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
 `;
@@ -253,15 +249,20 @@ const ProfileEditBtn = styled.button`
     background-color: var(--profile-color);
     color: #fff;
   }
+
+  @media screen and (max-width: 767px) {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
 `;
 
 const LogoutBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 8px;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
   border: 1px solid var(--third-color);
   color: var(--third-color);
   border-radius: 8px;
@@ -273,6 +274,11 @@ const LogoutBtn = styled.button`
     border: 1px solid var(--second-color);
     background-color: var(--second-color);
     color: #fff;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -303,6 +309,11 @@ const FollowBtn = styled.button`
   &:hover,
   &:active {
     background: #000;
+  }
+
+  @media screen and (max-width: 767px) {
+    font-size: 12px;
+    padding: 6px 8px;
   }
 `;
 
@@ -338,7 +349,7 @@ const ProfileActBox = styled.div`
 `;
 
 const ProfileAct = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   width: 33.33%;
   display: flex;
   align-items: center;

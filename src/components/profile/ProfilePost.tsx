@@ -22,20 +22,6 @@ const ProfilePost = React.forwardRef<HTMLInputElement, props>(
       return state.user;
     });
     const { isMobile } = useMediaScreen();
-    // const [arrState, setArrState] = useState(myPost?.length);
-
-    // // 개수 홀수 시 flex 레이아웃 유지하기 (배열 개수 추가)
-    // useEffect(() => {
-    //   // 3의 배수가 아니고, 3개 중 2개 모자랄 때
-    //   if (myPost?.length % 3 === 1) {
-    //     setArrState(myPost?.length + 2);
-    //   }
-
-    //   // 3의 배수가 아니고, 3개 중 1개 모자랄 때
-    //   if (myPost?.length % 3 === 2) {
-    //     setArrState(myPost?.length + 1);
-    //   }
-    // }, [myPost?.length]);
 
     return (
       <>

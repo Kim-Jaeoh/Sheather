@@ -48,7 +48,6 @@ const useSendNoticeMessage = (
 
   // 메세지 알림 보내기
   const sendMessage = async (text: string, link: string) => {
-    console.log(userNotification);
     if (getToken && userNotification) {
       saveMessagingDeviceToken(users?.email);
 

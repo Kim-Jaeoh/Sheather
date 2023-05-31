@@ -156,6 +156,8 @@ const Profile = () => {
     setEditModalOpen((prev) => !prev);
   };
 
+  const isMine = userObj?.displayName === account?.displayName;
+
   return (
     <>
       {isAuthModal && (
@@ -209,18 +211,18 @@ const Profile = () => {
                 />
               )}
 
-              <CategoryBox>
-                <Category
-                  onClick={() => setSelectCategory(0)}
-                  select={selectCategory}
-                  num={0}
-                  to={`post`}
-                >
-                  <MdGridOn />
-                  <CategoryText>게시물</CategoryText>
-                </Category>
-                {userObj.displayName === account.displayName && (
+              <CategoryBox isMine={isMine}>
+                {isMine && (
                   <>
+                    <Category
+                      onClick={() => setSelectCategory(0)}
+                      select={selectCategory}
+                      num={0}
+                      to={`post`}
+                    >
+                      <MdGridOn />
+                      <CategoryText>게시물</CategoryText>
+                    </Category>
                     <Category
                       onClick={() => setSelectCategory(1)}
                       select={selectCategory}
@@ -303,20 +305,21 @@ const Container = styled.div`
   }
 `;
 
-const CategoryBox = styled.div`
+const CategoryBox = styled.div<{ isMine: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 40px;
-  margin-top: 40px;
+  margin: ${(props) => (props.isMine ? `40px 0 0` : `40px 0 20px`)};
   border-top: 1px solid var(--fourth-color);
 
   @media (max-width: 767px) {
     gap: 0px;
-    margin-top: 0;
+    margin: 0;
     overflow: hidden;
     justify-content: space-evenly;
-    border-bottom: 1px solid var(--fourth-color);
+    border-bottom: ${(props) =>
+      props.isMine && `1px solid var(--fourth-color)`};
   }
 `;
 
@@ -331,6 +334,7 @@ const Category = styled(Link)<{ select: number; num: number }>`
   justify-content: center;
   gap: 6px;
   position: relative;
+  color: ${(props) => props.num === props.select && `var(--profile-color)`};
 
   &::after {
     content: "";
@@ -340,7 +344,7 @@ const Category = styled(Link)<{ select: number; num: number }>`
     width: 100%;
     height: 2px;
     background: ${(props) =>
-      props.num === props.select && `var(--second-color)`};
+      props.num === props.select && `var(--profile-color)`};
   }
 
   svg {
@@ -352,7 +356,9 @@ const Category = styled(Link)<{ select: number; num: number }>`
     width: 33.33%;
     padding: 10px 0;
     color: ${(props) =>
-      props.num === props.select ? `#4e2fa3` : `var(--third-color)`};
+      props.num === props.select
+        ? `var(--profile-color)`
+        : `var(--third-color)`};
 
     svg {
       width: 18px;
