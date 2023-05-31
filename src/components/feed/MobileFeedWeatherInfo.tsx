@@ -9,8 +9,11 @@ import { IoShirtOutline } from "react-icons/io5";
 import { BsSun } from "react-icons/bs";
 import useRegionQuery from "../../hooks/useQuery/useRegionQuery";
 import useWeatherQuery from "../../hooks/useQuery/useWeatherQuery";
+import useCurrentLocation from "../../hooks/useCurrentLocation";
+import { BiErrorCircle } from "react-icons/bi";
 
 const MobileFeedWeatherInfo = () => {
+  const { location } = useCurrentLocation();
   const { weatherData } = useWeatherQuery();
   const { tempClothes } = TempClothes(); // 옷 정보
   const { region, isRegionLoading } = useRegionQuery();
@@ -21,63 +24,74 @@ const MobileFeedWeatherInfo = () => {
       (info) =>
         info.tempMax >= Math.round(temp) && info.tempMin <= Math.round(temp)
     );
-  }, [weatherData?.data?.main.temp]);
+  }, [tempClothes, weatherData?.data?.main.temp]);
 
   return (
     <Container>
-      {!isRegionLoading ? (
-        <WearDetailBox>
-          <WearDetail>
-            <WearInfoBox>
-              <FlickingCategoryBox>
-                <Flicking
-                  onChanged={(e) => console.log(e)}
-                  moveType="freeScroll"
-                  bound={true}
-                  align="prev"
-                >
-                  <WearInfo>
-                    <CategoryTagBox>
-                      <WearInfoMain>
-                        <BsSun />
-                      </WearInfoMain>
-                      <CategoryTag>
-                        <MdPlace />
-                        {region?.region_1depth_name}{" "}
-                        {region?.region_3depth_name}
-                      </CategoryTag>
-                      <CategoryTag>
-                        <WeatherIcon>
-                          <img
-                            src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
-                            alt="weather icon"
-                          />
-                        </WeatherIcon>
-                        {weatherData?.data?.weather[0].description}
-                      </CategoryTag>
-                      <CategoryTag>
-                        {Math.round(weatherData?.data?.main.temp)}
-                        <sup>º</sup>
-                      </CategoryTag>
-                      <CategoryTag>
-                        {Math.round(weatherData?.data?.wind.speed)}
-                        <span>m/s</span>
-                      </CategoryTag>
-                      <WearInfoMain style={{ marginLeft: `4px` }}>
-                        <IoShirtOutline />
-                      </WearInfoMain>
-                      {filterTempClothes[0].clothes.map((res, index) => {
-                        return <CategoryTag key={index}>{res}</CategoryTag>;
-                      })}
-                    </CategoryTagBox>
-                  </WearInfo>
-                </Flicking>
-              </FlickingCategoryBox>
-            </WearInfoBox>
-          </WearDetail>
-        </WearDetailBox>
+      {!location?.error?.message ? (
+        <>
+          {!isRegionLoading ? (
+            <WearDetailBox>
+              <WearDetail>
+                <WearInfoBox>
+                  <FlickingCategoryBox>
+                    <Flicking
+                      onChanged={(e) => console.log(e)}
+                      moveType="freeScroll"
+                      bound={true}
+                      align="prev"
+                    >
+                      <WearInfo>
+                        <CategoryTagBox>
+                          <WearInfoMain>
+                            <BsSun />
+                          </WearInfoMain>
+                          <CategoryTag>
+                            <MdPlace />
+                            {region?.region_1depth_name}{" "}
+                            {region?.region_3depth_name}
+                          </CategoryTag>
+                          <CategoryTag>
+                            <WeatherIcon>
+                              <img
+                                src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
+                                alt="weather icon"
+                              />
+                            </WeatherIcon>
+                            {weatherData?.data?.weather[0].description}
+                          </CategoryTag>
+                          <CategoryTag>
+                            {Math.round(weatherData?.data?.main.temp)}
+                            <sup>º</sup>
+                          </CategoryTag>
+                          <CategoryTag>
+                            {Math.round(weatherData?.data?.wind.speed)}
+                            <span>m/s</span>
+                          </CategoryTag>
+                          <WearInfoMain style={{ marginLeft: `4px` }}>
+                            <IoShirtOutline />
+                          </WearInfoMain>
+                          {filterTempClothes[0]?.clothes?.map((res, index) => {
+                            return <CategoryTag key={index}>{res}</CategoryTag>;
+                          })}
+                        </CategoryTagBox>
+                      </WearInfo>
+                    </Flicking>
+                  </FlickingCategoryBox>
+                </WearInfoBox>
+              </WearDetail>
+            </WearDetailBox>
+          ) : (
+            <Spinner />
+          )}
+        </>
       ) : (
-        <Spinner />
+        <NotInfoBox>
+          <NotInfo>
+            <BiErrorCircle />
+            위치 권한이 허용되지 않았습니다.
+          </NotInfo>
+        </NotInfoBox>
       )}
     </Container>
   );
@@ -186,5 +200,29 @@ const CategoryTag = styled.div`
 
   span {
     font-size: 10px;
+  }
+`;
+
+const NotInfoBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
+const NotInfo = styled.p`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  svg {
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
   }
 `;

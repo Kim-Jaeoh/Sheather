@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -8,11 +8,13 @@ import AuthFormModal from "../modal/auth/AuthFormModal";
 import { ImageList } from "@mui/material";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import useFeedQuery from "../../hooks/useQuery/useFeedQuery";
+import TagCategoryListSkeleton from "../../assets/skeleton/TagCategoryListSkeleton";
 
 const TagCategoryList = () => {
   const { loginToken: userLogin } = useSelector((state: RootState) => {
     return state.user;
   });
+  const [isLoading, setIsLoading] = useState(false);
   const { isMobile } = useMediaScreen();
   const { feedData } = useFeedQuery({ refetch: true });
   const { isAuthModal, onAuthModal, onIsLogin } = useUserAccount();
@@ -36,7 +38,7 @@ const TagCategoryList = () => {
 
       return accu;
     }, []);
-
+    setIsLoading(true);
     return result.sort((a, b) => b.count - a.count);
   }, [feedData]);
 
@@ -52,42 +54,52 @@ const TagCategoryList = () => {
         <ListBox>
           <ImageList
             sx={{ overflow: "hidden" }}
-            cols={!isMobile ? 2 : 1}
-            gap={20}
+            cols={2}
+            gap={isMobile ? 10 : 20}
           >
-            {tagList?.map((res, index) => {
-              // 해당 태그가 피드 리스트에 포함되어 있는지 필터링
-              const filterUser = feedData?.filter((feed) =>
-                feed.tag.includes(res.name)
-              );
-              // 필터링 된 피드들 인기순으로 정렬
-              const sortArr = filterUser?.sort(
-                (a, b) => b.like.length - a.like.length
-              );
-              return (
-                <List key={index} onClick={() => onIsLogin(() => null)}>
-                  {index < 20 && (
-                    <Tag
-                      key={index}
-                      to={userLogin && `/explore/search?keyword=${res.name}`}
-                    >
-                      <TagRank>{index + 1}</TagRank>
-                      <ListProfileBox>
-                        <ListProfile
-                          onContextMenu={(e) => e.preventDefault()}
-                          src={sortArr[0].url[0]}
-                          alt="Feed Image"
-                        />
-                      </ListProfileBox>
-                      <TagInfo>
-                        <TagName>#{res.name}</TagName>
-                        <TagCount>{res.count} 피드</TagCount>
-                      </TagInfo>
-                    </Tag>
-                  )}
-                </List>
-              );
-            })}
+            <>
+              {!isLoading ? (
+                <TagCategoryListSkeleton />
+              ) : (
+                <>
+                  {tagList?.slice(0, 20).map((res, index) => {
+                    // 해당 태그가 피드 리스트에 포함되어 있는지 필터링
+                    const filterUser = feedData?.filter((feed) =>
+                      feed.tag.includes(res.name)
+                    );
+                    // 필터링 된 피드들 인기순으로 정렬
+                    const sortArr = filterUser?.sort(
+                      (a, b) => b.like.length - a.like.length
+                    );
+                    return (
+                      <List
+                        key={res.name}
+                        onClick={() => onIsLogin(() => null)}
+                      >
+                        <Tag
+                          to={
+                            userLogin && `/explore/search?keyword=${res.name}`
+                          }
+                        >
+                          <TagRank>{index + 1}</TagRank>
+                          <ListProfileBox>
+                            <ListProfile
+                              onContextMenu={(e) => e.preventDefault()}
+                              src={sortArr[0].url[0]}
+                              alt="Feed Image"
+                            />
+                          </ListProfileBox>
+                          <TagInfo>
+                            <TagName>#{res.name}</TagName>
+                            <TagCount>{res.count} 피드</TagCount>
+                          </TagInfo>
+                        </Tag>
+                      </List>
+                    );
+                  })}
+                </>
+              )}
+            </>
           </ImageList>
         </ListBox>
       </Container>
@@ -102,7 +114,7 @@ const Container = styled.div`
   flex-direction: column;
   height: 100%;
   position: relative;
-  background: #30c56e;
+  background: var(--explore-color);
 
   @media (max-width: 767px) {
     padding: 16px;
@@ -120,7 +132,8 @@ const CategoryBox = styled.div`
   border-top: 2px solid var(--second-color);
   border-bottom: 2px solid var(--second-color);
   box-sizing: border-box;
-  background: #fff;
+  background: var(--second-color);
+  color: #fff;
   z-index: 20;
 
   @media (max-width: 767px) {
@@ -132,6 +145,7 @@ const CategoryBox = styled.div`
     border-radius: 9999px;
     border: 1px solid var(--second-color);
     box-shadow: 0px 4px var(--second-color);
+    color: var(--second-color);
     background: #fff;
   }
 `;
@@ -162,7 +176,9 @@ const List = styled.li`
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
+  width: 100%;
   height: 90px;
+  overflow: hidden;
 
   @keyframes slideUp {
     0% {
@@ -178,12 +194,12 @@ const List = styled.li`
     }
   }
 
-  @media screen and (max-width: 1050px) {
+  @media (max-width: 767px) {
     animation: none;
     border-width: 1px;
-    margin: 0 auto;
-    width: 300px;
     height: 70px;
+    border-radius: 10px;
+    height: 100%;
   }
 `;
 
@@ -195,6 +211,10 @@ const Tag = styled(Link)`
   overflow: hidden;
   height: 100%;
   border: none;
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+  }
 `;
 
 const ListProfileBox = styled.div`
@@ -203,13 +223,12 @@ const ListProfileBox = styled.div`
   flex-shrink: 0;
   overflow: hidden;
   box-sizing: border-box;
-  background: #fff;
   border-right: 2px solid var(--second-color);
 
   @media (max-width: 767px) {
-    border-right-width: 1px;
-    width: 70px;
-    height: 70px;
+    border: none;
+    width: 172px;
+    height: 172px;
   }
 `;
 
@@ -228,10 +247,16 @@ const TagRank = styled.div`
   height: 100%;
   font-size: 12px;
   font-weight: 500;
-  border-radius: 16px 0 0 16px;
+  /* border-radius: 16px 0 0 16px; */
   padding: 10px;
   color: #fff;
   background: var(--second-color);
+
+  @media (max-width: 767px) {
+    width: 100%;
+    padding: 6px;
+    /* border-radius: 10px 10px 0 0; */
+  }
 `;
 
 const TagInfo = styled.div`
@@ -243,13 +268,17 @@ const TagInfo = styled.div`
   height: 100%;
 
   @media (max-width: 767px) {
-    padding-left: 14px;
+    /* padding-left: 14px; */
+    gap: 8px;
+    padding: 0;
+    margin: 10px 0;
+    text-align: center;
   }
 `;
 
 const TagName = styled.span`
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -158,7 +158,6 @@ textarea {
   margin: 0;
   padding: 0;
   border: 0;
-  /* font-size: 100%; */
   font: inherit;
   box-sizing: border-box;
   text-decoration: none; /* 링크의 밑줄 제거 */
@@ -167,9 +166,7 @@ textarea {
   font-display: block;
   font-family: "Pretendard", -apple-system, Apple SD Gothic Neo, Malgun Gothic,
     sans-serif;
-  /* font-family: "GmarketSans", Apple SD Gothic Neo, Malgun Gothic, sans-serif !important; */
   font-style: 400;
-  /* color: #222; */
   font-variant-numeric: tabular-nums;
   scroll-behavior: smooth;
   -webkit-user-drag: none;
@@ -179,13 +176,13 @@ button {
   border: none;
   outline: none;
   padding: 0;
-  /* margin: 0; */
   font-family: "Pretendard", -apple-system, Apple SD Gothic Neo, Malgun Gothic,
     sans-serif;
   font-style: normal;
+  font-weight: 500;
   background-color: transparent;
   -webkit-user-drag: none;
-  color: #222;
+  color: var(--second-color);
 }
 
 /* h2 {
@@ -209,8 +206,7 @@ section {
 }
 body {
   min-height: -webkit-fill-available;
-  /* background: #fafafa; */
-  color: #222;
+  color: var(--second-color);
 }
 
 /* html,
@@ -241,7 +237,6 @@ table {
 
 ::-webkit-scrollbar {
   width: auto;
-  /* width: 10px; */
 }
 
 ::-webkit-scrollbar-thumb {

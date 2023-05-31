@@ -186,7 +186,6 @@ const FollowBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
   font-size: 14px;
   padding: 10px 16px;
   color: #fff;

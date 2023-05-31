@@ -72,6 +72,7 @@ const InfoCategory = () => {
         </>
       );
     }
+
     if (params("cat")) {
       return params("detail");
     } else {

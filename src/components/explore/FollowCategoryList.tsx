@@ -3,14 +3,7 @@ import styled from "@emotion/styled";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import {
-  DocumentData,
-  query,
-  collection,
-  getDocs,
-  doc,
-  onSnapshot,
-} from "firebase/firestore";
+import { DocumentData, query, collection, getDocs } from "firebase/firestore";
 import { cloneDeep } from "lodash";
 import { dbService } from "../../fbase";
 import useToggleFollow from "../../hooks/actions/useToggleFollow";
@@ -19,6 +12,7 @@ import AuthFormModal from "../modal/auth/AuthFormModal";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { ImageList } from "@mui/material";
 import { CurrentUserType } from "../../types/type";
+import FollowCategoryListSkeleton from "../../assets/skeleton/FollowCategoryListSkeleton";
 
 const FollowCategoryList = () => {
   const { loginToken: userLogin, currentUser: userObj } = useSelector(
@@ -27,9 +21,9 @@ const FollowCategoryList = () => {
     }
   );
   const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { toggleFollow } = useToggleFollow();
-  const { isAuthModal, setIsAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
+  const { isAuthModal, onAuthModal, onIsLogin } = useUserAccount();
   const { pathname } = useLocation();
   const { isMobile } = useMediaScreen();
 
@@ -62,6 +56,7 @@ const FollowCategoryList = () => {
       randomArray(cloneArr); // 배열 랜덤
 
       setUsers(cloneArr);
+      setIsLoading(true);
     });
   }, [userObj.displayName]);
 
@@ -107,47 +102,54 @@ const FollowCategoryList = () => {
         <ListBox>
           <ImageList
             sx={{ overflow: "hidden" }}
-            cols={isMobile ? 1 : 2}
-            gap={20}
+            cols={2}
+            gap={isMobile ? 10 : 20}
           >
-            {users?.map((res, index) => {
-              return (
-                <List key={index}>
-                  {index < 20 && (
-                    <Card onClick={() => onIsLogin(() => null)}>
-                      <User
-                        to={userLogin && `/profile/${res.displayName}/post`}
-                        state={res.displayName}
+            <>
+              {!isLoading ? (
+                <FollowCategoryListSkeleton />
+              ) : (
+                <>
+                  {users?.slice(0, 10).map((res, index) => {
+                    return (
+                      <Card
+                        isFeed={pathname.includes("feed")}
+                        key={res.displayName}
+                        onClick={() => onIsLogin(() => null)}
                       >
-                        <ProfileImageBox>
-                          <ProfileImage
-                            onContextMenu={(e) => e.preventDefault()}
-                            src={res.profileURL}
-                            alt="profile image"
-                          />
-                        </ProfileImageBox>
-                        <ProfileInfoBox>
-                          <ProfileDsName>{res.displayName}</ProfileDsName>
-                          {res.name && <ProfileName>{res.name}</ProfileName>}
-                        </ProfileInfoBox>
-                      </User>
-                      {res?.email !== userObj.email && (
-                        <FollowBtnBox onClick={() => onFollowClick(res)}>
-                          {userObj.following.filter((obj) =>
-                            obj?.displayName?.includes(res?.displayName)
-                          ).length !== 0 ? (
-                            <FollowingBtn>팔로잉</FollowingBtn>
-                          ) : (
-                            <FollowBtn>팔로우</FollowBtn>
-                          )}
-                        </FollowBtnBox>
-                      )}
-                    </Card>
-                  )}
-                </List>
-              );
-            })}
-            {/* {arrState && <NullCard />} */}
+                        <User
+                          to={userLogin && `/profile/${res.displayName}/post`}
+                          state={res.displayName}
+                        >
+                          <ProfileImageBox>
+                            <ProfileImage
+                              onContextMenu={(e) => e.preventDefault()}
+                              src={res.profileURL}
+                              alt="profile image"
+                            />
+                          </ProfileImageBox>
+                          <ProfileInfoBox>
+                            <ProfileDsName>{res.displayName}</ProfileDsName>
+                            {/* {res.name && <ProfileName>{res.name}</ProfileName>} */}
+                          </ProfileInfoBox>
+                        </User>
+                        {res?.email !== userObj.email && (
+                          <FollowBtnBox onClick={() => onFollowClick(res)}>
+                            {userObj.following.filter((obj) =>
+                              obj?.displayName?.includes(res?.displayName)
+                            ).length !== 0 ? (
+                              <FollowingBtn>팔로잉</FollowingBtn>
+                            ) : (
+                              <FollowBtn>팔로우</FollowBtn>
+                            )}
+                          </FollowBtnBox>
+                        )}
+                      </Card>
+                    );
+                  })}
+                </>
+              )}
+            </>
           </ImageList>
         </ListBox>
       </Container>
@@ -180,12 +182,14 @@ const CategoryBox = styled.nav`
   border-top: 2px solid var(--second-color);
   border-bottom: 2px solid var(--second-color);
   box-sizing: border-box;
-  background: #fff;
+  background: var(--second-color);
+  color: #fff;
   z-index: 20;
 
   @media (max-width: 767px) {
     position: relative;
     margin: 0 auto;
+    margin-bottom: 20px;
     width: auto;
     height: auto;
     padding: 8px 14px;
@@ -193,6 +197,7 @@ const CategoryBox = styled.nav`
     border: 1px solid var(--second-color);
     box-shadow: 0px 4px var(--second-color);
     background: #fff;
+    color: var(--second-color);
   }
 `;
 
@@ -212,21 +217,19 @@ const ListBox = styled.div`
 
   @media (max-width: 767px) {
     padding: 0;
-    /* padding: 20px 0 0; */
   }
 `;
 
-const List = styled.div`
+const Card = styled.div<{ isFeed: boolean }>`
   flex: 1 0 40%;
-`;
-
-const Card = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: 0 auto;
   position: relative;
   padding: 12px 16px;
-  height: 90px;
+  width: 100%;
+  height: 80px;
   overflow: hidden;
   border: 2px solid var(--second-color);
   border-radius: 20px;
@@ -241,20 +244,19 @@ const Card = styled.div`
   animation-name: slideUp;
   animation-duration: 0.3s;
   animation-timing-function: linear;
-  @media screen and (max-width: 1150px) {
-  }
 
   @media (max-width: 767px) {
     animation: none;
-    border-width: 1px;
-    /* margin: 0 auto; */
-    width: 100%;
-    height: 70px;
-  }
-`;
+    border: 1px solid
+      ${(props) =>
+        props.isFeed ? `var(--fourth-color)` : `var(--second-color)`};
+    border-radius: 10px;
 
-const NullCard = styled.div`
-  flex: 1 0 40%;
+    justify-content: normal;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px;
+  }
 `;
 
 const User = styled(Link)`
@@ -264,6 +266,10 @@ const User = styled(Link)`
   margin: 0;
   flex: 1;
   height: 100%;
+
+  @media (max-width: 767px) {
+    display: block;
+  }
 `;
 
 const ProfileImageBox = styled.div`
@@ -273,6 +279,11 @@ const ProfileImageBox = styled.div`
   border-radius: 50%;
   overflow: hidden;
   flex: 0 0 auto;
+
+  @media (max-width: 767px) {
+    width: 88px;
+    height: 88px;
+  }
 `;
 
 const ProfileImage = styled.img`
@@ -283,25 +294,23 @@ const ProfileImage = styled.img`
 
 const ProfileInfoBox = styled.div`
   cursor: pointer;
-  /* flex: 1; */
   display: flex;
   justify-content: center;
-  /* align-items: center; */
   flex-direction: column;
   gap: 4px;
-  /* padding-right: 20px; */
 `;
 
 const ProfileDsName = styled.p`
   font-size: 16px;
   font-weight: 500;
-  /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 
   @media (max-width: 767px) {
+    margin: 16px;
+    text-align: center;
     font-size: 14px;
   }
 `;
@@ -309,7 +318,6 @@ const ProfileDsName = styled.p`
 const ProfileName = styled.p`
   font-size: 14px;
   color: var(--third-color);
-  /* width: 120px; */
   line-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -320,30 +328,14 @@ const ProfileName = styled.p`
   }
 `;
 
-const ProfileDesc = styled.p`
-  font-size: 14px;
-  margin-top: 6px;
-  white-space: pre-wrap;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
-`;
-
 const FollowBtnBox = styled.div`
   white-space: pre;
-  /* position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%); */
 `;
 
 const FollowBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
   font-size: 14px;
   padding: 10px 14px;
   color: #fff;
@@ -357,7 +349,9 @@ const FollowBtn = styled.button`
     background: #000;
   }
   @media (max-width: 767px) {
-    padding: 8px 12px;
+    padding: 8px 30px;
+    border-radius: 8px;
+    font-size: 12px;
   }
 `;
 

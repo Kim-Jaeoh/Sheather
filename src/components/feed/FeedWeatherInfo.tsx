@@ -30,58 +30,61 @@ const FeedWeatherInfo = () => {
 
   return (
     <Container>
-      {!isRegionLoading ? (
-        <WeatherBox>
-          <NowBox>
-            <p>NOW</p>
-          </NowBox>
-          <WeatherInfo>
-            <InfoText>
-              <MdPlace />
-              {region?.region_1depth_name} {region?.region_3depth_name}
-            </InfoText>
-            <WeatherIcon>
-              <img
-                src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
-                alt="weather icon"
-              />
-            </WeatherIcon>
-          </WeatherInfo>
-          <WeatherInfo>
-            <InfoText>날씨</InfoText>
-            <WeatherDesc>
-              {weatherData?.data?.weather[0].description}
-            </WeatherDesc>
-          </WeatherInfo>
-          <WeatherInfo>
-            <InfoText>현재</InfoText>
-            <WeatherTemp>
-              {Math.round(weatherData?.data?.main.temp)}
-              <sup>º</sup>
-            </WeatherTemp>
-          </WeatherInfo>
-          <WeatherClothesInfo>
-            <InfoText>추천하는 옷</InfoText>
-            <FlickingCategoryBox>
-              <Flicking
-                onChanged={(e) => console.log(e)}
-                moveType="freeScroll"
-                bound={true}
-                align="prev"
-              >
-                <TagBox>
-                  {filterTempClothes[0]?.clothes?.map((res, index) => {
-                    return <Tag key={index}>{res}</Tag>;
-                  })}
-                </TagBox>
-              </Flicking>
-            </FlickingCategoryBox>
-          </WeatherClothesInfo>
-        </WeatherBox>
+      {!location?.error?.message ? (
+        <>
+          {!isRegionLoading ? (
+            <WeatherBox>
+              <NowBox>
+                <p>NOW</p>
+              </NowBox>
+              <WeatherInfo>
+                <InfoText>
+                  <MdPlace />
+                  {region?.region_1depth_name} {region?.region_3depth_name}
+                </InfoText>
+                <WeatherIcon>
+                  <img
+                    src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
+                    alt="weather icon"
+                  />
+                </WeatherIcon>
+              </WeatherInfo>
+              <WeatherInfo>
+                <InfoText>날씨</InfoText>
+                <WeatherDesc>
+                  {weatherData?.data?.weather[0].description}
+                </WeatherDesc>
+              </WeatherInfo>
+              <WeatherInfo>
+                <InfoText>현재</InfoText>
+                <WeatherTemp>
+                  {Math.round(weatherData?.data?.main.temp)}
+                  <sup>º</sup>
+                </WeatherTemp>
+              </WeatherInfo>
+              <WeatherClothesInfo>
+                <InfoText>추천하는 옷</InfoText>
+                <FlickingCategoryBox>
+                  <Flicking
+                    onChanged={(e) => console.log(e)}
+                    moveType="freeScroll"
+                    bound={true}
+                    align="prev"
+                  >
+                    <TagBox>
+                      {filterTempClothes[0]?.clothes?.map((res, index) => {
+                        return <Tag key={index}>{res}</Tag>;
+                      })}
+                    </TagBox>
+                  </Flicking>
+                </FlickingCategoryBox>
+              </WeatherClothesInfo>
+            </WeatherBox>
+          ) : (
+            <Spinner />
+          )}
+        </>
       ) : (
-        <Spinner />
-      )}
-      {location?.error?.message && (
         <NotInfoBox>
           <NotInfo>
             <BiErrorCircle />

@@ -248,7 +248,6 @@ const ProfileEditBtn = styled.button`
   padding: 8px 10px;
   border: 1px solid var(--profile-color);
   color: var(--profile-color);
-  font-weight: bold;
   white-space: pre;
   border-radius: 8px;
   cursor: pointer;
@@ -299,7 +298,6 @@ const FollowBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
   font-size: 14px;
   padding: 8px 16px;
   color: #fff;

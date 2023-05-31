@@ -5,7 +5,7 @@ import Skeleton from "@mui/material/Skeleton";
 const FollowListSkeleton = () => {
   return (
     <>
-      {Array.from({ length: 4 }).map((res, index) => (
+      {Array.from({ length: 5 }).map((res, index) => (
         <Container key={index}>
           <SmallBox>
             <Skeleton width={12} height={12} variant="circular" />

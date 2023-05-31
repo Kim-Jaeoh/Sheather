@@ -239,9 +239,8 @@ const BtnBox = styled.div`
 
 const ProfileEditBtn = styled.button`
   padding: 8px 10px;
-  border: 1px solid #6f4ccf;
-  color: #6f4ccf;
-  font-weight: bold;
+  border: 1px solid var(--profile-color);
+  color: var(--profile-color);
   font-size: 14px;
   white-space: pre;
   border-radius: 8px;
@@ -251,7 +250,7 @@ const ProfileEditBtn = styled.button`
 
   &:hover,
   &:active {
-    background-color: #6f4ccf;
+    background-color: var(--profile-color);
     color: #fff;
   }
 `;
@@ -265,7 +264,6 @@ const LogoutBtn = styled.button`
   padding: 8px;
   border: 1px solid var(--third-color);
   color: var(--third-color);
-  font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.1s linear;
@@ -291,7 +289,6 @@ const FollowBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
   font-size: 14px;
   width: 100%;
   padding: 8px 10px;
