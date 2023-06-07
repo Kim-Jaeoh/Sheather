@@ -16,7 +16,7 @@ import DeskProfileActInfo from "../components/profile/DeskProfileActInfo";
 import MobileProfileActInfo from "../components/profile/MobileProfileActInfo";
 import ProfilePost from "../components/profile/ProfilePost";
 import { dbService } from "../fbase";
-import useInfinityScroll from "../hooks/useInfinityScroll";
+import useInfinityScroll from "../hooks/infinityScroll/useInfinityScroll";
 import useMediaScreen from "../hooks/useMediaScreen";
 import { FeedType } from "../types/type";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";

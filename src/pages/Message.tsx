@@ -44,24 +44,22 @@ const Message = () => {
 
   // 채팅방 목록 및 정보 불러오기
   useEffect(() => {
-    if (users) {
-      // 채팅방 입장 시 대화 내역 초기화 (렌더링 하는 순간에 다른 채팅방 유저 프로필이 보이기 때문)
-      const q = query(collection(dbService, `messages`));
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const list: MessageListType[] = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        const getInfo = list?.filter(
-          (res) =>
-            res.member.includes(myAccount?.email) &&
-            res.member.includes(users?.email)
-        );
-        setMessageCollection(getInfo[0]);
-      });
+    // 채팅방 입장 시 대화 내역 초기화 (렌더링 하는 순간에 다른 채팅방 유저 프로필이 보이기 때문)
+    const q = query(collection(dbService, `messages`));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const list: MessageListType[] = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      const getInfo = list?.filter(
+        (res) =>
+          res.member.includes(myAccount?.email) &&
+          res.member.includes(users?.email)
+      );
+      setMessageCollection(getInfo[0]);
+    });
 
-      return () => unsubscribe();
-    }
+    return () => unsubscribe();
   }, [myAccount?.email, users]);
 
   // 채팅방 생성

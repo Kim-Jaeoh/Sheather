@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { dbService } from "../fbase";
+import { dbService } from "../../fbase";
 import {
   collection,
   query,
@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { useInView } from "react-intersection-observer";
 import moment from "moment";
+import { throttle } from "lodash";
 
 type Props = {
   chatId?: string;
@@ -60,9 +61,8 @@ const useChatInfiniteScroll = ({
 
   // 더 불러오기
   useEffect(() => {
-    if (toBottom && inView) {
+    if (inView && toBottom) {
       getNextPage();
-
       // 데이터 불러오기 이전 스크롤 값 저장
       setPrevScrollHeight(containerRef.current?.scrollHeight);
     }
@@ -73,7 +73,7 @@ const useChatInfiniteScroll = ({
     if (sections) {
       setSortMessages(
         Array.from(sections)
-          .reverse()
+          // .reverse()
           .sort((a, b) => a[0] - b[0])
       );
     }
@@ -104,46 +104,70 @@ const useChatInfiniteScroll = ({
     }
 
     const newUnsubscribe = onSnapshot(q, (snapshot) => {
-      snapshot?.docs?.forEach((doc) => {
-        const monthDate = moment(doc.data().createdAt).format("YYYY-MM-DD");
+      snapshot.docChanges().forEach((change) => {
+        const docData = change.doc.data();
+        const monthDate = moment(docData.createdAt).format("YYYY-MM-DD");
         const dateKey = new Date(monthDate).getTime();
 
-        // 중복 체크
         setSections((prev) => {
           const newSections = new Map(prev);
 
           if (!newSections.has(dateKey)) {
             newSections.set(dateKey, []);
           }
+
           const section = newSections.get(dateKey);
           const isDuplicate = section.some(
-            (data) => data.createdAt === doc.data().createdAt
+            (data) => data.createdAt === docData.createdAt
           );
-          if (!isDuplicate) {
-            section.push(doc.data());
+          const existingIndex = section.findIndex(
+            (data) => data.createdAt === docData.createdAt
+          );
+
+          // 문서가 추가된 경우
+          if (change.type === "added" && !isDuplicate) {
+            section.push(docData);
           }
+
+          // 문서가 변경된 경우
+          if (change.type === "modified") {
+            if (existingIndex !== -1) {
+              section[existingIndex] = docData;
+            } else {
+              section.push(docData);
+            }
+          }
+
+          // // 문서가 삭제된 경우
+          // if (change.type === "removed") {
+          //   if (newSections.has(dateKey) && existingIndex !== -1) {
+          //     console.log("delete");
+          //     section.splice(existingIndex, 1);
+          //   }
+          // }
 
           return newSections;
         });
 
         // 요일 구하기
-        const getDay = dayArr[moment(doc.data().createdAt).day()];
+        const getDay = dayArr[moment(docData.createdAt).day()];
 
-        // 중복 체크
+        // 요일 중복 체크
         setDay((prev) => {
           if (
             !prev.some(
               (res) =>
                 moment(res.createdAt).format("YYYYMMDD") ===
-                moment(doc.data().createdAt).format("YYYYMMDD")
+                moment(docData.createdAt).format("YYYYMMDD")
             )
           ) {
-            return [...prev, { createdAt: doc.data().createdAt, day: getDay }];
+            return [...prev, { createdAt: docData.createdAt, day: getDay }];
           } else {
             return prev;
           }
         });
       });
+
       setIsLoading(true);
 
       if (snapshot.docs.length === 0) {
@@ -152,6 +176,56 @@ const useChatInfiniteScroll = ({
         setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
       }
     });
+
+    // const newUnsubscribe = onSnapshot(q, (snapshot) => {
+    //   snapshot?.docs?.forEach((doc) => {
+    //     const monthDate = moment(doc.data().createdAt).format("YYYY-MM-DD");
+    //     const dateKey = new Date(monthDate).getTime();
+
+    //     // 중복 체크
+    //     setSections((prev) => {
+    //       const newSections = new Map(prev);
+
+    //       if (!newSections.has(dateKey)) {
+    //         newSections.set(dateKey, []);
+    //       }
+    //       const section = newSections.get(dateKey);
+    //       const isDuplicate = section.some(
+    //         (data) => data.createdAt === doc.data().createdAt
+    //       );
+    //       if (!isDuplicate) {
+    //         section.push(doc.data());
+    //       }
+
+    //       return newSections;
+    //     });
+
+    //     // 요일 구하기
+    //     const getDay = dayArr[moment(doc.data().createdAt).day()];
+
+    //     // 중복 체크
+    //     setDay((prev) => {
+    //       if (
+    //         !prev.some(
+    //           (res) =>
+    //             moment(res.createdAt).format("YYYYMMDD") ===
+    //             moment(doc.data().createdAt).format("YYYYMMDD")
+    //         )
+    //       ) {
+    //         return [...prev, { createdAt: doc.data().createdAt, day: getDay }];
+    //       } else {
+    //         return prev;
+    //       }
+    //     });
+    //   });
+    //   setIsLoading(true);
+
+    //   if (snapshot.docs.length === 0) {
+    //     setLastVisible(-1);
+    //   } else {
+    //     setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+    //   }
+    // });
 
     setUnsubscribe(() => newUnsubscribe);
   };
@@ -164,7 +238,6 @@ const useChatInfiniteScroll = ({
     isLoading,
     day,
     sortMessages,
-    sections,
     setIsLoading,
     setSortMessages,
     unsubscribe,

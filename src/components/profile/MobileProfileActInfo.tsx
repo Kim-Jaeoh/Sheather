@@ -214,7 +214,7 @@ const ProfileDesc = styled.p`
   display: -webkit-box;
   -webkit-line-clamp: 3;
   overflow: hidden;
-  word-break: keep-all;
+  word-break: break-all;
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
 `;

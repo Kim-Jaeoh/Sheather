@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import ExploreSkeleton from "../../assets/skeleton/ExploreSkeleton";
-import useInfinityScroll from "../../hooks/useInfinityScroll";
+import useInfinityScroll from "../../hooks/infinityScroll/useInfinityScroll";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { FeedType } from "../../types/type";
 import useUserAccount from "../../hooks/useUserAccount";

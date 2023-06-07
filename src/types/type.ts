@@ -204,8 +204,8 @@ export interface MessageType {
   uid: string;
   displayName: string;
   email: string;
-  profileURL: string;
   isRead: boolean;
+  profileURL?: string;
 }
 
 export interface MessageListType {

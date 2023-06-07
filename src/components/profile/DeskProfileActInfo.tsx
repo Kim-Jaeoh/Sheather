@@ -215,7 +215,7 @@ const ProfileDesc = styled.p`
   display: -webkit-box;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  word-break: keep-all;
+  word-break: break-all;
   padding-right: 20px;
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
@@ -354,5 +354,5 @@ const ProfileBtnBox = styled.div`
   position: absolute;
   right: 0;
   white-space: pre;
-  gap: 10px;
+  gap: 14px;
 `;

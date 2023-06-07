@@ -19,6 +19,7 @@ import defaultAccount from "../../../assets/image/account_img_default.png";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 import FindPassword from "./FindPassword";
 import { BsArrowLeftShort } from "react-icons/bs";
+import { Spinner } from "../../../assets/spinner/Spinner";
 
 type Props = {
   modalOpen: boolean;
@@ -51,6 +52,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
     dpName: false,
   });
   const [isFindPassword, setIsFindPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useDispatch();
   const { isMobile } = useMediaScreen();
@@ -140,6 +142,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
     try {
       let user;
       if (isExistAccount) {
+        setIsLoading(true);
         await signInWithEmailAndPassword(
           authService,
           inputs.email,
@@ -159,6 +162,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
             // 알림 토큰 생성
             await createDeviceToken(SignUser.email).then(() => {
               alert("로그인 되었습니다.");
+              setIsLoading(false);
               modalClose();
               window.location.reload();
             });
@@ -251,90 +255,66 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
 
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={false}>
-      <Container>
-        <Header>
-          {isFindPassword ? (
-            <>
-              <IconBox onClick={onPrevClick}>
-                <BsArrowLeftShort />
-              </IconBox>
-              <Category>비밀번호 찾기</Category>
-            </>
-          ) : (
-            <Category>{isExistAccount ? "로그인" : "회원가입"}</Category>
-          )}
-          <IconBox onClick={modalClose}>
-            <IoCloseOutline />
-          </IconBox>
-        </Header>
-        <Box>
-          {!isFindPassword ? (
-            <>
-              {isMobile && (
-                <LogoBox>
-                  <Logo>
-                    <LogoImage
-                      src="/image/sheather_logo.png"
-                      alt="shather logo"
-                    />
-                  </Logo>
-                </LogoBox>
-              )}
-              <FormBox>
-                <Form onSubmit={SignUser} method="post">
-                  <EmailBox>
-                    <Input
-                      spellCheck="false"
-                      name="email"
-                      type="email"
-                      ref={emailRef}
-                      placeholder="이메일 주소"
-                      // required
-                      value={inputs.email}
-                      onChange={onChange}
-                      autoComplete="off"
-                      // onFocus={() =>
-                      //   setSelect((prev) => ({ ...prev, email: false }))
-                      // }
-                      // onBlur={() =>
-                      //   setSelect((prev) => ({ ...prev, email: true }))
-                      // }
-                    />
-                    {inputs.email !== "" && (
-                      <InputCheckBox
-                        check={checkMessage.email && !isDuplication.email}
-                      >
-                        {checkMessage.email && !isDuplication.email ? (
-                          <IoCheckmarkCircleOutline />
-                        ) : (
-                          <IoCloseCircleOutline />
-                        )}
-                      </InputCheckBox>
-                    )}
-                  </EmailBox>
-                  {!isExistAccount && (
+      <>
+        {isLoading && (
+          <LoadingBox>
+            <Spinner />
+          </LoadingBox>
+        )}
+        <Container isLoading={isLoading}>
+          <Header>
+            {isFindPassword ? (
+              <>
+                <IconBox onClick={onPrevClick}>
+                  <BsArrowLeftShort />
+                </IconBox>
+                <Category>비밀번호 찾기</Category>
+              </>
+            ) : (
+              <Category>{isExistAccount ? "로그인" : "회원가입"}</Category>
+            )}
+            <IconBox onClick={modalClose}>
+              <IoCloseOutline />
+            </IconBox>
+          </Header>
+          <Box>
+            {!isFindPassword ? (
+              <>
+                {isMobile && (
+                  <LogoBox>
+                    <Logo>
+                      <LogoImage
+                        src="/image/sheather_logo.png"
+                        alt="shather logo"
+                      />
+                    </Logo>
+                  </LogoBox>
+                )}
+                <FormBox>
+                  <Form onSubmit={SignUser} method="post">
                     <EmailBox>
                       <Input
                         spellCheck="false"
-                        name="dpName"
-                        type="dpName"
-                        placeholder="사용자 이름"
+                        name="email"
+                        type="email"
+                        ref={emailRef}
+                        placeholder="이메일 주소"
                         // required
-                        value={inputs.dpName}
+                        value={inputs.email}
                         onChange={onChange}
                         autoComplete="off"
                         // onFocus={() =>
-                        //   setSelect((prev) => ({ ...prev, dpName: false }))
+                        //   setSelect((prev) => ({ ...prev, email: false }))
                         // }
                         // onBlur={() =>
-                        //   setSelect((prev) => ({ ...prev, dpName: true }))
+                        //   setSelect((prev) => ({ ...prev, email: true }))
                         // }
                       />
-                      {inputs.dpName !== "" && (
+                      {inputs.email !== "" && (
                         <InputCheckBox
-                          check={checkMessage.dpName && !isDuplication.dpName}
+                          check={checkMessage.email && !isDuplication.email}
                         >
-                          {checkMessage.dpName && !isDuplication.dpName ? (
+                          {checkMessage.email && !isDuplication.email ? (
                             <IoCheckmarkCircleOutline />
                           ) : (
                             <IoCloseCircleOutline />
@@ -342,91 +322,138 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                         </InputCheckBox>
                       )}
                     </EmailBox>
-                  )}
-                  <PasswordBox>
-                    <Input
-                      spellCheck="false"
-                      name="password"
-                      type="password"
-                      placeholder="비밀번호"
-                      // required
-                      value={inputs.password}
-                      onChange={onChange}
-                      autoComplete="off"
-                      autoCapitalize="off"
-                      // onFocus={() =>
-                      //   setSelect((prev) => ({ ...prev, password: false }))
-                      // }
-                      // onBlur={() =>
-                      //   setSelect((prev) => ({ ...prev, password: true }))
-                      // }
-                    />
-                    {inputs.password !== "" && (
-                      <InputCheckBox check={checkMessage.password}>
-                        {checkMessage.password ? (
-                          <IoCheckmarkCircleOutline />
-                        ) : (
-                          <IoCloseCircleOutline />
+                    {!isExistAccount && (
+                      <EmailBox>
+                        <Input
+                          spellCheck="false"
+                          name="dpName"
+                          type="dpName"
+                          placeholder="사용자 이름"
+                          // required
+                          value={inputs.dpName}
+                          onChange={onChange}
+                          autoComplete="off"
+                          // onFocus={() =>
+                          //   setSelect((prev) => ({ ...prev, dpName: false }))
+                          // }
+                          // onBlur={() =>
+                          //   setSelect((prev) => ({ ...prev, dpName: true }))
+                          // }
+                        />
+                        {inputs.dpName !== "" && (
+                          <InputCheckBox
+                            check={checkMessage.dpName && !isDuplication.dpName}
+                          >
+                            {checkMessage.dpName && !isDuplication.dpName ? (
+                              <IoCheckmarkCircleOutline />
+                            ) : (
+                              <IoCloseCircleOutline />
+                            )}
+                          </InputCheckBox>
                         )}
-                      </InputCheckBox>
+                      </EmailBox>
                     )}
-                  </PasswordBox>
-                  <SignBtnBox>
-                    <SignBtn
-                      type="submit"
-                      disabled={
-                        isExistAccount
-                          ? inputs.email === "" ||
-                            inputs.password === "" ||
-                            !checkMessage.email ||
-                            !checkMessage.password
-                          : inputs.email === "" ||
-                            inputs.dpName === "" ||
-                            inputs.password === "" ||
-                            !checkMessage.email ||
-                            !checkMessage.dpName ||
-                            !checkMessage.password ||
-                            isDuplication.dpName ||
-                            isDuplication.email
-                      }
-                    >
-                      {isExistAccount ? "로그인" : "회원가입"}
-                    </SignBtn>
-                  </SignBtnBox>
-                  {/* {(!checkMessage.email ||
+                    <PasswordBox>
+                      <Input
+                        spellCheck="false"
+                        name="password"
+                        type="password"
+                        placeholder="비밀번호"
+                        // required
+                        value={inputs.password}
+                        onChange={onChange}
+                        autoComplete="off"
+                        autoCapitalize="off"
+                        // onFocus={() =>
+                        //   setSelect((prev) => ({ ...prev, password: false }))
+                        // }
+                        // onBlur={() =>
+                        //   setSelect((prev) => ({ ...prev, password: true }))
+                        // }
+                      />
+                      {inputs.password !== "" && (
+                        <InputCheckBox check={checkMessage.password}>
+                          {checkMessage.password ? (
+                            <IoCheckmarkCircleOutline />
+                          ) : (
+                            <IoCloseCircleOutline />
+                          )}
+                        </InputCheckBox>
+                      )}
+                    </PasswordBox>
+                    <SignBtnBox>
+                      <SignBtn
+                        type="submit"
+                        disabled={
+                          isExistAccount
+                            ? inputs.email === "" ||
+                              inputs.password === "" ||
+                              !checkMessage.email ||
+                              !checkMessage.password
+                            : inputs.email === "" ||
+                              inputs.dpName === "" ||
+                              inputs.password === "" ||
+                              !checkMessage.email ||
+                              !checkMessage.dpName ||
+                              !checkMessage.password ||
+                              isDuplication.dpName ||
+                              isDuplication.email
+                        }
+                      >
+                        {isExistAccount ? "로그인" : "회원가입"}
+                      </SignBtn>
+                    </SignBtnBox>
+                    {/* {(!checkMessage.email ||
                     !checkMessage.password ||
                     !checkMessage.dpName) &&
                     (inputs.email !== "" ||
                       inputs.dpName !== "" ||
                       inputs.password !== "") &&
                     error !== "" && <ErrorText>{error}</ErrorText>} */}
-                  {error !== "" && <ErrorText>{error}</ErrorText>}
-                </Form>
-                <SignInfo>
-                  <SignUp onClick={toggleAccount}>
-                    {isExistAccount ? "회원가입" : "로그인"}
-                  </SignUp>
-                  <AccountBox>
-                    {/* <AccountFind>계정 찾기</AccountFind> */}
-                    <AccountFind onClick={onFindPassword}>
-                      비밀번호 찾기
-                    </AccountFind>
-                  </AccountBox>
-                </SignInfo>
-              </FormBox>
-            </>
-          ) : (
-            <FindPassword isMobile={isMobile} />
-          )}
-        </Box>
-      </Container>
+                    {error !== "" && <ErrorText>{error}</ErrorText>}
+                  </Form>
+                  <SignInfo>
+                    <SignUp onClick={toggleAccount}>
+                      {isExistAccount ? "회원가입" : "로그인"}
+                    </SignUp>
+                    <AccountBox>
+                      {/* <AccountFind>계정 찾기</AccountFind> */}
+                      <AccountFind onClick={onFindPassword}>
+                        비밀번호 찾기
+                      </AccountFind>
+                    </AccountBox>
+                  </SignInfo>
+                </FormBox>
+              </>
+            ) : (
+              <FindPassword isMobile={isMobile} />
+            )}
+          </Box>
+        </Container>
+      </>
     </Modal>
   );
 };
 
 export default AuthFormModal;
 
-const Container = styled.div`
+const LoadingBox = styled.div`
+  position: absolute;
+  border-radius: 20px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  overflow: hidden;
+
+  svg {
+    width: 40px;
+    height: 40px;
+    stroke: #fff;
+  }
+`;
+
+const Container = styled.div<{ isLoading: boolean }>`
   position: absolute;
   left: 50%;
   top: 50%;
@@ -442,6 +469,7 @@ const Container = styled.div`
   outline: none;
   display: flex;
   flex-direction: column;
+  filter: ${(props) => (props.isLoading ? `brightness(0.5)` : "none")};
 
   @media (max-width: 767px) {
     left: 0;

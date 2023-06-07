@@ -8,7 +8,6 @@ import React, {
 import styled from "@emotion/styled";
 import { dbService } from "../../fbase";
 import {
-  DocumentData,
   addDoc,
   collection,
   deleteDoc,
@@ -16,7 +15,6 @@ import {
   onSnapshot,
   query,
   updateDoc,
-  where,
 } from "firebase/firestore";
 import moment from "moment";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -35,7 +33,7 @@ import useSendNoticeMessage from "../../hooks/actions/useSendNoticeMessage";
 import BottomButton from "../scrollButton/BottomButton";
 import { Spinner } from "../../assets/spinner/Spinner";
 import { throttle as _throttle } from "lodash";
-import useChatInfiniteScroll from "../../hooks/useChatInfiniteScroll";
+import useChatInfiniteScroll from "../../hooks/infinityScroll/useChatInfiniteScroll";
 import useThrottle from "../../hooks/useThrottle";
 
 interface Props {
@@ -61,16 +59,15 @@ const InfiniteChat = ({
     show: false,
     toBottom: false,
   }); // 버튼 상태
-  const [isFocus, setIsFocus] = useState(false);
-  const [isRead, setIsRead] = useState(false);
+  const [sendLoading, setSendLoading] = useState(false);
   const [prevScrollHeight, setPrevScrollHeight] = useState(null);
-  const { pathname } = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomListRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
   const { throttle } = useThrottle();
+  const { pathname } = useLocation();
   const {
     isLoading,
     day,
@@ -85,27 +82,23 @@ const InfiniteChat = ({
   });
   const { sendMessage } = useSendNoticeMessage(users);
 
+  // 채팅 불러올 때 이전 스크롤 값 위치 이동
+  useEffect(() => {
+    // prevScrollHeight 있을 시 현재 전체 스크롤 높이 값 - 과거 전체 스크롤 높이 값
+    if (prevScrollHeight) {
+      onScrollTo(containerRef?.current?.scrollHeight - prevScrollHeight);
+      return setPrevScrollHeight(null);
+    }
+    // prevScrollHeight 없을 시 맨 아래로 이동
+    bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
+  }, [sortMessages]);
+
   // 채팅방 이탈 시 채팅 리스너 해제
   useEffect(() => {
     if (!pathname.split("/")[2]) {
       onBackClick();
     }
   }, [pathname]);
-
-  // 채팅 불러올 때 이전 스크롤 값 위치 이동
-  useEffect(() => {
-    // prevScrollHeight 있을 시 현재 전체 스크롤 높이 값 - 과거 전체 스크롤 높이 값
-    if (prevScrollHeight) {
-      onScrollTo(containerRef.current?.scrollHeight - prevScrollHeight);
-      return setPrevScrollHeight(null);
-    }
-
-    // a. prevScrollHeight 없을 시 맨 아래로 이동
-    onScrollTo(
-      containerRef.current?.scrollHeight - containerRef.current?.clientHeight
-    );
-    // b. bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
-  }, [sortMessages]);
 
   const onScrollTo = (height: number) => {
     if (height) {
@@ -127,13 +120,13 @@ const InfiniteChat = ({
           setBtnStatus((prev) => ({ ...prev, toBottom: true }));
         }
 
-        if (scrollDifference > 1500 && btnStatus.toBottom) {
+        if (scrollDifference > 1500) {
           setBtnStatus((prev) => ({ ...prev, show: true }));
         } else {
           setBtnStatus((prev) => ({ ...prev, show: false }));
         }
       }, 200),
-    [btnStatus.toBottom]
+    []
   );
 
   // 스크롤 값 계산
@@ -149,7 +142,8 @@ const InfiniteChat = ({
     if (messageCollection) {
       const docRef = doc(dbService, "messages", messageCollection?.id);
       const subCollectionRef = collection(docRef, "message");
-      const q = query(subCollectionRef, where("email", "==", users?.email));
+      const q = query(subCollectionRef);
+      // const q = query(subCollectionRef, where("email", "==", users?.email)); // 내꺼
 
       const unsubscribe = onSnapshot(q, (doc) => {
         const collectionId = doc.docs.map((res) => {
@@ -171,6 +165,8 @@ const InfiniteChat = ({
 
   // 메시지 전송
   const onSubmit = async () => {
+    setSendLoading(true);
+
     // 입력한 채팅 공백 제거
     const trimmedMessage = text.trim();
 
@@ -178,14 +174,42 @@ const InfiniteChat = ({
     if (messageCollection?.id) {
       const docRef = doc(dbService, "messages", messageCollection?.id);
       const subCollectionRef = collection(docRef, "message");
-      await addDoc(subCollectionRef, {
+      const sendChat = addDoc(subCollectionRef, {
         text: trimmedMessage,
         createdAt: +Date.now(),
         uid: myAccount?.uid,
         displayName: myAccount?.displayName,
         email: myAccount?.email,
         isRead: false,
-      }).then(() => {
+      });
+
+      // 글 보낼 시 상대가 본인 메시지 안 읽은 것으로 변경
+      const copy = [...users?.message];
+      const editUserIsntRead = updateDoc(
+        doc(dbService, "users", users?.email),
+        {
+          message: copy.map((res) => {
+            if (myAccount?.displayName === res.user) {
+              return { ...res, isRead: false };
+            } else {
+              return res;
+            }
+          }),
+        }
+      );
+
+      setText("");
+      textRef.current.style.height = `auto`;
+
+      await Promise.all([sendChat, editUserIsntRead]).then(() => {
+        // 스크롤 하단으로 이동
+        if (containerRef.current) {
+          containerRef.current.scrollTop = Number(
+            containerRef.current?.scrollHeight
+          );
+        }
+        setSendLoading(false);
+
         // 알림 보내기
         if (users?.email) {
           throttle(
@@ -197,23 +221,7 @@ const InfiniteChat = ({
             3000
           );
         }
-      });
-
-      setText("");
-      textRef.current.style.height = `auto`;
-      bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
-
-      // 글 보낼 시 상대가 본인 메시지 안 읽은 것으로 변경
-      const copy = [...users?.message];
-      await updateDoc(doc(dbService, "users", users?.email), {
-        message: copy.map((res) => {
-          if (myAccount?.displayName === res.user) {
-            return { ...res, isRead: false };
-          } else {
-            return res;
-          }
-        }),
-      });
+      }); // 병렬 처리
     }
   };
 
@@ -232,10 +240,8 @@ const InfiniteChat = ({
   // 메세지 읽음 확인
   const onReadMessage = useCallback(async () => {
     if (myAccount?.message?.some((res) => !res.isRead)) {
-      setIsRead(true);
-
       // 채팅 정보 값 변경
-      const update = async (sub: SubCollectionType) => {
+      const update = (sub: SubCollectionType) => {
         const docRef = doc(
           dbService,
           "messages",
@@ -243,26 +249,37 @@ const InfiniteChat = ({
           "message",
           sub.id
         );
-        await updateDoc(docRef, {
+        updateDoc(docRef, {
           isRead: true,
         });
       };
 
-      chatId.forEach((res) => {
-        update(res);
-      });
+      const chatInfoUpdate = () => {
+        // 안 읽은 게 있을 때만 실행
+        if (chatId.some((res) => !res.isRead)) {
+          const filter = chatId.filter((res) => !res.isRead);
+          filter.forEach((obj) => {
+            update(obj);
+          });
+        }
+      };
 
       // 계정 메시지 정보 값 변경
       const copy = [...myAccount?.message];
-      await updateDoc(doc(dbService, "users", myAccount?.email), {
-        message: copy.map((res) => {
-          if (users?.email === res.email) {
-            return { ...res, isRead: true };
-          } else {
-            return { ...res };
-          }
-        }),
-      });
+      const myInfoUpdate = updateDoc(
+        doc(dbService, "users", myAccount?.email),
+        {
+          message: copy.map((res) => {
+            if (users?.email === res.email) {
+              return { ...res, isRead: true };
+            } else {
+              return { ...res };
+            }
+          }),
+        }
+      );
+
+      await Promise.all([chatInfoUpdate(), myInfoUpdate]);
     }
   }, [
     chatId,
@@ -298,17 +315,47 @@ const InfiniteChat = ({
     const userFilter = users?.message.filter(
       (res: MessageReadType) => res.email === myAccount?.email
     );
-    const collectionRef = doc(dbService, "messages", myFilter[0].id);
 
     if (myFilter.length !== userFilter.length) {
-      // 컬렉션 삭제
-      await deleteDoc(collectionRef)
-        .then(() => {
+      // 하위 컬렉션 문서 삭제
+      const deleteSubCollection = async (sub: SubCollectionType) => {
+        const subCollectionRef = doc(
+          dbService,
+          "messages",
+          messageCollection?.id,
+          "message",
+          sub.id
+        );
+        try {
+          await deleteDoc(subCollectionRef);
+        } catch (error) {
+          console.log("error deleting sub-collection document:", error);
+        }
+      };
+      // 상위 컬렉션 삭제
+      const deleteCollection = async () => {
+        const collectionRef = doc(dbService, "messages", myFilter[0].id);
+        try {
+          await deleteDoc(collectionRef);
           console.log("document delete success");
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error("document delete fail: ", error);
-        });
+        }
+      };
+      // 삭제 실행
+      const deleteCollections = async () => {
+        // 하위 컬렉션 문서들 삭제
+        // forEach(비동기) 사용 시 원하지 않는 순서로 실행될 수 있어서 for문(동기)으로 실행
+        // (for문 = 에러 시 이벤트 중단 / forEach = 에러 상관없이 실행, but 원치않는 순서로 실행할 수 있음)
+        for (const obj of chatId) {
+          await deleteSubCollection(obj);
+        }
+        // 서브 컬렉션 문서들 삭제 후 상위 컬렉션 삭제
+        await deleteCollection();
+      };
+      deleteCollections().catch((error) => {
+        console.error("deleteCollections failed:", error);
+      });
     }
   };
 
@@ -360,7 +407,7 @@ const InfiniteChat = ({
                   />
                   {sortMessages &&
                     sortMessages?.map(
-                      (arr: [string, DocumentData[]], index: number) => {
+                      (arr: [string, MessageType[]], index: number) => {
                         const monthDate = moment(arr[0]).format(
                           "YYYY년 M월 D일"
                         );
@@ -371,13 +418,14 @@ const InfiniteChat = ({
                         return (
                           <GroupMessage key={arr[0]}>
                             <GroupDateBox>
-                              <GroupDate>{`${monthDate} ${date[index].day}요일`}</GroupDate>
+                              <GroupDate>{`${monthDate} ${date[index]?.day}요일`}</GroupDate>
                             </GroupDateBox>
                             {arr[1]
                               .sort((a, b) => a.createdAt - b.createdAt)
-                              .map((res: DocumentData, idx: number, row) => {
+                              .map((res, idx, self) => {
                                 const isMine =
                                   res?.displayName === myAccount?.displayName;
+
                                 return (
                                   <User key={res.createdAt} isMine={isMine}>
                                     {!isMine && users && (
@@ -400,21 +448,7 @@ const InfiniteChat = ({
                                     </SendMessageBox>
                                     <SeneMessageAt isMine={isMine}>
                                       <Read>
-                                        <>
-                                          {
-                                            // res?.isRead &&
-                                            isMine &&
-                                            idx === row.length - 1 &&
-                                            users?.message?.some(
-                                              (user) =>
-                                                user.email ===
-                                                  myAccount?.email &&
-                                                user.isRead
-                                            )
-                                              ? "읽음"
-                                              : " "
-                                          }
-                                        </>
+                                        <>{res?.isRead ? " " : "1"}</>
                                       </Read>
                                       {moment(res?.createdAt).format(`HH:mm`)}
                                     </SeneMessageAt>
@@ -425,10 +459,13 @@ const InfiniteChat = ({
                         );
                       }
                     )}
-                  <div ref={bottomListRef} />
+                  <div
+                    ref={bottomListRef}
+                    // style={{ height: "20px", border: `1px solid red` }}
+                  />
                 </MessageBox>
                 <ChatBox>
-                  <TextAreaBox onSubmit={onSubmit}>
+                  <TextAreaBox sendLoading={sendLoading} onSubmit={onSubmit}>
                     {!isMobile && (
                       <Emoji
                         setText={setText}
@@ -445,20 +482,28 @@ const InfiniteChat = ({
                       ref={textRef}
                       onClick={onReadMessage}
                       onChange={onChange}
-                      onFocus={() => setIsFocus(true)}
-                      onBlur={() => setIsFocus(false)}
                       onKeyDown={onKeyPress}
-                      // onInput={handleResizeHeight}
-                      placeholder="메시지 입력..."
+                      placeholder={
+                        sendLoading ? "전송 중..." : "메시지 입력..."
+                      }
+                      readOnly={sendLoading}
                     />
-                    {text.length > 0 && (
-                      <SendBtn
-                        type="button"
-                        onClick={onClickSendMessage}
-                        disabled={!text}
-                      >
-                        보내기
-                      </SendBtn>
+                    {sendLoading ? (
+                      <LoadingBox>
+                        <Spinner />
+                      </LoadingBox>
+                    ) : (
+                      <>
+                        {text.length > 0 && (
+                          <SendBtn
+                            type="button"
+                            onClick={onClickSendMessage}
+                            disabled={!text}
+                          >
+                            보내기
+                          </SendBtn>
+                        )}
+                      </>
                     )}
                   </TextAreaBox>
                 </ChatBox>
@@ -596,6 +641,7 @@ const MessageBox = styled.div`
   flex: 1;
   width: 100%;
   overflow-y: auto;
+  scroll-behavior: auto;
   position: relative;
   padding: 0 20px 20px;
 `;
@@ -671,7 +717,7 @@ const ChatBox = styled.div`
   padding: 20px;
 `;
 
-const TextAreaBox = styled.form`
+const TextAreaBox = styled.form<{ sendLoading: boolean }>`
   border: 1px solid var(--third-color);
   border-radius: 22px;
   display: flex;
@@ -681,6 +727,8 @@ const TextAreaBox = styled.form`
   padding: 0 10px;
   margin-right: 10px;
   position: relative;
+
+  background: ${(props) => (props.sendLoading ? "#f1f1f1" : "#fff")};
 `;
 
 const TextArea = styled.textarea`
@@ -694,13 +742,26 @@ const TextArea = styled.textarea`
   border: none;
   outline: none;
   line-height: 24px;
+  background: transparent;
+`;
+
+const LoadingBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+
+  div {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const SendBtn = styled.button`
   display: flex;
   flex: 1 0 auto;
   padding: 0;
-  /* margin: 0 12px; */
   align-items: center;
   justify-content: center;
   background: transparent;

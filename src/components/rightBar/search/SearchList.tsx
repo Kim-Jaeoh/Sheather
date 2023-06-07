@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
-import useInfinityScroll from "../../../hooks/useInfinityScroll";
+import useInfinityScroll from "../../../hooks/infinityScroll/useInfinityScroll";
 import { collection, getDocs, query } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import { useSelector } from "react-redux";

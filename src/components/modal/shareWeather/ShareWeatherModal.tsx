@@ -291,7 +291,11 @@ const ShareWeatherModal = ({ shareBtn, setShareBtn }: Props) => {
   return (
     <Modal open={shareBtn} onClose={shareBtnClick} disableScrollLock={false}>
       <>
-        <LoadingBox>{isUpload && <Spinner />}</LoadingBox>
+        {isUpload && (
+          <LoadingBox>
+            <Spinner />
+          </LoadingBox>
+        )}
         <Container onSubmit={onSubmit} isUpload={isUpload}>
           <Header>
             <IconBox onClick={onPrevClick}>

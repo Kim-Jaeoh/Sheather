@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FeedType } from "../../types/type";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import useInfinityScroll from "../../hooks/useInfinityScroll";
+import useInfinityScroll from "../../hooks/infinityScroll/useInfinityScroll";
 import HomeSkeleton from "../../assets/skeleton/HomeSkeleton";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import FeedProfileInfo from "./FeedProfileInfo";
