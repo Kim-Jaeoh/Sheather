@@ -5,7 +5,7 @@ import { RootState } from "../app/store";
 import { dbService } from "../fbase";
 
 const useGetMyAccount = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+  const { isLoggedIn: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
@@ -22,7 +22,9 @@ const useGetMyAccount = () => {
         }
       );
 
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+      };
     }
   }, [userLogin, userObj.email]);
 

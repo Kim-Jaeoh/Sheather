@@ -10,7 +10,7 @@ import useThrottle from "../useThrottle";
 import useSendNoticeMessage from "./useSendNoticeMessage";
 
 const useToggleFollow = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+  const { isLoggedIn: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
@@ -66,24 +66,20 @@ const useToggleFollow = () => {
     ) {
       setIsSend(false);
       // 본인 팔로잉에 상대방 이름 제거
-      const updateFollowing = updateDoc(
-        doc(dbService, "users", userObj.email),
-        {
+      const updateFollowing = () =>
+        updateDoc(doc(dbService, "users", userObj.email), {
           following: followingFilter,
-        }
-      );
+        });
 
       // 상대방 팔로워에 본인 이름, 알림 제거
-      const updateFollowerAndNotice = updateDoc(
-        doc(dbService, "users", userInfo.email),
-        {
+      const updateFollowerAndNotice = () =>
+        updateDoc(doc(dbService, "users", userInfo.email), {
           follower: followerFilter,
           notice: noticeFilter,
-        }
-      );
+        });
 
       // 병렬 처리
-      await Promise.all([updateFollowing, updateFollowerAndNotice]);
+      await Promise.all([updateFollowing(), updateFollowerAndNotice()]);
 
       dispatch(
         currentUser({

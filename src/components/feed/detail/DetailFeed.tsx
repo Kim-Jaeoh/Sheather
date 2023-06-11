@@ -93,7 +93,9 @@ const DetailFeed = () => {
       setDocumentNotice(noticeFilter);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [postId]);
 
   // 1-2. 해당 글 값이 있으면 삭제

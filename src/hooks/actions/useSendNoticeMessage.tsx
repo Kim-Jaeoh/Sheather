@@ -36,7 +36,9 @@ const useSendNoticeMessage = (
         doc(dbService, "users", users?.email),
         (doc) => setUserNotification(doc.data().notification)
       );
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+      };
 
       // const querySnapshot = async () => {
       //   const getdoc = await getDoc(doc(dbService, "users", users?.email));

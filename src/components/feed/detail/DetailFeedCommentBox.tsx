@@ -58,7 +58,9 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
         }
       );
 
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+      };
     }
   }, [replyData]);
 
@@ -120,7 +122,7 @@ const DetailFeedCommentBox = ({ userAccount, feed, onIsLogin }: Props) => {
           })}
         </>
       )}
-      <CommentEditBox onSubmit={() => onComment(feed)} onClick={onIsLogin}>
+      <CommentEditBox onClick={onIsLogin}>
         <CommentEditText
           spellCheck="false"
           name="comment"

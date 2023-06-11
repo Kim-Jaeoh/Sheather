@@ -5,7 +5,7 @@ import { currentUser } from "../../app/user";
 import { dbService } from "../../fbase";
 
 const useToggleBookmark = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+  const { isLoggedIn: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }

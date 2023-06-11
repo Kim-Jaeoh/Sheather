@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback } from "react";
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 import toast from "react-hot-toast";
 import useGetMyAccount from "../../../hooks/useGetMyAccount";
-import { CurrentUserType } from "../../../types/type";
 import { updateDoc, doc } from "firebase/firestore";
 import { dbService } from "../../../fbase";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,11 +19,9 @@ type Props = {
 
 const ProfileSettingModal = (props: Props) => {
   const { modalOpen, modalClose } = props;
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const { myAccount } = useGetMyAccount();
   const { isMobile } = useMediaScreen();
   const dispatch = useDispatch();
@@ -82,7 +79,6 @@ const ProfileSettingModal = (props: Props) => {
 
         <Container>
           <Icon>
-            <VscBell />
             <span>알림</span>
           </Icon>
           <SwitchBox>
@@ -157,7 +153,6 @@ const IconBox = styled.div`
   svg {
     width: 24px;
     height: 24px;
-    /* padding: 8px; */
   }
 `;
 
@@ -172,13 +167,9 @@ const Container = styled.div`
 
 const SwitchBox = styled.div`
   width: 46px;
-  height: 26px;
+  height: 24px;
   position: absolute;
   right: 20px;
-`;
-
-const SwitchInput = styled.input`
-  /* display: none; */
 `;
 
 const Switch = styled.div<{ IsNotification: boolean }>`
@@ -187,7 +178,6 @@ const Switch = styled.div<{ IsNotification: boolean }>`
   align-items: center;
   width: 100%;
   height: 100%;
-  /* padding: 12px 10px; */
   cursor: pointer;
 `;
 
@@ -195,14 +185,13 @@ const SwitchCircle = styled.span<{ IsNotification: boolean }>`
   display: inline-block;
   position: absolute;
   left: ${(props) => (props.IsNotification ? `26px` : `4px`)};
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 999px;
   background-color: ${(props) =>
     props.IsNotification ? `var(--profile-color)` : `rgb(34 34 34 / 50%)`};
   border: ${(props) =>
     !props.IsNotification && "1px solid var(--fourth-color)"};
-  /* box-shadow: 0px 0px 5px -1px #4d4d4d; */
   transition: left 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
     background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 
@@ -242,9 +231,6 @@ const Icon = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
-
-  &:first-of-type {
-  }
 
   svg {
     display: flex;

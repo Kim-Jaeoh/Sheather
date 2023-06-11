@@ -10,12 +10,14 @@ import TempClothes from "../../assets/data/TempClothes";
 import { BiErrorCircle } from "react-icons/bi";
 import useWeatherQuery from "../../hooks/useQuery/useWeatherQuery";
 import useRegionQuery from "../../hooks/useQuery/useRegionQuery";
+import { Link, useNavigate } from "react-router-dom";
 
 const FeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
-  const { tempClothes } = TempClothes(); // 옷 정보
+  const { tempClothes, clothesCategory } = TempClothes(); // 옷 정보
   const { weatherData } = useWeatherQuery();
   const { region, isRegionLoading } = useRegionQuery();
+  const navigate = useNavigate();
 
   const filterTempClothes = useMemo(() => {
     const temp = weatherData?.data?.main.temp;
@@ -28,6 +30,10 @@ const FeedWeatherInfo = () => {
     );
   }, [tempClothes, weatherData?.data?.main.temp]);
 
+  const onSetUrl = (q: string, cat: string, detail: string | number) => {
+    navigate(`/explore?q=${q}&cat=${cat}&detail=${detail}&sort=recent`);
+  };
+
   return (
     <Container>
       {!location?.error?.message ? (
@@ -37,7 +43,11 @@ const FeedWeatherInfo = () => {
               <NowBox>
                 <p>NOW</p>
               </NowBox>
-              <WeatherInfo>
+              <WeatherInfo
+                onClick={() =>
+                  onSetUrl("region", "region", region?.region_1depth_name)
+                }
+              >
                 <InfoText>
                   <MdPlace />
                   {region?.region_1depth_name} {region?.region_3depth_name}
@@ -51,29 +61,65 @@ const FeedWeatherInfo = () => {
               </WeatherInfo>
               <WeatherInfo>
                 <InfoText>날씨</InfoText>
-                <WeatherDesc>
+                <WeatherDesc
+                  onClick={() =>
+                    onSetUrl(
+                      "weather",
+                      "weather",
+                      weatherData?.data?.weather[0].description
+                    )
+                  }
+                >
                   {weatherData?.data?.weather[0].description}
                 </WeatherDesc>
               </WeatherInfo>
               <WeatherInfo>
-                <InfoText>현재</InfoText>
-                <WeatherTemp>
+                <InfoText>온도</InfoText>
+                <WeatherTemp
+                  onClick={() =>
+                    onSetUrl(
+                      "weather",
+                      "temp",
+                      Math.round(weatherData?.data?.main.temp)
+                    )
+                  }
+                >
                   {Math.round(weatherData?.data?.main.temp)}
                   <sup>º</sup>
+                </WeatherTemp>
+              </WeatherInfo>
+              <WeatherInfo>
+                <InfoText>바람</InfoText>
+                <WeatherTemp
+                  onClick={() =>
+                    onSetUrl(
+                      "weather",
+                      "wind",
+                      Math.round(weatherData?.data?.wind.speed)
+                    )
+                  }
+                >
+                  {Math.round(weatherData?.data?.wind.speed)}
+                  <span>m/s</span>
                 </WeatherTemp>
               </WeatherInfo>
               <WeatherClothesInfo>
                 <InfoText>추천하는 옷</InfoText>
                 <FlickingCategoryBox>
-                  <Flicking
-                    onChanged={(e) => console.log(e)}
-                    moveType="freeScroll"
-                    bound={true}
-                    align="prev"
-                  >
+                  <Flicking moveType="freeScroll" bound={true} align="prev">
                     <TagBox>
-                      {filterTempClothes[0]?.clothes?.map((res, index) => {
-                        return <Tag key={index}>{res}</Tag>;
+                      {filterTempClothes[0]?.clothes?.map((clothes, index) => {
+                        const select = Object.entries(clothesCategory).filter(
+                          (cat) => cat[1].some((obj) => obj === clothes)
+                        );
+                        return (
+                          <Tag
+                            to={`/explore?q=clothes&cat=${select[0][0]}&detail=${clothes}&sort=recent`}
+                            key={index}
+                          >
+                            {clothes}
+                          </Tag>
+                        );
                       })}
                     </TagBox>
                   </Flicking>
@@ -116,7 +162,7 @@ const WeatherBox = styled.div`
   display: flex;
   align-items: center;
 
-  div:not(:nth-of-type(1), :nth-of-type(4)) {
+  div:not(:nth-of-type(1), :nth-of-type(3)) {
     flex: 1;
   }
   div:nth-of-type(3) {
@@ -128,18 +174,20 @@ const NowBox = styled.div`
   width: 22px;
   height: 100%;
   background-color: #ff5673;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   overflow: hidden;
   border-right: 2px solid #222222;
+  position: relative;
 
   p {
+    position: absolute;
+    top: 50%;
+    left: 50%;
     font-size: 12px;
     letter-spacing: 2px;
     font-weight: bold;
     color: #fff;
-    transform: rotate(-90deg);
+    transform: translate(-50%, -50%) rotate(-90deg);
   }
 `;
 
@@ -149,7 +197,7 @@ const WeatherInfo = styled.div`
   justify-content: center;
   flex-direction: column;
 
-  max-width: 120px;
+  max-width: 110px;
   min-width: 80px;
   text-align: center;
   text-overflow: ellipsis;
@@ -209,7 +257,7 @@ const TagBox = styled.div`
   gap: 8px;
 `;
 
-const Tag = styled.div`
+const Tag = styled(Link)`
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
@@ -229,6 +277,7 @@ const Tag = styled.div`
 const WeatherIcon = styled.div`
   display: flex;
   align-items: center;
+  cursor: pointer;
   justify-content: center;
   width: 64px;
   flex: 1;
@@ -243,6 +292,7 @@ const WeatherIcon = styled.div`
 
 const InfoText = styled.span`
   font-size: 12px;
+  cursor: pointer;
   height: 20px;
   z-index: 2;
   display: flex;
@@ -264,14 +314,21 @@ const WeatherTemp = styled.p`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+
+  span {
+    font-size: 14px;
+    margin-top: 4px;
+  }
 
   sup {
-    margin-bottom: 4px;
     font-size: 14px;
+    margin-bottom: 4px;
   }
 `;
 
 const WeatherDesc = styled.span`
+  cursor: pointer;
   font-size: 14px;
   word-break: keep-all;
   display: flex;

@@ -13,6 +13,7 @@ import Footer from "./components/footer/Footer";
 import { ReactComponent as SheatherLogo } from "./assets/image/sheather_logo.svg";
 import { ReactComponent as DecoTwinkle } from "./assets/image/deco_twinkle.svg";
 import { authService } from "./fbase";
+import { useDispatch } from "react-redux";
 const Home = lazy(() => import("./pages/Home"));
 const Message = lazy(() => import("./pages/Message"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -37,6 +38,7 @@ const App = () => {
   const [userObj, setUserObj] = useState(null);
   const { isMobile, isDesktop, RightBarNone } = useMediaScreen();
   const { isAuthModal, onAuthModal, onIsLogin } = useUserAccount();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     console.log(`
@@ -46,21 +48,9 @@ const App = () => {
     ♡。　／　　｜　　＼。　♡
     。　♡。 　　。　　♡。
     `);
-    //   console.log(`
-    //   ╭ ◜◝ ͡ ◜◝ ͡ ◜◝ ͡ ◜◝  ◜◝╮
-    //  💗 이 토이프로젝트 재밌다  💗
-    //   ╰ ◟◞ ͜ ◟ ͜ ◟◞ ͜ ◟ ͜ ◟◞◟◞╯
-    //   　ｏ
-    //   　　 。
-    //   　　　｡
-    //   　　∧＿∧
-    //   　 (*　･ω･)
-    //   ＿(__つ/￣￣￣/_
-    //   　　＼/　　　/
-    //   `);
 
     // 유저 상태 변화 추적(로그인, 로그아웃, 어플리케이션 초기화 시)
-    authService.onAuthStateChanged(async (user) => {
+    authService.onAuthStateChanged((user) => {
       if (user) {
         setUserObj(user);
       } else {
@@ -70,12 +60,27 @@ const App = () => {
     });
   }, []);
 
-  // let vh: number = 0;
+  // // 자동 로그인 해제
   // useEffect(() => {
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   vh = window.innerHeight * 0.01;
-  //   document.documentElement.style.setProperty("--vh", `${vh}px`);
-  // }, []);
+  //   // 인증 토큰 만료 기간이 아직 남은 경우
+  //   if (userObj) {
+  //     if (Number(localStorage.getItem("expirationTime")) > 0) {
+  //       const currentTime = new Date().getTime();
+  //       const expirationTime = Number(localStorage.getItem("expirationTime"));
+
+  //       const remainTime = expirationTime - currentTime;
+  //       console.log(remainTime);
+  //       setTimeout(() => {
+  //         console.log("남음");
+  //         dispatch(logOut());
+  //       }, remainTime);
+  //     } else {
+  //       // -> 인증 만료 기간이 0보다 작은 경우
+  //       console.log("없음");
+  //       localStorage.removeItem("experationTime");
+  //     }
+  //   }
+  // }, [userObj]);
 
   return (
     <>

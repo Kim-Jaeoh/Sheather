@@ -16,7 +16,7 @@ type Props = {
 };
 
 const FeedPost = ({ url, onIsLogin }: Props) => {
-  const { loginToken: userLogin } = useSelector((state: RootState) => {
+  const { isLoggedIn: userLogin } = useSelector((state: RootState) => {
     return state.user;
   });
 

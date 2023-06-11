@@ -14,12 +14,12 @@ import {
   IoCloseOutline,
 } from "react-icons/io5";
 import { authService, dbService, createDeviceToken } from "../../../fbase";
-import { currentUser, loginToken } from "../../../app/user";
 import defaultAccount from "../../../assets/image/account_img_default.png";
 import useMediaScreen from "../../../hooks/useMediaScreen";
 import FindPassword from "./FindPassword";
 import { BsArrowLeftShort } from "react-icons/bs";
 import { Spinner } from "../../../assets/spinner/Spinner";
+import { logIn, currentUser } from "../../../app/user";
 
 type Props = {
   modalOpen: boolean;
@@ -153,7 +153,12 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
-            dispatch(loginToken(true));
+            dispatch(
+              logIn()
+              //   {
+              //   expirationTime: new Date().getTime() + 20 * 1000, // 자동 로그인 유지 시간
+              // }
+            );
             dispatch(
               currentUser({
                 ...docSnap.data(),
@@ -183,7 +188,8 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
             notification: false,
             uid: user.uid,
             createdAt: Date.now(),
-            profileURL: defaultAccount,
+            defaultProfileUrl: defaultAccount,
+            profileURL: "",
             email: user.email,
             name: "",
             displayName: inputs.dpName,
@@ -201,7 +207,8 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
               notification: false,
               uid: user.uid,
               createdAt: Date.now(),
-              profileURL: defaultAccount,
+              defaultProfileUrl: defaultAccount,
+              profileURL: "",
               email: user.email,
               name: "",
               displayName: inputs.dpName,
@@ -232,6 +239,15 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
       const errorKey = Object.keys(errorMessages).find((key) =>
         error.message.includes(key)
       );
+      // 웹 푸시 토큰 없을 떄 알림
+      if (error.message === "Can't find variable: Notification") {
+        alert(
+          `웹 알림이 지원되지 않는 환경이므로 알림을 받을 수 없습니다. 알림을 받으시려면,\n'ios: safari - 공유 - 홈 화면에 추가' 후 로그인을 해주세요.`
+        );
+        setIsLoading(false);
+        modalClose();
+        return window.location.reload();
+      }
       const errorMessage = errorKey ? errorMessages[errorKey] : error.message;
       return setError(errorMessage);
     }

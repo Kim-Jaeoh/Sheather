@@ -24,7 +24,7 @@ interface LikeType {
 }
 
 const useToggleLike = ({ user }: props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+  const { isLoggedIn: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }

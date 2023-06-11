@@ -133,6 +133,12 @@ const useReply = ({
         queryClient.invalidateQueries(["feed"]);
         toast.success("답글이 삭제되었습니다.");
       },
+      onError: () => {
+        queryClient.invalidateQueries(["feed"]);
+        toast.error("답글이 존재하지 않아 삭제할 수 없습니다.", {
+          id: `not-delete-reply`,
+        });
+      },
     }
   );
 

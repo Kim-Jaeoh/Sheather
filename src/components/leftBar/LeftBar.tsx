@@ -242,7 +242,14 @@ const LeftBar = ({ onIsLogin }: props) => {
               {userLogin ? (
                 <>
                   <UserProfileBox>
-                    <UserProfile src={userObj?.profileURL} alt="profile" />
+                    <UserProfile
+                      src={
+                        userObj?.profileURL
+                          ? userObj.profileURL
+                          : userObj.defaultProfileUrl
+                      }
+                      alt="profile"
+                    />
                   </UserProfileBox>
                   <MenuText>프로필</MenuText>
                 </>

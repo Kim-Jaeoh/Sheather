@@ -5,7 +5,6 @@ import { BsChatDots } from "react-icons/bs";
 import { useLocation, useNavigate } from "react-router-dom";
 import MessageUserSkeleton from "../assets/skeleton/MessageUserSkeleton";
 import AddChatUserModal from "../components/modal/message/AddChatUserModal";
-import useCreateChat from "../hooks/actions/useCreateChat";
 import useMediaScreen from "../hooks/useMediaScreen";
 import {
   CurrentUserType,
@@ -22,11 +21,19 @@ const Message = () => {
   const [addUserModal, setAddUserMOdal] = useState(false);
   const [users, setUsers] = useState(null);
   const [messageCollection, setMessageCollection] = useState(null);
-  const { clickInfo, setClickInfo } = useCreateChat();
-  const { state: userInfo } = useLocation();
+  const [clickInfo, setClickInfo] = useState(null);
+  const { pathname, state: userInfo } = useLocation();
   const { userObj, myAccount } = useGetMyAccount();
   const { isDesktop, isTablet, isMobile } = useMediaScreen();
   const navigate = useNavigate();
+
+  // '메세지 탭' 클릭 시 채팅방만 나가기
+  useEffect(() => {
+    if (!pathname.split("/")[2]) {
+      setClickInfo(null);
+      navigate("/message");
+    }
+  }, [pathname]);
 
   // 상대 계정 정보 가져오기
   useEffect(() => {
@@ -38,7 +45,9 @@ const Message = () => {
         }
       );
 
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+      };
     }
   }, [clickInfo, myAccount, userInfo]);
 
@@ -59,7 +68,9 @@ const Message = () => {
       setMessageCollection(getInfo[0]);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [myAccount?.email, users]);
 
   // 채팅방 생성

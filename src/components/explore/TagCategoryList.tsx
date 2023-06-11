@@ -11,7 +11,7 @@ import useFeedQuery from "../../hooks/useQuery/useFeedQuery";
 import TagCategoryListSkeleton from "../../assets/skeleton/TagCategoryListSkeleton";
 
 const TagCategoryList = () => {
-  const { loginToken: userLogin } = useSelector((state: RootState) => {
+  const { isLoggedIn: userLogin } = useSelector((state: RootState) => {
     return state.user;
   });
   const [isLoading, setIsLoading] = useState(false);

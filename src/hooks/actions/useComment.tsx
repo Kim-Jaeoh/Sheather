@@ -56,6 +56,23 @@ const useComment = ({
     {
       onSuccess: async () => {
         queryClient.invalidateQueries(["feed"]);
+
+        // 알림 보내기
+        if (
+          (getToken && feed.displayName !== userObj.displayName) ||
+          commentData?.displayName !== userObj.displayName
+        ) {
+          throttle(
+            () =>
+              sendActions(
+                `comment`,
+                commentText,
+                `${process.env.REACT_APP_PUBLIC_URL}/feed/detail/${feed.id}`
+              ),
+            5000
+          );
+        }
+
         setCommentText("");
         textRef.current.style.height = "24px";
       },
@@ -104,23 +121,7 @@ const useComment = ({
         ],
       });
     }
-    // 알림 보내기
-    if (
-      (getToken && feed.displayName !== userObj.displayName) ||
-      commentData?.displayName !== userObj.displayName
-    ) {
-      throttle(
-        () =>
-          sendActions(
-            `comment`,
-            commentText,
-            `${process.env.REACT_APP_PUBLIC_URL}/feed/detail/${feed.id}`
-          ),
-        5000
-      );
-    }
   };
-
   // 댓글 삭제
   const { mutate: mutateCommentDelete } = useMutation(
     (response: CommentPayload) =>
@@ -138,6 +139,7 @@ const useComment = ({
         });
       },
       onError: () => {
+        queryClient.invalidateQueries(["feed"]);
         toast.error("댓글이 존재하지 않아 삭제할 수 없습니다.", {
           id: `not-delete`,
         });
@@ -166,23 +168,26 @@ const useComment = ({
       });
 
       // 상대 알림에서 답글 및 댓글 제거
-      const feedUser = updateDoc(doc(dbService, "users", userAccount.email), {
-        notice: feedUserNoticeFilter,
-      });
+      const feedUser = () =>
+        updateDoc(doc(dbService, "users", userAccount.email), {
+          notice: feedUserNoticeFilter,
+        });
 
       // 본인 댓글 알림 중 상대 답글 제거
-      const userFilter = updateDoc(doc(dbService, "users", userObj.email), {
-        notice: myNoticeFilter,
-      });
+      const userFilter = () =>
+        updateDoc(doc(dbService, "users", userObj.email), {
+          notice: myNoticeFilter,
+        });
 
       // 답글 단 사람들 알림 제거
-      const replyFilter = commentData.reply.map((replyUser) => {
-        return updateDoc(doc(dbService, "users", replyUser.email), {
-          notice: replyUserFilter,
+      const replyFilter = () =>
+        commentData.reply.map((replyUser) => {
+          return updateDoc(doc(dbService, "users", replyUser.email), {
+            notice: replyUserFilter,
+          });
         });
-      });
 
-      await Promise.all([feedUser, userFilter, ...replyFilter]); // 병렬 처리
+      await Promise.all([feedUser(), userFilter(), ...replyFilter()]); // 병렬 처리
     }
   };
 

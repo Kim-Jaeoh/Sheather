@@ -89,9 +89,9 @@ const Weather = () => {
         ...prev,
         dayPlusOne: dayPlusCheck ? [weather, ...date2] : date2,
       }));
-      setFilterData((prev) => ({ ...prev, dayPlusTwo: [weather, ...date3] }));
-      setFilterData((prev) => ({ ...prev, dayPlusThree: [weather, ...date4] }));
-      setFilterData((prev) => ({ ...prev, dayPlusFour: [weather, ...date5] }));
+      setFilterData((prev) => ({ ...prev, dayPlusTwo: date3 }));
+      setFilterData((prev) => ({ ...prev, dayPlusThree: date4 }));
+      setFilterData((prev) => ({ ...prev, dayPlusFour: date5 }));
     }
   }, [date1, date2, date3, date4, date5, dayPlusCheck, weather]);
 

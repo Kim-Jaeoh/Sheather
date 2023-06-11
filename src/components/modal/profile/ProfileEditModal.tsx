@@ -27,6 +27,7 @@ import {
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
 } from "react-icons/io5";
+import ProfileImageModal from "./ProfileImageModal";
 
 type Props = {
   modalOpen: boolean;
@@ -41,14 +42,20 @@ type ArrBooleanType = {
   [key: string]: boolean;
 };
 
+interface CropImageType {
+  zooms: number;
+  crops: Point;
+}
+
 const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
   const [isImage, setIsImage] = useState(false);
+  const [selectImageModal, setSelectImageModal] = useState(false);
   const [previewImage, setPreviewImage] = useState(userObj.profileURL); // 미리보기 크롭용
   const [profileURL, setProfileURL] = useState({
-    imageUrl: userObj.profileURL,
+    imageUrl: userObj.profileURL !== "" ? userObj.profileURL : null,
     croppedImageUrl: null,
     crop: null,
     zoom: null,
@@ -112,7 +119,9 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
       setDulicationName(checkFilter);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [inputs.dpName, userObj.displayName]);
 
   useEffect(() => {
@@ -136,17 +145,57 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!duplicationName) {
-      await updateDoc(doc(dbService, "users", userObj.email), {
-        name: inputs.name,
-        displayName: inputs.dpName,
-        description: inputs.desc,
-        profileURL: profileURL.croppedImageUrl
-          ? profileURL.croppedImageUrl
-          : profileURL.imageUrl,
-      });
-      await updateProfile(authService.currentUser, {
-        displayName: inputs.dpName,
-      });
+      const compress = async (croppedImage: string) => {
+        if (profileURL.imageUrl !== "" || profileURL.croppedImageUrl !== "") {
+          const options = {
+            maxSizeMB: 2,
+            maxWidthOrHeight: 150,
+          };
+
+          try {
+            // 1) 크롭된 이미지 주소(BlobUrl: string)를 File 형태로 변환
+            const CroppedImageUrlToFile =
+              await imageCompression.getFilefromDataUrl(
+                croppedImage,
+                "profile"
+              );
+
+            // 2) 1)에서 변환된 File을 압축
+            const compressedFile = await imageCompression(
+              CroppedImageUrlToFile,
+              options
+            );
+
+            // 3) 압축된 File을 다시 이미지 주소로 변환
+            const compressedCroppedImage =
+              await imageCompression.getDataUrlFromFile(compressedFile);
+            return compressedCroppedImage;
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      };
+
+      const updateMyInfo = (croppedImage: string) => {
+        updateDoc(doc(dbService, "users", userObj.email), {
+          name: inputs.name,
+          displayName: inputs.dpName,
+          description: inputs.desc,
+          profileURL: croppedImage ? croppedImage : "",
+        });
+      };
+      const updateAccountProfile = () =>
+        updateProfile(authService.currentUser, {
+          displayName: inputs.dpName,
+        });
+
+      await Promise.all([compress(profileURL.croppedImageUrl)]).then(
+        (croppedImage) => {
+          updateMyInfo(croppedImage[0]);
+          updateAccountProfile();
+        }
+      );
+
       dispatch(
         currentUser({
           ...userObj,
@@ -162,13 +211,14 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
       modalClose();
       return navigate(`${inputs.dpName}/post`, { state: userObj.email });
     } else {
-      // alert("사용자 이름이 중복입니다.");
       toast.error("사용자 이름이 중복입니다.");
     }
   };
 
   // 이미지 변경
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectImageModal(false);
+
     const {
       currentTarget: { files },
     } = e;
@@ -199,33 +249,11 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     zoom?: number,
     croppedImageUrl?: string
   ) => {
-    const options = {
-      maxSizeMB: 2,
-      maxWidthOrHeight: 150,
-    };
-
-    // 1) 크롭된 이미지 주소(BlobUrl: string)를 File 형태로 변환
-    const CroppedImageUrlToFile = await imageCompression.getFilefromDataUrl(
-      croppedImageUrl,
-      "profile"
-    );
-
-    // 2) 1)에서 변환된 File을 압축
-    const compressedFile = await imageCompression(
-      CroppedImageUrlToFile,
-      options
-    );
-
-    // 3) 압축된 File을 다시 이미지 주소로 변환
-    const compressedCroppedImage = await imageCompression.getDataUrlFromFile(
-      compressedFile
-    );
-
     setProfileURL({
       imageUrl,
       crop,
       zoom,
-      croppedImageUrl: compressedCroppedImage,
+      croppedImageUrl,
     });
   };
 
@@ -284,141 +312,181 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     }
   };
 
+  const toggleImageModal = () => {
+    setSelectImageModal(() => !selectImageModal);
+  };
+
+  const isExistsImage = () => {
+    if (profileURL.imageUrl || profileURL.croppedImageUrl) {
+      setSelectImageModal(true);
+    } else {
+      setSelectImageModal(false);
+    }
+  };
+
+  const deleteImage = () => {
+    setProfileURL({ ...profileURL, imageUrl: "", croppedImageUrl: "" });
+    setSelectImageModal(false);
+  };
+
   return (
     <Modal open={modalOpen} onClose={shareBtnClick} disableScrollLock={false}>
-      <Container onSubmit={onSubmit}>
-        <Header>
-          <IconBox onClick={onPrevClick}>
-            <BiLeftArrowAlt />
-          </IconBox>
-          <Category>내 정보 수정</Category>
-          {isImage ? (
-            <EditBtn type="button" onClick={onCrop}>
-              <EditText>자르기</EditText>
-            </EditBtn>
-          ) : (
-            <EditBtn
-              type="submit"
-              disabled={
-                (userObj.name === inputs.name &&
-                  userObj.displayName === inputs.dpName &&
-                  userObj.description === inputs.desc &&
-                  profileURL.croppedImageUrl == null) ||
-                duplicationName
-              }
-            >
-              <EditText>수정 완료</EditText>
-            </EditBtn>
-          )}
-        </Header>
-        {isImage ? (
-          <ProfileImageCropper
-            previewImage={previewImage}
-            zoom={zoom}
-            crop={crop}
-            setZoom={setZoom}
-            setCrop={setCrop}
-            setCroppedAreaPixels={setCroppedAreaPixels}
+      <>
+        {selectImageModal && (
+          <ProfileImageModal
+            modalOpen={selectImageModal}
+            modalClose={toggleImageModal}
+            deleteImage={deleteImage}
+            onFileChange={onFileChange}
           />
-        ) : (
-          <UserListBox>
-            {userObj.profileURL ? (
-              <UserList>
-                <ProfileImagesBox htmlFor="attach-file">
-                  <ProfileImageBox>
-                    <ProfileImage
-                      src={
-                        profileURL.croppedImageUrl
-                          ? profileURL.croppedImageUrl
-                          : profileURL.imageUrl
-                      }
-                      alt="profile image"
-                    />
-                  </ProfileImageBox>
-                  <ProfileImageIcon>
-                    <TbCamera />
-                  </ProfileImageIcon>
-                  <InputImage
-                    id="attach-file"
-                    accept="image/*"
-                    type="file"
-                    onChange={onFileChange}
-                  />
-                </ProfileImagesBox>
-                <ProfileInfoBox>
-                  <ProfileInfo>
-                    <ProfileCategory htmlFor="name">이름</ProfileCategory>
-                    <ProfileName
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={inputs.name}
-                      maxLength={20}
-                      onChange={onChange}
-                      focus={focus.name}
-                      onFocus={(e) => onFocus(e, true)}
-                      onBlur={(e) => onFocus(e, false)}
-                      placeholder="이름"
-                    />
-                  </ProfileInfo>
-                  <ProfileInfo>
-                    <ProfileCategory htmlFor="dpName">
-                      사용자 이름
-                    </ProfileCategory>
-                    <InputBox focus={focus.dpName}>
-                      <ProfileDpName
+        )}
+        <Container onSubmit={onSubmit}>
+          <Header>
+            <IconBox onClick={onPrevClick}>
+              <BiLeftArrowAlt />
+            </IconBox>
+            <Category>내 정보 수정</Category>
+            {isImage ? (
+              <EditBtn type="button" onClick={onCrop}>
+                <EditText>자르기</EditText>
+              </EditBtn>
+            ) : (
+              <EditBtn
+                type="submit"
+                disabled={
+                  (userObj.name === inputs.name &&
+                    userObj.displayName === inputs.dpName &&
+                    userObj.description === inputs.desc &&
+                    profileURL.croppedImageUrl == null) ||
+                  duplicationName
+                }
+              >
+                <EditText>수정 완료</EditText>
+              </EditBtn>
+            )}
+          </Header>
+          {isImage ? (
+            <ProfileImageCropper
+              previewImage={previewImage}
+              zoom={zoom}
+              crop={crop}
+              setZoom={setZoom}
+              setCrop={setCrop}
+              setCroppedAreaPixels={setCroppedAreaPixels}
+            />
+          ) : (
+            <UserListBox>
+              {userObj.defaultProfileUrl ? (
+                <UserList>
+                  <ProfileImagesBox
+                    htmlFor="attach-file"
+                    onClick={isExistsImage}
+                  >
+                    <ProfileImageBox>
+                      <ProfileImage
+                        src={
+                          profileURL.imageUrl || profileURL.croppedImageUrl
+                            ? profileURL.croppedImageUrl
+                              ? profileURL.croppedImageUrl
+                              : profileURL.imageUrl
+                            : userObj.defaultProfileUrl
+                        }
+                        alt="profile image"
+                      />
+                    </ProfileImageBox>
+                    <ProfileImageIcon>
+                      <TbCamera />
+                    </ProfileImageIcon>
+                    {!profileURL.imageUrl && !profileURL.croppedImageUrl && (
+                      <InputImage
+                        id="attach-file"
+                        accept="image/*"
+                        type="file"
+                        onChange={onFileChange}
+                      />
+                    )}
+                  </ProfileImagesBox>
+                  <ProfileInfoBox>
+                    <ProfileInfo>
+                      <ProfileCategory htmlFor="dpName">
+                        사용자 이름
+                      </ProfileCategory>
+                      <InputBox focus={focus.dpName}>
+                        <IdBox>@</IdBox>
+                        <ProfileDpName
+                          type="text"
+                          id="dpName"
+                          name="dpName"
+                          autoComplete="false"
+                          value={inputs.dpName}
+                          onChange={onChange}
+                          onFocus={(e) => onFocus(e, true)}
+                          onBlur={(e) => onFocus(e, false)}
+                          placeholder="사용자 이름"
+                        />
+                        {inputs.dpName !== "" &&
+                          userObj.displayName !== inputs.dpName && (
+                            <InputCheckBox check={error}>
+                              {error === "" ? (
+                                <IoCheckmarkCircleOutline />
+                              ) : (
+                                <IoCloseCircleOutline />
+                              )}
+                            </InputCheckBox>
+                          )}
+                      </InputBox>
+                      {error !== "" && <ErrorText>{error}</ErrorText>}
+                    </ProfileInfo>
+                    <ProfileInfo>
+                      <ProfileCategory htmlFor="name">이름</ProfileCategory>
+                      <ProfileName
                         type="text"
-                        id="dpName"
-                        name="dpName"
-                        value={inputs.dpName}
+                        id="name"
+                        name="name"
+                        autoComplete="false"
+                        value={inputs.name}
+                        maxLength={20}
                         onChange={onChange}
+                        focus={focus.name}
                         onFocus={(e) => onFocus(e, true)}
                         onBlur={(e) => onFocus(e, false)}
-                        placeholder="사용자 이름"
+                        placeholder="이름"
                       />
-                      {inputs.dpName !== "" &&
-                        userObj.displayName !== inputs.dpName && (
-                          <InputCheckBox check={error}>
-                            {error === "" ? (
-                              <IoCheckmarkCircleOutline />
-                            ) : (
-                              <IoCloseCircleOutline />
-                            )}
-                          </InputCheckBox>
-                        )}
-                    </InputBox>
-                    {error !== "" && <ErrorText>{error}</ErrorText>}
-                  </ProfileInfo>
-                  <ProfileInfo>
-                    <ProfileCategory htmlFor="desc">자기 소개</ProfileCategory>
-                    <ProfileDesc
-                      spellCheck="false"
-                      id="desc"
-                      name="desc"
-                      maxLength={120}
-                      value={inputs.desc}
-                      onChange={onChange}
-                      focus={focus.desc}
-                      onFocus={(e) => onFocus(e, true)}
-                      onBlur={(e) => onFocus(e, false)}
-                      ref={textRef}
-                      placeholder="자기소개를 입력해 주세요"
-                    />
-                    <TextAreaLength>
-                      <TextAreaLengthColor>
-                        {inputs.desc.trim().length}
-                      </TextAreaLengthColor>
-                      /120
-                    </TextAreaLength>
-                  </ProfileInfo>
-                </ProfileInfoBox>
-              </UserList>
-            ) : (
-              <Spinner />
-            )}
-          </UserListBox>
-        )}
-      </Container>
+                    </ProfileInfo>
+                    <ProfileInfo>
+                      <ProfileCategory htmlFor="desc">
+                        자기 소개
+                      </ProfileCategory>
+                      <ProfileDesc
+                        spellCheck="false"
+                        id="desc"
+                        name="desc"
+                        maxLength={120}
+                        autoComplete="false"
+                        value={inputs.desc}
+                        onChange={onChange}
+                        focus={focus.desc}
+                        onFocus={(e) => onFocus(e, true)}
+                        onBlur={(e) => onFocus(e, false)}
+                        ref={textRef}
+                        placeholder="자기소개를 입력해 주세요"
+                      />
+                      <TextAreaLength>
+                        <TextAreaLengthColor>
+                          {inputs.desc.trim().length}
+                        </TextAreaLengthColor>
+                        /120
+                      </TextAreaLength>
+                    </ProfileInfo>
+                  </ProfileInfoBox>
+                </UserList>
+              ) : (
+                <Spinner />
+              )}
+            </UserListBox>
+          )}
+        </Container>
+      </>
     </Modal>
   );
 };
@@ -518,8 +586,6 @@ const EditBtn = styled.button`
 
 const EditText = styled.p``;
 
-const EditTextEng = styled(EditText)``;
-
 const Category = styled.div`
   position: absolute;
   top: 50%;
@@ -527,21 +593,6 @@ const Category = styled.div`
   transform: translate(-50%, -50%);
   font-weight: bold;
   font-size: 14px;
-`;
-
-const CloseBox = styled.button`
-  cursor: pointer;
-  padding: 0;
-  position: absolute;
-  right: 0;
-  svg {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    padding: 8px;
-  }
 `;
 
 const UserListBox = styled.div`
@@ -660,13 +711,22 @@ const InputBox = styled.div<{ focus: boolean }>`
   overflow: hidden;
 `;
 
+const IdBox = styled.div`
+  cursor: default;
+  user-select: none;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 0 2px 0px 12px;
+  opacity: 0.7;
+`;
+
 const ProfileDpName = styled.input`
   width: 100%;
   height: 48px;
   box-sizing: border-box;
   font-size: 14px;
   font-weight: 400;
-  padding: 12px;
+  padding: 12px 12px 12px 0;
   border: none;
   outline: none;
 `;

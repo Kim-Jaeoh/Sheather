@@ -12,36 +12,18 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { VscBell } from "react-icons/vsc";
 import { CiSearch } from "react-icons/ci";
 import { IoIosArrowBack } from "react-icons/io";
+import useGetMyAccount from "../hooks/useGetMyAccount";
 
 type Props = {
   onIsLogin: (callback: () => void) => void;
 };
 
 const MobileHeader = ({ onIsLogin }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
   const [isSearchModal, setIsSearchModal] = useState(false);
   const [isNoticeModal, setIsNoticeModal] = useState(false);
-  const [myAccount, setMyAccount] = useState(null);
+  const { myAccount } = useGetMyAccount();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-
-  // 본인 계정 정보 가져오기
-  useEffect(() => {
-    if (userLogin) {
-      const unsubscribe = onSnapshot(
-        doc(dbService, "users", userObj?.email),
-        (doc) => {
-          setMyAccount(doc.data());
-        }
-      );
-
-      return () => unsubscribe();
-    }
-  }, [userLogin, userObj?.email]);
 
   const onSearchModal = () => {
     setIsSearchModal((prev) => !prev);
@@ -57,7 +39,7 @@ const MobileHeader = ({ onIsLogin }: Props) => {
     navigate(-1);
   };
 
-  const history = pathname.includes("detail") || pathname.includes("explore?q");
+  const history = pathname.includes("detail") || pathname.includes("explore");
 
   return (
     <>

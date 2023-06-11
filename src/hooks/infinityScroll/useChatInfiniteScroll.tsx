@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { dbService } from "../../fbase";
 import {
   collection,
@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { useInView } from "react-intersection-observer";
 import moment from "moment";
-import { throttle } from "lodash";
+import { MessageType } from "../../types/type";
 
 type Props = {
   chatId?: string;
@@ -22,21 +22,6 @@ type Props = {
   setPrevScrollHeight: React.Dispatch<number>;
 };
 
-interface DayType {
-  createdAt: number;
-  day: string;
-}
-
-const dayArr: { [key: number]: string } = {
-  0: `일`,
-  1: `월`,
-  2: `화`,
-  3: `수`,
-  4: `목`,
-  5: `금`,
-  6: `토`,
-};
-
 const useChatInfiniteScroll = ({
   chatId,
   toBottom,
@@ -44,40 +29,28 @@ const useChatInfiniteScroll = ({
   setPrevScrollHeight,
 }: Props) => {
   const [unsubscribe, setUnsubscribe] = useState<(() => void) | null>(null);
-  const [sortMessages, setSortMessages] = useState(null);
-  const [sections, setSections] = useState(
-    new Map<number, DocumentData[]>(null)
+  const [sortMessages, setSortMessages] = useState(
+    new Map<number, MessageType[]>(null)
   );
-  const [day, setDay] = useState<DayType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [lastVisible, setLastVisible] = useState<number | DocumentData>(null);
   const { ref, inView } = useInView();
 
+  //최초 페이지 렌더링 (chatId = Firebase 채팅 컬렉션 id 값)
   useEffect(() => {
     if (chatId) {
-      getNextPage(); //최초 페이지 렌더링
+      getNextPage();
     }
   }, [chatId]);
 
   // 더 불러오기
   useEffect(() => {
     if (inView && toBottom) {
-      getNextPage();
       // 데이터 불러오기 이전 스크롤 값 저장
       setPrevScrollHeight(containerRef.current?.scrollHeight);
+      getNextPage();
     }
   }, [inView, toBottom]);
-
-  // 대화 내역 담기
-  useEffect(() => {
-    if (sections) {
-      setSortMessages(
-        Array.from(sections)
-          // .reverse()
-          .sort((a, b) => a[0] - b[0])
-      );
-    }
-  }, [sections]);
 
   const getNextPage = () => {
     let q;
@@ -86,30 +59,31 @@ const useChatInfiniteScroll = ({
       return;
     }
 
-    if (lastVisible) {
-      // 값 더 불러오기
-      q = query(
-        collection(doc(dbService, "messages", chatId), "message"),
-        orderBy("createdAt", "desc"),
-        limit(20),
-        startAfter(lastVisible)
-      );
-    } else {
+    if (!lastVisible) {
       // 처음 값
       q = query(
         collection(doc(dbService, "messages", chatId), "message"),
         orderBy("createdAt", "desc"),
         limit(15)
       );
+    } else {
+      // 값 더 불러오기
+      q = query(
+        collection(doc(dbService, "messages", chatId), "message"),
+        orderBy("createdAt", "desc"),
+        limit(20),
+        startAfter(lastVisible) // 이전에 불러온 게시글의 다음 글부터 불러옴
+      );
     }
 
     const newUnsubscribe = onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
-        const docData = change.doc.data();
+        const docData = change.doc.data() as MessageType;
         const monthDate = moment(docData.createdAt).format("YYYY-MM-DD");
         const dateKey = new Date(monthDate).getTime();
 
-        setSections((prev) => {
+        // 날짜별로 섹션 묶기
+        setSortMessages((prev) => {
           const newSections = new Map(prev);
 
           if (!newSections.has(dateKey)) {
@@ -117,54 +91,21 @@ const useChatInfiniteScroll = ({
           }
 
           const section = newSections.get(dateKey);
-          const isDuplicate = section.some(
-            (data) => data.createdAt === docData.createdAt
-          );
           const existingIndex = section.findIndex(
             (data) => data.createdAt === docData.createdAt
           );
 
-          // 문서가 추가된 경우
-          if (change.type === "added" && !isDuplicate) {
+          // 문서가 추가된 경우 (메세지 발신/수신)
+          if (change.type === "added" && existingIndex === -1) {
             section.push(docData);
           }
 
-          // 문서가 변경된 경우
-          if (change.type === "modified") {
-            if (existingIndex !== -1) {
-              section[existingIndex] = docData;
-            } else {
-              section.push(docData);
-            }
+          // 문서가 변경된 경우 (메세지 확인)
+          if (change.type === "modified" && existingIndex !== -1) {
+            section[existingIndex] = docData;
           }
-
-          // // 문서가 삭제된 경우
-          // if (change.type === "removed") {
-          //   if (newSections.has(dateKey) && existingIndex !== -1) {
-          //     console.log("delete");
-          //     section.splice(existingIndex, 1);
-          //   }
-          // }
 
           return newSections;
-        });
-
-        // 요일 구하기
-        const getDay = dayArr[moment(docData.createdAt).day()];
-
-        // 요일 중복 체크
-        setDay((prev) => {
-          if (
-            !prev.some(
-              (res) =>
-                moment(res.createdAt).format("YYYYMMDD") ===
-                moment(docData.createdAt).format("YYYYMMDD")
-            )
-          ) {
-            return [...prev, { createdAt: docData.createdAt, day: getDay }];
-          } else {
-            return prev;
-          }
         });
       });
 
@@ -177,69 +118,21 @@ const useChatInfiniteScroll = ({
       }
     });
 
-    // const newUnsubscribe = onSnapshot(q, (snapshot) => {
-    //   snapshot?.docs?.forEach((doc) => {
-    //     const monthDate = moment(doc.data().createdAt).format("YYYY-MM-DD");
-    //     const dateKey = new Date(monthDate).getTime();
-
-    //     // 중복 체크
-    //     setSections((prev) => {
-    //       const newSections = new Map(prev);
-
-    //       if (!newSections.has(dateKey)) {
-    //         newSections.set(dateKey, []);
-    //       }
-    //       const section = newSections.get(dateKey);
-    //       const isDuplicate = section.some(
-    //         (data) => data.createdAt === doc.data().createdAt
-    //       );
-    //       if (!isDuplicate) {
-    //         section.push(doc.data());
-    //       }
-
-    //       return newSections;
-    //     });
-
-    //     // 요일 구하기
-    //     const getDay = dayArr[moment(doc.data().createdAt).day()];
-
-    //     // 중복 체크
-    //     setDay((prev) => {
-    //       if (
-    //         !prev.some(
-    //           (res) =>
-    //             moment(res.createdAt).format("YYYYMMDD") ===
-    //             moment(doc.data().createdAt).format("YYYYMMDD")
-    //         )
-    //       ) {
-    //         return [...prev, { createdAt: doc.data().createdAt, day: getDay }];
-    //       } else {
-    //         return prev;
-    //       }
-    //     });
-    //   });
-    //   setIsLoading(true);
-
-    //   if (snapshot.docs.length === 0) {
-    //     setLastVisible(-1);
-    //   } else {
-    //     setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
-    //   }
-    // });
-
     setUnsubscribe(() => newUnsubscribe);
   };
 
+  // 리스너 분리
   const detachListeners = () => {
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      setIsLoading(false);
+    };
   };
 
   return {
     isLoading,
-    day,
     sortMessages,
     setIsLoading,
-    setSortMessages,
     unsubscribe,
     detachListeners,
     ref,

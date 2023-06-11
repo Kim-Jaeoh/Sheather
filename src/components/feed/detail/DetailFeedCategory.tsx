@@ -27,13 +27,13 @@ const DetailFeedCategory = ({ feed }: Props) => {
     navigate(`/explore?q=clothes&cat=${cat}&detail=${detail}&sort=recent`);
   };
 
-  const onWeatherClick = (cat: string, detail: string | number) => {
-    navigate(`/explore?q=weather&cat=${cat}&detail=${detail}&sort=recent`);
-  };
+  // const onWeatherClick = (cat: string, detail: string | number) => {
+  //   navigate(`/explore?q=weather&cat=${cat}&detail=${detail}&sort=recent`);
+  // };
 
-  const onRegionClick = (cat: string, detail: string) => {
-    navigate(`/explore?q=region&cat=${cat}&detail=${detail}&sort=recent`);
-  };
+  // const onRegionClick = (cat: string, detail: string) => {
+  //   navigate(`/explore?q=region&cat=${cat}&detail=${detail}&sort=recent`);
+  // };
 
   const onClick = (q: string, cat: string, detail: string | number) => {
     navigate(`/explore?q=${q}&cat=${cat}&detail=${detail}&sort=recent`);
@@ -117,7 +117,7 @@ const DetailFeedCategory = ({ feed }: Props) => {
                   <WearInfo>
                     <CategoryTagBox>
                       <CategoryTag
-                        onClick={() => onRegionClick("region", feed.region)}
+                        onClick={() => onClick("region", "region", feed.region)}
                       >
                         <MdPlace />
                         {feed.region}

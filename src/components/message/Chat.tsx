@@ -103,7 +103,9 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
         setMessageCollection(getInfo[0]);
       });
 
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+      };
     }
   }, [myAccount?.email, users]);
 
@@ -142,7 +144,9 @@ const Chat = ({ users, myAccount, setClickInfo }: Props) => {
           setSortMessages(Array.from(sections));
         }
       );
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+      };
     }
   }, [messageCollection?.id, users]);
 

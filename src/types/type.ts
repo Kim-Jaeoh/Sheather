@@ -86,6 +86,7 @@ export interface CurrentUserType {
   uid: string;
   createdAt: number;
   email: string;
+  defaultProfileUrl: string;
   profileURL: string;
   displayName: string;
   name: string;
@@ -100,7 +101,7 @@ export interface CurrentUserType {
 }
 
 export interface UserType {
-  loginToken?: boolean;
+  isLoggedIn?: boolean;
   currentUser: CurrentUserType;
   newMessage?: boolean;
   newNotice?: boolean;
@@ -205,7 +206,6 @@ export interface MessageType {
   displayName: string;
   email: string;
   isRead: boolean;
-  profileURL?: string;
 }
 
 export interface MessageListType {

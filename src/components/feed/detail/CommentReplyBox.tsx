@@ -16,7 +16,7 @@ type Props = {
 };
 
 const CommentReplyBox = ({ data, onClickReply, onDelete }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+  const { isLoggedIn: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => state.user
   );
   const [userInfo, setUserInfo] = useState(null);
@@ -30,7 +30,9 @@ const CommentReplyBox = ({ data, onClickReply, onDelete }: Props) => {
         setUserInfo(doc.data());
       }
     );
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [data.email]);
 
   const replyDpName = useMemo(() => {
@@ -152,7 +154,7 @@ const CommentId = styled(Link)`
   display: inline-block;
   margin-right: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 `;
 

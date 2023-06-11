@@ -39,7 +39,7 @@ const TempClothes = () => {
     {
       tempMax: 8,
       tempMin: 5,
-      clothes: ["코트", "가죽 자켓", "히트텍", "니트", "레깅스"],
+      clothes: ["코트", "가죽 자켓", "니트", "레깅스"],
     },
     {
       tempMax: 4,
@@ -50,7 +50,7 @@ const TempClothes = () => {
       tempMax: -4,
       tempMin: -20,
       clothes: [
-        "모자 달린 두꺼운 패딩",
+        "기모 제품",
         "두꺼운 스웨터",
         "귀마개",
         "털모자",
@@ -60,7 +60,7 @@ const TempClothes = () => {
     },
   ];
 
-  const ClothesCategory: ClothesCategoryType = {
+  const clothesCategory: ClothesCategoryType = {
     outer: [
       "없음",
       "얇은 가디건",
@@ -97,17 +97,9 @@ const TempClothes = () => {
       "스타킹",
       "레깅스",
     ],
-    etc: [
-      "없음",
-      "히트텍",
-      "목도리",
-      "귀마개",
-      "털모자",
-      "기모 제품",
-      "방한 용품",
-    ],
+    etc: ["없음", "목도리", "귀마개", "털모자", "기모 제품", "방한 용품"],
   };
-  return { tempClothes, ClothesCategory };
+  return { tempClothes, clothesCategory };
 };
 
 export default TempClothes;

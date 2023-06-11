@@ -15,7 +15,7 @@ import { CurrentUserType } from "../../types/type";
 import FollowCategoryListSkeleton from "../../assets/skeleton/FollowCategoryListSkeleton";
 
 const FollowCategoryList = () => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+  const { isLoggedIn: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }

@@ -20,7 +20,9 @@ const ChatList = ({ data, onListClick }: Props) => {
         setUsers(doc.data());
       }
     );
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [data]);
 
   return (

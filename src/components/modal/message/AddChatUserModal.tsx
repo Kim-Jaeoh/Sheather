@@ -112,6 +112,9 @@ const AddChatUserModal = ({ userObj, modalOpen, modalClose }: Props) => {
                 <NotInfoText>
                   팔로우하는 모든 사람이 여기에 표시됩니다
                 </NotInfoText>
+                <FollowListBtn>
+                  <Link to="/explore/people">팔로우 하러 가기</Link>
+                </FollowListBtn>
               </NotInfo>
             </NotInfoBox>
           )}
@@ -293,7 +296,7 @@ const NotInfoBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-bottom: 30px;
+  /* padding-bottom: 30px; */
 
   /* animation-name: slideDown;
   animation-duration: 0.5s;
@@ -350,11 +353,21 @@ const Icon = styled.div`
     margin-left: 6px;
 
     path:not(:first-of-type) {
-      color: #6f4ccf;
+      color: var(--message-color);
     }
   }
 `;
 
 const NotInfoText = styled.p`
   font-size: 14px;
+`;
+
+const FollowListBtn = styled.button`
+  margin-top: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  background: var(--message-color);
 `;

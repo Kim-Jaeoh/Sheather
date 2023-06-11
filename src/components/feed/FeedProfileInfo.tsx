@@ -17,7 +17,7 @@ type Props = {
 };
 
 const FeedProfileInfo = ({ feed }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
+  const { isLoggedIn: userLogin, currentUser: userObj } = useSelector(
     (state: RootState) => {
       return state.user;
     }
@@ -32,7 +32,9 @@ const FeedProfileInfo = ({ feed }: Props) => {
     const unsubscribe = onSnapshot(doc(dbService, "users", feed.email), (doc) =>
       setAccount(doc.data())
     );
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [feed]);
 
   return (

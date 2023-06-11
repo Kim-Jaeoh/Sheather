@@ -29,11 +29,9 @@ const DeskProfileActInfo = ({
   onIsLogin,
   onLogOutClick,
 }: Props) => {
-  const { loginToken: userLogin, currentUser: userObj } = useSelector(
-    (state: RootState) => {
-      return state.user;
-    }
-  );
+  const { currentUser: userObj } = useSelector((state: RootState) => {
+    return state.user;
+  });
   const [isSet, setIsSet] = useState(false);
   const { toggleFollow } = useToggleFollow();
   const { onCreateChatClick } = useCreateChat();
@@ -70,7 +68,11 @@ const DeskProfileActInfo = ({
         <ProfileImageBox>
           <ProfileImage
             onContextMenu={(e) => e.preventDefault()}
-            src={account?.profileURL}
+            src={
+              account?.profileURL !== ""
+                ? account?.profileURL
+                : account?.defaultProfileUrl
+            }
             alt="profile image"
           />
         </ProfileImageBox>

@@ -18,7 +18,7 @@ type props = {
 
 const ProfilePost = React.forwardRef<HTMLInputElement, props>(
   ({ myPost, loading, notInfoText, onIsLogin }, ref) => {
-    const { loginToken: userLogin } = useSelector((state: RootState) => {
+    const { isLoggedIn: userLogin } = useSelector((state: RootState) => {
       return state.user;
     });
     const { isMobile } = useMediaScreen();

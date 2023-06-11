@@ -17,7 +17,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import moment from "moment";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Emoji from "../emoji/Emoji";
 import {
   CurrentUserType,
@@ -47,6 +47,16 @@ interface SubCollectionType extends MessageType {
   id: string;
 }
 
+const dayArr: { [key: number]: string } = {
+  0: `일`,
+  1: `월`,
+  2: `화`,
+  3: `수`,
+  4: `목`,
+  5: `금`,
+  6: `토`,
+};
+
 const InfiniteChat = ({
   users,
   myAccount,
@@ -67,10 +77,8 @@ const InfiniteChat = ({
   const navigate = useNavigate();
   const { isMobile } = useMediaScreen();
   const { throttle } = useThrottle();
-  const { pathname } = useLocation();
   const {
     isLoading,
-    day,
     sortMessages,
     detachListeners,
     ref: moreRef,
@@ -82,6 +90,14 @@ const InfiniteChat = ({
   });
   const { sendMessage } = useSendNoticeMessage(users);
 
+  // 채팅방 이탈 시 채팅 리스너 해제
+  useEffect(() => {
+    return () => {
+      detachListeners();
+      setClickInfo(null);
+    };
+  }, []);
+
   // 채팅 불러올 때 이전 스크롤 값 위치 이동
   useEffect(() => {
     // prevScrollHeight 있을 시 현재 전체 스크롤 높이 값 - 과거 전체 스크롤 높이 값
@@ -92,13 +108,6 @@ const InfiniteChat = ({
     // prevScrollHeight 없을 시 맨 아래로 이동
     bottomListRef?.current?.scrollIntoView({ behavior: "smooth" });
   }, [sortMessages]);
-
-  // 채팅방 이탈 시 채팅 리스너 해제
-  useEffect(() => {
-    if (!pathname.split("/")[2]) {
-      onBackClick();
-    }
-  }, [pathname]);
 
   const onScrollTo = (height: number) => {
     if (height) {
@@ -116,7 +125,7 @@ const InfiniteChat = ({
         const scrollDifference = totalScrollHeight - currentScrollPosition; // 전체 스크롤 값 - 현재 스크롤 값
 
         // 스크롤 맨 아래 감지
-        if (currentScrollPosition + clientHeight === totalScrollHeight) {
+        if (clientHeight + currentScrollPosition === totalScrollHeight) {
           setBtnStatus((prev) => ({ ...prev, toBottom: true }));
         }
 
@@ -143,7 +152,6 @@ const InfiniteChat = ({
       const docRef = doc(dbService, "messages", messageCollection?.id);
       const subCollectionRef = collection(docRef, "message");
       const q = query(subCollectionRef);
-      // const q = query(subCollectionRef, where("email", "==", users?.email)); // 내꺼
 
       const unsubscribe = onSnapshot(q, (doc) => {
         const collectionId = doc.docs.map((res) => {
@@ -152,7 +160,9 @@ const InfiniteChat = ({
         setChatId(collectionId);
       });
 
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+      };
     }
   }, [messageCollection, users?.email]);
 
@@ -174,20 +184,20 @@ const InfiniteChat = ({
     if (messageCollection?.id) {
       const docRef = doc(dbService, "messages", messageCollection?.id);
       const subCollectionRef = collection(docRef, "message");
-      const sendChat = addDoc(subCollectionRef, {
-        text: trimmedMessage,
-        createdAt: +Date.now(),
-        uid: myAccount?.uid,
-        displayName: myAccount?.displayName,
-        email: myAccount?.email,
-        isRead: false,
-      });
+      const sendChat = () =>
+        addDoc(subCollectionRef, {
+          text: trimmedMessage,
+          createdAt: +Date.now(),
+          uid: myAccount?.uid,
+          displayName: myAccount?.displayName,
+          email: myAccount?.email,
+          isRead: false,
+        });
 
       // 글 보낼 시 상대가 본인 메시지 안 읽은 것으로 변경
       const copy = [...users?.message];
-      const editUserIsntRead = updateDoc(
-        doc(dbService, "users", users?.email),
-        {
+      const editUserIsntRead = () =>
+        updateDoc(doc(dbService, "users", users?.email), {
           message: copy.map((res) => {
             if (myAccount?.displayName === res.user) {
               return { ...res, isRead: false };
@@ -195,13 +205,13 @@ const InfiniteChat = ({
               return res;
             }
           }),
-        }
-      );
+        });
 
       setText("");
       textRef.current.style.height = `auto`;
 
-      await Promise.all([sendChat, editUserIsntRead]).then(() => {
+      // 병렬 처리
+      await Promise.all([sendChat(), editUserIsntRead()]).then(() => {
         // 스크롤 하단으로 이동
         if (containerRef.current) {
           containerRef.current.scrollTop = Number(
@@ -221,7 +231,7 @@ const InfiniteChat = ({
             3000
           );
         }
-      }); // 병렬 처리
+      });
     }
   };
 
@@ -266,9 +276,8 @@ const InfiniteChat = ({
 
       // 계정 메시지 정보 값 변경
       const copy = [...myAccount?.message];
-      const myInfoUpdate = updateDoc(
-        doc(dbService, "users", myAccount?.email),
-        {
+      const myInfoUpdate = () =>
+        updateDoc(doc(dbService, "users", myAccount?.email), {
           message: copy.map((res) => {
             if (users?.email === res.email) {
               return { ...res, isRead: true };
@@ -276,10 +285,10 @@ const InfiniteChat = ({
               return { ...res };
             }
           }),
-        }
-      );
+        });
 
-      await Promise.all([chatInfoUpdate(), myInfoUpdate]);
+      // 병렬 처리
+      await Promise.all([chatInfoUpdate(), myInfoUpdate()]);
     }
   }, [
     chatId,
@@ -406,19 +415,19 @@ const InfiniteChat = ({
                     }}
                   />
                   {sortMessages &&
-                    sortMessages?.map(
-                      (arr: [string, MessageType[]], index: number) => {
+                    Array.from(sortMessages)
+                      ?.sort((a, b) => a[0] - b[0])
+                      .map((arr, index) => {
                         const monthDate = moment(arr[0]).format(
                           "YYYY년 M월 D일"
-                        );
-                        const date = day.sort(
-                          (a, b) => a.createdAt - b.createdAt
                         );
 
                         return (
                           <GroupMessage key={arr[0]}>
                             <GroupDateBox>
-                              <GroupDate>{`${monthDate} ${date[index]?.day}요일`}</GroupDate>
+                              <GroupDate>{`${monthDate} ${
+                                dayArr[moment(arr[0]).day()]
+                              }요일`}</GroupDate>
                             </GroupDateBox>
                             {arr[1]
                               .sort((a, b) => a.createdAt - b.createdAt)
@@ -457,12 +466,8 @@ const InfiniteChat = ({
                               })}
                           </GroupMessage>
                         );
-                      }
-                    )}
-                  <div
-                    ref={bottomListRef}
-                    // style={{ height: "20px", border: `1px solid red` }}
-                  />
+                      })}
+                  <div ref={bottomListRef} />
                 </MessageBox>
                 <ChatBox>
                   <TextAreaBox sendLoading={sendLoading} onSubmit={onSubmit}>
