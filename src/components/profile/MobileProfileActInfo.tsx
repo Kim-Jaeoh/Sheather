@@ -212,7 +212,7 @@ const ProfileDesc = styled.p`
   white-space: pre-wrap;
   color: var(--third-color);
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   overflow: hidden;
   word-break: break-all;
   -webkit-box-orient: vertical;

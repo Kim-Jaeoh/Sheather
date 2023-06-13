@@ -42,15 +42,11 @@ type ArrBooleanType = {
   [key: string]: boolean;
 };
 
-interface CropImageType {
-  zooms: number;
-  crops: Point;
-}
-
 const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
+  const [isLoading, setIsLoading] = useState(false);
   const [isImage, setIsImage] = useState(false);
   const [selectImageModal, setSelectImageModal] = useState(false);
   const [previewImage, setPreviewImage] = useState(userObj.profileURL); // 미리보기 크롭용
@@ -109,9 +105,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const usersArray = snapshot.docs.map((doc) => ({
-        ...doc.data(),
-      }));
+      const usersArray = snapshot.docs.map((doc) => doc.data());
 
       const checkFilter = usersArray.some(
         (res) => res.displayName === inputs.dpName
@@ -124,92 +118,63 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     };
   }, [inputs.dpName, userObj.displayName]);
 
+  // 정규식 체크
   useEffect(() => {
-    // 정규식 체크
+    const dpNameRegex = /^[a-z0-9_.]+$/;
+    const check = dpNameRegex.test(inputs.dpName);
+
     if (inputs.dpName !== "") {
-      const dpNameRegex = /^[a-zA-Z0-9_.]+$/;
-      const check = dpNameRegex.test(inputs.dpName);
       if (!check) {
         return setError(
           "사용자 이름에는 문자, 숫자, 밑줄 및 마침표만 사용할 수 있습니다."
         );
       }
-      if (duplicationName) {
+      if (!isLoading && duplicationName) {
         return setError("중복된 닉네임입니다.");
       }
       return setError("");
     }
-  }, [duplicationName, inputs.dpName]);
+  }, [duplicationName, inputs.dpName, isLoading]);
 
   // 수정 완료
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     if (!duplicationName) {
-      const compress = async (croppedImage: string) => {
-        if (profileURL.imageUrl !== "" || profileURL.croppedImageUrl !== "") {
-          const options = {
-            maxSizeMB: 2,
-            maxWidthOrHeight: 150,
-          };
-
-          try {
-            // 1) 크롭된 이미지 주소(BlobUrl: string)를 File 형태로 변환
-            const CroppedImageUrlToFile =
-              await imageCompression.getFilefromDataUrl(
-                croppedImage,
-                "profile"
-              );
-
-            // 2) 1)에서 변환된 File을 압축
-            const compressedFile = await imageCompression(
-              CroppedImageUrlToFile,
-              options
-            );
-
-            // 3) 압축된 File을 다시 이미지 주소로 변환
-            const compressedCroppedImage =
-              await imageCompression.getDataUrlFromFile(compressedFile);
-            return compressedCroppedImage;
-          } catch (error) {
-            console.log(error);
-          }
-        }
-      };
-
-      const updateMyInfo = (croppedImage: string) => {
+      const updateUserInfo = () =>
         updateDoc(doc(dbService, "users", userObj.email), {
-          name: inputs.name,
-          displayName: inputs.dpName,
-          description: inputs.desc,
-          profileURL: croppedImage ? croppedImage : "",
-        });
-      };
-      const updateAccountProfile = () =>
-        updateProfile(authService.currentUser, {
-          displayName: inputs.dpName,
-        });
-
-      await Promise.all([compress(profileURL.croppedImageUrl)]).then(
-        (croppedImage) => {
-          updateMyInfo(croppedImage[0]);
-          updateAccountProfile();
-        }
-      );
-
-      dispatch(
-        currentUser({
-          ...userObj,
           name: inputs.name,
           displayName: inputs.dpName,
           description: inputs.desc,
           profileURL: profileURL.croppedImageUrl
             ? profileURL.croppedImageUrl
             : profileURL.imageUrl,
-        })
-      );
-      toast.success("수정이 완료 되었습니다.");
-      modalClose();
-      return navigate(`${inputs.dpName}/post`, { state: userObj.email });
+        });
+
+      const updateProfileInfo = () =>
+        updateProfile(authService.currentUser, {
+          displayName: inputs.dpName,
+        });
+
+      await Promise.all([updateUserInfo(), updateProfileInfo()]).then(() => {
+        dispatch(
+          currentUser({
+            ...userObj,
+            name: inputs.name,
+            displayName: inputs.dpName,
+            description: inputs.desc,
+            profileURL: profileURL.croppedImageUrl
+              ? profileURL.croppedImageUrl
+              : profileURL.imageUrl,
+          })
+        );
+        setIsLoading(false);
+        toast.success("수정이 완료 되었습니다.");
+        modalClose();
+        return navigate(`/profile/${inputs.dpName}/post`, {
+          state: userObj.email,
+        });
+      });
     } else {
       toast.error("사용자 이름이 중복입니다.");
     }
@@ -249,12 +214,38 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
     zoom?: number,
     croppedImageUrl?: string
   ) => {
-    setProfileURL({
-      imageUrl,
-      crop,
-      zoom,
-      croppedImageUrl,
-    });
+    const options = {
+      maxSizeMB: 2,
+      maxWidthOrHeight: 150,
+    };
+
+    try {
+      // 1) 크롭된 이미지 주소(BlobUrl: string)를 File 형태로 변환
+      const CroppedImageUrlToFile = await imageCompression.getFilefromDataUrl(
+        croppedImageUrl,
+        "profile"
+      );
+
+      // 2) 1)에서 변환된 File을 압축
+      const compressedFile = await imageCompression(
+        CroppedImageUrlToFile,
+        options
+      );
+
+      // 3) 압축된 File을 다시 이미지 주소로 변환
+      const compressedCroppedImage = await imageCompression.getDataUrlFromFile(
+        compressedFile
+      );
+
+      setProfileURL({
+        imageUrl,
+        crop,
+        zoom,
+        croppedImageUrl: compressedCroppedImage,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // 자르기
@@ -332,6 +323,11 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
   return (
     <Modal open={modalOpen} onClose={shareBtnClick} disableScrollLock={false}>
       <>
+        {isLoading && (
+          <LoadingBox>
+            <Spinner />
+          </LoadingBox>
+        )}
         {selectImageModal && (
           <ProfileImageModal
             modalOpen={selectImageModal}
@@ -340,7 +336,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
             onFileChange={onFileChange}
           />
         )}
-        <Container onSubmit={onSubmit}>
+        <Container onSubmit={onSubmit} isLoading={isLoading}>
           <Header>
             <IconBox onClick={onPrevClick}>
               <BiLeftArrowAlt />
@@ -379,7 +375,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
               {userObj.defaultProfileUrl ? (
                 <UserList>
                   <ProfileImagesBox
-                    htmlFor="attach-file"
+                    htmlFor="image-file"
                     onClick={isExistsImage}
                   >
                     <ProfileImageBox>
@@ -399,7 +395,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                     </ProfileImageIcon>
                     {!profileURL.imageUrl && !profileURL.croppedImageUrl && (
                       <InputImage
-                        id="attach-file"
+                        id="image-file"
                         accept="image/*"
                         type="file"
                         onChange={onFileChange}
@@ -417,12 +413,13 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                           type="text"
                           id="dpName"
                           name="dpName"
-                          autoComplete="false"
+                          autoComplete="off"
                           value={inputs.dpName}
                           onChange={onChange}
                           onFocus={(e) => onFocus(e, true)}
                           onBlur={(e) => onFocus(e, false)}
                           placeholder="사용자 이름"
+                          maxLength={20}
                         />
                         {inputs.dpName !== "" &&
                           userObj.displayName !== inputs.dpName && (
@@ -443,14 +440,14 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                         type="text"
                         id="name"
                         name="name"
-                        autoComplete="false"
+                        autoComplete="off"
                         value={inputs.name}
-                        maxLength={20}
                         onChange={onChange}
                         focus={focus.name}
                         onFocus={(e) => onFocus(e, true)}
                         onBlur={(e) => onFocus(e, false)}
                         placeholder="이름"
+                        maxLength={20}
                       />
                     </ProfileInfo>
                     <ProfileInfo>
@@ -462,7 +459,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
                         id="desc"
                         name="desc"
                         maxLength={120}
-                        autoComplete="false"
+                        autoComplete="off"
                         value={inputs.desc}
                         onChange={onChange}
                         focus={focus.desc}
@@ -493,7 +490,7 @@ const ProfileEditModal = ({ modalOpen, modalClose }: Props) => {
 
 export default ProfileEditModal;
 
-const Container = styled.form`
+const Container = styled.form<{ isLoading: boolean }>`
   display: flex;
   flex-direction: column;
   width: 480px;
@@ -510,6 +507,7 @@ const Container = styled.form`
   border: 2px solid var(--second-color);
   box-shadow: 12px 12px 0 -2px #6f4ccf, 12px 12px var(--second-color);
   overflow: hidden;
+  filter: ${(props) => (props.isLoading ? `brightness(0.5)` : "none")};
 
   @media (max-width: 767px) {
     left: 0;
@@ -773,4 +771,20 @@ const ErrorText = styled.p`
   color: rgb(235, 0, 0);
   letter-spacing: -0.5px;
   margin: 12px 0 24px;
+`;
+
+const LoadingBox = styled.div`
+  position: absolute;
+  border-radius: 20px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  overflow: hidden;
+
+  svg {
+    width: 40px;
+    height: 40px;
+    stroke: #fff;
+  }
 `;

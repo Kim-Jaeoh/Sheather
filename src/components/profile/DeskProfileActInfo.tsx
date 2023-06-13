@@ -78,28 +78,7 @@ const DeskProfileActInfo = ({
         </ProfileImageBox>
         <ProfileDetailBox>
           <ProfileDetail>
-            <ProfileInfoBox>
-              <ProfileDsName>{account?.displayName}</ProfileDsName>
-              <ProfileActBox>
-                <ProfileAct>
-                  게시글 <em>{myPost}</em>
-                </ProfileAct>
-                <ProfileAct
-                  onClick={() => {
-                    onClickFollow(account?.follower, "팔로워");
-                  }}
-                >
-                  팔로워 <em>{account?.follower.length}</em>
-                </ProfileAct>
-                <ProfileAct
-                  onClick={() => {
-                    onClickFollow(account?.following, "팔로잉");
-                  }}
-                >
-                  팔로잉 <em>{account?.following.length}</em>
-                </ProfileAct>
-              </ProfileActBox>
-            </ProfileInfoBox>
+            <ProfileDsName>{account?.displayName}</ProfileDsName>
             {account?.email === userObj.email ? (
               <ProfileBtnBox>
                 <ProfileEditBtn onClick={onEditModalClick}>
@@ -113,7 +92,7 @@ const DeskProfileActInfo = ({
                 </LogoutBtn>
               </ProfileBtnBox>
             ) : (
-              <ActBtnBox>
+              <ProfileBtnBox>
                 <FollowBtnBox onClick={() => onFollowClick(account)}>
                   {userObj?.following.filter((obj) =>
                     obj.displayName.includes(account.displayName)
@@ -130,9 +109,28 @@ const DeskProfileActInfo = ({
                 <MessageBtnBox onClick={() => onMessageClick(account)}>
                   <MessageBtn>메시지 보내기</MessageBtn>
                 </MessageBtnBox>
-              </ActBtnBox>
+              </ProfileBtnBox>
             )}
           </ProfileDetail>
+          <ProfileActBox>
+            <ProfileAct>
+              게시글 <em>{myPost}</em>
+            </ProfileAct>
+            <ProfileAct
+              onClick={() => {
+                onClickFollow(account?.follower, "팔로워");
+              }}
+            >
+              팔로워 <em>{account?.follower.length}</em>
+            </ProfileAct>
+            <ProfileAct
+              onClick={() => {
+                onClickFollow(account?.following, "팔로잉");
+              }}
+            >
+              팔로잉 <em>{account?.following.length}</em>
+            </ProfileAct>
+          </ProfileActBox>
           <ProfileIntroBox>
             {account?.name && <ProfileName>{account.name}</ProfileName>}
             {account?.description && (
@@ -151,7 +149,7 @@ const ProfileBox = styled.div`
   display: flex;
   align-items: center;
   gap: 30px;
-  height: 126px;
+  /* height: 126px; */
   position: relative;
 `;
 
@@ -182,16 +180,8 @@ const ProfileDetailBox = styled.div`
 
 const ProfileDetail = styled.div`
   display: flex;
-  align-items: flex-start;
+  justify-content: space-between;
   position: relative;
-`;
-
-const ProfileInfoBox = styled.div`
-  flex: 1;
-  /* padding-right: 20px; */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 `;
 
 const ProfileIntroBox = styled.div`
@@ -201,9 +191,12 @@ const ProfileIntroBox = styled.div`
 `;
 
 const ProfileDsName = styled.p`
-  font-size: 18px;
-  line-height: 34px;
+  font-size: 16px;
   font-weight: 500;
+  margin-right: 10px;
+  line-height: 24px;
+  word-wrap: break-word;
+  word-break: break-word;
 `;
 
 const ProfileName = styled.p`
@@ -215,7 +208,7 @@ const ProfileDesc = styled.p`
   white-space: pre-wrap;
   color: var(--third-color);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   overflow: hidden;
   word-break: break-all;
   padding-right: 20px;
@@ -275,14 +268,6 @@ const LogoutBtn = styled.button`
 `;
 
 const SetBtn = styled(LogoutBtn)``;
-
-const ActBtnBox = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: absolute;
-  right: 0;
-`;
 
 const FollowBtnBox = styled.div``;
 
@@ -353,8 +338,6 @@ const ProfileAct = styled.div`
 const ProfileBtnBox = styled.div`
   display: flex;
   align-items: center;
-  position: absolute;
-  right: 0;
   white-space: pre;
-  gap: 14px;
+  gap: 10px;
 `;
