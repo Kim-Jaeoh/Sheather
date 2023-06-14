@@ -1,22 +1,25 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import styled from "@emotion/styled";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import useCreateChat from "../../hooks/actions/useCreateChat";
 import useToggleFollow from "../../hooks/actions/useToggleFollow";
-import { FiLogOut, FiSettings } from "react-icons/fi";
-import { CurrentUserType, FollowerType, FollowingType } from "../../types/type";
+import { FiSettings } from "react-icons/fi";
+import {
+  CurrentUserType,
+  FollowListCategoryType,
+  FollowerType,
+  FollowingType,
+} from "../../types/type";
 import ProfileSettingModal from "../modal/profile/ProfileSettingModal";
 
 type Props = {
   myPost: number;
   account: CurrentUserType;
   onModalClick: () => void;
-  setFollowInfo: (value: FollowerType[] | FollowingType[]) => void;
-  setFollowCategory: (value: React.SetStateAction<string>) => void;
+  setFollowInfo: Dispatch<SetStateAction<FollowListCategoryType>>;
   onEditModalClick: () => void;
   onIsLogin: (callback: () => void) => void;
-  onLogOutClick: () => void;
 };
 
 const DeskProfileActInfo = ({
@@ -24,10 +27,8 @@ const DeskProfileActInfo = ({
   account,
   onModalClick,
   setFollowInfo,
-  setFollowCategory,
   onEditModalClick,
   onIsLogin,
-  onLogOutClick,
 }: Props) => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
@@ -40,14 +41,13 @@ const DeskProfileActInfo = ({
     onIsLogin(() => onCreateChatClick(res));
   };
 
-  const onClickFollow = (
+  const onClickFollowModal = (
     res: FollowerType[] | FollowingType[],
     type: string
   ) => {
     onIsLogin(() => {
       onModalClick();
-      setFollowInfo(res);
-      setFollowCategory(type);
+      setFollowInfo({ info: res, category: type });
     });
   };
 
@@ -87,9 +87,6 @@ const DeskProfileActInfo = ({
                 <SetBtn onClick={onSettingClick}>
                   <FiSettings />
                 </SetBtn>
-                <LogoutBtn onClick={onLogOutClick}>
-                  <FiLogOut />
-                </LogoutBtn>
               </ProfileBtnBox>
             ) : (
               <ProfileBtnBox>
@@ -118,14 +115,14 @@ const DeskProfileActInfo = ({
             </ProfileAct>
             <ProfileAct
               onClick={() => {
-                onClickFollow(account?.follower, "팔로워");
+                onClickFollowModal(account?.follower, "팔로워");
               }}
             >
               팔로워 <em>{account?.follower.length}</em>
             </ProfileAct>
             <ProfileAct
               onClick={() => {
-                onClickFollow(account?.following, "팔로잉");
+                onClickFollowModal(account?.following, "팔로잉");
               }}
             >
               팔로잉 <em>{account?.following.length}</em>
@@ -181,6 +178,7 @@ const ProfileDetailBox = styled.div`
 const ProfileDetail = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   position: relative;
 `;
 

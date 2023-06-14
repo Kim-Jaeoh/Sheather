@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
@@ -10,7 +10,9 @@ import { dbService } from "../../../fbase";
 import { useDispatch, useSelector } from "react-redux";
 import { currentUser } from "../../../app/user";
 import { RootState } from "../../../app/store";
-import { VscBell } from "react-icons/vsc";
+import { FiLogOut } from "react-icons/fi";
+import useUserAccount from "../../../hooks/useUserAccount";
+import { VscBell, VscBellSlash } from "react-icons/vsc";
 
 type Props = {
   modalOpen: boolean;
@@ -25,6 +27,7 @@ const ProfileSettingModal = (props: Props) => {
   const { myAccount } = useGetMyAccount();
   const { isMobile } = useMediaScreen();
   const dispatch = useDispatch();
+  const { onLogOutClick } = useUserAccount();
 
   const onToggleNotification = useCallback(async () => {
     // 알림 on
@@ -72,24 +75,39 @@ const ProfileSettingModal = (props: Props) => {
       <RangeBox isMobile={isMobile}>
         <Header>
           <p>설정</p>
-          <IconBox onClick={modalClose} style={{ marginLeft: "auto" }}>
+          <CloseIconBox onClick={modalClose} style={{ marginLeft: "auto" }}>
             <IoMdClose />
-          </IconBox>
+          </CloseIconBox>
         </Header>
 
         <Container>
-          <Icon>
-            <span>알림</span>
-          </Icon>
-          <SwitchBox>
-            <Switch
-              onClick={onToggleNotification}
+          <List>
+            <InfoName>
+              알림&nbsp;<span>({myAccount?.notification ? "on" : "off"})</span>
+            </InfoName>
+            <SwitchBox>
+              <Switch
+                onClick={onToggleNotification}
+                IsNotification={myAccount?.notification}
+              >
+                <SwitchCircle IsNotification={myAccount?.notification} />
+                <SwitchBar IsNotification={myAccount?.notification} />
+              </Switch>
+            </SwitchBox>
+            {/* <AlarmBtn
+              id="alarm"
               IsNotification={myAccount?.notification}
+              onClick={onToggleNotification}
             >
-              <SwitchCircle IsNotification={myAccount?.notification} />
-              <SwitchBar IsNotification={myAccount?.notification} />
-            </Switch>
-          </SwitchBox>
+              {!myAccount?.notification ? <VscBellSlash /> : <VscBell />}
+            </AlarmBtn> */}
+          </List>
+          <List>
+            <InfoName>로그아웃</InfoName>
+            <LogoutBtn id="logout" onClick={onLogOutClick}>
+              <FiLogOut />
+            </LogoutBtn>
+          </List>
         </Container>
       </RangeBox>
     </Modal>
@@ -143,7 +161,7 @@ const Header = styled.header`
   }
 `;
 
-const IconBox = styled.div`
+const CloseIconBox = styled.div`
   width: 48px;
   height: 48px;
   display: flex;
@@ -157,19 +175,31 @@ const IconBox = styled.div`
 `;
 
 const Container = styled.div`
-  padding: 20px;
-  height: 80px;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+
+  & > div:nth-of-type(1) {
+    border-bottom: 1px solid var(--fourth-color);
+  }
+`;
+
+const List = styled.div`
+  width: 100%;
+  height: 80px;
+  padding: 20px 24px;
+  display: flex;
   justify-content: space-between;
+  align-items: center;
   position: relative;
 `;
 
 const SwitchBox = styled.div`
   width: 46px;
   height: 24px;
-  position: absolute;
-  right: 20px;
+  /* position: absolute; */
+  /* right: 0px; */
 `;
 
 const Switch = styled.div<{ IsNotification: boolean }>`
@@ -226,19 +256,51 @@ const SwitchBar = styled.span<{ IsNotification: boolean }>`
     border-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 `;
 
-const Icon = styled.div`
+const InfoName = styled.div`
   position: relative;
   display: flex;
   align-items: center;
+  font-size: 16px;
+
+  span {
+    font-size: 14px;
+    color: var(--third-color);
+  }
+
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
+`;
+
+const LogoutBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-weight: bold;
+  border-radius: 50%;
   cursor: pointer;
+  transition: all 0.1s linear;
+  color: var(--third-color);
+  border: 1px solid var(--third-color);
 
   svg {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--third-color);
     width: 16px;
     height: 16px;
-    margin-right: 6px;
+  }
+
+  &:hover,
+  &:active {
+    border: 1px solid var(--profile-color);
+    background-color: var(--profile-color);
+    color: #fff;
+  }
+`;
+
+const AlarmBtn = styled(LogoutBtn)<{ IsNotification: boolean }>`
+  svg {
+    width: 20px;
+    height: 20px;
   }
 `;

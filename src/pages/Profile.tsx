@@ -18,7 +18,7 @@ import ProfilePost from "../components/profile/ProfilePost";
 import { dbService } from "../fbase";
 import useInfinityScroll from "../hooks/infinityScroll/useInfinityScroll";
 import useMediaScreen from "../hooks/useMediaScreen";
-import { FeedType } from "../types/type";
+import { FeedType, FollowListCategoryType } from "../types/type";
 import AuthFormModal from "../components/modal/auth/AuthFormModal";
 import useUserAccount from "../hooks/useUserAccount";
 import { Spinner } from "../assets/spinner/Spinner";
@@ -35,8 +35,10 @@ const Profile = () => {
   const [post, setPost] = useState(null);
   const [notInfoText, setNotInfoText] = useState("");
   const [account, setAccount] = useState(null);
-  const [followInfo, setFollowInfo] = useState(null);
-  const [followCategory, setFollowCategory] = useState("");
+  const [followInfo, setFollowInfo] = useState<FollowListCategoryType>({
+    info: null,
+    category: "",
+  });
   const [followModalOpen, setFollowModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const { id: userDpName, "*": type } = useParams();
@@ -50,8 +52,7 @@ const Profile = () => {
   });
   const { isMobile } = useMediaScreen();
   const { feedData } = useFeedQuery({ refetch: false });
-  const { isAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
+  const { isAuthModal, onAuthModal, onIsLogin } = useUserAccount();
   const navigate = useNavigate();
 
   // 게시글 숫자
@@ -80,8 +81,6 @@ const Profile = () => {
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        if (!doc.exists()) {
-        }
         setAccount(doc.data());
       });
     });
@@ -108,7 +107,6 @@ const Profile = () => {
       const postFilter = feedArray?.pages
         ?.flat()
         ?.filter((res) => res.email === account?.email);
-      // .sort((a, b) => b.createdAt - a.createdAt);
       return setPost(postFilter);
     }
 
@@ -148,6 +146,10 @@ const Profile = () => {
     }
   }, [myPost?.length, selectCategory]);
 
+  const isMine = useMemo(() => {
+    return userObj?.displayName === account?.displayName;
+  }, [account?.displayName, userObj?.displayName]);
+
   const onModalClick = () => {
     setFollowModalOpen((prev) => !prev);
   };
@@ -155,8 +157,6 @@ const Profile = () => {
   const onEditModalClick = () => {
     setEditModalOpen((prev) => !prev);
   };
-
-  const isMine = userObj?.displayName === account?.displayName;
 
   return (
     <>
@@ -175,11 +175,10 @@ const Profile = () => {
           modalOpen={followModalOpen}
           followInfo={followInfo}
           followLength={
-            followCategory === "팔로워"
+            followInfo.category === "팔로워"
               ? account?.follower.length
               : account?.following.length
           }
-          followCategory={followCategory}
           modalClose={onModalClick}
         />
       )}
@@ -193,10 +192,8 @@ const Profile = () => {
                   account={account}
                   onModalClick={onModalClick}
                   setFollowInfo={setFollowInfo}
-                  setFollowCategory={setFollowCategory}
                   onEditModalClick={onEditModalClick}
                   onIsLogin={onIsLogin}
-                  onLogOutClick={onLogOutClick}
                 />
               ) : (
                 <MobileProfileActInfo
@@ -204,10 +201,8 @@ const Profile = () => {
                   account={account}
                   onModalClick={onModalClick}
                   setFollowInfo={setFollowInfo}
-                  setFollowCategory={setFollowCategory}
                   onEditModalClick={onEditModalClick}
                   onIsLogin={onIsLogin}
-                  onLogOutClick={onLogOutClick}
                 />
               )}
 
@@ -237,7 +232,6 @@ const Profile = () => {
                       select={selectCategory}
                       num={2}
                       to={`bookmark`}
-                      state={account?.id}
                     >
                       <FaRegBookmark />
                       <CategoryText>북마크</CategoryText>

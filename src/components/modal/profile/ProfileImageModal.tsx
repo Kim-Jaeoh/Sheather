@@ -1,35 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { Modal } from "@mui/material";
 import { IoMdClose } from "react-icons/io";
 import useMediaScreen from "../../../hooks/useMediaScreen";
-import toast from "react-hot-toast";
-import useGetMyAccount from "../../../hooks/useGetMyAccount";
-import { updateDoc, doc } from "firebase/firestore";
-import { dbService } from "../../../fbase";
-import { useDispatch, useSelector } from "react-redux";
-import { currentUser } from "../../../app/user";
-import { RootState } from "../../../app/store";
-import { VscBell } from "react-icons/vsc";
 
 type Props = {
   modalOpen: boolean;
-  // isChangeImage: boolean;
   modalClose: () => void;
-  // changeImage: () => void;
   deleteImage: () => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
 };
 
 const ProfileImageModal = (props: Props) => {
-  const {
-    modalOpen,
-    // isChangeImage,
-    modalClose,
-    // changeImage,
-    deleteImage,
-    onFileChange,
-  } = props;
+  const { modalOpen, modalClose, deleteImage, onFileChange } = props;
   const { isMobile } = useMediaScreen();
   const [isChangeImage, setisChangeImage] = useState(false);
 
@@ -68,7 +51,7 @@ const ProfileImageModal = (props: Props) => {
               onChange={onFileChange}
             />
           )}
-          <Btn style={{ color: `#ff4141` }} onClick={deleteImage}>
+          <Btn style={{ color: `var(--feed-color)` }} onClick={deleteImage}>
             사진 삭제
           </Btn>
         </Container>
@@ -150,9 +133,9 @@ const ChangeLabel = styled.label`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 54px;
+  height: 60px;
   padding: 4px 8px;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   font-weight: bold;
   border-bottom: 1px solid var(--fourth-color);
@@ -163,9 +146,9 @@ const ChangeLabel = styled.label`
 
 const Btn = styled.button`
   width: 100%;
-  height: 50px;
+  height: 60px;
   padding: 4px 8px;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   font-weight: bold;
 

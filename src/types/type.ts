@@ -121,6 +121,11 @@ export interface FollowingType {
   time: number;
 }
 
+export interface FollowListCategoryType {
+  info: FollowerType[] | FollowingType[];
+  category: string;
+}
+
 // 피드
 export interface replyType {
   postId: string;

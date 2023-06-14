@@ -12,16 +12,15 @@ import { dbService } from "../../../fbase";
 import useToggleFollow from "../../../hooks/actions/useToggleFollow";
 import {
   CurrentUserType,
+  FollowListCategoryType,
   FollowerType,
   FollowingType,
 } from "../../../types/type";
-import React from "react";
 
 type Props = {
   accountName: string;
   modalOpen: boolean;
-  followCategory: string;
-  followInfo: FollowerType[] | FollowingType[];
+  followInfo: FollowListCategoryType;
   followLength: number;
   modalClose: () => void;
 };
@@ -30,7 +29,6 @@ const ProfileFollowModal = ({
   accountName,
   modalOpen,
   followInfo,
-  followCategory,
   followLength,
   modalClose,
 }: Props) => {
@@ -50,7 +48,7 @@ const ProfileFollowModal = ({
 
     const promiseList = async () => {
       const list = await Promise.all(
-        followInfo.map((res) => {
+        followInfo.info.map((res) => {
           return getList(res);
         })
       );
@@ -64,12 +62,14 @@ const ProfileFollowModal = ({
     toggleFollow(user);
   };
 
+  console.log(followInfo);
+
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
       <Container>
         <Header>
           <Category>
-            {followCategory === "팔로워" ? "팔로워" : "팔로잉"}
+            {followInfo.category === "팔로워" ? "팔로워" : "팔로잉"}
           </Category>
           <CloseBox onClick={modalClose}>
             <IoMdClose />
@@ -100,10 +100,7 @@ const ProfileFollowModal = ({
                         {res.name && <ProfileName>{res.name}</ProfileName>}
                       </ProfileInfoBox>
                       {res?.email !== userObj.email && (
-                        <FollowBtnBox
-                          // onClick={() => toggleFollow(res.displayName)}
-                          onClick={() => onFollowClick(res, index)}
-                        >
+                        <FollowBtnBox onClick={() => onFollowClick(res, index)}>
                           {userObj.following.filter((obj) =>
                             obj?.displayName?.includes(res?.displayName)
                           ).length !== 0 ? (
@@ -129,10 +126,10 @@ const ProfileFollowModal = ({
                   </Icon>
                 </IconBox>
                 <NotInfoCategory>
-                  {followCategory === "팔로워" ? "팔로워" : "팔로잉"}
+                  {followInfo.category === "팔로워" ? "팔로워" : "팔로잉"}
                 </NotInfoCategory>
                 <NotInfoText>
-                  {followCategory === "팔로워" ? (
+                  {followInfo.category === "팔로워" ? (
                     <>
                       <em>
                         {accountName !== userObj.displayName
