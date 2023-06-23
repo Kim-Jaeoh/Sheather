@@ -58,6 +58,7 @@ const useCreateChat = () => {
                   email: myAccount?.email,
                   id: document?.id,
                   isRead: false,
+                  sendAt: null,
                 },
               ],
             });

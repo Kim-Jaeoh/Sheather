@@ -200,7 +200,7 @@ const InfiniteChat = ({
         updateDoc(doc(dbService, "users", users?.email), {
           message: copy.map((res) => {
             if (myAccount?.displayName === res.user) {
-              return { ...res, isRead: false };
+              return { ...res, isRead: false, sendAt: +new Date() };
             } else {
               return res;
             }

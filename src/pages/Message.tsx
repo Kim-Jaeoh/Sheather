@@ -109,8 +109,9 @@ const Message = () => {
               </Category>
               {myAccount?.message?.length > 0 ? (
                 <ChatRoomBox>
-                  {myAccount?.message.map(
-                    (data: MessageReadType, index: number) => {
+                  {myAccount?.message
+                    .sort((a, b) => b?.sendAt - a?.sendAt)
+                    .map((data: MessageReadType, index: number) => {
                       return (
                         <ChatList
                           key={data.user}
@@ -118,8 +119,7 @@ const Message = () => {
                           onListClick={onListClick}
                         />
                       );
-                    }
-                  )}
+                    })}
                 </ChatRoomBox>
               ) : (
                 <>

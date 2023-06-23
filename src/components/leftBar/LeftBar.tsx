@@ -182,9 +182,7 @@ const LeftBar = ({ onIsLogin }: props) => {
             <MenuList>
               <BsChatDots />
               <MenuText>메세지</MenuText>
-              {myAccount?.message?.some((res: MessageType) => !res?.isRead) && (
-                <NoticeBox />
-              )}
+              {myAccount?.message?.some((res) => !res?.isRead) && <NoticeBox />}
             </MenuList>
           </MenuLink>
           {RightBarNone && !isMobile && (

@@ -110,7 +110,7 @@ const FollowCategoryList = () => {
                 <FollowCategoryListSkeleton />
               ) : (
                 <>
-                  {users?.slice(0, 10).map((res, index) => {
+                  {users?.slice(0, 10).map((res: CurrentUserType, index) => {
                     return (
                       <Card
                         isFeed={pathname.includes("feed")}
@@ -124,7 +124,11 @@ const FollowCategoryList = () => {
                           <ProfileImageBox>
                             <ProfileImage
                               onContextMenu={(e) => e.preventDefault()}
-                              src={res.profileURL}
+                              src={
+                                res.profileURL
+                                  ? res.profileURL
+                                  : res.defaultProfileUrl
+                              }
                               alt="profile image"
                             />
                           </ProfileImageBox>

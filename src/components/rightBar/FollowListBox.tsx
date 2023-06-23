@@ -93,13 +93,15 @@ const FollowListBox = ({ modalOpen, modalClose, onIsLogin }: Props) => {
         </CategoryBox>
         <UserListBox>
           {isLoading ? (
-            users.slice(0, 5).map((res, index) => (
+            users.slice(0, 5).map((res: CurrentUserType, index) => (
               <UserList key={res.email} onClick={onClick}>
                 <User to={`/profile/${res.displayName}/post`} state={res.email}>
                   <ProfileImageBox>
                     <ProfileImage
                       onContextMenu={(e) => e.preventDefault()}
-                      src={res.profileURL}
+                      src={
+                        res.profileURL ? res.profileURL : res.defaultProfileUrl
+                      }
                       alt="profile image"
                     />
                   </ProfileImageBox>

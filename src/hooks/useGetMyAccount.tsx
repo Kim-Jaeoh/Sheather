@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { onSnapshot, doc } from "firebase/firestore";
+import { onSnapshot, doc, DocumentData } from "firebase/firestore";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import { dbService } from "../fbase";
+import { CurrentUserType } from "../types/type";
 
 const useGetMyAccount = () => {
   const { isLoggedIn: userLogin, currentUser: userObj } = useSelector(
@@ -10,7 +11,7 @@ const useGetMyAccount = () => {
       return state.user;
     }
   );
-  const [myAccount, setMyAccount] = useState(null);
+  const [myAccount, setMyAccount] = useState<CurrentUserType>(null);
 
   // 본인 계정 정보 가져오기
   useEffect(() => {
@@ -18,7 +19,7 @@ const useGetMyAccount = () => {
       const unsubscribe = onSnapshot(
         doc(dbService, "users", userObj.email),
         (doc) => {
-          setMyAccount(doc.data());
+          setMyAccount(doc.data() as CurrentUserType);
         }
       );
 

@@ -224,6 +224,7 @@ export interface MessageReadType {
   user: string;
   email: string;
   isRead: boolean;
+  sendAt?: number;
 }
 
 // 알림
