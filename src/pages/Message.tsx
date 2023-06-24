@@ -19,7 +19,7 @@ import InfiniteChat from "../components/message/InfiniteChat";
 
 const Message = () => {
   const [addUserModal, setAddUserMOdal] = useState(false);
-  const [users, setUsers] = useState(null);
+  const [users, setUsers] = useState<CurrentUserType>(null);
   const [messageCollection, setMessageCollection] = useState(null);
   const [clickInfo, setClickInfo] = useState(null);
   const { pathname, state: userInfo } = useLocation();
@@ -41,7 +41,7 @@ const Message = () => {
       const unsubscribe = onSnapshot(
         doc(dbService, "users", userInfo ? userInfo : clickInfo),
         (doc) => {
-          setUsers(doc.data());
+          setUsers(doc.data() as CurrentUserType);
         }
       );
 

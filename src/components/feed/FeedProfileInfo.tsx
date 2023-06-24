@@ -6,7 +6,7 @@ import useToggleBookmark from "../../hooks/actions/useToggleBookmark";
 import useMediaScreen from "../../hooks/useMediaScreen";
 import { onSnapshot, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
-import { FeedType } from "../../types/type";
+import { CurrentUserType, FeedType } from "../../types/type";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -22,7 +22,7 @@ const FeedProfileInfo = ({ feed }: Props) => {
       return state.user;
     }
   );
-  const [account, setAccount] = useState(null);
+  const [account, setAccount] = useState<CurrentUserType>(null);
   const { toggleBookmark } = useToggleBookmark(); // 북마크 커스텀 훅
   const { toggleLike } = useToggleLike({ user: account }); // 좋아요 커스텀 훅
   const { isMobile } = useMediaScreen();
@@ -30,7 +30,7 @@ const FeedProfileInfo = ({ feed }: Props) => {
   // 계정 정보 가져오기
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(dbService, "users", feed.email), (doc) =>
-      setAccount(doc.data())
+      setAccount(doc.data() as CurrentUserType)
     );
     return () => {
       unsubscribe();
@@ -44,7 +44,14 @@ const FeedProfileInfo = ({ feed }: Props) => {
         onContextMenu={(e) => e.preventDefault()}
       >
         {account ? (
-          <UserImage src={account?.profileURL} alt="" />
+          <UserImage
+            src={
+              account?.profileURL
+                ? account?.profileURL
+                : account?.defaultProfileUrl
+            }
+            alt=""
+          />
         ) : (
           <Skeleton
             variant="rounded"

@@ -96,13 +96,12 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
                 ?.sort((a, b) => b?.time - a?.time)
                 .map((res, index) => {
                   let stateText = `${noticeText[res?.type]} ${res?.text ?? ""}`;
-
                   let replyDpName;
+
                   const match = stateText?.match(/@\w+/);
                   if (match) {
                     replyDpName = match;
                   }
-
                   return (
                     <UserList key={index}>
                       <ListInfo>
@@ -125,7 +124,6 @@ const NoticeModal = ({ modalOpen, modalClose }: Props) => {
                               {res?.displayName}
                             </ProfileDsName>
                             <NoticeText onClick={() => onClick(res)}>
-                              {/* {stateText} */}
                               {replyDpName ? (
                                 <>
                                   {`${stateText.split(":")[0]}: `}

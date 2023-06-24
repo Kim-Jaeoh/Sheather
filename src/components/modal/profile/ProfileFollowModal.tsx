@@ -35,7 +35,7 @@ const ProfileFollowModal = ({
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
-  const [account, setAccount] = useState([]);
+  const [account, setAccount] = useState<CurrentUserType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toggleFollow } = useToggleFollow();
 
@@ -52,7 +52,7 @@ const ProfileFollowModal = ({
           return getList(res);
         })
       );
-      setAccount(list);
+      setAccount(list as CurrentUserType[]);
     };
 
     promiseList().then(() => setIsLoading(true));
@@ -61,8 +61,6 @@ const ProfileFollowModal = ({
   const onFollowClick = (user: CurrentUserType, index: number) => {
     toggleFollow(user);
   };
-
-  console.log(followInfo);
 
   return (
     <Modal open={modalOpen} onClose={modalClose} disableScrollLock={true}>
@@ -88,7 +86,11 @@ const ProfileFollowModal = ({
                       >
                         <ProfileImage
                           onContextMenu={(e) => e.preventDefault()}
-                          src={res.profileURL}
+                          src={
+                            res.profileURL
+                              ? res.profileURL
+                              : res.defaultProfileUrl
+                          }
                           alt="profile image"
                         />
                       </ProfileImageBox>

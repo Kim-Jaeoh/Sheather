@@ -11,7 +11,7 @@ import useRegionQuery from "../../hooks/useQuery/useRegionQuery";
 import useWeatherQuery from "../../hooks/useQuery/useWeatherQuery";
 import useCurrentLocation from "../../hooks/useCurrentLocation";
 import { BiErrorCircle } from "react-icons/bi";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const MobileFeedWeatherInfo = () => {
   const { location } = useCurrentLocation();
@@ -52,41 +52,41 @@ const MobileFeedWeatherInfo = () => {
                               onSetUrl(
                                 "region",
                                 "region",
-                                region?.region_1depth_name
+                                region.region_1depth_name
                               )
                             }
                           >
                             <MdPlace />
-                            {region?.region_1depth_name}{" "}
-                            {region?.region_3depth_name}
+                            {region.region_1depth_name}{" "}
+                            {region.region_3depth_name}
                           </CategoryTag>
                           <CategoryTag
                             onClick={() =>
                               onSetUrl(
                                 "weather",
                                 "weather",
-                                weatherData?.data?.weather[0].description
+                                weatherData.data.weather[0].description
                               )
                             }
                           >
                             <WeatherIcon>
                               <img
-                                src={`/image/weather/${weatherData?.data?.weather[0].icon}.png`}
+                                src={`/image/weather/${weatherData.data.weather[0].icon}.png`}
                                 alt="weather icon"
                               />
                             </WeatherIcon>
-                            {weatherData?.data?.weather[0].description}
+                            {weatherData.data.weather[0].description}
                           </CategoryTag>
                           <CategoryTag
                             onClick={() =>
                               onSetUrl(
                                 "weather",
                                 "temp",
-                                Math.round(weatherData?.data?.main.temp)
+                                Math.round(weatherData.data.main.temp)
                               )
                             }
                           >
-                            {Math.round(weatherData?.data?.main.temp)}
+                            {Math.round(weatherData.data.main.temp)}
                             <sup>º</sup>
                           </CategoryTag>
                           <CategoryTag
@@ -94,17 +94,17 @@ const MobileFeedWeatherInfo = () => {
                               onSetUrl(
                                 "weather",
                                 "wind",
-                                Math.round(weatherData?.data?.wind.speed)
+                                Math.round(weatherData.data.wind.speed)
                               )
                             }
                           >
-                            {Math.round(weatherData?.data?.wind.speed)}
+                            {Math.round(weatherData.data.wind.speed)}
                             <span>m/s</span>
                           </CategoryTag>
                           <WearInfoMain style={{ marginLeft: `4px` }}>
                             <IoShirtOutline />
                           </WearInfoMain>
-                          {filterTempClothes[0]?.clothes?.map(
+                          {filterTempClothes[0].clothes.map(
                             (clothes, index) => {
                               const select = Object.entries(
                                 clothesCategory

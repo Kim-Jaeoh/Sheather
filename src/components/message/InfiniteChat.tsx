@@ -388,7 +388,11 @@ const InfiniteChat = ({
                   <ProfileImageBox to={`/profile/${users?.displayName}/post`}>
                     <ProfileImage
                       onContextMenu={(e) => e.preventDefault()}
-                      src={users?.profileURL}
+                      src={
+                        users?.profileURL
+                          ? users?.profileURL
+                          : users?.defaultProfileUrl
+                      }
                       alt="profile image"
                     />
                   </ProfileImageBox>
@@ -445,7 +449,11 @@ const InfiniteChat = ({
                                           onContextMenu={(e) =>
                                             e.preventDefault()
                                           }
-                                          src={users?.profileURL}
+                                          src={
+                                            users?.profileURL
+                                              ? users?.profileURL
+                                              : users?.defaultProfileUrl
+                                          }
                                           alt="profile image"
                                         />
                                       </ProfileImageBox>

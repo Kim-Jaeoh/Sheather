@@ -106,6 +106,17 @@ const useToggleLike = ({ user }: props) => {
           filter[0].like = res.like;
         });
 
+        // 알림 보내기
+        if (getToken && user?.displayName !== userObj.displayName) {
+          throttle(() => {
+            sendActions(
+              `like`,
+              null,
+              `${process.env.REACT_APP_PUBLIC_URL}/feed/detail/${res.id}`
+            );
+          }, 5000);
+        }
+
         return { previousResponse };
       },
       onError: (err, res, context) => {
@@ -151,17 +162,6 @@ const useToggleLike = ({ user }: props) => {
           like: [...likeCopy, feed?.id],
         })
       );
-
-      // 알림 보내기
-      if (getToken && user?.displayName !== userObj.displayName) {
-        throttle(() => {
-          sendActions(
-            `like`,
-            null,
-            `${process.env.REACT_APP_PUBLIC_URL}/feed/detail/${feed?.id}`
-          );
-        }, 5000);
-      }
     } else {
       mutate({
         id: feed?.id,

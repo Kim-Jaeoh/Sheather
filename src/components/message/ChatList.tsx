@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { MessageReadType } from "../../types/type";
+import { CurrentUserType, MessageReadType } from "../../types/type";
 import { onSnapshot, doc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import { dbService } from "../../fbase";
@@ -10,14 +10,14 @@ type Props = {
 };
 
 const ChatList = ({ data, onListClick }: Props) => {
-  const [users, setUsers] = useState(null);
+  const [users, setUsers] = useState<CurrentUserType>(null);
 
   useEffect(() => {
     if (!data) return;
     const unsubscribe = onSnapshot(
       doc(dbService, "users", data?.email),
       (doc) => {
-        setUsers(doc.data());
+        setUsers(doc.data() as CurrentUserType);
       }
     );
     return () => {
@@ -32,7 +32,9 @@ const ChatList = ({ data, onListClick }: Props) => {
           <ProfileImageBox>
             <ProfileImage
               onContextMenu={(e) => e.preventDefault()}
-              src={users?.profileURL}
+              src={
+                users?.profileURL ? users?.profileURL : users?.defaultProfileUrl
+              }
               alt="profile image"
             />
           </ProfileImageBox>

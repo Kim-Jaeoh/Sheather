@@ -236,6 +236,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
         });
       }
     } catch (error: any) {
+      setIsLoading(false);
       const errorKey = Object.keys(errorMessages).find((key) =>
         error.message.includes(key)
       );
@@ -244,7 +245,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
         alert(
           `웹 알림이 지원되지 않는 환경이므로 알림을 받을 수 없습니다. 알림을 받으시려면,\n'ios: safari - 공유 - 홈 화면에 추가' 후 로그인을 해주세요.`
         );
-        setIsLoading(false);
         modalClose();
         return window.location.reload();
       }
