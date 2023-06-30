@@ -36,7 +36,7 @@ const MobileFeedWeatherInfo = () => {
     <Container>
       {!location?.error?.message ? (
         <>
-          {!isRegionLoading ? (
+          {!isRegionLoading && weatherData?.data ? (
             <WearDetailBox>
               <WearDetail>
                 <WearInfoBox>
