@@ -12,8 +12,7 @@ const Home = () => {
   const { currentUser: userObj } = useSelector((state: RootState) => {
     return state.user;
   });
-  const { isAuthModal, onAuthModal, onIsLogin, onLogOutClick } =
-    useUserAccount();
+  const { isAuthModal, onAuthModal, onIsLogin } = useUserAccount();
 
   // 팔로잉 목록 담기
   const followArr = useMemo(() => {

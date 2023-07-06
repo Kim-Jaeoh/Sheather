@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { BsArrowUp } from "react-icons/bs";
 import useMediaScreen from "../../hooks/useMediaScreen";
+import { throttle } from "lodash";
 
 type Props = {
   bgColor: string;
@@ -12,23 +13,23 @@ const TopButton = ({ bgColor }: Props) => {
   const [topBtnStatus, setTopBtnStatus] = useState(false); // 버튼 상태
   const { isMobile } = useMediaScreen();
 
+  const handleFollow = throttle(() => {
+    if (window.scrollY > 1600) {
+      setTopBtnStatus(true);
+    } else {
+      setTopBtnStatus(false);
+    }
+    setScrollY(window.scrollY);
+  }, 1000);
+
   // 위로 가기
   useEffect(() => {
-    const handleFollow = () => {
-      if (window.pageYOffset > 1600) {
-        setTopBtnStatus(true);
-      } else {
-        setTopBtnStatus(false);
-      }
-      setScrollY(window.pageYOffset);
-    };
-
     window.addEventListener("scroll", handleFollow);
 
     return () => {
       window.removeEventListener("scroll", handleFollow);
     };
-  }, [scrollY]);
+  }, []);
 
   const handleTop = () => {
     window.scrollTo({

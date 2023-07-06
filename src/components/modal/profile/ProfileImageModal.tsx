@@ -135,26 +135,19 @@ const ChangeLabel = styled.label`
   width: 100%;
   height: 60px;
   padding: 4px 8px;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   font-weight: bold;
   border-bottom: 1px solid var(--fourth-color);
-  @media (max-width: 767px) {
-    font-size: 14px;
-  }
 `;
 
 const Btn = styled.button`
   width: 100%;
   height: 60px;
   padding: 4px 8px;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   font-weight: bold;
-
-  @media (max-width: 767px) {
-    font-size: 14px;
-  }
 `;
 
 const InputImage = styled.input`
