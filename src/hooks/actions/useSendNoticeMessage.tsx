@@ -39,12 +39,6 @@ const useSendNoticeMessage = (
       return () => {
         unsubscribe();
       };
-
-      // const querySnapshot = async () => {
-      //   const getdoc = await getDoc(doc(dbService, "users", users?.email));
-      //   setUserNotification(getdoc?.data()?.notification);
-      // };
-      // querySnapshot();
     }
   }, [users?.email]);
 

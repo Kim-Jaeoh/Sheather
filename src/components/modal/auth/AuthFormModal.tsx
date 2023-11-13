@@ -41,11 +41,6 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
     dpName: true,
     password: true,
   });
-  // const [select, setSelect] = useState({
-  //   email: false,
-  //   password: false,
-  //   dpName: false,
-  // });
   const [isExistAccount, setIsExistAccount] = useState(true);
   const [isDuplication, setIsDuplication] = useState({
     email: false,
@@ -315,16 +310,9 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                         type="email"
                         ref={emailRef}
                         placeholder="이메일 주소"
-                        // required
                         value={inputs.email}
                         onChange={onChange}
                         autoComplete="off"
-                        // onFocus={() =>
-                        //   setSelect((prev) => ({ ...prev, email: false }))
-                        // }
-                        // onBlur={() =>
-                        //   setSelect((prev) => ({ ...prev, email: true }))
-                        // }
                       />
                       {inputs.email !== "" && (
                         <InputCheckBox
@@ -345,16 +333,9 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                           name="dpName"
                           type="dpName"
                           placeholder="사용자 이름"
-                          // required
                           value={inputs.dpName}
                           onChange={onChange}
                           autoComplete="off"
-                          // onFocus={() =>
-                          //   setSelect((prev) => ({ ...prev, dpName: false }))
-                          // }
-                          // onBlur={() =>
-                          //   setSelect((prev) => ({ ...prev, dpName: true }))
-                          // }
                         />
                         {inputs.dpName !== "" && (
                           <InputCheckBox
@@ -375,17 +356,10 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                         name="password"
                         type="password"
                         placeholder="비밀번호"
-                        // required
                         value={inputs.password}
                         onChange={onChange}
                         autoComplete="off"
                         autoCapitalize="off"
-                        // onFocus={() =>
-                        //   setSelect((prev) => ({ ...prev, password: false }))
-                        // }
-                        // onBlur={() =>
-                        //   setSelect((prev) => ({ ...prev, password: true }))
-                        // }
                       />
                       {inputs.password !== "" && (
                         <InputCheckBox check={checkMessage.password}>
@@ -419,13 +393,7 @@ const AuthFormModal = ({ modalOpen, modalClose }: Props) => {
                         {isExistAccount ? "로그인" : "회원가입"}
                       </SignBtn>
                     </SignBtnBox>
-                    {/* {(!checkMessage.email ||
-                    !checkMessage.password ||
-                    !checkMessage.dpName) &&
-                    (inputs.email !== "" ||
-                      inputs.dpName !== "" ||
-                      inputs.password !== "") &&
-                    error !== "" && <ErrorText>{error}</ErrorText>} */}
+
                     {error !== "" && <ErrorText>{error}</ErrorText>}
                   </Form>
                   <SignInfo>

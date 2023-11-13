@@ -205,8 +205,8 @@ section {
   display: block;
 }
 body {
-  min-height: -webkit-fill-available;
   color: var(--second-color);
+  min-height: -webkit-fill-available;
 }
 
 /* html,
