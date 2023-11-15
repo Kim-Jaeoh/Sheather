@@ -56,7 +56,7 @@ const DetailFeedInfo = ({ feed, user }: Props) => {
               <IconBox>
                 <Icon onClick={() => toggleLike(feed)}>
                   {feed.like.some(
-                    (res) => res.displayName === feed.displayName
+                    (res) => res.displayName === userObj.displayName
                   ) ? (
                     <FaHeart style={{ color: `#ff5673` }} />
                   ) : (
